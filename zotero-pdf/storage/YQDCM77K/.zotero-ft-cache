@@ -1,0 +1,1527 @@
+第 21 卷 第 2 期 2021 年 4 月
+
+交通运输系统工程与信息 Journal of Transportation Systems Engineering and Information Technology
+
+文章编号 ：1009-6744(2021)02-0180-09 DOI:10.16097/j.cnki.1009-6744.2021.02.026
+
+中图分类号 ：U292.3
+
+Vol.21 No.2 April 2021
+文 献 标 志 码：A
+
+考虑空车调配协调的货物列车开行方案优化研究
+刘晓伟 ，晏启鹏 1a,1b,1c 1a, 2，倪少权*1a,1b,1c，吕苗苗 ，吕红霞 1a,1b,1c 1a,1b,1c
+(1. 西南交通大学，a. 交通运输与物流学院，b. 综合交通运输智能化国家地方联合工程实验室， c. 综合交通大数据应用技术国家工程实验室，成都 610031；2. 四川旅游学院，成都 610100)
+摘要：为实现空车调配与货物列车开行方案协调优化，结合基本运行图架构与车流径路，构建货 运时空服务拓展网络。考虑配空与装卸取送、集编发等环节的时间接续要求，节点与区段不对流 空车要求，以重车流全程运送与空车配送等广义总费用最少为目标，建立整数规划弧路模型。针 对既有算法设计局限性，结合重车或空车配空的时间接续要求，提出将不同的 k 短路重车流方案 与空车配空方案相关联的改进可行解构造方法，设计混合差分进化求解算法。实例研究表明，考 虑空车调配进行重车、空车流组织协调优化，能够减少空车走行费用，及时满足装车需求，有效保 证作业车流配合中转车流集结编组及时挂线，提高方案可实施性。
+关键词：铁路运输；列车开行方案；差分进化算法；空车调配；时空网络
+Railway Freight Transportation Service Network Design Problem with Empty Car Distribution
+LIU Xiao-wei1a,1b,1c, YAN Qi-peng1a, 2, NI Shao-quan*1a,1b,1c, LV Miao-miao1a,1b,1c, LV Hong-xia1a,1b,1c
+(1a. School of Transportation and Logistics, 1b. National and Local Joint Engineering Laboratory of Comprehensive Intelligent Transportation, 1c. National Engineering Laboratory of Integrated Transportation Big Data Application Technology, Southwest Jiaotong University, Chengdu 610031, China; 2. Sichuan Tourism University, Chengdu 610100, China)
+Abstract: This paper addresses a dynamic service network design problem for freight transportation on Chinese railway networks with single- block train services. To improve the efficient utilization of rolling- stock, a multicommodity flow model with path- based variables is proposed to integrate car- to- block assignment, train scheduling, freight routing and empty car redistribution, considering the unitary rule and in tree rule of loaded car, the limits of empty car flow. A space- time network is constructed with the basic train diagram and wagon- flow routing. A hybrid differential evolution algorithm is used to solve the model. An initial feasible solution is constructed by k - shortest path, greedy and annealing strategies. A practical case is presented to prove the validity of the model and algorithm.
+Keywords: railway transportation; train operation plan; differential evolution algorithm; empty car distribution; spacetime network
+
+0 引言
+目前，国内铁路货运组织方法，存在一定的局 限性，即列车编组计划与运行图等基本计划编制是 以计划车流为基础，而计划车流无法反映基于货运 营销与动态需求确定的日常动态车流，使得在日常
+
+调度中按基本计划要求为日常车流分段规划的运 送方案尚需优化，加之运送方案规划未考虑运到期 限要求，受动态车流及列车满轴开行要求影响兑现 困难，导致车流挂线不确定，规划方案难以适应货 主动态需求和运到期限要求。因此，文献[1]借鉴客
+
+收稿日期：2020-05-26
+
+修回日期：2021-01-21
+
+录用日期：2021-01-22
+
+基金项目：国家重点研发计划/National Key Research and Development Program of China (2017YFB1200702)；国家自然科学基
+
+金/ National Natural Science Foundation of China(52072314)；四川省科技计划项目/ Sichuan Science and Technology Program
+
+(2020YFH0035)。
+
+作者简介：刘晓伟(1981- )，男，湖北南漳人，博士生。
+
+*通信作者：nishaoquan@126.com
+
+第 21 卷 第 2 期
+
+考虑空车调配协调的货物列车开行方案优化研究
+
+181
+
+运组织理念提出动态规划型运输组织思想，即依据 关联，改进文献[4]的可行解构造方法，设计混合差
+
+基本计划与货运营销，基于近期(周、日)动态车流与 分进化求解算法。
+
+运到期限要求，调整编组方案与安排运行线等资 源，制定车流全程运送方案，滚动编制货物列车开 行方案、列车运行计划、机车车辆运用计划等动态 运输计划，作为日常调度依据，实现按图行车。加 拿大等国外铁路以分组列车形式为主的规划型运 输组织方法[2]，不完全适应国内以单组列车形式为 主的运营特点。
+货物列车开行方案是基于动态车流进行编组 计划调整与列车运行方案综合优化，确定列车径路 与编组内容、开行频率及时段，为后续安排运行线 确定列车运行计划提供依据，属于动态服务网络设 计问题[3]；列车运行方案是在基本运行图架构[4]中为 列车挑选合适区段线。实际中，空车调配及时与否 直接影响货物装卸取送作业、车流开始集结时段及 列车集结过程，其合理性也将影响货物列车开行方 案优劣，要求两者协调优化。
+既有研究主要集中于空车调配、列车开行方案 优化问题，较少涉及两者综合优化研究。国内学者 基于多阶段[5]、多时点[6]优化策略，国外学者考虑市 场动态需求[7-8]、基于列车时刻表[9-10]研究空车调配 问题。关于列车开行方案的研究成果，可参考文 献 [4]分析 ，其考虑车流改编方案唯一性与树形改 编要求、运到期限等约束，优化列车开行方案，但未 考虑空车调配协调问题。两者综合优化研究较少， HAGHANI[11]以美国铁路为例，研究列车径路、编组 计划与空车分布的综合优化；ANDERSEN 等[12]以 欧盟铁路为例，考虑多类型车辆周转的货运服务网 络设计问题，但国外铁路较少考虑车流不可拆分与 树形改编要求。文献[13]针对国内铁路，考虑车辆 周转设计铁路动态服务网络，未考虑车流树形改编 要求、车站能力限制以及节点与区段不对流空车约
+
+1 基于时空网络的重车、空车流动态组织
+
+过程分析
+
+为分析空车调配对动态车流组织过程的影响，
+
+根据文献[6]配空与装运关系描述，拓展文献[4]中
+
+基于离散时空网络方法构建的货运时空服务网络，
+
+结合基本运行图架构与车流径路，确定网络结构，
+
+引入货场时空节点，重车装取与送卸弧及空车取送
+
+弧，刻画配空与装卸取送、集编发的时间接续关系，
+
+分析各重车、空车流在网络中寻路过程，将车流按
+
+一定规则分配到合理时空服务弧上，确定重车流时
+
+空服务径路与空车配送方案，新增集合和参数如
+
+表 1 所示，重车、空车动态组织过程如图 1 所示。
+
+图 1 中，i1,i2,⋯,i8,i9 为不同时空节点，假定装 卸车、取送车等四项作业时长均为 1 个时段，可依
+
+据实际情况调整；假设长途车流 dS1S4 在 S3 站改编，
+
+当空车充足，其与短途车流
+
+d 、d S1S3
+
+S3S4
+
+分别选择第
+
+2, 2, 6 时 段 开 始 集 结 ，dS3S4 车 流 时 空 运 送 方 案 为
+
+{ } d S3S4
+
+i1, i2, i3, i4, i5
+
+；当
+
+S3
+
+站
+
+空
+
+车
+
+不
+
+足
+
+，d
+
+ S3S4
+
+装车将受
+
+影响，一方面，选择开行空车直达列车 ES2S3 为 S3 站
+
+提供空车，则各车流方案不变，空车调配费用随之
+
+增加；另一方面，利用到站车流 dS1S3 完成卸车，进行 重车配空，dS3S4 将在第 9 时段开始集结，dS1S4 方案变
+{ } 为 dS1S4 i1, i2, i3, i4, i8, i9 ，车 流 集 结 等 待 费 用 随 之 增
+加。显然，考虑空车调配协调，决策配空方案，对作
+
+业车流配合中转车流集结编组及时挂线产生重要
+
+影响。
+
+2 模型构建
+2.1 模型假设
+
+束。本文以单组列车形式为主，考虑空车调配协调
+
+(1) 快运、装车地直达列车编组方案和运行线
+
+研究货物列车开行方案优化问题；以文献[4]为基 安排已确定，空车直达列车方案未知，主要研究空
+
+础，在目标中考虑空车配送费用，结合配空与装卸 车直达列车、技术直达列车和相邻编组站间的列车
+
+取送、集编发的时间接续要求、节点与区段不对流 编组方案与运行线安排综合优化。
+
+空车要求，进行重空车流组织优化。
+
+(2) 车流 OD 量、运到期限要求、车流径路已知；
+
+为避免引入空车调配因素导致车流组织方案 车流起运时段未知，即开始集结时段未知，需根据
+
+数量激增和求解复杂度增加的问题，基于车流时空 重车、空车流组织和时间窗要求进行决策。
+
+服务径路构建弧路模型；借鉴文献[14]中 k 短路算
+
+(3) 基本运行图架构已确定，按时段描述区段
+
+法快速搜索重车、空车流时空服务径路可行集，减 通过能力；根据实际数据，采用单元时段换算，近似
+
+小问题规模。结合重车或空车配空的时间接续要 描述各弧时长。
+
+求，将不同的 k 短路重车流方案与空车配空方案相
+
+(4) 实际中车流不允许拆分且需满足改编方案
+
+182
+
+交通运输系统工程与信息
+
+唯一性，可以假定车流需要满足时空服务径路唯一 假定车站装卸取送作业能力充足。
+
+性要求。另外，不考虑空车车种和重空混编方式，
+
+2021 年 4 月
+
+表 1 时空网络与车流的集合与参数 Table 1 Sets and parameters of space-time service network and wagon-flow
+
+时空网络与车流
+
+相关集合与参数
+
+货物时空 服务网络
+GS,T = {NT, AT}
+
+根 据 文 献 [4] 定 义 ，货 运 物 理 网 络 为 G = {S,V} 、货 运 服 务 网 络 为 GS = {N,A} ，其 中
+
+s ∈ S、v ∈ V、n ∈ N、a ∈ A 分别表示技术站、站间区段、服务节点、服务弧；以此为基础，结
+
+合各站对应的时空节点 IN 和 OUT 点，引入货运时空节点 FS ，构建新的货运时空服务网
+
+络 GS,T = {NT,AT} ，其中，nt ∈ NT 为时段 t ∈ T 内时空节点；at ∈ AT 为时段 t ∈ T 内以 nt 为起
+
+点的时空服务弧，起点、终点分别为
+
+nat,
+
+、n +
+
+at,
+
+-
+
+AT, AT(n) NT (n)
+AC(n), Tn,ct ,
+C , c,n,t Rn,t, γn
+( ) AW n , Cw,n,t ( ) AWA n , C , wa,n,t βn
+L , L′ n,t n,t AR, mat m , E,at m, mE AR(a), Ta
+
+AT 包括文献[4]的到达列车等待改编弧集 AW ，出发列车的车流在站停留弧集 AWA ，列车 改编作业弧集 AC ，列车运行时空弧集 AR ，还包括车流装取弧集 ALP 与送卸弧集 AUD ，空 车取、送弧集 APE, ADE ，后 4 类弧长为相应装卸取送作业时间，各类弧长与能力均以 Tat,Cat
+表示；AT(n) 包含 n ∈ N 对应的 AC(n), AW(n), AWA(n), ALP(n), AUD(n), APE(n), A (DE n) ；NT(n) 包 含 n ∈ N 映射的 NT,IN(n), ( ) N n T,OUT 及货场点集 NT,FS(n)
+
+at ∈ AC(n) 的 Tat 与 Cat 为 车 站 n 改 编 作 业 时 间 Tn,ct 与 时 段 t 内 改 编 作 业 能 力 Cc,n,t
+( ) 车·时段 -1 ，令 Rn,t 为时段 t 内 n 站能承受的最大改编车数(车 · h-1)，即改编弧 at ∈ AC(n)
+
+的能力；γn 为改编能力利用系数，有 Cc,n,t = γn Rn,t
+
+( ) at ∈ AW(n) 与 at ∈ AWA(n) 的 Tat 皆为单元时长，前者 Cw,n,t 车·时段 -1 根据时段 t 内车站 n 的
+
+( ) 到发线数量
+
+L′ n, t
+
+(条 · h-1)与列车到达情况确定；后者
+
+C wa, n, t
+
+车·时段 -1
+
+根据 t 内 n 站的分类
+
+线数量 Ln,t (条 · h-1)与列车出发情况确定；βn 为单条分类线存车能力
+
+at ∈ AR 的 Tat 为该弧的列车运行时间，Cat 分为单位列车最大编组重车辆数 mat 或空车辆数
+
+( ) mE,at 车·列 -1 ，令 mat = m, mE,at = mE ；at ∈ AR(a) 指 a ∈ A 对 应 的 时 空 运 行 弧 集 ，有
+
+( ) ( ) n ∈ N n , n ∈ N n at,+
+
+T,OUT a, +
+
+at , -
+
+T,IN a, -
+
+；Ta 为 a 上列车运行时长
+
+Y , T , ES,t,n n,la T , T , T n,ul n,pc n,de
+
+YES,t,n 为 时 段 t 内 n 站 货 场 的 空 车 存 量 ，初 始 时 段 t0 空 车 存 量 YES,t0,n 已 知 ， T , n,la T , n,ul T , n,pc Tn,de 分别为 n 站的装车、卸车、取车、送车作业时间(h)
+
+车流 d ∈ D
+
+Pd, P ,ds
+
+P ,dv
+
+P′ at
+
+cp, θ, FPdv
+
+[ ] 车流量为
+
+Qd
+
+，起点、终点分别为
+
+n 、n d,+
+
+d, -
+
+，开始集结时间窗为
+
+td,
+
+t′ d
+
+，td 为最早开始集结
+
+时段；t′d 为最晚到达时段，车流径路 pˉ∗d 是由 a ∈ pˉ∗d 和 n ∈ Npˉ∗d 构成
+
+Pd 为 车 流 d 时 空 服 务 径 路 集 ，p ∈ Pds ⊂ Pd 为 d 全 程 运 送 时 空 服 务 径 路 ，由
+
+at ∈ ALP ⋃ AUD ⋃ AW ⋃ AWA ⋃ AC ⋃ AR 组成；p ∈ Pdv ⊂ Pd 为虚拟时空服务径路，指无法为 d 提
+
+供合适运输服务
+
+；P
+
+′ at
+
+表示包含
+
+at
+
+的车流时空服务径路集
+
+∑∑ cp 为车流时空径路费用，当车流 d 选择 p ∈ Pds ⊂ Pd 时，cp = θQd
+
+Tat ，由所含的 at ∈ AT
+
+t ∈ T at ∈ p
+
+确定，包含车流改编与走行费用、到后待解与编后待发的延迟费用、装卸取送费用，θ 为
+
+单位车小时与人民币转换系数；当 d 选择 p ∈ Pdv ⊂ Pd 时，cp = QdFPdv 为惩罚费用，FPdv 为虚
+拟径路上单位车流量的惩罚成本 (元·车-1)
+
+2.2 决策变量与中间变量
+
+xp ∈ {0,1} 为重车流 d ∈ D 是否选择时空服务径
+
+路 p ∈ Pd 运送；xd,a ∈ {0,1} 为车流 d 是否选择列车
+
+运行弧 a ；xE,i,j ∈ {0,1} 为节点 i, j ∈ N 之间是否开行
+
+空车直达列车；yE,at 为选择时段 t 内时空弧 at 的空
+
+车流量；fat
+
+∈
+
+Z
+
+,+
+0
+
+f E, at
+
+∈
+
+Z+ 0
+
+为时段
+
+t
+
+∈
+
+T
+
+内运行时空弧
+
+at ∈ AR 上开行重车流、空车流列车的频率，Z0+ 为正
+
+整数集；za,n′,pˉ∗d(n) ∈ {0, 1} 为相同到站车流的树形运输
+决策变量[4]，若终点为 n 站的车流 d ，在同一技术 站 n′∈ N pˉ∗d(n) 改 编 后 ，选 择 列 车 运 行 弧
+( ) a ∈ pˉ∗d(n) ⋂ An′,+ ，即 n′ 站 na,+站 的 后 续 改 变 站 为
+na, - 站时，za,n′,pˉ∗d(n) = 1 ；否则，za,n′,pˉ∗d(n) = 0 。其中 ，pˉ∗d(n) 为 终 点 为 n 站 的 车 流 d 的 车 流 径 路 ，显 然 pˉ∗d(n) = pˉ∗d ；Npˉ∗d(n) 为 pˉ∗d(n) 所含车站集。
+
+第 21 卷 第 2 期
+
+考虑空车调配协调的货物列车开行方案优化研究
+
+183
+
+图 1 货运时空服务网络与车流时空服务径路 Fig. 1 Car space-time path in freight transportation space-time service network
+
+同 时 ，引 入 中 间 变 量 XE,h ∈ {0,1}, XˉE,h ∈ {0,1}
+表 示 节 点 h ∈ N 是 否 为 空 车 需 求 点 、供 给 点 ，
+
+∑ ∑ 有
+
+X E, h
+
+=
+
+ìíï1, îï0,
+
+x E, i, h
+i∈N
+其他
+
+>0
+
+，XˉE,h
+
+=
+
+ìï1, í îï0,
+
+x E, h, j
+j∈N
+其他
+
+>0
+
+；采 用
+
+指示变 量 g , g v,a vˉ,a 表 示 运行弧a 与 区 段 v ∈ V
+
+{ 关
+
+联
+
+性
+
+，有 ： gv,a =
+
+1, 运行弧a正向通过区段v 0, 其他
+
+，
+
+{g = vˉ,a
+
+1, 运行弧a反向通过区段v 0, 其他
+
+；引 入 中 间 变 量
+
+ZE,av ∈ {0,1}, ZˉE,avˉ ∈ {0,1} 表示区段 v ∈ V 上是否存在
+
+∑ 正 向 ，反 向 空 车 流 ，有 ：ZE,av
+
+=
+
+ìï1, í îï0,
+
+g x v,a E,i,j
+a∈A
+a:a = (i,j)
+其他
+
+>0
+
+，
+
+∑ ( ) ZˉE,avˉ
+
+=
+
+ìï1, í îï0,
+
+g x vˉ,a E,i,j
+a∈A
+a:a = (i,j)
+其他
+
+>
+
+0
+
+，其 中
+
+a:a =
+
+i, j
+
+表示以
+
+i、j 为起点、终点的服务弧。
+
+2.3 模型建立
+
+∑∑ ∑∑ ∑∑ ( ) é
+
+min ê c x + θT y + F p p ëêd ∈ D p ∈ Pd
+
+t ∈ T a′t ∈ AR
+
+a′t E,a′t
+
+t ∈ T a″t ∈ AR
+
+a
+
+″ t
+
+ù
+
+f a″t
+
++
+
+f E,
+
+a
+
+″ t
+
+úú û
+
+(1)
+
+∑xp = 1, ∀d ∈ D
+
+(2)
+
+p ∈ Pd
+
+∑ z ≤ 1, ∀d ∈ D ; n = n ; n′ ∈ N a ∈ pˉ∗d(n) ⋂ An′,+ a,n′,pˉ∗d(n)
+
+d, -
+
+pˉ∗d(n)
+
+(3)
+
+xd,a ≤ z , a,n′,pˉ∗d(n) ∀d ∈ D ; n = nd,- ; n′ ∈ Npˉ∗d(n) ; a ∈ pˉ∗d(n) ⋂ An′,+
+
+(4)
+
+xp
+
+≤
+
+xd,a,
+
+∀d
+
+∈
+
+D
+
+;
+
+a
+
+∈
+
+pˉ∗d(n)
+
+;
+
+at
+
+∈
+
+AR(a)
+
+;
+
+p
+
+∈
+
+P′ at
+
+⋂
+
+Pd
+
+(5)
+
+XE,h + XˉE,h = 1, ∀h ∈ N
+
+(6)
+
+ZE,av + ZˉE,avˉ = 1, ∀v ∈ V
+
+(7)
+
+yE,at ≤ x , E,i,j ∀i, j ∈ N ; t ∈ T ; at ∈ AR ;
+
+( ) ( ) n ∈ N i ; n ∈ N j at,+
+
+T, OUT
+
+at , -
+
+T, IN
+
+(8)
+
+Y + ∑( ) y + ES,t,n
+
+at1 ∈ A- nt2 :
+
+E, at1
+
+nt2 ∈ NT,IN(n)
+
+∑ Qdxp =
+d ∈ D: nd, - = n,
+p ∈ Pd ⋂ P′at3:
+at3 ∈ AUD(n)
+
+Y + ∑( ) y + ES,t + 1,n
+
+at4 ∈ A+ nt4 :
+
+E, at4
+
+∑
+d ∈ D: nd, + = n,
+
+Qdxp ,
+
+nt4 ∈ NT,OUT(n)
+
+p ∈ Pd ⋂ P′at5:
+
+at5 ∈ ALP(n)
+
+(9)
+
+∀n ∈ N; t,t1,⋯,t5 ∈ T,t1 < t2,t2 = t - T , n,de
+
+t3 = t - Tn,ul, t4 = t + Tn,pc, t5 = t + Tn,la + Tn,pc
+
+184
+
+交通运输系统工程与信息
+
+2021 年 4 月
+
+∑ η f m at at ≤
+
+Qd xp ≤ fatmat, ∀at ∈ AR ; t ∈ T
+
+p ∈ Pa′ t
+
+d:p ∈ Pd
+
+η f m E,at E,at ≤ yE,at ≤ f m , E,at E,at ∀at ∈ AR ; t ∈ T
+
+∑ ( ) g f + f ≤ C , v,a
+at1 ∈ AR(a)
+
+at1
+
+E, a t1
+
+v, t
+
+∀v
+
+∈
+
+V
+
+;
+
+t
+
+∈
+
+T
+
+;
+
+t1
+
+=
+
+t
+
+-
+
+T
+
+_interval v, a
+
+;
+
+a
+
+∈
+
+A
+
+∑ ( ) g f + f ≤ C , vˉ,a
+at1 ∈ AR(a)
+
+at1
+
+E, a t1
+
+vˉ, t
+
+∀v
+
+∈
+
+V
+
+;
+
+t
+
+∈
+
+T
+
+;
+
+t1
+
+=
+
+t
+
+-
+
+T
+
+_interval vˉ, a
+
+;
+
+a
+
+∈
+
+A
+
+∑ Qd xp ≤ Cat, ∀at ∈ AC(n) ; t ∈ T; n ∈ N
+p ∈ Pa′ t d: p ∈ Pd
+
+(10) (11) (12)
+(13) (14)
+
+æ
+
+ö
+
+∑ ∑ Q x ≤ C = mèçç L - f ø÷÷, p
+
+∈
+
+P
+
+′ at
+
+dp
+
+w, n, t
+
+′
+
+n, t
+
+at1 ∈ AR(a) at1
+
+d: p ∈ Pd
+
+∀at ∈ AW(n) ; n ∈ N; t ∈ T; a ∈ An,- ; t1 = t - Ta
+
+(15)
+
+∑ Q x ≤ C = β (L - ∑ f ), p∈Pa′t
+
+dp
+
+wa, n, t
+
+n
+
+n, t
+
+a′t ∈ AR(a) a′t
+
+d: p ∈ Pd
+
+(16)
+
+∀at ∈ AWA(n) ; n ∈ N; t ∈ T; a ∈ An,+
+
+式(1)为动态车流组织优化模型目标，使规划期
+
+内重车流径路费用、空车走行费用、列车开行费用
+
+的广义总费用最小；a′t ∈ AR、a″t ∈ AR 均为运行时空
+
+弧，Ta″t
+
+为
+
+a″ t
+
+∈
+
+AR
+
+上列车运行时长，单位列车开行费
+
+用
+
+F = α + T F′
+
+a″t
+
+a″t
+
+a
+
+″ t
+
+，α
+
+为单位列车固定开行费用
+
+(元·车-1)
+
+；F ′
+
+a
+
+″ t
+
+指运行时空弧
+
+a″ t
+
+∈
+
+AR
+
+上单位列车每
+
+运行 1 时段的燃油费用 (元·时段-1) 。式(2)为重车
+
+流时空服务径路唯一性约束。式(3)、式(4)为车流
+
+改编径路唯一性约束与树形改编约束。式(5)为重
+
+车流选择列车运行弧与时空服务径路的关联约束，
+
+当车流 d 选择运行弧 a 时，才能选择包含 a 对应的
+
+运 行 时 空 弧 at ∈ AR(a) 的 时 空 服 务 径 路
+
+p
+
+∈
+
+P′ at
+
+⋂
+
+Pd
+
+。式(6)、式(7)为节点与区段不对流空车
+
+约束，节点 h ∈ N 不允许同时存在到达、出发空车
+
+流，且区段 v ∈ V 不允许同时存在正向、反向空车
+
+流。式(8)为空车流选择列车运行弧与运行时空弧
+
+的关联约束，当节点 i, j ∈ N 允许开行空车直达列
+
+( ) ( ) 车 ，空 车 流 才 可 选 择
+
+n ∈ N i , n ∈ N at,+
+
+T, OUT
+
+at , -
+
+T, IN
+
+j
+
+的运行时空弧 at ∈ AR 。式(9)为重车、空车流转换关
+
+联约束[11]，是时段 t 内 n 站的空车分配决策，左侧为
+
+空车供应，即时段 t 内 n 站空车存量、到达空车量
+
+与完成卸车的到站重车流量三者之和；右侧为空车
+
+需 求 ，即时段t + 1 内 n 站空车存量、时 段 t 内 n 站
+
+为其他站配送的空车量与开始装车的重车流量三
+
+者之和。式(10)、式(11)为列车运行时空弧的运输
+
+能力约束，ηmat, ηmE,at 分别为 at ∈ AR 上单位列车最 小重车或空车编组辆数；d: p ∈ Pd 为车流 d 通过时 空服务径路 p ,即两者相关联。式(12)、式(13)为区
+
+段通过能力约束，T 、T _interval v, a
+
+_interval vˉ, a
+
+指列车运行弧
+
+a
+
+若需正向或反向途经区段 v ，其通过 v 的后方全部
+
+区段所需时长；Cv,t,Cvˉ,t 指时段 t 内区段 v 的正向、反 向通过能力(列)。式(14)~式(16)为技术站能力约
+
+束，依次指改编作业能力、到发线与分类线数约束。
+
+3 算法设计
+通过表 2 建模特点分析可知，本文模型引入的 空车调配约束较复杂，既有算法[4,13]均难以快速有 效处理，故本文结合重车或空车配空的时间接续要 求，通过 k 短路搜索与可行解构造，将退火机制引 入差分进化算法(DE)进行求解。
+
+文献 模型
+
+文献[4]
+
+点弧 模型
+
+文献[13]
+
+弧路 模型
+
+本文
+
+弧路 模型
+
+表 2 本文建模特点分析
+
+Table 2 Model characteristic of this paper
+
+目标函数
+
+约束条件
+
+列车开行与重车流径路费用 (走行、改编与延迟费用，虚 拟弧惩罚费用 )的总费用最小
+
+车流动态性、改编方案唯一 性与树形改编要求；运行弧 与线站能力、运到期限
+
+运输弧(列车开行)费用、货 流与车辆流的运输径路费用 的总费用最小
+
+基于改编方案唯一性、运到 期限构建货流径路；运输弧 能力、弧上货流量与车辆流 量关联约束
+
+列车开行费用、重车流径路 费用、空车走行费用的广义 总费用最小
+
+在文献[4]基础上，进一步考
+虑配空与装卸取送、集编发 的时间接续要求；节点与区 段不对流空车约束
+
+求解方法 模拟退 火算法
+分支 - 定价 切割算法
+混合差 分进化 算法
+
+(1) k 短路搜索与可行解构造 借鉴文献[14]中 k 短路算法搜索重车、空车流
+
+时空服务径路可行集，以减小问题规模。并结合重 车或空车配空的时间接续要求，将不同的 k 短路重
+
+第 21 卷 第 2 期
+
+考虑空车调配协调的货物列车开行方案优化研究
+
+185
+
+车流方案与空车配空方案相关联，引入贪婪策略、 构造流程如图 2 所示。
+
+退火策略，改进文献[4]的可行解构造方法，可行解
+
+图 2 可行解构造流程
+
+Fig. 2 Flow diagram of constructing feasible solution
+
+① 基于贪婪策略的关联与配空方案初选 当 k 值确定，若基点或关联车流 dl 起点站空车 充足，则根据不同时空径路序号 q 值，分别以 ϕk,q,dl 为起点，按重车流约束与合并开行要求，以关联方
+
+Nps 的初始种群。 (3) 算子设计与算法流程 算法流程如图 3 所示。
+
+案费用增长最小、列车开行费用节省最大为原则，
+
+依次筛选关联车流 dl,RD ，确定关联方案 tpk,q,dl ；否 则，按配空要求，以重车配空优先、空车配空次之的
+
+原则和配空方案费用排序，为各配空方案设置配空
+
+策略编码
+
+k′ dl
+
+∈
+
+Kdl
+
+，选择
+
+k′ dl
+
+最小的配空方案
+
+EC k, q, dl
+
+。
+
+② 基于退火策略的关联与配空方案比选
+
+以相同 k 值，不同 q 值的车流 dl 方案 ϕk,q,dl 为 起点，形成不同关联方案 tpk,q,dl 与配空方案 ECk,q,dl ，
+
+( ) 即方案 ICk,q,dl ，以概率 ψk,q,dl = expéë-
+
+ζ - ζ k,q,dl
+
+min
+
+δùû 选
+
+择较优方案 ICk,q,dl ，其中，ζk,q,dl, ζmin 为各方案 ICk,q,dl
+
+权值与最小权值，δ 为当前温度。
+
+图 3 混合差分进化算法(HYDE)的算子设计与流程 Fig. 3 Operator design and framework of hybrid differential
+evolution algorithm
+
+(2) 编码与初始种群
+
+根 据 可 行 解 构 造 中 车 流 di 运 送 方 案 ϕ , k,q,dl
+(k = 0,1,2,⋯,K; q = 1,2,3,⋯,I ) 的 时 空 径 路 序 号 q
+
+以及配空策略编码
+
+k′ dl
+
+∈ Kdl
+
+，设 计 个 体 实 数 编 码
+
+[ 方 案 ：Y ,d1
+
+Yd2, ⋯,
+
+Ydl,
+
+⋯,
+
+Y , dD - 1
+
+YdD,
+
+Y
+
+,′
+d1
+
+Y
+
+′ d2
+
+,
+
+⋯,
+
+Y
+
+′ dl
+
+,
+
+⋯,
+
+] Y , ′ dD - 1
+
+Y′ dD
+
+,
+
+∀dl
+
+∈
+
+D,
+
+1 ≤ Ydl ≤ I + 1,
+
+0
+
+≤
+
+Y′ dl
+
+≤
+
+Kdl
+
++
+
+1
+
+，其
+
+中，I + 1 为虚拟径路方案，Kdl + 1 表示不需要配空，
+
+并以概率 ψk,q,dl 随机选择方案 ICk,q,dl ，获得规模为
+
+采用常用的 DE/best/1 变异策略及交叉、选择
+
+策略，GM 为最大迭代次数，计算式为
+
+( ) γτ,G = χbest,G + F ⋅
+
+χ - χ , r1,G
+
+r2, G
+
+(17)
+
+∀τ = 1,2,⋯, Nps, F ∈ (0,1)
+
+U τ, l, G
+
+=
+
+ìíîγχττ,,ll,,GG,,
+
+randl 其他
+
+≤
+
+CR
+
+或
+
+l
+
+=
+
+randD,
+
+(18)
+
+∀τ = 1,2,⋯, Nps ; l = 1,2,⋯,D; CR ∈ (0,1)
+
+式中：χr1,G, χr2,G 为规模为 Nps 的种群中两个不同个
+
+186
+
+交通运输系统工程与信息
+
+体；变异率 F = 0.7 ；rand 表示随机数；D 表示车流
+
+集 合 ；交 叉 率
+
+CR = 0.1
+
+；χ , γ , U τ,l,G τ,l,G
+
+τ, l, G
+
+分别为
+
+个体χτ,G 中对应第 l 支车流运送方案与配空方案的 l
+
+列原始、变异、交叉后编码。
+
+( ) ( ) χτ,G+1
+
+=
+
+ìU íîχ
+
+, τ,G , τ,G
+
+ο Uτ,G 其他
+
+< ο χτ,G
+
+, ∀τ = 1,2,⋯, Nps
+
+(19)
+
+当变异交叉新个体 χτ,G 不满足约束，需先根据
+
+χ τ, G
+
+编码确定车流
+
+dl
+
+改编调整方案和配空策略
+
+k′ dl
+
+，
+
+按可行解构造方法获得新解；当配空策略
+
+k′ dl
+
+无效
+
+时，则选
+
+k′ dl
+
+最小的可行配空方案。由于可行解构
+
+造引入退火策略，故该策略将影响 DE 算法。
+
+2021 年 4 月
+
+4 案例分析
+
+以 我 国 东 北 地 区 某 局 部 铁 路 网 为 例 [4] ，对 本
+
+文 模 型 及 算 法 进 行 验 证 。 路 网 中 有 19 个 站 ，主
+
+要参数详见文献[4]与图 4，车流径路与区段通过
+
+能 力 、车 流 OD 量 与 车 站 初 始 空 车 存 量 ，限 于 篇
+
+幅 不 予 罗 列 。 规 划 期 设 为 T = 72 h ；
+
+θ = 50元 ⋅ 车 ⋅ h-1 ； α = 3000元 ⋅ 列-1 ； m = 50车 ；
+
+mE = 60车
+
+；F ′ a″t
+
+=
+
+500元
+
+⋅
+
+h-1
+
+；FPdv = 1000元 ⋅ 车 -1
+
+；
+
+η = 0.9 ；βn = 200车 ⋅ 条-1 ；γn = 0.8 。路网结构及相
+
+关参数如图 4 所示。
+
+图 4 路网结构及相关参数 Fig. 4 Structure schematic diagram of railway network and
+relevant parameters
+(1) 空车调配影响分析
+以 线 路 {1,2,6,10,13,14} 和 {7,8,10,11,12} 组
+成 的“ 十 字 ”子 路 网 为 例 ，根 据 表 3 的 车 流 量 ， 假定所有车流的最晚到达时段t′d为16 ，分别求解空 车充足与空车不足情景下的优化方案。若空车充 足，优化方案目标值为 283500，如图 5 所示。
+
+表 3 子路网的车流 OD 量
+
+Table 3 Wagon-flow volume in sub-network
+
+编号 起讫点 车流量 td
+
+编号 起讫点 车流量 td
+
+Aˉ
+
+1→13
+
+40
+
+7
+
+ˉI
+
+1→10
+
+10
+
+1
+
+Bˉ
+
+1→6
+
+10
+
+7
+
+ˉJ
+
+2→11
+
+33
+
+6
+
+Cˉ
+
+2→14
+
+35
+
+7
+
+Kˉ
+
+2→6
+
+17
+
+6
+
+Dˉ
+
+2→12
+
+15
+
+7
+
+Lˉ
+
+2→8
+
+27
+
+7
+
+Eˉ
+
+6→13
+
+10
+
+13
+
+Mˉ
+
+2→6
+
+23
+
+7
+
+Fˉ
+
+7→12
+
+35
+
+7
+
+Nˉ
+
+6→8
+
+23
+
+13
+
+Gˉ
+
+7→14
+
+15
+
+7
+
+Oˉ
+
+6→10
+
+40
+
+7
+
+Hˉ
+
+1→6
+
+40
+
+1
+
+Pˉ
+
+6→11
+
+17
+
+10
+
+若空车不足，假定空车存量及装卸取送作业时 间如表 4 所示，则需空车调配和调整图 5 的方案，引 起部分列车开行时段变化及车流集结等待时间增 加，优化方案如图 6 所示，目标值增加 18150。
+配空方案如下： ① 采用空车配空，车站 2 初始空车存量为 90 辆，列车 ˉJ + Kˉ 在第 6 时段发出，占用 50 辆空车，需 从车站 1 在时段 1 发出空车直达列车 1，调配空车 60 辆，满足列车 Cˉ + Dˉ 、 Lˉ + Mˉ 装车需求，保证在时
+
+段 7、9 及时发车。为满足车站 7 的列车 Fˉ + Gˉ 装车 需求，需从车站 8 在时段 1 发出空车直达列车 2。
+② 采用重车配空，由于空车直达列车 1，占用 区段 1 → 2 在时段 1 的能力，列车 Hˉ + ˉI 需时段 2 出 发，时段 5 到达车站 6；车流 Oˉ 占用车站 6 的 40 辆空 车存量，与中转车流 ˉI 组成列车 Oˉ + ˉI 发出；而到站 车流 Hˉ 经送卸车作业，为车流 Pˉ、Nˉ 提供空车，使 得车流 Pˉ 在时段 11 才能完成集结，故中转车流 ˉJ 需 要多集结等待 1 个时段，与其组成列车 ˉJ + Pˉ 发出。
+
+第 21 卷 第 2 期
+
+考虑空车调配协调的货物列车开行方案优化研究
+
+187
+
+图 5 空车充足情形下的优化方案 Fig. 5 Optimization planning without considering empty car distribution
+
+表 4 子路网各站初始空车存量及装卸取送作业时间 Table 4 Empty car distribution and relevant parametersin sub-network
+
+车站
+
+1
+
+2
+
+6
+
+7
+
+8 10 11 12 13 14
+
+时段 1 内 空车存量/辆
+
+160 90 50
+
+0
+
+80 10 50 80 45 70
+
+作业时间
+
+各站取车、送车作业均为 1 h
+
+各站装车、卸车作业均为 2 h
+
+图 6 空车不足情形下的优化方案 Fig. 6 Optimization planning when considering empty car distribution
+
+若未考虑空车调配与列车开行方案协调，比如 车站 1 在时段 2 发出空车直达列车 1，将无法及时满 足列车 Cˉ + Dˉ 、Lˉ + Mˉ 装车需求，导致其中一列延误 发车，增加额外等待费用。将两者综合优化，有助 于合理安排配空方案，减少空车走行费用，及时满 足装车需求，有效保证作业车流配合中转车流集结 编组及时挂线，提高方案可实施性。
+
+(2) 算法效果分析 HYDE 算 法 采 用 C ＃ 编 程 ，其 中 ：K = 10, Kdi = 20, I = 30, Nps = 20, CR = 0.1, F = 0.7 ，在 CPU 为 Intel Core E6550, 2.33 GHz × 2, 8 G 内 存 的 PC 机 上 运行，算法求解性能如表 5 所示。 当算例规模较小时，CPLEX、SA 及 HYDE 算法 均可获得全局最优解。当算例规模扩大时，CPLEX
+
+188
+
+交通运输系统工程与信息
+
+2021 年 4 月
+
+算法无法在限定时间求得全局最优解；SA 算法收 较快，求解质量更优。
+
+敛速度快，但易于陷入局部最优；HYDE 算法收敛
+
+表 5 算法求解性能分析
+
+Table 5 Performance analysis of algorithms
+
+算例概况
+
+CPLEX
+
+SA (模拟退火)[4]
+
+HYDE(本文算法)
+
+算例 车站 车流 T
+
+求解时间/s 目标值/103
+
+求解时间/s 目标值/103 求解时间/s 目标值/103
+
+Ⅰ 10 16 16
+
+195
+
+301.65
+
+49
+
+301.65
+
+56
+
+301.65
+
+Ⅱ 10 50 24
+
+7200
+
+435
+
+1123.05
+
+527
+
+990.65
+
+Ⅲ 14 80 48
+
+7200
+
+691
+
+1972.35
+
+752
+
+1791.10
+
+Ⅳ 19 100 72
+
+7200
+
+975
+
+2612.06
+
+1266
+
+2367.15
+
+基于算例Ⅳ的 SA、HYDE 算法收敛对比如图 7 所示。
+图 7 基于算例Ⅳ的 SA、HYDE 算法收敛对比 Fig. 7 Convergence curve of algorithm
+不考虑节点与区段不对流空车约束，目标值减 小，表明该要求对优化方案造成重要影响；HYDE 算 法 能 有 效 处 理 该 约 束 ，获 得 更 切 实 际 的 优 化 方案。
+5 结论
+为实现空车调配与列车开行方案协调优化，本 文考虑配空与装卸取送、集编发的时间接续要求、 节点与区段不对流空车要求，构建切合实际的整数 规划弧路模型，同时决策列车径路与编组内容、开 行时段与频率及空车调配方案等。依据重车、空车 流方案的关联性与编码设计，设计混合差分进化求 解算法，有效平衡种群多样性与收敛速度。算例结 果表明，模型和算法有效，有助于减少空车走行费 用，及时满足装车需求，协调车流组织各环节，提高 方案可实施性，保证流线结合与运到期限。
+参考文献
+[1] 倪少权, 张杰, 等 . 市场导向动态列车运行图协同编制
+
+理论及系统设计[M]. 北京：科学出版社, 2019. [NI S Q, ZHANG J, et al. Theoretical methods and system design for market-oriented and dynamic train scheduling[M]. Beijing: Science Press, 2019.] [2] IRELAND P, CASE R, FALLIS J, et al. The canadian pacific railway transforms operations by using models to develop its operatingplans[J]. Interfaces, 2004, 34(1): 514. [3] CRAINIC T G. Service network design in freight transportation[J]. European Journal of Operation Research, 2000, 122(2): 272-288. [4] 刘晓伟, 仇戈, 等 . 考虑车流时空分布不均衡的货物列 车开行方案优化研究[J]. 交通运输系统工程与信息, 2019, 19(2): 137- 145. [LIU X W, QIU G, et al. Freight transportation service network design problem with unbalanced spatio-temporal distribution of wagon-flow[J]. Journal of Transportation Systems Engineering and Information Technology, 2019, 19(2): 137-145.] [5] 梁栋, 林柏梁 . 铁路空车调整的多阶段策略优化模型 研究[J]. 铁道学报, 2007, 29(1): 1-6. [LIANG D, LIN B L. Research on the multi- stage optimization model of empty railcar distribution[J]. Journal of China Railway Society, 2007, 29(1): 1-6.] [6] 王波, 荣朝和, 等 . 铁路空车调配的多时点优化模型研 究 [J]. 交 通 运 输 系 统 工 程 与 信 息, 2015, 15(5): 157163, 171. [WANG B, RONG C H, et al. Multi-time point optimization model for empty railcar distribution[J]. Journal of Transportation Systems Engineering and Information Technology, 2015, 15(5): 157-163, 171.] [7] KIKUCHI S. Empty freight car dispatching model underfreight car pool concept[J]. Transportation Research Part B, 1985, 19(2): 169-185. [8] GLICKMAN T S, SHERALI H D. Large scale network distribution of pooled empty freight cars over time, with limited substitution and equitable benefits[J]. Transportation Research Part B, 1985, 19(2): 85-94. [9] HOLMBERGK, JOBORN M, et al. Improved empty freight car distribution[J]. Transportation Science, 1998, 32(2): 163-173.
+下转第 204 页
+
+204
+
+交通运输系统工程与信息
+
+2021 年 4 月
+
+[5] FELIPE Á, ORTUÑO MT, RIGHINI G, et al. A heuristic approach for the green vehicle routing problem with multiple technologies and partial recharges[J]. Transportation Research Part E: Logistics and
+
+vehicle routing problem with pickup and delivery services with time windows: A dynamic programming approach based on state-space-time network representations[J]. Transportation Research Part B:
+
+Transportation Review, 2014(71): 111-128. [6] KESKIN M, ÇATAY B. Partial recharge strategies for the
+
+Methodological, 2016(89): 19-42. [9] YANG S, NING L, SHANG P, et al. Augmented
+
+electric vehicle routing problem with time windows[J]. Transportation Research Part C: Emerging Technologies,
+
+Lagrangian relaxation approach for logistics vehicle routing problem with mixed backhauls and time windows
+
+2016(65): 111-127. [7] HIERMANN G, PUCHINGER J, ROPKE S, et al. The
+electric fleet size and mix vehicle routing problem with time windows and recharging stations[J]. European Journal of Operational Research, 2016, 252(3): 995-
+
+[J]. Transportation Research Part E: Logistics and Transportation Review, 2020, 135: 101891. [10] GRIPPO L, SCIANDRONE M. On the convergence of the block nonlinear Gauss-Seidel method under convex constraints[J]. Operations research letters, 2000, 26(3):
+
+1018. [8] MAHMOUDI M, ZHOU X. Finding optimal solutions for
+
+127-136.
+
+上接第 188 页
+[10] JOBORN M, CRAINIC T G, et al. Economies of scale in empty freight car distributionin scheduled railways[J]. Transportation Science, 2004, 38(2): 121-134.
+[11] HAGHANU A. Formulation and solution of a combined train routing and makeup, and empty car distribution model[J]. Transportation Research Part B, 1989, 23(6): 433-452.
+[12] ANDERSEN J, CRAINIC T G, CHRISTIANSEN M. Service network design with management and coordination of multiple fleets[J]. European Journal of Operational Research, 2009, 193(2): 377-389.
+
+[13] 王保华, 何世伟 . 考 虑 车 辆 周 转 的 铁 路 动 态 货 运 服 务网络设计优化模型及其分支-定价-切割算法 [J]. 铁道学报, 2018, 40(2): 8-14. [WANG B H, HE S W. Optimization model and branch- price- cut algorithm for design of railway dynamic freight service network considering rolling stock management[J]. Journal of the China Railway Society, 2018, 40(2): 8-14.]
+[14] JHA K C, AHUJA R K, SAHIN G. New approaches for solving the block- to- train assignment problem[J]. Networks, 2008, 51(1): 48-62.
+
+上接第 195 页
+[11] 成卫青, 卢艳红 . 一种基于最大最小距离和 SSE 的自 适应聚类算法[J]．南京邮电大学学报(自然科学版), 2015, 35(2): 102-107. [CHENG W Q, LU Y H. Adaptive clustering algorithm based on maximum and minimum
+
+distances, and SSE[J]. Journal of Nanjing University of Posts and Telecommunications (Natural Science), 2015, 35(2): 102-107.]
+

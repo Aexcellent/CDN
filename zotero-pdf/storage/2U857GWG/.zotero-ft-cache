@@ -1,0 +1,1150 @@
+Cluster Comput DOI 10.1007/s10586-017-1292-7
+Quantum-inspired immune clonal algorithm for railway empty cars optimization based on revenue management and time efﬁciency
+Yun Jing1 · Yingke Liu1 · Mingkai Bi1
+
+Received: 28 July 2017 / Revised: 25 September 2017 / Accepted: 26 October 2017 © Springer Science+Business Media, LLC 2017
+
+Abstract By proposing the concept of timeline, transform dynamic vehicle scheduling problem into a series of static vehicle scheduling problems. With the objective function of beneﬁt maximization, the cloud preference model of dynamic empty car scheduling is built considering empty car delay time constraint. The non-dominated antibodies are proportionally immune clonal according to their cloud preference, which are deﬁned by their cloud application preferences. It is beneﬁcial to enhance the forecasting accuracy of the immune gene manipulation, and to increase the speed of ﬁnding the optimal solution based on the application preference. Experimental results conclusively demonstrate the efﬁciency and effectiveness of the improving system availability, load balancing deviation and valid time brought by the proposed algorithm in cloud computing environments, conditions and that more close to the reality, empty car scheduling model for speciﬁc time was established.
+Keywords Railway empty cars optimization · Quantuminspired immune clonal algorithm · Cloud model · Revenue management · Time efﬁciency
+1 Introduction
+The problem of railway empty cars scheduling has been an academic concern for a long time in terms of network trafﬁc distribution, incoordination between railway stations and rail lines, and other inﬂuencing factors. The empty car scheduling of day shift plan and stage plan employs static optimization
+B Yun Jing
+yjing@bjtu.edu.cn
+1 School of Trafﬁc and Transportation, Beijing Jiaotong University, Beijing 100044, China
+
+method in practice. However, such method that depends on experience cannot immediately report the real demands of loading stations on empty cars. Since the emergence of empty cars and the car ﬂowing joining are dynamic in nature, the compatible degree between railway freight service and railway freight market can be promoted by the dynamic optimal adjustment of empty cars.
+With the development of the fundamental information technology in railway, the establishment of information sources based on TMIS supports the operation of rail logistics enterprise. Railway transport organization has also transformed from simply pursuing optimization of transport resources to resource optimization based on beneﬁt. So dynamic optimization of empty cars based on beneﬁt has become a research focus in recent years.
+Revenue management studies how to optimize the allocation of limited resources, in order to maximize the beneﬁts of business in the case of ﬁxed total amount of resources. The so-called revenue management refers that being market-oriented, use scientiﬁc decision-making theory and means such as forecasting and optimization comprehensively, sell products to different types of customers at an appropriate price duly and realize the maximization of ultimate beneﬁts. Many theories and models in operational research have become the basis of revenue management theory research, especially mathematical planning, dynamic planning and network analysis technology which are almost everywhere in the revenue management system research.
+Revenue management was ﬁrst applied in civil aviation management in the 1980s, and then used widely in hotel industry. Combined with revenue management, the core idea of maximization of revenue is applied to the allocation of empty vehicles, so that the allocation is more reasonable and the maximum return can be obtained.
+
+123
+
+Cluster Comput
+
+The dynamic optimization method with regard to the distribution of empty cars was ﬁrst proposed by White and Bomerault [1]. A rolling horizon approach has been applied, Milenkovic´ [2] ultimately provided a new managerial tool for more effective planning and analyzing rail freight car ﬂeets. Adopting temporal network method, Joborn [3] duplicated the physical network within every time bucket of the planning period to form a time expanding network. Lu [4] attempted to elucidate individual car-following behavior using risk homeostasis theory (RHT), and established a new model to explain car-following process. He [5] proposed an improved branch-pricing algorithm based on patio-temporal networks to improve the service level of the high-speed rail. Bektas¸ [6] proposed methodology performs dynamic reassignments of empty cars through a fast and efﬁcient solution procedure based on the assignment algorithm. Milenkovic´ [7] proposed a new formulation and a solution procedure to optimize the ﬂeet size and freight car allocation in the presence of uncertainty. Shi [8] proposed a lot-sizing-based valid inequality formulation and assignment-based heuristic rules, and constructed a mixed integer-programming model to optimize operational scheduling on marshalling station. Research on such problem with its emphasis on efﬁciency is therefore of great signiﬁcance as a theoretical guidance to improve railway scheduling capacity.
+Immune clone algorithm is based on human immunology, the essence of which is in the process of the evolution of the generation, near the candidate solutions, according to the size of the afﬁnity to create a variation of solution group, to expand the search scope, thus can simultaneously global search and local search. Quantum immune clone algorithm is introducing quantum theory more variation process of cloning strategy to improve the efﬁciency of gene manipulation, and use a biological information mechanism to improve the ability of information interaction, accelerating antibody evolution speed.
+From the above research on dynamic scheduling of empty cars abroad, dynamic scheduling of empty cars is generally thought of as a dynamic transport problem, and is usually assumed that supply of and demand for each period is deﬁnitive. In most of the model building, the targets are no more than one of the following several aspects or their combination or: (1) revenue maximization; (2) service satisfactory maximization; (3) cost minimization. In the solution of the model, the simplex method, out-of-kilter algorithm and all kinds of heuristic algorithm are designed and used.
+The main structure of this paper is as follows: The Sect. 1 introduces the concept of empty dynamic optimization, and the difﬁculty of dynamic empty car scheduling problem, and the difference between the empty car dynamic scheduling and the traditional scheduling mode. The Sect. 2 mainly gives the meaning of the variables in the dynamic car scheduling model under the cloud distribution
+
+mode, and the objective function and empty car scheduling mathematical model.
+The Sect. 3 mainly describes the quantum cloning algorithm in the immune cloning operation and cloud operating parameters. And how the quantum gate is updated and then the complexity of the algorithm is analysed.
+The Sect. 4 is the practical application of the algorithm, and the simpliﬁed Jinan Railway Bureau is object. The actual performance of the algorithm is analysed, the results show that the algorithm results well to meet the objectives of this article.
+2 The railway empty cars optimization based in revenue management and time efﬁciency
+Dynamic cars scheduling problem is developed by the problem of static cars scheduling, and the most obvious difference from static cars scheduling problem lies in the dynamic of information. It needs to consider the ﬂuctuation of supply and demand in multiple time periods. The system optimization is not like the former only stays in an isolated or typical time period, but the scheduling strategy of the empty car is included in the dynamic change over time. Obviously, the dynamic nature of the empty car scheduling is empty static scheduling time is extended, it pursues a number of time period rather than a single time period of continuous whole optimization, and to emphasize the empty car distribution strategies should change with the passage of time.
+To be speciﬁc, at starting point of the optimal scheduling, the scheduling center only has the information about empty cars which includes information about empty cars in demand (such as stations in demand of empty cars, quantity of empty cars in demand and time quantum during which empty cars in demand), as well as information about railway network (such as structure, capacity and length of section), and information about empty cars (such as speed, place and physical condition). After the optimal scheduling, such given information varies over time within the whole planning period.
+From what has been discussed above, it can be safely inferred that there are many factors that make contributions to the variation of information about dynamic scheduling of empty cars, such as dynamic demand which includes varying demanding quantity and time quantum as well as empty cars resources. Research on dynamic scheduling of empty cars can be approached from different ways with regard to different dynamic factors. This paper concentrates on the problems brought by dynamic changes along with the interaction between the demand quantity of empty cars at loading stations and the supply quantity at station of the station Emptying.
+
+123
+
+Cluster Comput
+
+There are the following main differences between the dynamic scheduling of the railway and the traditional scheduling mode:
+1. Using the network to transmit information, the dispatcher can ﬂexibly take advantage of all kinds of heterogeneous terminals, and use Internet or railway special network to obtain real-time live data.
+2. The adjustable scheduling scheme provides users with a quantiﬁable scheduling scheme.
+3. Real-time performance of scheduling scheme. Dynamic scheduling can make use of real-time data for empty car adjustment and make online adjustment of the scheme.
+4. Dynamic scheduling is based on the distribution and adjustment of empty car according to the generalized cost, and the scheduling cost is an important factor inﬂuencing empty car scheduling.
+Within a certain regional railway network, the plan concerning the demand on empty cars (including demand quantity and time quantum) would be ﬁrst proposed by each loading station based on the dynamic changing factors, and then the scheduling centre would synthesize the plans of each loading station thereby to dispatch empty cars on the whole. Flow distribution of shortest path is employed in scheduling since scheduling centre is informed of the distribution of empty cars within the regional network.
+3 The model of railway empty cars optimization
+3.1 Variable declaration
+N —set of generation place of empty cars N = {1, . . . , i, . . . n}. M—set of place in demand of empty cars N = {1, . . . , j, . . . m}. nis(t)—represents supply quantity of cars type s of generation place i at moment t. msj (t)—represents demand quantity of cars type s of place j in demand of empty cars in the moment t. T —time variable, T = {1, . . . , t, . . . , tmax}. fisj (tn, tm)—represents the trafﬁc ﬂow of the empty car called s from i to j in the planning periods, and its departure time is t j , and the time of arrival is t j . tij—represents the running time in transit of trafﬁc ﬂow of fij. qe—represents transportation capacity of section e. xiej—is Boolean variables, which represents whether the ﬂow route of ﬂow fisj contains arc e,if it is xiej = 1, otherwise xiej = 0. μse—represents expense of the single empty car of arc e.
+
+ρ
+
+s j
+
+—represents
+
+beneﬁt
+
+brought
+
+by
+
+arriving
+
+station
+
+j
+
+on
+
+time.
+
+te—represents running time of empty cars on arc e. ψ(t)—represents the characteristic of cloud preference
+
+of station in demand of empty cars.
+
+3.2 Objective function
+
+Normally, the minimum running distance of the empty car is made the objective function of the empty car scheduling model. However, since the capacity of railways has been enlarged along with the operation of passenger dedicated lines, the maximum economic beneﬁt becomes the objective function of such model. Beneﬁt function is classiﬁed into the cost of empty car running distance and transportation proﬁt when the empty car arrives loading place.
+
+max Z =
+
+ψ
+
+(t
+
+)ρ
+
+s j
+
+fisj (ti ,
+
+tj
+
+)
+
+j∈M i∈N s∈S
+
+−
+
+xiejμsj fisj (ti , t j )
+
+(1)
+
+j∈M i∈N s∈S e∈E
+
+Empty car scheduling is a elastic preferences, which means
+
+the scheduling should be accomplished within the given time
+
+t
+
+s j
+
+.
+
+Otherwise,
+
+a
+
+certain
+
+cost
+
+should
+
+be
+
+deducted.
+
+If
+
+the
+
+time
+
+attribute msj (t) of empty car demand msj satisﬁes ﬂexible pre
+
+ference
+
+and
+
+its
+
+preference
+
+interval
+
+is
+
+[m
+
+s j
+
+(t )min,
+
+m sj
+
+(t )max ],
+
+if the lower the real value of the time attribute msj (t)real , the
+
+higher the valve of msj ,then the preference value ψ(t) of time
+
+attribute t meets 2, otherwise it meets 3.
+
+⎧
+
+ψ (t )
+
+=
+
+⎨ ⎩
+
+0.5 + min
+
+0.5
+
+m
+
+s j
+
+(t
+
+)min
+
+−msj
+
+(t
+
+)r
+
+eal
+
+,
+
+m
+
+s j
+
+(t
+
+)max
+
+−msj
+
+(t
+
+)min
+
+max[m
+
+s j
+
+(t
+
+)min /m sj
+
+(t
+
+)r
+
+eal
+
+−
+
+0.5,
+
+, 0.5 0],
+
+,
+
+msj (t )real
+
+≤
+
+m
+
+s j
+
+(t
+
+)min
+
+otherwise
+
+(2)
+
+⎧
+
+ψ (t )
+
+=
+
+⎨ ⎩
+
+0.5 + min
+
+max[m
+
+s j
+
+(t
+
+)r
+
+0.5
+
+m
+
+s j
+
+(t
+
+)r
+
+eal
+
+−m
+
+s j
+
+(t
+
+)max
+
+,
+
+msj
+
+(t
+
+)max
+
+−m
+
+s j
+
+(t
+
+)min
+
+eal /msj (t )max − 0.5,
+
+, 0.5 0],
+
+,
+
+m
+
+s j
+
+(t
+
+)max
+
+≤
+
+m
+
+s j
+
+(t
+
+)r
+
+eal
+
+otherwise
+
+(3)
+
+At
+
+this
+
+time,
+
+user
+
+m
+
+s j
+
+(t
+
+)
+
+time
+
+attribute
+
+preference
+
+weights
+
+towards resource mis satisﬁes the following equation. Pref-
+
+erence vector of user m j towards resource s is wij =
+
+(wij(1), wij(1), . . . , wij(t)),and wij(t) = 1.
+
+i
+
+wij(t) = ψij(t)
+
+ψij(i ),
+
+0
+
+≤
+
+t
+
+≤
+
+t
+
+s j
+
+(4)
+
+i
+
+Since the scheduling of empty cars is aimed at achieving maximum system revenue, setting the maximum economic revenue as objective function is in line with the interest of the enterprises.
+
+123
+
+Cluster Comput
+
+3.3 Mathematical model of empty car scheduling
+Assume there is a balance between the supply and demand concerning the empty cars emergence place and the empty car arrival place in the static empty car scheduling, then
+
+nis =
+
+m
+
+s j
+
+,
+
+∀s ∈ S
+
+(5)
+
+⎧i
+
+j
+
+⎪⎨ msj = fisj
+
+⎪⎩ nis =
+
+i
+fisj
+
+,
+
+∀s ∈ S
+
+(6)
+
+j
+
+fisj xiej ≤ qe, ∀e ∈ E
+
+(7)
+
+i js
+
+Equation 5 The amount of empty space generated by the empty car types is equal to the amount of empty demand in the demand area.
+Equation 6 The sum of the trains arriving at station j is equal to the demand for the empty ones; the sum of empty trains starting from station i is equal to the trafﬁc generated by station i.
+Equation 7 The capacity of all trafﬁc to any zone e cannot exceed the limit.
+Time factor should be taken into consideration since the empty cars scheduling information concerning dynamic scheduling mode varies with time. Time axis can be employed describe the dynamic information about the railway network. Car ﬂow structure in the OD time-space network is featured by periodicity (for example, a working day) in the dynamic scheduling environment, the whole period can be established as the time axis and the moment that demand emerges as t. Since the change of emergence of empty cars and demand on empty cars are discrete, the whole scheduling period can be divided into tmax sections, the change of empty car resources at moment t can be shown as the variation of empty car information from t to t + 1.
+Essentially, the dynamic empty car scheduling network can be demonstrated through the establishment of a series of static network based on time axis. The information should be updated by the use of the existing railway inventory management system. The employment of time axis requires the dynamic balance of the network.
+
+⎧
+
+⎪⎨ msj (t) =
+
+fisj (ti , t j ), ∀t ∈ T , j ∈ M, s ∈ S
+
+t j ∈[0,t) i∈N
+
+⎪⎩ nis (t) =
+
+fisj (ti , t j ),
+
+∀t ∈ T, i ∈ N , s ∈ S
+
+(8)
+
+ti ∈T j ∈M
+
+tij = xiejte
+
+(9)
+
+e∈E
+
+f (ti , t j ) ≥ m j (t), ∀t j ≤ t, j ∈ M
+
+(10)
+
+i∈N
+
+fisj (ti , t j )xiej ≤ qe, ∀t ∈ T , e ∈ E
+
+(11)
+
+i∈N j∈M s∈S
+
+Equation 8 implies that for the j empty demand point, the demand for the s train type at time t should be met; for the i empty demand point, the amount of departed empty trains should be equal to the s train type before.
+Equation 9 implies that the time of ﬂow f from i to j is tij. Equation 10 implies that All the needs on the j empty demand point will be met at t time. Equation 11 implies that the ﬂow capacity is less than the line capacity for any time period.
+
+4 Quantum-inspired immune clonal with cloud preference (QICC)
+
+4.1 The representation of the solution of QICC
+
+Coding is an important step of solving problem with immune algorithm, which uses method of combining static state and dynamics, starting with generating static scheduling of empty cars, through addition of time axis, and generating dynamic scheduling. For scheduling of empty cars for each cycle Time, three-dimensional quantum bit matrix i, j, t is used to express quantum chromosomes that generate antibodies, composing Cartesian product:
+
+G A = N · M · T = i i = fisj }, { j j = fisj , t
+
+(12)
+
+Each gene bit delegates a static empty car scheduling scheme, No.0 generation initial solution of k th antibody of empty car distribution plan meets the Eq. 12, and the antibody population with size of N c meets 13
+
+G AK (0) = (gai1j, gai2j, . . . , gaitj,
+
+. . . gaitjmax ) t ∈ T , i ∈ N , j ∈ M
+
+(13)
+
+G A(0) = (G A1(0), G A2(0), . . . , G Ak(0), . . .
+
+G ANc(0)) t ∈ T, i ∈ N , j ∈ M
+
+(14)
+
+gaitj represents static scheme of empty cars, and the initial antibodies can be worked out by Min-min algorithm.
+
+4.2 Immune cloning operation
+4.2.1 Afﬁnity function
+The reasonable degree of the single antibody cannot totally indicate quality of the antibody, instead, based on the information entropy theory, the value of entropy is used to represent antibody potentials. Information entropy of anti-
+
+123
+
+Cluster Comput
+
+body GA of solution vector is recorded as [9],
+
+k(G A) = −
+
+ϕij(t) log ϕij(t)
+
+i∈N j∈M t∈T
+
+N (G A) = int N c ×
+
+exp[ k (G A) − (G A)] G A∈G Abest exp[ k (G A) − (G A)]
+
+(15)
+
+(20)
+
+In Eq. (15), ϕij(t) represents utility function of antibody.
+
+ϕij(t) =
+
+[ψ(t)msj (t) − μse fisj (t)xiej]
+
+(16)
+
+i∈N j∈M s∈S
+
+In Eq. (18), int(·) means integral function, N (G A) is cloning scale of antibody G A, which represents quantity of the antibody after cloning. The higher the potential of the antibody, the more the antibody by cloning.
+
+Afﬁnity Agak between antibody G Ak and antigen meets Eq. (11), and it reﬂects to what extent antibody G Ak satisﬁes antigen. The larger the ﬁtness, the larger the whole utility of antibody will be. Afﬁnity function Agak between antibody G Ak and antigen is deﬁned as,
+
+Agak = exp(1 − k(G A))
+
+(17)
+
+4.2.3 Immune gene manipulation
+Immune gene manipulation mainly includes cloning restructuring and variation, by using polynomial restructuring of antibody with good performance in terms of multi-objective optimization. Operation process is as follows,
+
+The average information entropy for antibody G A in set N c is
+
+(G A) = 1 |K | k∈K
+
+k(J)
+
+(18)
+
+Note the antibodies which are higher than antibody potential as advantage immune population G Abest .
+
+4.2.2 Immune clonal operation
+
+gaijt = 0.5 (1 + φt ) · gaitj
+
++ (1 − φt ) · gaitj , ∀i, j, i = j ; t ∈ Time
+
+(21)
+
+φt meets the following equation,
+
+βt =
+
+1 + Pcloud ·
+
+max(gaitj) − min(gaitj) max(gaitj) + min(gaitj)
+
+−(1+η)
+(22)
+
+Clonal operation Clon of antibody population is shown as the following equation,
+G A (N c) = Clon(G A(N c)) = [Clon(G A1(N c)), . . . , Clon(G Ak(N c)), . . .]T (19)
+Clon(G Ak(N c)) = Ek × G Ak(N c), Ek is N (G A)— dimensional vector composed of element of 1, that is cloning scale N (G A) of antibody G A.
+
+In the equation, η is the restructuring index parameters, the larger the value of η, the similar the new antibody and original antibody will be.
+Variation operation process is as follows,
+
+gaijt = gaitj + δt (gaitj − gaitj ), t ∈ T i me
+
+(23)
+
+gaijt is the value of the tth gene after gene variation, δt is the variation regulation parameter, which satisﬁes the following
+equation
+
+⎧ ⎪⎪⎪⎨ 1 + 2 Pcloud δt = ⎪⎪⎪⎩ 1 − 2 Pcloud
+
+max((gaitjmax −gaitjreal ),(gaitjreal −gaitjmin )) (gaitjmax −gaitjmin )
+max((gaitjmax −gaitjreal ),(gaitjreal −gaitjmin )) (gaitjmax −gaitjmin )
+
+−(1+ηm )
+,
+−(1+ηm )
+,
+
+if Pcloud ≤ 0.5 if Pcloud > 0.5
+
+(24)
+
+In the l th iterative process, the algorithm carries on cloning operation towards G Abest (k − 1), and the new population is expressed as R(l).Carry on cloning operation towards antibody G A, the antibody scale after cloning is
+expressed as [10]
+
+Restructuring operation realizes the exchange of information between antibodies, while variation operation realizes adaptive ﬁne-tuning towards antibodies. So the algorithm can carry on adaptive convergence with evolution of antibody population.
+
+123
+
+Cluster Comput
+
+4.3 Cloud operation parameter
+Quantum-Inspired Immune Clonal algorithm with cloud preference designs variation parameters and restructuring parameter based on characteristics of cloud droplet in randomness and stable tendentiousness. Use larger variation of parameters and restructuring parameters in the early stage of the algorithm, thus making individuals with lower afﬁnity carry on variation and restructuring in higher probability, and produce outstanding individuals. In the late stage of the algorithm, use smaller variation and restructuring parameters, thus making individuals with higher afﬁnity carry on variation and restructuring in lower probability, so as to protect the excellent antibody from damage, and accelerate global search capability.
+Calculating method of operating parameters is as follows [11],
+
+E x := f¯
+
+En := ( fmax − f¯)/C1
+
+H e := En/C2 Enn := Rand(En)∗H e + En
+
+(25)
+
+Pcloud :=
+
+k1e−( f −E x)2/2(Enn)2 , f ≥ f¯
+
+k2,
+
+f ≥ f¯
+
+In the equation, C1, C2 are control coefﬁcient, k1, k2 are production coefﬁcient. When the value of k varies to 1 or 0.5, the controlling of variation and restructuring can be taken.
+Normal cloud is the universal normal distribution, with state characteristic of large middle and two small sides. Expectation E x and entropy H e control level position and steep degree of cloud model respectively, and the entropy H e is proportional to discrete degree of cloud droplets. All the cloud droplets ﬂuctuate near the expectations, of which the extent is controlled by H e. According to “3En” rules, the larger En is, the larger the coverage area of cloud, thus the larger the search space of operation in individual crossover and mutation.
+
+4.4 Update of quantum gate
+
+Transformation between states of quantum evolutionary algorithm is achieved by quantum gate transformation matrix, whose structure design is the key of quantum evolutionary algorithm and can have the direct impact on the performance of the algorithm. According to the Schrodinger equation, quantum gate should satisfy UU = 1. Quantum revolving gate is as follows [12,13]
+
+α(ti+, j1) β(ti+, j1)
+
+= U (δθ )
+
+α(ti, j) β(ti, j)
+
+=
+
+cos(δθ ) − sin(δθ ) sin(δθ ) cos(δθ )
+
+α(ti, j) β(ti, j)
+
+(26)
+
+θ represents rotation angle which controls algorithm convergence speed. δ represents rotation direction, and the exact value is shown in the Table 1
+Among them, a(i, j) represents a certain bit of current chromosome, b(i, j) represents a bit corresponding with current optimal chromosome, Z ( f ) is objective function. Since the objective function is maximum, in order to converge to
+the optimal goal, probability of taking 1 in current solution should be increased to enlarge |β|2. If (α, β) is in the ﬁrst or third quadrant, rotation direction should be counter clockwise, while (α, β) is in the second or fourth quadrant, it should be clockwise.
+
+4.5 Pseudo-code of QICC
+
+Input: empty car resource set N , empty car user set M , cloud probability Pcloud , cloud
+
+preferenceψ (t) , maximum generations lmax Output: optimal solution GAk∗ .
+
+1. Initialization N , M , Pcloud ,ψ (t) 㸪 qe 㸪 and initialize an immune GA(0) by
+Min-min algorithm. 2. Coding for solution according 12
+3. For each l such that l ≤ lmax do 4. For each GAk in GA(l) ) do 5. For each gaitj in GAk do
+
+6.
+
+Calculate preference vector wij (t) according to cloud preference interval by
+
+(4).
+
+7. Calculate static scheduling gai0j according (5)-(7)
+
+8. Create initial solution GA(0) according (8)-(11)
+
+9. End for
+
+10. Calculate information entropy GA k according (15) 11. Calculate profit function ϕij (t) according (16)
+
+12. Calculate affinity Agak of antigen and immune according (17) 13. Average immune population GA of information entropy Φ(GA) in set Nc
+
+according 18㸪
+14. Calculate antibody GAk∗ (l) according (19), and the number of it according (20)
+15. Restructuring operation to gene according (21), and create cloud control parameter according 25
+16. variation operation to gene according (23)㸪 and create cloud control parameter according 25
+17. such that t ≤ tmax do
+18. Quantum gate rotation according (26) 19. End for
+20. l = l +1 .
+21. End for
+22. Return optimal solution GAk∗ .
+
+4.6 Complexity analysis
+The difference between cloud quantum genetic algorithm and standard genetic algorithm lies in the following aspects of cross operation, mutation operation, population expansion, chromosome coding conversion and quantum gate rotation. Considering a optimization problem where the population size is N p, the number of iterations is N c, and
+
+123
+
+Cluster Comput Table 1 Quantum value table
+
+a(i, j)
+0 0 0 0 1 1 1 1
+
+b(i, j)
+0 0 1 1 0 0 1 1
+
+Z ( f ) < Z (b)
+False True False True False True False True
+
+θ
+0 0 0 0.005 π 0.01 π 0.025 π 0.005 π 0.025 π
+
+s(α, β) αβ > 0
+0 0 0 −1 −1 1 1 1
+
+αβ < 0
+0 0 0 1 1 −1 −1 −1
+
+α=0
+0 0 0 ±1 ±1 0 0 0
+
+β =0
+0 0 0 0 0 ±1 ±1 ±1
+
+the he size of the car scheduling problem is nm (Chromosome coding length), every time the iteration algorithm requires several steps of population transformation, decoding, calculation of ﬁtness function, selection of operations, generation of cross mutation probability, crossover operation, mutation operation, population expansion, optimal individual retention and quantum gate rotation. The computational complexity analysis for them are as follows. The population transformation is ﬁrst transformed into a binary representation population by a qubit, and its computational complexity is O(Np ∗ n ∗ m); the time complexity of selecting the operation process is: O(N p2); the time complexity of generating the crossover mutation probability is O(N p2 ∗ ?); the time complexity of the crossover operation is O(?∗ N p ∗ n2 ∗ m2); the time complexity of the variation operation process is: O(?∗ N p∗ n ∗ m); the time complexity of selecting the outstanding individuals into the next generation population process is: O(?∗ N p ∗ n ∗ m); the computational complexity of the optimal retention individuals is: O( p); the quantum gate rotation update computational complexity is: O(N p ∗ n2 ∗ m2).
+So the time complexity of quantum genetic algorithm is:
+
+O(N p, m, n) = O(N p ∗n ∗ m) + O((N p + N (G A))2)
+
++ O(N p ∗ n ∗ m)+ O(N (G A)∗N p ∗ n2∗ m2)
+
++ O(N (G A)∗ N p ∗ n∗ m)
+
++ O((N p+ N (G A)) log((N p+ N (G A))))
+
+= O(N (G A) ∗N p ∗ n2∗ m2)
+
+(27)
+
+5 Experiment and analysis
+5.1 Instance
+In order to be able to verify the effectiveness of dynamic scheduling of empty cars optimization of railway bureau, regional network after merging fulcrum on the background of simpliﬁed Jinan Railway Administration is shown in Fig. 1 below.
+In order to simplify the complexity of the example, the average travel speed of train is set to be 60 km/h, and take 1 h for a dynamic time range, so the investigation cycle (one day) contains 24 time range stages. Empty car demand information has a great inﬂuence on dynamic scheduling of empty cars, and in practice it is acquired by train prediction& accurate message and vehicle current calculating. Dynamic empty car demand information is shown in the Table 2.
+First of all, use a genetic algorithm with cloud preference to carry on the optimization solution of joint distribution model which is composed of static client, create initial distribution plan, and update the client demand information. Optimize the dynamic scheduling of empty cars real-time according to the known information, and distribute the demand of empty cars of moment 1 dynamically using Quantum-Inspired Immune Clonal algorithm with cloud preference, and generate the distribution plan of moment 1. Then update the client demand information, and calculate the scheduling of empty cars of moment 2. Optimize in turn and obtain the ultimate scheduling plan, as is shown in Table 3,
+
+It can be seen from the above equation that time complexity of the cloud quantum genetic algorithms is proportional to the square of the problem scale and is affected by the population size and number of iterations. It is the polynomial algorithm. The calculation amount of cloud quantum genetic algorithm and the standard genetic algorithm are of the same order of magnitude. The improved operation did not increase the complexity of the algorithm.
+
+5.2 Performance analysis
+In order to validate timeliness of Quantum-Inspired Immune Clonal algorithm with cloud preference for solving cloning dynamic vehicle scheduling problem, and to constitute a distribution network for static client in experiment 1, the standard genetic algorithm, tabu search algorithm and QuantumInspired Immune Clonal algorithm with cloud preference are
+
+123
+
+Fig. 1 Network information ﬁgure
+
+Cluster Comput
+
+Table 2 Dynamic empty car demand information
+
+ji’nan’xi
+
+qing’dao’xi
+
+gun’zhou
+
+1
+
+0
+
+60
+
+0
+
+2
+
+60
+
+0
+
+0
+
+3
+
+60
+
+0
+
+60
+
+4
+
+60
+
+0
+
+60
+
+5
+
+0
+
+0
+
+0
+
+6
+
+60
+
+60
+
+0
+
+7
+
+0
+
+0
+
+0
+
+8
+
+60
+
+60
+
+60
+
+9
+
+120
+
+0
+
+60
+
+10
+
+0
+
+0
+
+120
+
+11
+
+0
+
+0
+
+0
+
+12
+
+120
+
+60
+
+0
+
+13
+
+60
+
+0
+
+0
+
+14
+
+120
+
+60
+
+0
+
+15
+
+0
+
+0
+
+0
+
+16
+
+0
+
+120
+
+0
+
+17
+
+120
+
+0
+
+0
+
+18
+
+0
+
+60
+
+120
+
+19
+
+60
+
+0
+
+0
+
+20
+
+0
+
+60
+
+0
+
+21
+
+60
+
+0
+
+0
+
+22
+
+0
+
+0
+
+0
+
+23
+
+0
+
+60
+
+30
+
+24
+
+0
+
+0
+
+0
+
+lin’yi
+0 60 0 0 60 0 0 60 0 0 0 60 60 0 0 0 0 0 60 0 0 0 60 0
+
+ri’zhao
+0 70
+0 0 60 60 0 0 60 0 0 0 60 0 0 0 0 0 60 60 0 0 0 60
+
+zou’cheng
+0 60 0 0 0 0 65 0 0 0 0 0 65 0 0 0 0 0 0 0 0 65 0 0
+
+xu’zhou’bei
+80 130
+65 65 40 130 0 80 60 100 60 65 65 0 0 20 130 50 60 125 80 65 60 0
+
+yun’tai’shan
+0 60 0 0 60 0 120 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+
+he’ze
+60 0 0 0 0 0 0 0 60 0 0 0 0 0 0 0 60 0 60 0 0 0 0 0
+
+123
+
+Cluster Comput
+
+Table 3 Dynamic scheduling of empty cars
+
+n
+
+m
+
+tn tm
+
+f
+
+n
+
+m
+
+tn tm f
+
+1 ji’nan’xi
+
+de’zhou
+
+14
+
+0 22 xu’zhou’bei zou’cheng 3 7 10
+
+2 ji’nan’xi
+
+de’zhou
+
+36
+
+20 23 xu’zhou’bei ji’nan’xi
+
+5 13 5
+
+3 ji’nan’xi
+
+de’zhou
+
+6 10 65 24 xu’zhou’bei yu’cheng
+
+5 8 65
+
+4 ji’nan’xi
+
+de’zhou
+
+9 12 65 25 xu’zhou’bei yu’cheng
+
+6 9 65
+
+5 ji’nan’xi
+
+de’zhou 10 14 65 26 xu’zhou’bei yu’cheng
+
+8 11 35
+
+6 ji’nan’xi
+
+de’zhou 13 17 65 27 xu’zhou’bei yu’cheng
+
+9 16 60
+
+7 ji’nan’xi
+
+de’zhou 15 18 65 28 xu’zhou’bei yu’cheng 11 15 65
+
+8 ji’nan’xi
+
+de’zhou 17 21 65 29 xu’zhou’bei zou’cheng 11 16 5
+
+9 ji’nan’xi
+
+de’zhou 20 24 65 30 xu’zhou’bei yu’cheng 12 16 65
+
+10 ji’nan’xi
+
+de’zhou 24 t + 1 65 31 xu’zhou’bei ji’nan’xi
+
+13 21 15
+
+11 gun’zhou zou’cheng 11 13 65 32 xu’zhou’bei yu’cheng 13 16 65
+
+12 gun’zhou zou’cheng 20 23 65 33 xu’zhou’bei yu’cheng 15 19 65
+
+13 lin’yi
+
+gun’zhou 1 6
+
+0 34 xu’zhou’bei ji’nan’xi
+
+17 24 65
+
+14 lin’yi
+
+gun’zhou 5 11 65 35 xu’zhou’bei yu’cheng 19 23 65
+
+15 lin’yi
+
+gun’zhou 10 15
+
+0 36 xu’zhou’bei zou’cheng 20 24 50
+
+16 lin’yi
+
+gun’zhou 16 21
+
+0 37 xu’zhou’bei ji’nan’xi
+
+21 t + 2 65
+
+17 lin’yi
+
+gun’zhou 20 t + 1 65 38 xu’zhou’bei yu’cheng 21 24 65
+
+18 ri’zhao
+
+he’ze’nan 4 13 65 39 xu’zhou’bei yu’cheng 24 t + 3 65
+
+19 ri’zhao
+
+he’ze’nan 14 t + 3 65 40 yun’tai’shan xu’zhou’bei 7 13 50
+
+20 xu’zhou’bei ji’nan’xi
+
+18
+
+20 41 yun’tai’shan yu’cheng 15 23 65
+
+21 xu’zhou’bei yu’cheng 2 5
+
+65 42 he’ze
+
+he’ze’nan 11 12 60
+
+used to solve the problem, so as to compare and analyze the performance of the three algorithms.
+First of all, use three algorithms respectively to solve and analyze the joint distribution model, and the standard genetic algorithm can converge after 20 generations, while tabu search algorithm can converge after 10 generations, and the number of Quantum-Inspired Immune Clonal algorithm with cloud preference is 14, faster than the standard genetic algorithm, which beneﬁts from the diversity of representation of quantum chromosomes, as well as dynamic restructuring operation and variation operation of structure of cloud model.
+As can be seen from the experimental results above, the two stage solution strategy can timely respond to dynamic demand, and the Quantum-Inspired Immune Clonal promoted by cloud model can well satisfy the requirement of real-time of dynamic scheduling of empty cars.
+
+which is distinct from the static scheduling that sets such modiﬁcation in an isolated or typical interval. QuantumInspired Immune Clonal algorithm with cloud preference introduces the quantum state vector expression to antibody whereby to operate on the genes of antibody through qubits, quantum superposition, etc., and encode antibody by threedimensional vector to preserve the diversity of population and avoid selection pressure convergence ability of the algorithm ﬁnally can be enhanced by cloning operation of chromo gene realized by quantum revolving gate technology. Furthermore, the use of random city and stability of cloud droplet of cloud model which can modify the immune cloning operation, the immune gene operation and the ﬁxed operation probability of the immune selection operation (the three operation belongs to the standard immune cloning genetic algorithm) can overcome the slow speed of searching and easy prematurity of the standard genetic algorithm whereby to enhance the convergence and robustness.
+
+6 Conclution
+The dynamic scheduling which is featured by dynamic information develops from the static scheduling. It should pay attention to the ﬂuctuation of supply and demand which means the change of supply and demand within consecutive intervals. The modiﬁcation of system thus associates the empty cars scheduling with the dynamic change of time,
+
+Acknowledgements This study is supported by The National Natural Science Foundation of China (61403022); Supported by Beijing Natural Science Foundation (J160003); Supported by the Fundamental Research Funds for the Central Universities (2017JBM030).
+Compliance with ethical standards
+Conﬂicts of interest The authors declare that they have no conﬂict of interest.
+
+123
+
+References
+1. White, W.W., Bomerault, A.M.: A network algorithm for empty freight car allocation. IBM Syst. J. 8(2), 147–169 (1969)
+2. Milenkovic´, M.S., Bojovic´, N.J., švadlenka, L., Melichar, V.: A stochastic model predictive control to heterogeneous rail freight car ﬂeet sizing problem. Trans. Res. E 82, 162–198 (2015)
+3. Joborn, M., Crainic, T.G., Gendreau, M., Holmberg, K.: Economies of scale in empty freight car distribution in scheduled railways. Trans. Sci. 38(2), 121–134 (2004)
+4. Lu, G., Cheng, B., Wang, Y., Lin, Q.: A car-following model based on quantiﬁed homeostatic risk perception. Math. Probl. Eng. 2013(6), 165–185 (2013)
+5. He, B., Song, R., He, S., Xu, Y.: High-speed rail train timetabling problem: a time-space network based method with an improved branch-and-price algorithm. Math. Probl. Eng. 2014(1), 1–15 (2014)
+6. Bektas¸, T., Crainic, T.G., Morency, V.: Improving the performance of rail yards through dynamic reassignments of empty cars. Trans. Res. C 17(3), 259–273 (2009)
+7. Milenkovic´, M., Bojovic´, N.: A fuzzy random model for rail freight car ﬂeet sizing problem. Trans. Res. C 33(33), 107–133 (2013)
+8. Shi, T., Zhou, X.: A mixed integer programming model for optimizing multi-level operations process in railroad yards. Trans. Res. B 80, 19–39 (2015)
+9. Qiea, I.: Quantum-inspired evolutionary algorithm for continuous space optimization based on multiple chains encoding method of quantum bits. Math. Probl. Eng. 2014(9), 166–183 (2014)
+10. Yang, S., Wang, M., Jiao, L.: Quantum-inspired immune clone algorithm and multiscale Bandelet based image representation. Pattern Recogn. Lett. 31(13), 1894–1902 (2010)
+11. Dong, W., Liu, X., Li, Y.: Analysis of stiffened penstock external pressure stability based on immune algorithm and neural network. Math. Probl. Eng. 2014(11), 1–11 (2014)
+12. Wu, T., Hou, R., Chen, Y.: Cloud model-based method for infrared image thresholding. Math. Probl. Eng. 2016(1), 1–18 (2016)
+13. Gu, J., Gu, M., Gu, X.: A mutualism quantum genetic algorithm to optimize the ﬂow shop scheduling with pickup and delivery considerations. Math. Probl. Eng. 2015, 1–17 (2015)
+Yun Jing received his B.S. degrees and his Ph.D. in Trafﬁc Engineering from Southwest Jiaotong University. He is currently an Assistant Professor of trafﬁc engineering at School of Trafﬁc and Transportation of Beijing Jiaotong University where he conducts research on intelligent transportation systems, and information technology and the application of the operational research in the ﬁeld of transportation.
+123
+
+Cluster Comput
+Yingke Liu received his B.S. degrees in Trafﬁc Engineering from Beijing Jiaotong University. He is now a postgraduate student at Beijing Jiaotong university and his mentor is Assistant Professor Yun Jing. His research directions are mainly intelligent transportation system and information technology and the application of the operational research in the ﬁeld of transportation.
+Mingkai Bi received his engineering bachelor degree in Transportation Planning and Management from Beijing Jiaotong University. He is currently a doctoral student of Transportation Planning and Management at School of Trafﬁc and Transportation of Beijing Jiaotong University where he conducts research on intelligent transportation systems, and information technology and application of the operational research in the ﬁeld of transportation.
+

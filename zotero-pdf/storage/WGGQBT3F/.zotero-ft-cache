@@ -1,0 +1,1187 @@
+Empty Car Distribution Considering Timeliness Requirement at Chinese Railways
+Shengdong Li1; Hongxia Lv2; Yuanyuan Wang3; and Shaoquan Ni4
+
+Downloaded from ascelibrary.org by Beijing Jiaotong University on 01/02/22. Copyright ASCE. For personal use only; all rights reserved.
+
+Abstract: Due to variations in freight traffic arising in daily operations, railways need to develop a distribution plan to determine the actual movements of empty cars every day. This paper investigates the daily empty car distribution problem in the Chinese railway system, which is a scheduled railway system but one where scheduled train services in the timetable are not fixed. To make current empty car distribution more market-oriented, this paper takes the timeliness requirement of empty car demands into account. A time-space network that divides the planning horizon into multiple decision-making stages is constructed to describe the process of empty car distribution. With consideration of car types and the network capacity shared by loaded and empty cars, an integer programming model is proposed to minimize total cost in the distribution process. A Lagrangian relaxation heuristic algorithm is designed to solve this problem. The effectiveness of the proposed model and algorithm is demonstrated by numerical experiments based on realistic data from the Haoji Railway, a rail freight corridor. Finally, sensitivity analyses indicate that unit shortage costs and delay penalties can be set relatively high and that many train paths should be scheduled in the timetable to ensure that stations receive empty cars on time. DOI: 10.1061/JTEPBS.0000547. © 2021 American Society of Civil Engineers.
+Author keywords: Freight transport; Empty car distribution; Lagrangian relaxation; Daily operations.
+
+Introduction
+Railway freight transportation plays an important role in modern society. In 2018, around 4 billion tons of goods were transported on the Chinese railway network, which comprises 131,700 km of operating mileage. However, with the development of the economy, customers now expect high-quality freight services that are fast, safe, reliable, and individual. To adapt, current railway operations need to be improved to be more market-oriented. This need motivates this paper to optimize the empty car distribution, which is a crucial operating decision. Improved empty car distribution can not only decrease operating costs but also enhance customer services.
+1Ph.D. Candidate, School of Transportation and Logistics, Southwest Jiaotong Univ., Chengdu 610031, China; Ph.D. Candidate, National Railway Train Diagram Research and Training Center, Southwest JiaoTong Univ., Chengdu 610031, China. ORCID: https://orcid.org/0000-0002-9639 -1688. Email: shengdongli@my.swjtu.edu.cn
+2Professor, School of Transportation and Logistics, Southwest Jiaotong Univ., Chengdu 610031, China; Professor, National Railway Train Diagram Research and Training Center, Southwest JiaoTong Univ., Chengdu 610031, China; National and Local Joint Engineering Laboratory of Comprehensive Intelligent Transportation, Southwest JiaoTong Univ., Chengdu 610031, China. Email: hongxialu@163.com
+3Lecturer, School of Business Administration, Zhejiang Univ. of Finance and Economics, Hangzhou 310018, China (corresponding author). ORCID: https://orcid.org/0000-0002-9883-3734. Email: wangyuan_123@ 126.com
+4Professor, School of Transportation and Logistics, Southwest Jiaotong Univ., Chengdu 610031, China; Professor, National Railway Train Diagram Research and Training Center, Southwest JiaoTong Univ., Chengdu 610031, China; National and Local Joint Engineering Laboratory of Comprehensive Intelligent Transportation, Southwest JiaoTong Univ., Chengdu 610031, China. Email: nishaoquan@126.com
+Note. This manuscript was submitted on September 17, 2020; approved on February 24, 2021; published online on August 4, 2021. Discussion period open until January 4, 2022; separate discussions must be submitted for individual papers. This paper is part of the Journal of Transportation Engineering, Part A: Systems, © ASCE, ISSN 2473-2907.
+
+For railway stations, there are often spatial imbalances in the supply and demand of empty cars. To compensate for these imbalances, empty cars have to be distributed—that is, moved from stations with an excess of empty cars to stations with a deficit. Since the planning and execution of empty car distribution varies from one country to another, this paper considers the problem at Chinese railways.
+Typically, the planning and execution process include two phases, monthly and daily. To control empty cars steadily flowing from supply stations to demand stations, Chinese railways first derive a monthly empty car distribution plan from forecasted demands for the next month. In daily operations, if the actual demands are consistent with the forecasted demands, empty cars can just be distributed according to the monthly plan. However, the actual demands in the railway network change frequently each day, resulting in being different from the forecasted demands. Therefore, Chinese railways need to develop a daily plan to determine the actual distribution of empty cars based on actual demands for the next day.
+In the current practice to generate the daily plan, the distribution of empty cars is generally regarded as a typical transportation problem with the objective of minimizing the total movement distance of empty cars while satisfying supply and demand at stations. It can be seen that only the required quantity of empty cars for the next day is met, whereas the required timeliness is neglected. In fact, the time dimension is essential for empty car distribution. For example, a station may expect to get empty cars for loading goods between 9:00 and 12:00, but the distributed empty cars actually arrive at the station between 15:00 and 18:00. If goods cannot be loaded on time, the delivery of shipments to customers will be delayed. As a result, it may lead to customer dissatisfaction and market share loss.
+The purpose of this paper is to formulate and solve an optimization model for daily empty car distribution that explicitly considers the timeliness requirement in the distribution process. The railway system considered is a scheduled one in which there is a timetable but the scheduled train services are not fixed, for freight trains might be delayed or canceled if there is a lack of sufficient car flows at Chinese railways. It is a major difference that makes this
+
+© ASCE
+
+04021069-1
+
+J. Transp. Eng., Part A: Systems
+
+J. Transp. Eng., Part A: Systems, 2021, 147(10): 04021069
+
+Downloaded from ascelibrary.org by Beijing Jiaotong University on 01/02/22. Copyright ASCE. For personal use only; all rights reserved.
+
+problem distinct from other empty car distribution problems in a scheduled railway (typically a European railway system) in which all freight trains are running according to a timetable. This means that we cannot utilize the train timetable to specify the departure and arrival times of empty car movements in detail.
+The remainder of the paper is organized as follows. First we provide a review of relevant literature and outline the contributions of our study. Then we describe the empty car distribution problem. Next we formulate the mathematical optimization model. We then propose a Lagrangian relaxation heuristic algorithm designed to solve the problem and present and analyze our numerical results Lastly we offer conclusions.
+
+takes economy of scale into account. Haghani (1989) examined the interaction between tactical train routing and makeup problem and operational empty car distribution decisions. Liang and Lin (2007) studied the daily empty car distribution problem at Chinese railways. They constructed a time-space network based on the blocking plan and train timetable and developed a multistage optimization model. Wang et al. (2015b) expanded the problem studied in Liang and Lin (2007) to the whole Chinese railway network and proposed a chaos-based particle swarm optimization algorithm. Wang et al. (2015a) proposed a multi-time-point optimization model and applied it at Guangzhou Railway Corporation, which is a subsystem of Chinese railway system.
+
+Literature Review and Contributions of this Study
+Literature Review
+Many studies have investigated the empty car distribution problem. They present a variety of methods by taking different features of empty car distribution into account. Fan et al. (2007a) considered substitution between car types. They analyzed the factors influencing car type substitution, such as substitution cost, assignment cost, and train connection. Lin and Qiao (2008) stressed that the distribution of empty cars is limited by the capacity of physical networks. They established a liner programming model, where the constraints are the balance of supply and demand of empty cars and the capacity restriction of railway lines. Since loaded cars turn into empty cars after they are unloaded, Li and Xia (2005) integrated loaded and empty cars to optimize the movement distance of empty cars. To establish a reliable distribution plan, Cao and Lin (2007) took freight stock cost into account. Computational experiments indicate that the proposed model’s absorbing of stock cost into the objective function is helpful to accelerating empty car cycling. Cao et al. (2009) studied a network where the routes of empty cars are unknown in advance and considered multiple car types.
+In addition, some papers have integrated some the features just discussed to synthetically optimize empty car distribution. Zhang et al. (2016) considered capacity constraints and multiple car types simultaneously. Fan et al. (2007b) optimized loaded and empty car distribution with substitution between car types. At the same time, some researchers have been dedicated to improving the efficiency of solving empty car distribution problem. Du et al. (2006) designed an ant colony algorithm and compared it to the minimumelement, northwest-corner, neural network, and genetic algorithm methods. Numerical results show that the designed algorithm is able to obtain better solutions within a shorter computing time. Both Niu (2001) and Xiong et al. (2002) developed genetic algorithms to solve the empty car distribution problem. Guo et al. (2003) introduced a reiterative adjustment method to solve the problem on large-scale networks.
+Generally, most studies have focused on the distribution problem at the monthly level. Some have also handled daily empty car distribution. Holmberg et al. (2008) considered empty car distribution at Swedish State Railways, where all trains are scheduled in advance and the departure and arrival times are specified in detail according to a given timetable. The researchers built an optimization model that includes capacity constraints on trains and adheres explicitly to their arrival and departure times. Joborn et al. (2004) considered a railway system similar to that in Holmberg et al. (2008). They analyzed the cost structure for repositioning of empty cars and concluded that the distribution cost shows an economy-ofscale behavior. Using a time-dependent network with fixed costs, they proposed a capacitated network design model that explicitly
+
+Contributions
+It can be seen that current research commonly considers the timeliness requirements of daily empty car distribution using a train timetable or constructing a time-space network. As already mentioned, this study focus on the Chinese railway system, where there is a timetable but the scheduled freight train service is not fixed. To incorporate the dynamic of the timeliness requirement of empty cars, we thus develop a time-space network with multiple time periods instead of using the timetable directly. The time-space network, together with the supply and demand of empty cars, certifies the movements of empty cars, making the implementation of empty car distribution deterministic.
+In Chinese railways, multiple car types—mainly flat car, gondola car, box car, and tank car—are used to transport various types of goods. Therefore, we take the types of empty cars into account in our optimization model to improve its practical significance. In addition, most literature includes the restriction on capacity only for empty cars. In practice, empty cars are usually joined with loaded cars in the same trains to be transported and transport capacity is shared by empty and loaded cars. If transport capacity is considered only for empty cars, loaded cars cannot get transport capacity to be delivered, directly resulting in delayed shipment delivery. We assume there is information about the movement of loaded car flows, deduced by the distribution of loaded cars to be released in the implementation period. Thereby, available empty car transport capacity can be calculated.
+To understand the contribution of this research clearly, the important features are compared with research on daily empty car distribution in Table 1. Therefore, the major contribution of this paper is that we study daily empty car distribution in the Chinese railway system with a view to satisfying the timeliness requirement in the distribution process. Especially, we take into account multiple car types and transport capacity for empty and loaded cars, allowing us to build distribution plans of more practical significance.
+Problem Description
+A railway system needs to distribute empty cars between stations N ¼ f1; 2; : : : ; ng. The planning horizon is one day, which is referred to as the implementing day and denoted day o. However, the complete time horizon may be more than one day because some operations may start on day o and end one (or several) days later. For example, a train may depart on the current day and arrive on the next day. Even so, we focus only on operations whose start times are on the implementing day.
+The supply and demand for empty cars usually change over time during one planning horizon. To state this dynamic characteristic, the complete time horizon is identically discretized into a set of time periods P ¼ f1; 2; : : : ; Tg, where each time period t represents certain hours of the time horizon. Then some important parameters can
+
+© ASCE
+
+04021069-2
+
+J. Transp. Eng., Part A: Systems
+
+J. Transp. Eng., Part A: Systems, 2021, 147(10): 04021069
+
+Table 1. Comparison of studies on daily empty car distribution
+
+Study
+
+Railway system
+
+Holmberg et al. (2008) Joborn et al. (2004) Haghani (1989) Liang and Lin (2007) Wang et al. (2015b) Wang et al. (2015a) This paper
+
+Scheduled freight train services fixed Scheduled freight train services fixed Scheduled freight train services not fixed Scheduled freight train services not fixed Scheduled freight train services not fixed Scheduled freight train services not fixed Scheduled freight train services not fixed
+
+Network
+Timetable Timetable Time-space network Time-space network Time-space network Time-space network Time-space network
+
+Transport capacity
+Loaded and empty cars Loaded and empty cars
+No restriction Only empty cars Only empty cars Only empty cars Loaded and empty cars
+
+Car type
+Yes Yes No No No No Yes
+
+Downloaded from ascelibrary.org by Beijing Jiaotong University on 01/02/22. Copyright ASCE. For personal use only; all rights reserved.
+
+be considered as stage-based and static, including supply and demand, transport capacity, and related costs.
+The railway system contains K car types in total. Each station reports the numbers and time periods of empty cars that it expects to supply or demand. Therefore, for each car type k of empty cars, we know the specific supply and demand quantity at each station n for each time period t. Note that only supply and demand on the implementing day are deterministic. Beyond the implementing day, supply and demand are given by forecasts and thus are not deterministic. However, they are updated when new implementing days are added.
+At the beginning of the current implementing day, there is an inventory of empty cars from the last implementing day. It represents a supply (or demand if negative) of empty cars of car type k at the first time period (t ¼ 1) at each station n. When distributing empty cars, it is assumed that no origin-destination–specific demands have to be fulfilled. The main requirement is to satisfy quantity and timeliness demands given the supplies for each car type at each station.
+The train-blocking plan and timetable define all possible ways to perform the transport of empty cars from origins to destinations. The train-blocking plan stipulates whether a freight train can carry empty cars, and the train timetable specifies in what time periods the empty cars carried by trains depart from their origins and arrive at their destinations. Freight trains have limited capacities to carry freight cars. To simplify the presentation, we assume that all car types have the same weight and length so transport capacity can be expressed as the number of cars that can be transported. Since the time horizon is discretized into time periods, transport capacity is defined as the maximum number of cars that can be transported from a station in one time period to another station in another time period. Say, for example, that two trains are departing Station A during Time period 6:00–9:00 and arriving at Station B during Time period 9:00–12:00. Each train can carry 50 cars, so transport capacity is 100 cars. In addition, the stations are limited to accommodating freight cars. Accommodating capacity is expressed as the maximum number of cars that can be held by a station in one time period.
+Both empty and loaded cars are usually transported in the same trains. It is assumed that the distribution of loaded cars has been given, which means the occupancy of loaded cars to the transport capacity and accommodating capacity is known. The residual capacity excluding occupancy capacity of loaded cars can be used for empty cars. The loaded transports cannot be altered, so the residual capacities of empty cars are fixed.
+As emphasized by Joborn et al. (2004), the distribution of empty cars shows an economy-of-scale behavior. Therefore, the aim of the problem is to minimize its total cost. Three cost types are considered. First, there are transport costs due to energy consumption and freight car wear in the movement of empty cars. They are modeled as proportional to the number of moved cars and the corresponding movement distances, in which the proportionality coefficients (i.e., unit transport cost) differ between car types. Second, there are
+
+Fig. 1. Simple illustration of the problem.
+storage costs for holding empty cars at stations. Storage costs involve infrastructure wear, track occupancy, and staff employment. They are modeled as proportional to the number of empty cars held at stations in each time period, in which the proportionality coefficients (i.e., unit storage cost) differ between car types and stations. Third, there are shortage costs to penalize not receiving enough empty cars to load goods. They are incurred by delayed distribution of empty cars to demand stations compared with the expected time periods. They are also modeled as proportional to the number of empty cars in shortage at the stations in each time period, in which the proportionality coefficients (i.e., unit shortage cost) differ between car types and stations.
+Hence, this problem is to minimize the total cost of the distribution process while satisfying the capacity restrictions and the empty car demands of each station in each time period.
+A simple example is presented in Fig. 1 to illustrate the problem, using a small network with four stations and one car type. The transport and accommodating capacities of the network are sufficient. There are two available empty cars at period 6:00–9:00 at Station A and two in Period 9:00–12:00 at Station B. There are also demands for two empty cars in Period 12:00–15:00 at Station C and two in Period 9:00–12:00 at Station D. The total transport cost is minimized if two cars are transported from A to C and two cars from B to D. However, this distribution incurs a shortage cost for the two cars transported from B to D beyond the expected time period. An alternative distribution is to transport two cars from A to D and two from B to C. The total transport cost increases, but the two stations receive empty cars on time.
+Mathematical Model
+Time-Space Network
+To formulate the problem mathematically, a time-space directed network G ¼ ðV; AÞ is proposed, where V denotes the node set and A denotes the arc set. Fig. 2 presents an illustration of the
+
+© ASCE
+
+04021069-3
+
+J. Transp. Eng., Part A: Systems
+
+J. Transp. Eng., Part A: Systems, 2021, 147(10): 04021069
+
+Downloaded from ascelibrary.org by Beijing Jiaotong University on 01/02/22. Copyright ASCE. For personal use only; all rights reserved.
+
+represents the total cost of the empty cars flowing on the arcs in
+
+the network, corresponding to the transport cost in the case of a
+
+moving arc and the storage cost in the case of a holding arc.
+
+The second part gives the total shortage cost of the penalties for
+
+unmet empty car demand at the nodes in the network
+
+XX
+
+XXX
+
+minZ ¼
+
+ckaxka þ
+
+γknbknt
+
+ð1Þ
+
+a∈A k∈K
+
+n∈N t∈P k∈K
+
+Fig. 2. Time-space network.
+network with a complete time horizon of two days and five time periods per day. Each node nt ∈ V denotes station n at time period t, representing the copy of the station on the time axis. The arc set A is partitioned into the moving arcs set A1 that includes all arcs connecting the nodes of different stations and the holding arcs A2 that includes all arcs connecting the nodes of the same stations. Each arc a ∈ A thus represents empty cars to be moved from one station to another or to be held at one station.
+The moving arcs are constructed as follows: if there are train paths originating from station n during period t and terminating at station n 0 during time period t 0 in the network timetable, then a moving arc connecting node nt and node n 0t 0 is constructed. Since we are making distribution decisions for implementing day o, only the moving arcs whose departure times are on day o are included in G. However, holding arcs connect the successive time periods of the complete time horizon. Consequently, the transport capacity is imposed on the moving arcs and the accommodating capacity is imposed on the holding arcs, along with the corresponding capacity occupancy of loaded cars. For each arc a, the residual capacity excluding occupancy by loaded cars is denoted ma.
+Therefore, the transport cost is associated with the moving arc and the storage cost is associated with the holding arc. For each arc a, cka represents the unit cost per empty car of type k on arc a, corresponding to the unit transport cost (when a ∈ A1) and the unit storage cost (when a ∈ A2). We denote the unit shortage cost γkn and associate it with each node of station n per empty car of type k.
+With the construction of the time-space network G, we express the empty car distribution problem so as to give the flows of empty cars for each car type on the arcs in the network, such that the overall cost is minimal and the demands of the nodes and the capacities of the arcs are satisfied. Since each car type can be considered one commodity, the problem becomes a multicommodity network flow problem.
+Mathematical Formulations
+Two formulations can usually be constructed for a multicommodity network flow problem: the arc-based formulation and the pathbased formulation. In the section “Time-Space Network,” we defined the problem as finding the empty car flows on each arc in the time-space network; that is, we are mainly concerned about the number of empty cars that can be distributed between stations rather than the paths of specific empty cars. Thus, we build an arc-based model.
+Objective Function The objective is to minimize the total cost of the distribution process. The objective function [Eq. (1)] has two parts. The first
+
+Constraints
+
+We assigned the following constraints in the construction of the
+
+proposed model:
+
+• Flow conservation constraints, formulated as Eqs. (2)–(4), en-
+
+sure the balance of empty car flows at each node in the network.
+
+For each car type k at each node nt, the supply number plus the
+
+number received from other nodes minus the shortage number
+
+of the previous node is equal to the demand number plus the
+
+number sent to other nodes minus the shortage number of the
+
+current node
+
+X
+
+sknt þ ikn1 ¼ dknt − bknt þ
+
+xka
+
+a∈A−nt
+
+∀ k ∈ K; ∀ n ∈ N; t ¼ 1
+
+ð2Þ
+
+X
+
+X
+
+sknt − bkn;t−1 þ
+
+xka ¼ dknt − bknt þ
+
+xka
+
+a∈Aþnt
+
+a∈A−nt
+
+∀ k ∈ K; ∀ n ∈ N; t ¼ 2; 3; : : : ; T − 1
+
+ð3Þ
+
+X
+
+sknt − bkn;t−1 þ
+
+xka ¼ dknt − bknt þ iknT
+
+a∈Aþnt
+
+∀ k ∈ K; ∀ n ∈ N; t ¼ T
+
+ð4Þ
+
+• Arc capacity constraints, formulated as Eq. (5), ensure that,
+
+foreach arc a ∈ A, the total number of empty cars of all types
+
+cannot exceed the residual capacity ma
+
+X
+
+xka ≤ ma ∀ a ∈ A
+
+ð5Þ
+
+k∈K
+
+• Linking constraints, formulated as Eqs. (6)–(8), introduce a binary variable yknt to establish the linking constraints. These constraints state that if the number of empty cars sent to other
+nodes is not zero, the shortage number of the node should be
+zero; otherwise, the node cannot send empty cars to other nodes
+and the empty car number sent to other nodes will thus be zero X xka ≤ Myknt ∀ k ∈ K; ∀ n ∈ N; t ¼ 1; 2; : : : ; T − 1 ð6Þ
+a∈A−nt
+
+iknT ≤ Myknt ∀ k ∈ K; ∀ n ∈ N; t ¼ T
+
+ð7Þ
+
+bknt ≤ Mð1 − ykntÞ ∀ k ∈ K; ∀ n ∈ N; ∀ t ∈ P ð8Þ
+
+• Variable constraints, formulated as Eqs. (9)–(12), ensure that yknt is a binary that can only be 0 or 1. The values of decision variables bknt, iknT , and xka are nonnegative integers
+
+yknt ∈ f0; 1g ∀ k ∈ K; ∀ n ∈ N; ∀ t ∈ P
+
+ð9Þ
+
+bknt ∈ Zþ0 ∀ k ∈ K; ∀ n ∈ N; ∀ t ∈ P
+
+ð10Þ
+
+iknT ∈ Zþ0 ∀ k ∈ K; ∀ n ∈ N
+
+ð11Þ
+
+xka ∈ Zþ0 ∀ k ∈ K; ∀ a ∈ A
+
+ð12Þ
+
+© ASCE
+
+04021069-4
+
+J. Transp. Eng., Part A: Systems
+
+J. Transp. Eng., Part A: Systems, 2021, 147(10): 04021069
+
+Downloaded from ascelibrary.org by Beijing Jiaotong University on 01/02/22. Copyright ASCE. For personal use only; all rights reserved.
+
+Solution Algorithm
+The multicommodity flow problem with an integer requirement on the flow is known to be NP-hard (Garey and Johnson 1979). The empty car distribution problem studied in this paper is not an exception since the number of empty cars flowing throughout the network is an integer. To solve the potentially large problem in practice, we design a Lagrangian relaxation heuristic algorithm to find good solutions within acceptable computing time.
+The Lagrangian relaxation heuristic algorithm has been widely used in many railway transportation problems involving multicommodity flow. The algorithm has been applied the blocking problem (Barnhart et al. 2000), the train timetabling problem (Caprara et al. 2017), the empty car distribution problem (Holmberg et al. 2008), among others. It has the advantage of relaxing the constraints that make the problem difficult to solve, and uses a subgradient method to solve the relaxed problem. A detailed description of the algorithm is presented next.
+
+Lagrangian Relaxation and Decomposition
+
+Eqs. (1)–(12) are collectively called the original problem (P). The
+
+flow capacity constraints [Eq. (5)] lead to the interaction between
+
+different car types, which are the major restriction limiting the
+
+efficient solving of P. We thus relax these constraints to obtain
+
+the Lagrangian relaxation problem [LRðλÞ], by adding Lagrangian
+
+multipliers λaðλa ≥ 0; a ∈ AÞ. The relaxed problem can then be
+
+written as
+
+XX
+
+XXX
+
+LRðλÞ∶ minZ ¼
+
+ckaxka þ
+
+γknbknt
+
+a∈A k∈K 0
+
+n∈N t∈P1k∈K
+
+XX
+
+þ λa@ xka − maA
+
+ð13Þ
+
+a∈A
+
+k∈K
+
+XX
+
+XXX
+
+X
+
+¼
+
+ðcka þ λaÞxka þ
+
+γknbknt − λama
+
+a∈A k∈K
+
+n∈N t∈P k∈K
+
+a∈A
+
+ð14Þ
+
+Subject to the flow conservation constraints [Eqs. (15)–(17)], the linking constraints [Eqs. (18)–(20)], and the variable constraints [Eqs. (21)–(24)]
+
+sknt þ ikn1 ¼ dknt − bknt þ Σa∈A−nt × xka ∀ k ∈ K; ∀ n ∈ N; t ¼ 1 ð15Þ
+
+sknt − bkn;t−1 þ Σa∈Aþnt × xka ¼ dknt − bknt þ Σa∈A−nt × xka ∀ k ∈ K; ∀ n ∈ N; t ¼ 2; 3; : : : ; T − 1
+
+ð16Þ
+
+sknt − bkn;t−1 þ Σa∈Aþnt × xka ¼ dknt − bknt þ × iknT
+∀ k ∈ K; ∀ n ∈ N; t ¼ T
+X xka ≤ Myknt ∀ k ∈ K; ∀ n ∈ N; t ¼ 1; 2; : : : ; T
+a∈A−nt
+
+ð17Þ ð18Þ
+
+iknT ≤ Myknt ∀ k ∈ K; ∀ n ∈ N; t ¼ T
+
+ð19Þ
+
+bknt ≤ Mð1 − ykntÞ ∀ k ∈ K; ∀ n ∈ N; ∀ t ∈ P ð20Þ
+
+yknt ∈ f0; 1g ∀ k ∈ K; ∀ n ∈ N; ∀ t ∈ P
+
+ð21Þ
+
+bknt ∈ Zþ0 ∀ k ∈ K; ∀ n ∈ N; ∀ t ∈ P
+
+ð22Þ
+
+iknT ∈ Zþ0 ∀ k ∈ K; ∀ n ∈ N
+
+ð23Þ
+
+xka ∈ Zþ0 ∀ k ∈ K; ∀ a ∈ A
+
+ð24Þ
+
+The Lagrangian heuristic attempts to find the lower bound of the original problem, given by the Lagrangian dual problem LDðλÞ, which simply maximizes the Lagrangian relaxation problem LRðλÞ with respect to λa ≥ 0. The dual problem is expressed as
+
+LDðλÞ∶ maxLRðλÞ
+
+ð25Þ
+
+Subject to the flow conservation constraints, defined in Eqs. (2)–(4), and the linking constraints, defined in Eqs. (6)–(12).
+After the capacity constraints are relaxed, the remaining constraints are imposed on a single commodity (car type). Hence, the LDðλÞ problem can be decomposed into K subproblems, one for each car type of empty cars.
+However, since there are no capacity constraints in the subproblems, the empty car flows of a single type may exceed the maximum arc capacities. This results in a weak lower bound and causes difficulty in generating feasible solutions. To remedy this, we add to the subproblems the following capacity constraints on single car type:
+
+xka ≤ ma ∀ a ∈ A
+
+ð26Þ
+
+Each subproblem is an integer programming problem, with 3jNj × jPj þ jAj constraints and 2jNj × jPj þ jNj þ jAj decision variables. This indicates that the subproblems scales are not exponential, so the branch-and-bound procedure can be applied to the problem, implemented by integer programming packages such as CPLEX. The solutions to the K subproblems constitute the solutions to the Lagrangian dual problem LDðλÞ, giving the lower bound of the original problem P.
+
+Upper Bound Generation
+The Lagrangian heuristic uses the subgradient method to make the lower bound approach the optimal value of the original problem in the ascending direction. In the subgradient method, it is necessary to determine an upper bound of the original problem to indicate ascending. Usually, the upper bound is obtained by a feasible solution to the original problem.
+As the capacity constraints imposed on different car types are relaxed, the solutions to the Lagrangian dual problem might not be feasible for the original problem. Thus, when solutions to the dual problem are not feasible, we need to construct solutions that are feasible. However, if the solutions to the dual problem are feasible, we can directly accept them as the solutions to the original problem to generate upper bound.
+The arc costs of different commodities are different. When several types of empty cars occupy the same arcs in the network, the arc capacities should be allocated to the car type with a higher arc cost to ensure that the total costs are relatively lower. Therefore, we use the following heuristic procedure to construct feasible solutions. • Step 1: Order the solutions to the K car types of the dual prob-
+lem LDðλÞ by decreasing the arc costs. • Step 2: Add one empty flow to the network at a time according
+to the order. If the total loaded flows at this point do not violate the arc capacity constraints, accept the solution for the current car type in the dual problem as feasible for car type and repeat Step 2; otherwise, go to Step 3. • Step 3: Given the determined feasible solutions, the capacities for the remaining car types are reduced. Solve the original problem for one car type at a time with the residual capacities according to the order, and accept the solution as feasible for the current car type. Repeat step 3 until all car types obtain feasible solutions and the procedure terminates.
+
+© ASCE
+
+04021069-5
+
+J. Transp. Eng., Part A: Systems
+
+J. Transp. Eng., Part A: Systems, 2021, 147(10): 04021069
+
+Downloaded from ascelibrary.org by Beijing Jiaotong University on 01/02/22. Copyright ASCE. For personal use only; all rights reserved.
+
+Lagrangian Relaxation Heuristic Algorithm
+At each iteration t, the Lagrangian multipliers are updated as follows:
+
+λtþ1 ¼ maxfλt þ θtst; 0g
+
+ð27Þ
+
+where
+
+st
+
+¼
+
+P
+k∈K
+
+xka
+
+−
+
+ma
+
+=
+
+subgradient
+
+of
+
+the
+
+solution
+
+to
+
+the
+
+dual
+
+problem at the tth iteration; and θt = step size, chosen as
+
+θt
+
+¼
+
+ZUPðtÞ − ZLBðtÞ kstk2
+
+βt
+
+ð28Þ
+
+where ZUPðtÞ = upper bound; and ZLBðtÞ = lower bound. βt is a scalar in the interval [0, 2]. If the lower bound does not improve
+within a specified number of iterations, set β ¼ β=2.
+The Lagrangian relaxation heuristic algorithm is thus summa-
+rized as follows:
+• Step 1: Initialize maxIter, iter. Start with bestUB ¼ ∞, bestLB ¼ −∞, i ¼ 1, j ¼ 1, λ ¼ λÃ ¼ f1g, and β ¼ 2.
+• Step 2: Solve the Lagrangian dual problem LDðλÞ and then let Z be the objective function value of LDðλÞ. If Z > bestLB, let b¯ estLB ¼ Z, j ¼ 1; otherwise, j ¼ j þ 1. ¯
+• Step 3: If the s¯olutions to LDðλÞ are not feasible, perform the heuristic procedure given in the section “Upper Bound Generation” to construct the feasible solutions to the original problem; if the solutions are feasible, accept. Let Z¯ be the objective function value of the feasible solutions. If Z¯ < bestUB, let bestUB ¼ Z¯ . If bestUB − bestLB < ε, STOP.
+• Step 4: Let i ¼ i þ 1. If i > maxIter, STOP; otherwise
+continue. • Step 5: If j > iter, let j ¼ 1, λ ¼ λÃ, β ¼ β=2; otherwise,
+update the Lagrangian multipliers λ.
+
+Case Study
+To illustrate the applicability of the proposed model and algorithm to real-world problems, we first present the computational results for the Haoji Railway, a rail freight corridor in China. To further test the performance of the proposed model and algorithm, we then present the computational results for a set of test cases. All experiments were carried out using MATLAB version 2016a on a PC with a 2.6-GHz CPU and 16 GB of RAM. In addition, we used CPLEX to solve the subproblems of the Lagrangian dual problem by implementing a brand-and-bound procedure.
+Real-World Instances of the Haoji Railway
+Description of the Haoji Railway The Haoji Railway is a freight corridor bridging the North and South of China. Its total operating mileage is 1,813.5 km, and it contains 81 stations. Fig. 3 is a schematic map of the railway.
+According to the data, there are 23 stations (numbered from S1 to S23) involving supply and demand of empty cars which form the station set of the problem. Ninety-one freight trains in the corresponding timetable can carry empty cars. The planning horizon is two days, the first of which is the implementing day. However, we focus on the operations whose start times are on the implementing day. Since the Haoji Railway divides one implementing day into eight decision-making stages of three hours each, we accordingly set the length of one time period as 3 hours.
+On the basis of the information just given, we can construct the corresponding time-space network G. Each train has a transport capacity of 60 cars. The 91 trains are all empty trains and
+
+Haolebaoji South
+
+NORTH
+
+Jinbian East
+
+Yan’an East
+
+Hejin West
+
+Yuncheng West
+
+Sanyang
+
+Xixia East
+
+Goulin South
+
+Jingmen North
+
+Start/End station Normal station District station
+
+Junshan Xinyu West
+
+Ji’an
+
+Fig. 3. Schematic map of the Haoji Railway.
+
+northbound (Ji’an to Haolebaoji South), meaning that there is no transport of loaded cars. Because, the freight flows along the Haoji railway are currently unidirectional from north to south. The capacities of the moving arcs in the network G can be calculated. The capacities of the holding arcs of each station are calculated according to the number of arrival-departure tracks that the corresponding stations have.
+Two car types are cyclically used along the Haoji railway: C80 (a gondola car) and KM100 (a hopper car). The unit transport costs, unit storage costs, and unit shortage costs are those from Fan et al. (2007b) and Joborn et al. (2004), where the unit transport costs are set to 0.2 for C80 and 0.4 for KM100. The number of empty cars in the inventory at the beginning of the planning horizon for all car types is zero. Supply and demand of empty cars for each type are reported in Tables 2 and 3.
+Computational Results Here we report the computational results for the Haoji Railway. The Lagrangian relaxation algorithm ran with limits of maxIter ¼ 20 and ε ¼ 1. The iterative process of the heuristic is presented in Fig. 4. The algorithm terminated after 20 iterations, running for 166.3 s. The best lower bound (bestLB) is 249,350 and the best upper bound (bestUB) is 251,330. The gap [ðbestUB − bestLBÞ= bestLB) is 0.79%, which indicates that the heuristic obtains a solution that is approximately optimal.
+The empty car distribution plan derived from the computational results is presented in Table 4. In total, 1,560 empty cars are distributed between stations, in which 660 cars are KM100 and 900 cars are C80. The total transport cost is 251,330 yuan. The total shortage cost is zero, indicating that all demands are satisfied on time. No empty car is in inventory at the end of the planning horizon, indicating that all empty cars are utilized.
+Here we compare our distribution plan with that implemented in practice by the Haoji Railway. In the practice plan, the total transport cost is 263,280 yuan and the total shortage cost is 117,600 yuan, of which 60,000 yuan is for Type C80 and 57,600 yuan is for Type KM100. This indicates that our optimized distribution plan can reduce operating costs. We further present the results for
+
+© ASCE
+
+04021069-6
+
+J. Transp. Eng., Part A: Systems
+
+J. Transp. Eng., Part A: Systems, 2021, 147(10): 04021069
+
+Table 2. Empty car supply
+
+Number
+
+Station
+
+1
+
+S3
+
+2
+
+S4
+
+3
+
+S7
+
+4
+
+S10
+
+5
+
+S10
+
+6
+
+S10
+
+7
+
+S10
+
+8
+
+S12
+
+9
+
+S12
+
+10
+
+S12
+
+11
+
+S15
+
+12
+
+S2
+
+13
+
+S7
+
+Period
+8 1 8 5 3 3 5 8 6 8 8 3 1
+
+Number
+60 60 60 60 60 60 60 60 60 60 60 60 60
+
+Type
+KM100 KM100 KM100 KM100 KM100 KM100 KM100 KM100 KM100 KM100 KM100
+C80 C80
+
+Number
+14 15 16 17 18 19 20 21 22 23 24 25 26
+
+Station
+S9 S10 S11 S12 S12 S12 S12 S13 S14 S15 S15 S15 S15
+
+Period
+5 8 5 7 6 7 5 7 6 8 7 2 6
+
+Number
+60 60 60 60 60 60 60 60 60 60 60 60 60
+
+Type
+C80 C80 C80 C80 C80 C80 C80 C80 C80 C80 C80 C80 C80
+
+Downloaded from ascelibrary.org by Beijing Jiaotong University on 01/02/22. Copyright ASCE. For personal use only; all rights reserved.
+
+Table 3. Empty car demand
+
+Number
+
+Station
+
+1
+
+S12
+
+2
+
+S12
+
+3
+
+S12
+
+4
+
+S12
+
+5
+
+S12
+
+6
+
+S16
+
+7
+
+S19
+
+8
+
+S19
+
+9
+
+S20
+
+10
+
+S22
+
+11
+
+S23
+
+12
+
+S12
+
+13
+
+S12
+
+14
+
+S12
+
+15
+
+S19
+
+16
+
+S20
+
+17
+
+S16
+
+18
+
+S19
+
+19
+
+S19
+
+20
+
+S19
+
+21
+
+S22
+
+22
+
+S22
+
+23
+
+S22
+
+24
+
+S22
+
+25
+
+S22
+
+26
+
+S23
+
+Period
+15 7
+11 6 5 8
+11 13 11 14 11 10
+3 7 15 9 10 10 11 9 11 9 11 10 7 10
+
+Number
+60 60 60 60 60 60 60 60 60 60 60 60 60 60 60 60 60 60 60 60 60 60 60 60 60 60
+
+Type
+KM100 KM100 KM100 KM100 KM100 KM100 KM100 KM100 KM100 KM100 KM100
+C80 C80 C80 C80 C80 C80 C80 C80 C80 C80 C80 C80 C80 C80 C80
+
+the arrival time period of each empty car demand in Fig. 5 (for KM100) and Fig. 6 (for C80) to illustrate the impacts on timeliness. In our optimized results, every empty car demand is satisfied on time. As a contrast, in the practical distribution plan, eight demands in total cannot obtain empty cars within the expected time period. It is evident that the stations in our distribution plan receive empty cars within the expected time periods compared with the practical distribution plan. These results indicate the ability of our model and algorithm to generate a distribution plan that can improve the economic benefits and meet the timeliness requirements at the same time.
+Computational Performance of the Model and Algorithm
+Algorithm Comparison To further illustrate the performance of the Lagrangian relaxation (LR) heuristic algorithm, we directly compared it with the CPLEX
+
+Fig. 4. Changes in best lower and upper bounds along with iterations.
+solver. We randomly generated 12 instances that display structures closely similar to that of the Haoji Railway. These instances were referred to in the form n-k-d—for example, 8-2-1,000 corresponds to with the case of 8 stations, 2 car types, and 1,000 empty cars in demand. For all instances, CPLEX implemented a branch-andbound procedure and the parameter settings for the LR algorithm were the same, where maxIter ¼ 20, iter ¼ 4, and ε ¼ 1. In addition, the time limit was set to 3,600 s.
+Table 5 compares the LR algorithm and CPLEX. When solving these cases using CPLEX, we recorded the optimal solutions (Z) and CPU running time (CPU1). For each case, the LR algorithm ran one time, and we recorded the best upper bound (ZUB), the best lower bound (ZLB), and the CPU running time (CPU2). Two gaps were calculated: GAP1 ¼ ðZUB − ZÞ=Z and GAP2 ¼ ðZUB–ZLBÞ=ZLB.
+As shown in Table 5, in most cases GAP1 is zero, indicating that the LR algorithm finds the optimal solutions. Since the heuristic algorithm essentially adopts a hierarchical method when constructing feasible solutions for the upper bound, one possible reason that the LR algorithm is so efficient is that the capacity constraints are not very tight in our test instances. The values of GAP2 range from 0.15% to 8.73%, indicating that the convergence property of the heuristic is relatively good. In terms of computation time, CPLEX
+
+© ASCE
+
+04021069-7
+
+J. Transp. Eng., Part A: Systems
+
+J. Transp. Eng., Part A: Systems, 2021, 147(10): 04021069
+
+Downloaded from ascelibrary.org by Beijing Jiaotong University on 01/02/22. Copyright ASCE. For personal use only; all rights reserved.
+
+Table 4. Computational results of empty car distribution plan
+
+Departure Arrival
+
+Departure Arrival time
+
+time
+
+Number station station period period C80 KM100
+
+1
+
+S2
+
+S12
+
+3
+
+10
+
+0
+
+60
+
+2
+
+S3
+
+S12
+
+8
+
+15 60
+
+0
+
+3
+
+S4
+
+S12
+
+1
+
+7 60
+
+0
+
+4
+
+S7
+
+S12
+
+8
+
+11 60
+
+0
+
+5
+
+S7
+
+S12
+
+1
+
+3
+
+0
+
+60
+
+6
+
+S9
+
+S12
+
+5
+
+7
+
+0
+
+60
+
+7
+
+S10
+
+S12
+
+5
+
+6 60
+
+0
+
+8
+
+S10
+
+S12
+
+3
+
+5 60
+
+0
+
+9
+
+S10
+
+S16
+
+3
+
+8 60
+
+0
+
+10
+
+S10
+
+S19
+
+5
+
+11 60
+
+0
+
+11
+
+S10
+
+S19
+
+8
+
+15
+
+0
+
+60
+
+12
+
+S11
+
+S20
+
+5
+
+9
+
+0
+
+60
+
+13
+
+S12
+
+S16
+
+7
+
+10
+
+0
+
+60
+
+14
+
+S12
+
+S19
+
+6
+
+10
+
+0 120
+
+15
+
+S12
+
+S19
+
+7
+
+11
+
+0
+
+60
+
+16
+
+S12
+
+S19
+
+8
+
+13 60
+
+0
+
+17
+
+S12
+
+S20
+
+6
+
+11 60
+
+0
+
+18
+
+S12
+
+S22
+
+8
+
+14 60
+
+0
+
+19
+
+S13
+
+S22
+
+7
+
+11
+
+0
+
+60
+
+20
+
+S14
+
+S22
+
+6
+
+9
+
+0
+
+60
+
+21
+
+S15
+
+S22
+
+8
+
+11
+
+0
+
+60
+
+22
+
+S15
+
+S22
+
+7
+
+10
+
+0
+
+60
+
+23
+
+S15
+
+S22
+
+1
+
+7
+
+0
+
+60
+
+24
+
+S15
+
+S23
+
+6
+
+10
+
+0
+
+60
+
+25
+
+S15
+
+S23
+
+8
+
+11 60
+
+0
+
+Fig. 5. Comparison of arrival time periods for empty KM100 cars.
+
+can provide exact solutions efficiently for small instances. For large instances, CPLEX cannot find optimal solutions (the last two instances), while the LR can converge to optimized solutions within the time limit. These results validate the proposed Lagrangian relaxation algorithm and indicate the advantage of finding solutions in case a problem is too large for CPLEX.
+Sensitivity Analysis In this paper, the cost structure of the empty car distribution process includes three parts: transport cost, storage cost, and shortage cost. In fact, the transport and storage costs are infrastructure charges and are independent of the decision maker’s preference. The shortage cost is a service charge and reflects the desirability level of customer service in operating decisions. To guarantee that stations receive empty cars on time, the unit shortage cost γkn to penalize the unsatisfied demands per empty car of type k at station n at each time period should be set relatively high. Therefore, the influence of the unit shortage costs γkn is analyzed.
+As shown in Fig. 7, keeping other parameters in the Haoji instance unchanged, we reduce the unit shortage costs proportionally and generated five instances, where Instance 1 is Haoji with the values of γkn unchanged (i.e., 100%). With the decreases in unit shortage costs, total cost and transport cost decrease and storage cost and shortage cost increase. If the unit shortage costs decrease to 50% from 100%, the transport cost decreases 25%, and the storage cost and shortage cost increase from 0 to 3,120 and 0 to 42,000, respectively. This further indicates that fewer empty cars are distributed between stations and more empty cars are held up at stations, meaning that more stations are not receiving empty cars within their expected time periods. These results demonstrate that if one operator wants to ensure that the empty car demands of stations are met, the unit shortage costs can be set relatively high, although this will raise the transport cost.
+We developed a space-time network to describe the movement of empty cars, where transport capacity and accommodating capacity are included. Accommodating capacity is the maximum number of empty cars that a station can accommodate within a time period. It is mainly dependent on the number of tracks that a station has and is thus fixed. Transport capacity is the maximum number of empty cars that can be transported between stations and is calculated according to the number of train paths in the timetable. Therefore, different numbers of scheduled train paths lead to different network transport capacities, affecting the empty car distribution decision.
+As shown in Fig. 8, we generated seven instances based on the Haoji instance by increasing and decreasing transport capacity proportionally while keeping other parameters the same. Instance 3 is the Haoji instance with transport capacity unchanged (i.e., 100%). With the increase in transport capacity, total cost, storage cost, and shortage cost decrease and transport cost increases. If capacity increases from 50% to 100%, total cost decreases 30% and transport cost increases 21%. This transport capacity improvement allows stations to receive empty cars more punctually. However, when transport capacity exceeds 100%, related costs remain unchanged. Thus, when transport capacity is over a certain percentage, it no longer restricts the distribution of empty cars and so total cost is at its lowest. These results demonstrate that the timetable should schedule many train paths to provide transport capacity sufficient for empty cars to be distributed on time and for total cost to be low.
+
+Conclusions
+
+Fig. 6. Comparison of arrival time periods for empty C80 cars.
+
+This paper formulated a model for daily empty car distribution with the explicit purpose of satisfying the timeliness requirement of the
+
+© ASCE
+
+04021069-8
+
+J. Transp. Eng., Part A: Systems
+
+J. Transp. Eng., Part A: Systems, 2021, 147(10): 04021069
+
+Table 5. Comparison of CPLEX and LR algorithm performance
+
+CPLEX
+
+Instance
+8-2-1000 8-5-1500 8-10-1560 23-2-10000 23-5-11550 23-10-11600 23-15-11850 23-20-12000 50-5-46850 50-10-46800 50-15-46800 50-20-46800
+
+Z
+182,220 625,500 1,777,610 2,779,320 1,429,970 2,792,880 4,896,160 7,020,400 1,957,360 4,341,040
+— —
+
+CPU1 (s)
+5.4 12.7 25.4 25.3 66.0 148.9 292.0 311.5 446.7 2,399.5 — —
+
+ZUB
+182,220 625,500 1,777,610 2,779,320 1,429,970 2,792,880 4,897,360 7,199,760 1,957,600 4,340,880 13,255,670 14,462,912
+
+LR algorithm
+ZLB
+181,510 624,580 1,758,000 2,676,800 1,327,500 2,691,400 4,755,200 7,014,120 1,879,700 4,174,000 12,943,000 13,302,260
+
+CPU2 (s)
+63.1 193.4 270.6 457.7 662.3 713.9 826.6 1,047.5 1,009.8 1,695.1 2,454.4 2,771.0
+
+GAP1 (%)
+0.00 0.00 0.00 0.00 0.00 0.00 0.02 2.55 0.01 0.00 — —
+
+GAP2 (%)
+0.39 0.15 1.12 3.83 7.72 3.77 2.99 2.65 4.41 4.00 2.42 8.73
+
+Downloaded from ascelibrary.org by Beijing Jiaotong University on 01/02/22. Copyright ASCE. For personal use only; all rights reserved.
+
+Fig. 7. Sensitivity analysis of the change in unit shortage costs.
+
+railway, our distribution plan better meets the timeline requirements of different car types.
+To further illustrate the performance of the proposed model and Lagrangian algorithm, we compared the algorithm with CPLEX, and the comparison results proved that the heuristic can find efficient and optimized solutions within acceptable time periods. Finally, two sets of computational experiments using sensitivity analysis were conducted. The results of the first sensitivity analysis demonstrated that, to ensure that stations receive empty cars on time, unit shortage costs and delay penalties can be set relatively high, although this will raise the cost of empty car transport. The results of the second sensitivity analysis demonstrated that many train paths should be scheduled in the timetable to guarantee that transport capacity is sufficient to distribute empty cars more punctually and make total cost low.
+We took into account mainly car type and transport capacity while assuming no substitution between different types of empty cars. However, substitution between car types usually takes place at Chinese railways—for example, grain should be shipped by box cars, yet gondola cars are also utilized. Therefore, substitution should be considered in future research. Also, the model inputs— the supply and demand of empty cars—are fixed and deterministic. However, uncertainty in supply and demand usually occurs in daily operations. Thus, a robust and reliable model that incorporates uncertainty can also be developed in future work.
+
+Data Availability Statement
+Some or all data, models, or code generated or used during the study are available from the first author by request.
+
+Fig. 8. Sensitivity analysis of moving arc capacity.
+Chinese railway system, a scheduled railway system without fixed scheduled train services. Specifically, we took into account multiple car types and transport capacity for empty and loaded cars to build an empty car distribution plan of more practical significance. A Lagrangian relaxation heuristic algorithm was designed to solve the problem and tested on the Haoji Railway. The results indicate the applicability of our model and algorithm to real-world cases. Compared with the distribution currently implemented by the Haoji
+
+Acknowledgments
+This work was supported by the following institutions: National Key Research and Development Program of China under Grant No. 2016YFC0802208; the National Natural Science Foundation of China under Grant No. 61703351; the Humanities and Social Sciences Fund of the Ministry of Education under Grant No. 18YJC630190; the Sichuan Science and Technology Program under Grant Nos. 20YYJC0952, 20YYJC2909, 20GJHZ0156, and 20MZGC0341; the Science and Technology Plan of China Railway Corporation under Grant Nos. P2018T001, K2018X012, and N2018X006-01; and the Natural Science Foundation of Zhejiang Province under Grant No. LQ18G030012.
+
+© ASCE
+
+04021069-9
+
+J. Transp. Eng., Part A: Systems
+
+J. Transp. Eng., Part A: Systems, 2021, 147(10): 04021069
+
+Downloaded from ascelibrary.org by Beijing Jiaotong University on 01/02/22. Copyright ASCE. For personal use only; all rights reserved.
+
+Notation
+The following symbols are used in this paper:
+A = Set of arcs in G and partitioned into moving arc set A1 and holding arc set A2; a denotes arc;
+Aþnt = Set of incoming arcs at node nt; A−nt = Set of outgoing arcs at node nt; bestLB = Best lower bound obtained to certain point;
+bestUB = Best upper bound obtained to certain point; bknt = Number of empty cars of type k in shortage at station n in time period t; cka = Unit cost per empty car of type k on arc a; unit transport cost when a∈A1 and unit storage cost when a∈A2; dknt = Demand for empty cars of type k at station n in time period t; G = Time-space network;
+i = Current number of iterations; iter = Specified number of iterations to change scalar βt if
+lower bound does not improve; iknT = Number of empty cars of type k in inventory at station n
+at end of planning horizon (i.e., time period t¼T); ikn1 = Number of empty cars of type k in inventory at station n
+at beginning of planning horizon (i.e., time period t¼1); j = Number to calculate steps if lower bound does not
+improve in iterations;
+K = Set of car types; k denotes car type; M = Large positive number; ma = Capacity of arc a excluding capacity occupied by loaded
+cars; transport capacity when a∈A1 and accommodating capacity when a∈A2; maxIter = Maximum number of iterations;
+N = Set of stations; n denotes one station; P = Set of time periods; t¼1;2; :::;T denotes time period; sknt = Supply of empty cars of type k at station n in time
+period t; V = Set of nodes in G; nt denotes node; xka = Number of empty cars of type k transported on arc a; yknt = Auxiliary binary variable; Z¯ = Objective function value of feasible solution to original
+problem;
+Z = Objective function value of dual problem; ε¯ = Small positive number; and γkn = Unit shortage cost per empty car of type k at station n;
+References
+Barnhart, C., H. Jin, and P. H. Vance. 2000. “Railroad blocking: A network design application.” Oper. Res. 48 (4): 603–614. https://doi.org/10.1287 /opre.48.4.603.12416.
+Cao, X. M., and B. L. Lin. 2007. “An optimization method for distribution of empty cars based on stock cost.” J. China Railway Soc. 29 (4): 18–22. https://doi.org/10.3321/j.issn:1001-8360.2007.04.004.
+Cao, X. M., X. F. Wang, and B. L. Lin. 2009. “Collaborative optimization model of the loaded and empty car flow routing and the empty car distribution of multiple car types.” China Railway Sci. 30 (6): 114–118. https://doi.org/10.3321/j.issn:1001-4632.2009.06.019.
+
+Caprara, A., M. Fischetti, and P. Toth. 2017. “Modeling and solving the train timetabling problem.” Oper. Res. 50 (5): 851–861. https://doi.org /10.1287/opre.50.5.851.362.
+Du, Y. P., X. F. Yin, and C. H. Liu. 2006. “Solving railway empty cars adjustment problem by ant colony system algorithm.” China Railway Sci. 27 (4): 119–122. https://doi.org/10.3321/j.issn:1001-4632.2006.04 .023.
+Fan, Z. P., D. Liang, B. L. Lin, and X. Ma. 2007a. “Improvement of the empty car distribution model with substitution of car types.” China Railway Sci. 28 (6): 109–112. https://doi.org/10.3321/j.issn:1001-4632.2007 .06.020.
+Fan, Z. P., D. Liang, B. L. Lin, and X. Ma. 2007b. “Study on optimizing loaded and empty cars distribution with substitution of car types in technical plan.” J. China Railway Soc. 29 (6): 7–11. https://doi.org/10.3321 /j.issn:1001-8360.2007.06.002.
+Garey, M. R., and D. S. Johnson. 1979. Computers and intractability: A
+guide to the theory of NP-completeness. New York: W. H. Freeman and
+Company. Guo, P. W., J. Chu, and B. L. Lin. 2003. “Reiterative adjusting method of
+empty wagons on large-scale railway network.” China Railway Sci. 23 (4): 111–117. https://doi.org/10.3321/j.issn:1001-4632.2002.04.022. Haghani, A. E. 1989. “Formulation and solution of a combined train routing and makeup, and empty car distribution model.” Transport. Res. Part B: Methodol. 23 (6): 433–452. https://doi.org/10.1016/0191-2615 (89)90043-X. Holmberg, K., M. Joborn, and K. Melin. 2008. “Lagrangian based heuristics for the multicommodity network flow problem with fixed costs on paths.” Eur. J. Oper. Res. 188 (1): 101–108. https://doi.org/10.1016/j .ejor.2007.04.029.
+Joborn, M., T. G. Crainic, M. Gendreau, K. Holmberg, and J. T. Lundgren. 2004. “Economies of scale in empty freight car distribution in scheduled railways.” Transp. Sci. 38 (2): 121–134. https://doi.org/10.1287 /trsc.1030.0061.
+Li, Z. P., and J. F. Xia. 2005. “Time restraint-based model and algorithm for railway empty wagon distribution.” J. Southwest Jiaotong Univ. 40 (3): 361–365. https://doi.org/10.3969/j.issn.0258-2724.2005.03.017.
+Liang, D., and B. L. Lin. 2007. “Research on the multi-stage optimization model of empty railcar distribution.” J. China Railway Soc. 29 (1): 1–6. https://doi.org/10.3321/j.issn:1001-8360.2007.01.001.
+Lin, B. L., and G. H. Qiao. 2008. “Iterative algorithm of railway network empty cars distribution based on restriction of route capacity.” China Railway Sci. 29 (1): 93–96. https://doi.org/10.3321/j.issn:1001-4632 .2008.01.019.
+Niu, H. M. 2001. “A model for cooperative optimization of heavy and empty traffic organization in railway hubs using genetic algorithm.” J. China Railway Soc. 23 (4): 12–16. https://doi.org/10.3321/j.issn:1001 -8360.2001.04.003.
+Wang, B., C. H. Rong, H. D. Li, and B. H. Wang. 2015a. “Multi-time point optimization model for empty railcar distribution.” J. Transp. Sys. Eng. Inf. Technol. 15 (5): 157–163. https://doi.org/10.3969/j.issn.1009-6744 .2015.05.023.
+Wang, L., J. Ma, B. Lin, J. Li, and S. Ni. 2015b. “Dynamic empty car distribution for the whole rail system and calculation for empty car flow discharged over network boundaries.” J. China Railway Soc. 37 (6): 1–9. https://doi.org/10.3969/j.issn.1001-8360.2015.06.001.
+Xiong, H. Y., W. Y. Lu, and H. Y. Wen. 2002. “Hereditary heuristic algorithm for empty car distribution in railway transportation.” China Railway Sci. 23 (4): 119–121. https://doi.org/10.3321/j.issn:1001-4632 .2002.04.023.
+Zhang, H., B. T. Dong, and Y. Y. Sun. 2016. “Multi-type empty car dynamic distribution method based on capacity constraints.” J. Beijing Jiaotong Univ. 40 (6): 50–56. https://doi.org/10.11860/j.issn.1673-0291.2016.06 .009.
+
+© ASCE
+
+04021069-10 J. Transp. Eng., Part A: Systems, 2021, 147(10): 04021069
+
+J. Transp. Eng., Part A: Systems
+
