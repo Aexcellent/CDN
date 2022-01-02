@@ -1,0 +1,2134 @@
+This article has been accepted for publication in a future issue of this journal, but has not been fully edited. Content may change prior to final publication. Citation information: DOI 10.1109/TIFS.2019.2929409, IEEE Transactions on Information Forensics and Security
+1
+VerifyNet: Secure and Veriﬁable Federated Learning
+Guowen Xu, Student Member, IEEE, Hongwei Li (Corresponding author), Senior Member, IEEE, Sen Liu, Student Member, IEEE, Kan Yang, Member, IEEE, Xiaodong Lin, Fellow, IEEE
+
+Abstract—As an emerging training model with neural networks, federated learning has received widespread attention due to its ability of updating parameters without collecting users’ raw data. However, since adversaries can track and derive participants’ privacy from the shared gradients, federated learning is still exposed to various security and privacy threats. In this paper, we consider two major issues in the training process over Deep Neural Networks (DNNs): (1) How to protect user’s privacy (i.e., local gradients) in the training process. (2) How to verify the integrity (or correctness) of the aggregated results returned from the server. To solve the above problems, several approaches focusing on secure or privacy-preserving federated learning have been proposed and applied in diverse scenarios. However, it is still an open problem enabling clients to verify whether the cloud server is operating correctly, while guaranteeing user’s privacy in training process. In this paper, we propose VerifyNet, the ﬁrst privacy-preserving and veriﬁable federated learning framework. In speciﬁc, we ﬁrst propose a double-masking protocol to guarantee the conﬁdentiality of users’ local gradients during the federated learning. Then, the cloud server is required to provide the Proof about the correctness of its aggregated results to each user. We claim that it is impossible that an adversary can deceive users by forging Proof, unless it can solve the NP-hard problem adopted in our model. In addition, VerifyNet is also supportive for users dropping out during the training process. Extensive experiments conducted on real-world data also demonstrate the practical performance of our proposed scheme.
+Index Terms—Privacy-preserving, Deep Learning, Veriﬁable Federated Learning, Cloud Computing.
+I. INTRODUCTION
+Deep learning has played a signiﬁcant part in many applications, e.g., medical prediction [?], [?], autopilot [?], [?], etc. Such deep learning based applications have penetrated into every aspect of our society and gradually changed the habits of human beings in various areas like living, travel, and socializing [?], [?].
+Deep learning requires a large number of data which are usually collected from users. However, user’s data may be sensitive in nature or contain some private information. For example, in healthcare systems, the patients may not be willing
+Guowen Xu is with the school of Computer Science and Engineering, University of Electronic Science and Technology of China, Chengdu 611731, China, and also with the CETC Big Data Research Institute Co., Ltd., 550022 Guiyang, China (e-mail: guowen.xu@foxmail.com)
+Hongwei Li is with the school of Computer Science and Engineering, University of Electronic Science and Technology of China, Chengdu 611731, China, and also with the Science and Technology on Communication Security Laboratory, Chengdu 610041, China (e-mail: hongweili@uestc.edu.cn)
+Sen Liu is with the school of Computer Science and Engineering, University of Electronic Science and Technology of China, Chengdu 611731, China (email: 893551724@qq.com)
+Kan Yang is with the department of Computer Science, University of Memphis, TN 38152 USA (e-mail: Kan.Yang@memphis.edu)
+Xiaodong Lin is with the School of Computer Science, University of Guelph, 50 Stone Rd E, Guelph, ON N1G 2W1, Canada (e-mail: xlin08@uoguelph.ca)
+
+to share their medical data with a third party service provider (e.g., cloud server) [?], [?], [?]. Recently, federated learning [?], [?] is gradually gaining attention from both academia and industry with its ability of training network without collecting users’ original data, where all users and the cloud server work together only by sharing local gradients and global parameters. However, research shows that attackers can still indirectly obtain the sensitive information including tabs [?], [?] and memberships [?], [?] based on the shared gradients. On the other hand, data integrity breaches in federated learning have also been frequently reported in the media [?], [?]. Particularly, driven by certain illegal interests, a malicious cloud provider may return incorrect results to users. For example, a “lazy” cloud provider may compress the original model with a simpler but less accurate model to reduce its own computation cost, or worse, maliciously forge the aggregated results sent to users. Therefore, protecting user’s privacy and data integrity (especially the correctness of results returned from the server) are two fundamental issues in the training process of federated learning. Hence, it is urgent and meaningful to design a secure federated training protocol, which can efﬁciently verify the correctness of results returned from the server while protecting user’s data privacy.
+In order to solve the above problems, several works focusing on privacy-preserving deep learning have been proposed. Shokri et al. [?] proposed a privacy-preserving deep learning protocol by selectively sharing updated parameters, which can achieve a balance between practicality and security. Trieu Phong et al. [?] proposed a secure deep learning system through the integration of additively homomorphic encryption and gradient descent technology. Recently, Keith Bonawitz et al. [?] put forward a practical and secure architecture for federated learning by exploiting the secret sharing and key agreement protocol, which allows users to be ofﬂine during the execution while still guaranteeing high accuracy. However, none of the above solutions support verifying the correctness of results returned from the server. It is closely related between the correctness of results returned from the server and the privacy of users’ local gradients. The risk of users’ privacy being compromised always tends to increase once the adversary has been able to manipulate the data returned to users. For instance, in the well-known whitebox attacks [?], [?], adversaries can carefully return crafted results to users for analyzing statistical characteristics of useruploaded data, and induce users to release more additional sensitive information.
+Recently, several schemes [?], [?] have been successively proposed to alleviate data integrity problem under the welltrained neural network. However, these schemes either support a small variety of activation functions or require additional
+
+1556-6013 (c) 2019 IEEE. Personal use is permitted, but republication/redistribution requires IEEE permission. See http://www.ieee.org/publications_standards/publications/rights/index.html for more information.
+
+This article has been accepted for publication in a future issue of this journal, but has not been fully edited. Content may change prior to final publication. Citation information: DOI 10.1109/TIFS.2019.2929409, IEEE Transactions on Information Forensics and Security
+2
+
+hardware assistance. To the best of our knowledge, there is no existing solution supporting veriﬁability for a neural network during the training process. Compared with a well-trained neural network, it is obviously more complicated to verify the correctness of the results during the training process, since we have to update the parameters of the entire network in addition to predicting the results. Besides, it is also a challenge of how to support veriﬁability while tolerating users dropping out during the workﬂow (due to unreliable networks, device battery issues, etc.) and ensuring the conﬁdentiality of all users’(including dropout) local gradients.
+In this paper, we propose VerifyNet, the ﬁrst privacypreserving approach supporting veriﬁcation in the process of training neural networks. We ﬁrst design a veriﬁable approach based on the homomorphic hash function and pseudorandom technologies to support the veriﬁability for each user. Then, we use a variant of secret sharing technology along with key agreement protocol to protect the privacy of users’ local gradients, and deal with the users dropping out problem during the training process. In summary, our contributions can be summarized as follows:
+• We exploit the homomorphic hash function integrated with pseudorandom technology as the underlying structure of VerifyNet, which allows users to verify the correctness of results returned from the server with acceptable overhead.
+• We propose a double-masking protocol to guarantee the conﬁdentiality of users’ local gradients during the federated learning. It can endure a certain amount of users exiting for some reasons during training process, and the privacy of these exiting users are still protected.
+• We give a comprehensive security analysis for our VerifyNet. We claim that the attackers will not get any useful information of users’ local gradients even if the cloud server colludes with multiple users. Besides, extensive experiments conducted on real-world data also demonstrate that our VerifyNet is practical.
+The remainder of this paper is organized as follows. In Section II, we outline the problem statement. In Section III and Section IV, we describe the preliminaries and give a technical intuition to explain how we solve the challenges considered in this paper, respectively. In Section V, we describe the technical details of our VerifyNet. Then, we show the security analysis in Section VI. Next, performance evaluation and related works are discussed in VII and VIII, respectively. Finally, Section IX concludes the paper.
+II. PROBLEM STATEMENT
+In this section, we ﬁrst review the main concepts of federated deep learning. Then we describe the system architecture, threat model and design goals.
+A. Federated Deep Learning
+1) Overview: Based on the training style, deep learning can be divided into the following two types.
+• Centralized Training. As shown in Fig.1(a), traditional centralized training starts with the server asking users
+
+9[HSOZZXGOTOTMYGSVRKY
+
+9NGXKRUIGRVGXGSKZKXY *U]TRUGJMRUHGRVGXGSKZKXY
+
+;YKX
+
+;YKX
+
+ 
+
+;YKX
+
+-RUHGRSUJKR YKX\KX
+
+;YKXT
+(a)
+
+;YKX
+
+-RUHGRSUJKR
+
+2UIGRSUJKR ;YKXT
+(b)
+
+YKX\KX
+
+Fig. 1: General framework for centralized training and federated training. (a) Centralized Training. (b) Federated
+Training.
+
+to upload their local data (i.e., training samples) to the cloud. Then, the server initializes deep neural networks on the cloud, and trains them with training samples until the optimal parameters are obtained. In the end, the cloud server will release the predictive service interface or return the optimal parameters to the user. • Federated Training. As discussed before, users directly upload local data to the server with potential threats for privacy breaches. Hence, different from the centralized training, in federated training (shown in Fig.1(b)), each user and server collaborate to train a uniﬁed neural network model. To speed up the convergence of the model, each user shares local parameters (i.e., gradients) to the cloud server, which aggregates all gradients and returns the results to each user. Ultimately, the server and each user will get the optimal network parameters. Compared with the centralized training, federated training reduces the risk of user’s privacy being compromised. However, research shows that attackers can still indirectly obtain the sensitive information based on the shared gradients. In addition, driven by certain illegal interests, a malicious cloud provider may return incorrect results to users. Therefore, in this paper, we focus on protecting the privacy of users’ local gradients while verifying the correctness of results returned from the server in the federated training process.
+2) Neural Network: As the underlying structure of deep learning, neural network can be integrated with various technologies to achieve classiﬁcation, prediction, and regression. As shown in Fig.2, there is a fully connected neural network with 3 inputs, a hidden layer and 2 outputs. The fully connected means that all neurons between two adjacent layers are connected by variables ( called ω in this section) to each other. In general, a neural network can be represented as a function f (x, ω) = yˆ, where x denotes the users’ inputs, and yˆ is the corresponding outputs via function f with parameter ω.
+3) Federated Learning Updates: Without loss of generality, assume that each data record is an observation pair ⟨x, y⟩, and the entire training set is D = {⟨xi, yi⟩, i = 1, 2, · · · T }.
+
+1556-6013 (c) 2019 IEEE. Personal use is permitted, but republication/redistribution requires IEEE permission. See http://www.ieee.org/publications_standards/publications/rights/index.html for more information.
+
+This article has been accepted for publication in a future issue of this journal, but has not been fully edited. Content may change prior to final publication. Citation information: DOI 10.1109/TIFS.2019.2929409, IEEE Transactions on Information Forensics and Security
+3
+
+/TV[Z‫ݔ‬ଵ
+
+/TV[ZRG_KX TK[XU
+
+/TV[Z‫ݔ‬ଶ
+
+TK[XU
+
+/TV[Z‫ݔ‬ଷ
+
+TK[XU
+
+.OJJKTRG_KX
+TK[XU ]
+TK[XU
+
+5[ZV[ZRG_KX
+
+TK[XU
+
+5[ZV[Z‫ݕ‬ଵ
+
+TK[XU TK[XU
+
+TK[XU
+
+5[ZV[Z‫ݕ‬ଶ
+
+Initialize keypairs for each user
+
+Share encrypted local gradients and global
+parameters
+
+Fig. 2: Fully Connected Neural Network
+
+;YKX
+
+ȘȘȘȘȘ
+
+;YKX
+
+;YKX4
+
+A loss function can be deﬁned on the training set as
+
+1∑
+
+Lf (D, ω) = |D|
+
+Lf (xi, yi, ω)
+
+⟨xi ,yi ⟩∈D
+
+where Lf (x, y, ω) = l (y, f (x, ω)) for a speciﬁc loss
+function l . In this paper, loss function is set as l (y, f (x, ω)) =
+l (y, yˆ)=||y, yˆ||2, where || · ||2 is the l2 norm of a vector. The goal of training neural network is to ﬁnd the optimal
+parameters ω consequently to minimize the loss function. In our VerifyNet, we adopt stochastic gradient descent [?], [?] to complete this task. Speciﬁcally, each parameter is iteratively calculated as follows.
+
+ωj+1 ← ωj − λ∇Lf (Dj , ωj )
+
+where ωj indicates the parameters after the j-th iteration. Dj is a random subset of D, and λ is the parameter of
+learning rate. In our federated learning, each user n ∈ N holds a private local data set Dn, and trains local set with a certain neural netw∑ork agreed with all other participants in advance, where D = n∈N Dn. Concretely, the server selects a random subset N j ⊆ N at the j-th iteration, and then each user n ∈ N j randomly chooses a subset Dnj ⊆ Dn to execute stochastic gradient descent. Therefore, parameter update can
+be rewritten as below.
+
+ωj+1
+
+←
+
+ωj
+
+−
+
+λ
+
+∑ ∑ n∈N
+n∈N j
+
+j ρjn |Dnj
+
+|
+
+where ρjn = |Dnj |∇Lf (Dnj , ωj) is computed by each user and subsequently shared to the cloud server. Then, the cloud server returns the global parameters ωj+1 to all users.
+
+Fig. 3: System Architecture
+• Cloud server: The cloud server aggregates the gradients uploaded by all online users and sends the results along with the Proof to each user, where we require that the cloud server knows nothing but the encrypted gradients and the ﬁnal results.
+C. Threat Model and Design Goal There we deﬁne a threat model called Honest but Curious
+Security [?] in our VerifyNet. Speciﬁcally, in our VerifyNet, TA is trustworthy and will not collude with any entity. All other participants including the cloud server are considered to be honest-but-curious [?], which means that both the cloud server and users will execute the program according to the agreed agreement, but they may also try to infer other users’ data privacy independently [?], [?], [?]. In particular, we allow that the cloud server colludes with multiple users to get the most offensive capabilities, and also allow the cloud server to forge Proof (There we do not allow collusion to forge Proof ) and modify the calculated results for deceiving users.
+Our VerifyNet aims to protect the conﬁdentiality of users’ local gradients while supporting strong veriﬁability to each user, and tolerate users dropping out during the workﬂow. We claim that it is impossible to succeed in deception unless the adversary can solve the NP-hard problem adopted in our model.
+
+B. System Architecture
+As shown in Fig. 3, our system model consists of three entities, Trusted Authority (TA), User and Cloud Server.
+• Trusted Authority (TA): The main job of TA is to initialize the entire system, generate public parameters, and assign public and private keys to each participant. Afterwards, it will go ofﬂine unless a dispute arises.
+• User: Each user needs to send his/her encrypted local gradients to the cloud server during each iteration. Besides, the cloud server will also receive some other encrypted information to prepare for generating Proof of its calculated results.
+
+III. PRELIMINARIES
+To facilitate the understanding of the article, we introduce some cryptographic primitives used in our VerifyNet, which will make it easier for readers to understand our approach.
+A. Bilinear Pairing A bilinear pairing can be represented as a map e: G1 ×
+G2 → GI , where both G1 and G2 are multiplicative cyclic groups with same prime order q. Without loss of generality, we assume that the generator of G1 and G2 are g and h, respectively. Informally, a bilinear pairing e has following properties.
+
+1556-6013 (c) 2019 IEEE. Personal use is permitted, but republication/redistribution requires IEEE permission. See http://www.ieee.org/publications_standards/publications/rights/index.html for more information.
+
+This article has been accepted for publication in a future issue of this journal, but has not been fully edited. Content may change prior to final publication. Citation information: DOI 10.1109/TIFS.2019.2929409, IEEE Transactions on Information Forensics and Security
+4
+
+1) Bilinearity: Given the random numbers a, b ∈ Zq∗, for any g1 ∈ G1 and g2 ∈ G2, we have e(g1a, g2b) = e(g1, g2)ab.
+2) Computability: e(g1, g2) can be computed efﬁciently for any g1 ∈ G1 and g2 ∈ G2.
+3) Non-degeneracy: e(g, h) ̸= 1, where g and h are the generator of G1 and G2, respectively.
+
+B. Homomorphic Hash Functions
+Informally, given a message xi ∈ Zq, a collision-resistant homomorphic hash functions [?], [?] HF : Zq → G1 × G2 can be indicated as follows.
+
+HF (xi) = (Ai, Bi) = (gHFδ,ρ(xi), hHFδ,ρ(xi))
+
+where both δ and ρ are the secret key randomly s-
+
+elected in ﬁnite ﬁeld Zq. HFδ,ρ() is a one-way homomorphic hash function. More precisely, given HF (x1) = (gHFδ,ρ(x1), hHFδ,ρ(x1)), H F (x2) = (gHFδ,ρ(x2), hHFδ,ρ(x2)),
+homomorphic hash function has following properties.
+
+1) Additivity (in the exponent) can be indicated
+
+as HF (x1 + x2)
+
+←
+
+(g H Fδ,ρ (x1 )+H Fδ,ρ (x2 ) ,
+
+h ) HFδ,ρ(x1)+HFδ,ρ(x2)
+
+2) Multiplying by a constant α can be expressed as H F (αx1) ← (gαHFδ,ρ(x1), hαHFδ,ρ(x1)).
+
+There are other interested properties of homomorphic hash
+
+function. Interested readers can refer to [?], [?] for more
+
+details.
+
+C. Pseudorandom Functions We adopt the pseudorandom functions designed by Dario
+Fiore et al. [?] in our VerifyNet. Informally, given the secret key K = (K1, K2), a pseudorandom function P FK : {0, 1}∗ × {0, 1}∗ → G1 × G2 consists of two other pseudorandom functions, i.e., P FK1 : {0, 1}∗ → Zq2 and P FK2 : {0, 1}∗ → Zq2. Given an input (I1, I2), we have P FK1 (I1) = (γI1 , νI1 ) and P FK2 (I2) = (γI2 , νI2 ). Consequently, we have
+P FK (I1, I2) = (E, F ) = (gγI1 γI2 +νI1 νI2 , hγI1 γI2 +νI1 νI2 )
+As part of the veriﬁcation, the pseudorandom functions will be exploited to verify the correctness of the results from the cloud server.
+
+D. Secret Sharing Protocol
+In VerifyNet, we utilize the Shamir’s t-out-of-N secret sharing protocol [?] to divide the secret s into N separate parts, where N denotes the number of users in our model, and t is the threshold. This means that any subset of shares greater than t can be used to recover the secret s. Speciﬁcally, implementing this secret sharing protocol involves following steps.
+1) S.share(s, t, U ) →{(n, sn)}n∈U : Given the threshold t ≤ |U| and the secret s, output the share sn of s for each user n, where U represents the set of users’ ID ( presumed to be distinctive) speciﬁed in a ﬁnite ﬁeld F, and |U| = N .
+2) S.recon({(n, sn)}n∈M, t) → s : Input a subset M of shares, where n ∈ M ⊆ U and t ≤ |M|, outputs the secret s.
+
+E. Key Agreement
+Difﬁe-Hellman key agreement [?], [?] is also adopted in our VerifyNet to create the shared key for any two users. Speciﬁcally, given a group G with prime order q, the secret/public key of each user n is created as KA.gen(G, g, q) → (SKn, gSKn ), where g is the generator of group G. SKn and gSKn are the secret and public key, respectively. Then, given the public key gSKm of user m, the shared key between user n and user m can be generated as KA.agree(SKn, gSKm ) → sn,m. In realworld applications, sn,m is often set to H((gSKm )SKn ) for convenience.
+IV. TECHNICAL INTUITION
+As discussed above, in federated learning, each user needs to submit its local gradients to the cloud, and then receives the aggregated results (sum of all local gradients) from the server. However, there are three problems that need to be addressed. Firstly, we need to protect the privacy of the user’s local gradients, because the adversary can indirectly breach user’s sensitive information through these gradient information. Secondly, to prevent malicious spooﬁng by the server, each user should be able to effectively verify the correctness of the results returned by the server. Thirdly, in real-world scenarios, it is very common for users to be unable to upload data to the server on time due to unreliable networks or device battery issues. Therefore, our proposed protocol should support users ofﬂine for some reason in training process. In this section, we give a technical intuition to explain how we solve these three challenges.
+
+A. Single Masking to Protect User’s Gradients
+
+Assume that each user n holds a local gradient xn, (n ∈ U, |U| = N ), we originally intend to design a single masking
+
+protocol to protect the privacy of user’s gradients. Speciﬁcally,
+
+suppose that all users’ ID in our system are ordered, and any
+
+two users n and m agree on a random number rn,m. Then,
+
+we can encrypt each user n’s local gradient xn as follows.
+
+∑
+
+∑
+
+xˆn = xn +
+
+rn,m −
+
+rn,m
+
+(1)
+
+m∈U :n<m
+
+m∈U :n>m
+
+Hence, after each user submitting its encrypted gradie∑nt xˆn to the server, it can calculate the aggregated gradients xn
+
+n∈U
+
+as below.
+
+∑
+
+∑
+
+z = xˆn = xn
+
+(2)
+
+n∈U
+
+n∈U
+
+However, this approach has three drawbacks. Firstly, every user needs to negotiate a random number rn,m with all other users, which will result in quadratic communication overhead (O(U 2)). Secondly, this protocol is failure to support users ofﬂine during the training process. We note that even if only one user does not upload data on time, the above aggregation operation cannot be successfully completed because the random number added in this user’s gradient cannot be cancelled. Thirdly, veriﬁability is not supported by above protocol. It is closely related between the correctness of results returned from the server and the privacy of users local gradients. The risk of users’privacy being compromised always tends to
+
+1556-6013 (c) 2019 IEEE. Personal use is permitted, but republication/redistribution requires IEEE permission. See http://www.ieee.org/publications_standards/publications/rights/index.html for more information.
+
+This article has been accepted for publication in a future issue of this journal, but has not been fully edited. Content may change prior to final publication. Citation information: DOI 10.1109/TIFS.2019.2929409, IEEE Transactions on Information Forensics and Security
+5
+
+increase once the adversary has been able to manipulate the data integrity. Therefore, a secure protocol should also support veriﬁability of results returned by the server.
+
+B. Double-Masking Potocol Supporting Veriﬁability
+
+We propose a double-masking protocol to address the prob-
+
+lems existing in single masking protocol. We ﬁrst exploit the
+
+pseudorandom generator [?] and Difﬁe-Hellman key agree-
+
+ment [?], [?] to generate the random number rn,m between two users n and m. Concretely, we ﬁrst ask TA to randomly create
+
+key pairs (NnP K , NnSK ) for each user n. Then, we require the cloud server to broadcast all public key NnP K , n ∈ U to all users. In the end, by exploiting pseudorandom generator
+
+and Difﬁe-Hellman key agreement, each two user n and m
+
+can generate the agreed random number denoted as sn,m ← KA.agree(NnSK , NmP K ). Hence, each user’s local gradient xn can be encrypted as below.
+
+∑
+
+∑
+
+xˆn = xn +
+
+PRG(sn,m) −
+
+PRG(sn,m) (3)
+
+m∈U :n<m
+
+m∈U :n>m
+
+where PRG(sn,m) is a pseudorandom generator with seed
+
+sn,m.
+Next, we adopt the threshold secret sharing scheme [?] to
+support users ofﬂine during the training process. In brieﬂy, to
+offset the random numbers added in the gradients of dropped out users, each user n shares its secret key NnSK to all other users in advance by utilizing the threshold secret sharing scheme. Hence, if a user n cannot submit its data xˆn to the cloud on time, the server can decrypt the random numbers
+
+(i.e., PRG(sn,m)) added in all other users’ xˆm(m ̸= n ∈ U ) by asking more than threshold users to submit user n’s secret
+
+shares. In this way, the random numbers PRG(sn,m) can be recovered and be eventually removed from the xˆm. However, there is still a problem. At some point, some users may delay uploading data to the cloud, which may cause the server to
+incorrectly determine that these users are ofﬂine, and ask other
+online users to upload shares of those users for removing random numbers. However, just then, these users successfully uploaded their xˆn to the cloud. As a result, since the server have sufﬁcient secret shares of these users, it can get xn by removing all the random numbers sn,m. To address this problem, we add a new random noise call βn in each xˆn. βn will be also shared to all users by utilizing threshold secret sharing scheme. Hence, each user’s local gradient xn is encrypted as below.
+
+∑
+
+∑
+
+xˆn = xn + PRG(βn) +
+
+PRG(sn,m) −
+
+PRG(sn,m)
+
+m∈U :n<m
+
+m∈U :n>m
+(4)
+
+In this ∑ way, once decryption is needed to obtain the aggregated results xn, the cloud server can only receive the shares of βn for all online users, and shares of NnSK for all dropped out users, since these information are enough for the decryption operation.
+The double-masking protocol is mainly designed to protect user’s data privacy during training, and support users ofﬂine for some reason in training process. However, it lacks consideration in terms of veriﬁability, i.e., there is no speciﬁc veriﬁable mechanism designed. Therefore, the double-masking protocol is not supportive for verifying the correctness of the aggregated results returned from the server. We want to design a veriﬁable solution that is highly compatible with our double-masking protocol, and allows each user to easily verify the correctness of results returned from the server without the involvement of trusted third parties. To address
+
+this challenge, we exploit the homomorphic hash function integrated with pseudorandom technology as the underlying structure of our veriﬁable approach, which allows users to verify the correctness of execution performed by the cloud server with acceptable overhead. For the speciﬁc veriﬁcation process, please refer to Section V.
+
+V. PROPOSED SCHEME
+
+In this section, we present the technical details of our VerifyNet. At a high level view, the purpose of VerifyNet is to address three problems existing in federated training process. One is to protect the privacy of the user’s local gradients in the workﬂow. Secondly, to prevent malicious spooﬁng by the server, our VerifyNet supports each user to effectively verify the correctness of the results returned by the server. Thirdly, VerifyNet is also supportive for users ofﬂine during the training process.
+Fig.4 shows the detailed description of our VerifyNet, which consists of ﬁve rounds to complete above tasks. Speciﬁcally, TA ﬁrst initializes the entire system and generates all the public and private keys needed in our VerifyNet. Then, each user n encrypts its local gradient xn and submits it to the cloud server. After receiving enough message from all online users, the cloud server aggregates the gradients of all online users and returns the results along with P roof to each user. In the end, every user decides to accept or reject the calculation results by verifying the P roof , and returns to the round 0 to start a new iteration.
+As shown in Round 4, the speciﬁc veriﬁcation process is as follows.
+Proof of correctness:
+
+n=|U3 |
+
+n=|U3 |
+
+(A, B) = ( Π An, Π Bn)
+
+n∑=1
+
+n=1
+
+∑
+
+= (g , h n∈U3 HFδ,ρ(xn) ) n∈U3 HFδ,ρ(xn)
+
+∑
+
+∑
+
+= (gHFδ,ρ( , h n∈U3 xn) HFδ,ρ( ) n∈U3 xn)
+
+= (A′, B′)
+
+e(A, h) = e(gHFδ,ρ(σ), h) = e(g, hHFδ,ρ(σ))
+
+= e(g, B)
+
+∑
+
+e(L, h) = e(g
+
+, h) n∈U3 γnγ+νnν−HFδ,ρ(xn)
+
+1/d
+
+(5)
+
+∑
+= e(g, h ) n∈U3 γnγ+νnν−HFδ,ρ(xn) 1/d
+
+= e(g, Q) e(A, h) · e(L, h)d
+∑
+= e(gHFδ,ρ(σ), h) · e(g , h) n∈U3 γnγ+νnν−HFδ,ρ(xn)
+∑
+= e(g, h) n∈U3 γnγ+νnν
+
+=Φ
+
+If any of the above equations are not valid, reject the aggregated result. Otherwise, accept the result and move to Round 0. The user and the cloud server iteratively run Rounds 0-4 until the entire neural network conﬁguration meets the constraints set in advance.
+
+VI. SECURITY ANALYSIS
+In this section, we ﬁrst brieﬂy describe the correctness of the veriﬁcation. Then, we analyze how our VerifyNet guarantees the conﬁdentiality of each user’s local gradients. Other security indicators are beyond the scope of this paper.
+
+1556-6013 (c) 2019 IEEE. Personal use is permitted, but republication/redistribution requires IEEE permission. See http://www.ieee.org/publications_standards/publications/rights/index.html for more information.
+
+This article has been accepted for publication in a future issue of this journal, but has not been fully edited. Content may change prior to final publication. Citation information: DOI 10.1109/TIFS.2019.2929409, IEEE Transactions on Information Forensics and Security
+6
+
+Implementation process of VerifyNet
+
+• Round 0 (Initialization): T A: - Generate the public/secret keys as {(δ, ρ), (NnP K , NnSK ), (PnP K , PnSK ), K = (K1, K2)} to each user n, (n ∈ U , |U | = N ), where (δ, ρ) and K = (K1, K2) are the secret key used in homomorphic hash functions and pseudorandom functions, respectively. (NnP K , NnSK ), (PnP K , PnSK ) will be exploited to encrypt user n’s local gradient xn. U ser n: - Send the public keys (NnP K , PnP K ) to the cloud server through a secure channel.
+Server Side:
+
+- Receive messages from at least t users (represented as U1 ⊆ U ), where t is the threshold of the Shamir’s t-out-of-N protocol used in our
+
+model. Otherwise, abort and start over. - Broadcast {m, NmP K , PmP K , τ = sum}m∈U1 to each user ∈ U1, where τ = sum represents the statistic label to be calculated.
+
+• Round 1 (Key Sharing):
+
+U ser n:
+
+- Receive the {m, NmP K , PmP K , τ = sum}m∈U1 from the cloud server. Check whether |U1| ≥ t and all of the key pairs (NmP K , PmP K ) are distinctive. If not, abort and start over.
+
+- Select a random number βn. Generate the shares of βn as {(m, βn,m)}m∈U1 ← S.share(βn, t, U1), where βn,m is the share of user n
+
+to user m.
+
+-
+
+Generate Calculate
+
+the shares Pn,m ←
+
+AofEN.ennPcK(KaAs .{a(gmre,eN(PnSnS,KmK),}PmmP∈KU1),←n||mS.s|h|NarnSe,K(mN|n|SβKn,,mt,)Um1∈),Uw1 ,hwerheeNrenSA,KmE.eins ct(h)edsehnaorteesoaf
+
+user n to user m. symmetric encryption
+
+[?]
+
+with
+
+secret key KA.agree(PnSK , PmP K ).
+
+- Send {Pn,m}m∈U1 to the cloud server.
+
+Server Side:
+
+- Receive messages from at least t users (represented as U2 ⊆ U1). Otherwise, abort and start over. - Broadcast {Pm,n}m∈U2 to each user ∈ U2. • Round 2 (Masked Input): U ser n:
+
+- Receive the {Pm,n}m∈U2 from the cloud server. Check whether U2 ⊆ U1 and |U2| ≥ t. If not, abort and start over.
+
+- Calculate the shared key with every user m ∈ U2 as sn,m ←∑KA.agree(NnSK , NmP K ).∑
+
+- Encrypt the local gradients as xˆn = xn + PRG(βn) +
+
+PRG(sn,m) −
+
+PRG(sm,n).
+
+m∈U2 :n<m
+
+m∈U2 :n>m
+
+- In order to verify the correctness of results returned from the server in the future, some additional information are computed as follows.
+
+Calculate HF (xn) = (An, Bn) = (gHFδ,ρ(xn), hHFδ,ρ(xn)).
+
+Calculate Calculate
+
+P P
+
+FK1 (n) FK (n, τ
+
+= (γn, νn); P ) = (En, Fn)
+
+F=K(2g(γτn)γ=+ν(nγν,,νh)γ. n
+
+γ+νn
+
+ν
+
+)
+
+- Calculate Ln = (En · A−n 1)1/d = (gγnγ+νnν−HFδ,ρ(xn))1/d, where d is a selected positive integer.
+
+- Calculate Qn = (Fn · Bn−1)1/d = (hγnγ+νnν−HFδ,ρ(xn))1/d, where d is a selected positive integer.
+
+- Send σn = (xˆn, An, Bn, Ln, Qn, Ωn = 1) to the cloud server.
+
+Server Side:
+
+- Receive messages from at least t users (represented as U3 ⊆ U2). Otherwise, abort and start over. - Broadcast the list of U3 to each user ∈ U2.
+
+• Round 3 (Unmasking): U ser n:
+
+-
+
+Check whether U3 ⊆ U2 and |U3| Decrypt each Pn,m, m ∈ U2\{n}
+
+≥ t. If not, abort and start as n||m||NnS,Km||βn,m ←
+
+over. AE.dec
+
+(KA.agree(PnSK
+
+,
+
+PmP K
+
+),
+
+Pn,m
+
+) .
+
+- Send {(NnS,Km)|m ∈ U2\U3} and {(βn,m)|m ∈ U3} to the cloud, where U2 \ U3 represents those users who have sent data to the server
+
+in Round 1, but drop out before uploading data to the server in Round 2.
+
+Server Side:
+
+-
+
+RCeaclceuivlaetemNesnSsaKge← s frSo.mrecao(t nle(a{stNtnSu,Kmse}rsm(∈reUp)4r,este)n. ted as U4 ⊆ U3). Otherwise, abort and start over.
+
+-
+
+Calculate Calculate
+
+βn ← S.recon PRG(sn,m) ←
+
+{βn,m(}m∈U4 , t PRG KA.agree
+
+(.{NnSK
+
+,
+
+NmP K
+
+}n∈U2
+
+\U3
+
+,m∈U3
+
+)) .
+
+- Calculate PRG(βn)n∈U3 .
+
+- ∑ Calculate the ag∑gregated gradi∑ ents for all users ∈ U3 as
+
+∑
+
+∑
+
+n∈U3 xn = n∈U3 xˆn − n∈U3 PRG(βn) −
+
+PRG(sn,m) +
+
+PRG(sm,n).
+
+n∈U3 ,m∈U2 \U3 :n<m
+
+n∈U3 ,m∈U2 \U3 :n>m
+
+- Calculate the Proof {A, B, L, Q, Ω} of aggregated gradients as below.
+
+n=|U3 |
+
+n=|U3 |
+
+n=|U3 |
+
+n=|U3 |
+
+n=|U3 |
+
+- A = Π An; B = Π Bn; L = Π Ln; Q = Π Qn; Ω = Π Ωn.
+
+n=1
+
+n=1∑
+
+n=1
+
+n=1
+
+n=1
+
+- Broadcast Cresult = {σ = n∈U3 xn, A, B, L, Q, Ω} to each user ∈ U4.
+
+• Round 4 (Veriﬁcation):
+
+U ser n: - Known
+
+P FK1 (n)
+
+=
+
+(γn,
+
+νn)
+
+and
+
+P FK2 (τ )
+
+=
+
+(γ, ν),
+
+calculates
+
+φ
+
+=
+
+∑ n∈U3 (γnγ
+
++
+
+νnν)
+
+and
+
+Φ
+
+=
+
+e(g, h)φ.
+
+- Verify (A, B) =? (A′, B′), e(A, h) =? e(g, B); e(L, h) =? e(g, Q), Φ =? e(A, h) · e(L, h)d.
+
+- If any of the above equations are not valid, reject the aggregated result. Otherwise, accept the result and move to Round 0.
+
+Fig. 4: Detailed description of the VerifyNet
+
+1556-6013 (c) 2019 IEEE. Personal use is permitted, but republication/redistribution requires IEEE permission. See http://www.ieee.org/publications_standards/publications/rights/index.html for more information.
+
+This article has been accepted for publication in a future issue of this journal, but has not been fully edited. Content may change prior to final publication. Citation information: DOI 10.1109/TIFS.2019.2929409, IEEE Transactions on Information Forensics and Security
+7
+
+A. Correctness of Veriﬁcation
+
+threshold and security parameter used in our protocol, respec-
+
+As shown in Section.V, after receiving the
+
+{σ, A, B, L, Q, Ω} from the cloud server, each user
+
+ﬁrst checks whether Φ = e(A, h) · e(L, h)d. Based on
+
+the l-BDHI assum∑ption [?], Φ = e(A, h) · e(L, h)d holds only when n∈U3 γnγ + νnν contained in L (in the exponent of g). If so, each user can infer
+
+L
+
+=
+
+n=|U3 |
+Π Ln
+
+=
+
+∑
+g , n∈U3 γnγ+νnν−HFδ,ρ(σ)
+
+and
+
+knows
+
+that
+
+n=1
+
+A = gHFδ,ρ(σ). Afterwards, based on the DDH assumption
+
+[?], each user further checks whether both e(A, h) = e(g, B)
+
+and e(L, h) = e(g, Q) hold. If this is true, every user will
+
+believe that the cloud server correctly calculated B and Q.
+
+Until here, each user has veriﬁed that (A, B) is calculated correctly. In the end, if HF (σ) = (A′, B′) = (A, B) holds,
+
+every user is convinced that∑the cloud server did return the correct aggregate result σ = n∈U3 xn.
+Here we omit the detailed proof since it can be easily proved
+
+by utilizing l- BDHI [?] and DDH assumption [?].
+
+tively. Next we will present two theorems. The ﬁrst theorem
+shows that any collusion (excluding the cloud server) less than t users in failure to get other users private information except the result of the aggregation.
+THEOREM 1 (Defense against Joint Attacks from Multiple Users). For all t, k, W ⊆ U , xU , U with |U| ≥ t, and U4 ⊆ U3 ⊆ U2 ⊆ U1 ⊆ U , there is a PPT simulator SIM whose output is indistinguishable from the output of REALUW,t,k.
+REALUW,t,k(xU , U1, U2, U3, U4) ≡ SIMUW,t,k(xW , U1, U2, U3, U4)
+Proof. Because we exclude the involvement of the cloud server, the joint view of parties in set W does not depend on the inputs of other users not in W. Hence, the simulator can generate a perfect simulation by running the protocol with the true inputs of honest but curious users, but replacing the
+
+inputs of the honest users with fake data (such as randomly
+
+B. Honest but Curious Security
+
+In this section, we prove that our VerifyNet is secure under
+
+the honest but curious setting. In our threat model, the cloud
+
+server can collude with any t − 1 users to get the most
+
+offensive capabilities, but they still know nothing about the
+
+local gradients of honest users except the aggregated results.
+
+As illustrated above, each user’s local gradient xn is encrypted
+
+as
+
+∑
+
+xˆn =xn + PRG(βn) +
+
+PRG(sn,m)
+
+generated number). We stress that the simulated view of users in W is indistinguishable from the output of real view. More concretely, in Round 2, the simulator generates the masked input xˆn for all honest users (not in W) by utilizing random number ( such as 0), instead of using true gradients. Besides, we note that the server just sends a list of all online users’ ID in the round of Unmasking, not the actual value of the speciﬁc xˆn, which means that the honest but curious users cannot identify whether the calculation results
+
+∑
+
+m∈U2 :n<m
+
+−
+
+PRG(sm,n)
+
+m∈U2 :n>m
+
+returned by the cloud server are based on the true gradients of honest users. Therefore, the simulated view of users in W is indistinguishable from the output of real view REALUW,t,k.
+
+Moreover, each xn is also used in homomorphic hash functions [?], [?] to generate part of veriﬁcation information. Since the homomorphic hash functions has been proven to be secure [?], here we mainly discuss the level of privacy protection that xˆn can achieve. Before formally presenting the complete proof process, we introduce some useful symbols that will be used
+
+THEOREM 2 (Defense against Joint Attacks from The Cloud Server and Multiple Users). For all t, k, xU , W ⊆ U ∪ {S}, |W\{S}| < t, U with |U | ≥ t, and U4 ⊆ U3 ⊆ U2 ⊆ U1 ⊆ U , there is a PPT simulator SIM whose output is indistinguishable from the output of REALUW,t,k.
+
+later.
+We know that users may drop out at some point of the workfolw. We use Ui ⊆ U to denote those users who upload data to the cloud server smoothly at round i − 1. Therefore, we have U ⊇ U1 ⊇ U2 ⊇ U3 ⊇ U4. The symbol Ui \ Ui+1 is exploited to represent those users who have sent data to the server in Round i − 1, but drop out before uploading data in Round i. As illustrated before, assume that each user n holds a local gradient xn, (n ∈ U ), we adopt xU′ = {xn}n∈U′ to indicate a subset U ′ of local gradients, where U ′ ⊆ U .
+In our VerifyNet, the view of a party is deﬁned as its internal state (containing its inputs and randomness) and all the messages received from other parties. It should be noted that a party will immediately stop receiving messages while this party exits the execution at some point.
+For simplicity, we use S to represent the cloud server. Given a subset W ⊆ U ∪ {S} of parties, the joint view
+
+where
+
+REALUW,t,k(xU , U1, U2, U3, U4) ≈ SIMUW,t,k(xW , ξ, U1, U2, U3, U4)
+
+∑
+
+
+
+xn
+
+ξ =  n∈U3\W ⊥
+
+if |U3| ≥ t otherwise
+
+Proof. We use a standard hybrid argument here to prove
+our THEOREM 2. The main idea is that the simulator SIM
+executes a series of modiﬁcations to our protocol, which ultimately makes the simulated view SIMUW,t,k indistinguishable from the real view REALUW,t,k. In our hybrid argument, hybi, {i = 1, · · · 9} indicates a secure modiﬁcation to the original protocol, which ensures that the modiﬁed operation is
+indistinguishable from the original operation.
+
+of all parties in W can be denoted as a random variable hyb1 In this hybrid, the simulator changes the behavior of all
+
+REALUW,t,k(xU , U1, U2, U3, U4), where t and k indicate the
+
+honest users n, where n ∈ {U2\W}. Speciﬁcally, for
+
+1556-6013 (c) 2019 IEEE. Personal use is permitted, but republication/redistribution requires IEEE permission. See http://www.ieee.org/publications_standards/publications/rights/index.html for more information.
+
+This article has been accepted for publication in a future issue of this journal, but has not been fully edited. Content may change prior to final publication. Citation information: DOI 10.1109/TIFS.2019.2929409, IEEE Transactions on Information Forensics and Security
+8
+
+each user n, a uniformly random number vn,m is selected to replace the shared key KA.agree (PnSK , PmP K )
+between user n and m in the same set, and to perform
+
+is also a random value, and it is easy to deduce that the distribution of rn and xn +PRG(βn) is indistinguishable. It should be noted that if ξ =⊥, the simulator has already
+
+the function of encryption and decryption. For example,
+
+completed the simulation (describe as hyb5) since SIM
+
+each honest user utilizes vn,m to generate ciphertext Pn,m
+
+successfully simulates REAL without knowing xn for all
+
+mentioned in Round 1, instead of utilizing KA.agree
+
+parties n ∈ W. Hence for all the simulations that follow,
+
+(PnSK , PmP K ). The DDH assumption [?] ensures that
+
+we assume ξ ̸=⊥.
+
+this hybrid possesses the indistinguishability from real hyb6 In this hybrid, for every user n ∈ U3\W, the simulator
+
+protocol.
+
+substitutes the shares of NnSK with shares of random val-
+
+hyb2 In this hybrid, the simulator replaces all encrypted data
+
+ues (e.g., 0, with appropriate length). Similar to hyb3, the
+
+(i.e.,the encrypted shares of βn and NnSK ) sent by honest
+
+security of Shamir’s secret sharing protocol guarantees
+
+users (in the set {U2\W}) to other users with encrypted
+
+that this hybrid is indistinguishable from the real protocol.
+
+shares of random values (e.g., 0, with appropriate length). hyb7 In this hybrid, given a user m′ ∈ U3\W, for all other
+
+However, all honest users still return the correct shares
+
+users n ∈ U3\W, the simulator uniformly selects a
+
+to the cloud server in the round of Unmasking. Because
+
+random number to replace the sharked key (i.e., sn,m′ =
+
+we just change the content of ciphertext, the properties
+
+KA.agree{NnSK , NmP K }) between user n and m′, and
+
+of symmetric authenticated encryption [?], [?] ensure
+
+this random number will be used as the seed of PRG for
+
+the indistinguishability between this hybrid with real
+
+protocol. hyb3 In this hybrid, we ﬁrst deﬁne a subset as below.
+
+{
+
+U∗ =
+
+U2\W if ξ =⊥
+
+U2\U3\W otherwise
+
+both user n and m.
+
+Speciﬁcally, a random value s′n,m′ is selected for each user n ∈ U3\W\{m′}. Instead of sending
+
+∑
+
+xˆn = xn+PRG(βn) +
+
+PRG(sn,m)
+
+∑
+
+m∈U2 :n<m
+
+Then, in the round of Key Sharing, for all honest users n in the set U ∗, the simulator replaces all the shares of
+
+−
+
+PRG(sm,n)
+
+m∈U2 :n>m
+
+βn with random values (e.g., 0, with appropriate length). It is obvious that the adversary will not get extra share of
+βn, either because the honest users will not reveal their shares of βn (resp. |U3| ≥ t, U ∗ = U2\U3\W), or because all the honest users are ofﬂine (resp. |U3| < t, U ∗ = U2\W, where ξ =⊥). The security of Shamir’s secret sharing scheme guarantees that it is infeasible to recover
+the secret even possessing any t − 1 shares of current
+secret, which means that even the honest but curious users
+
+SIM submits
+
+∑
+
+xˆn =xn + rn +
+
+PRG(sn,m)
+
+∑ m∈U2\{m′}:n<m
+
+−
+
+PRG(sm,n) + ∆n,m′ · PRG(s′n,m′ )
+
+m∈U2 \{m′ }:n>m
+
+where ∆n,m′ = 1 if n < m′. Otherwise, ∆n,m′ = −1.
+
+Correspondingly, we have
+
+∑
+
+xˆm′ = xm′ + rm′ +
+
+∆n,m′ · PRG(s′n,m′ )
+
+have |W| < t shares of βn, they still cannot tell whether
+
+n∈U2
+
+the shares submitted from honest users comes from the
+
+Similarly, the DDH assumption [?] ensures that this hy-
+
+real βn.
+
+brid possesses the indistinguishability from real protocol.
+
+hyb4
+
+In this users in
+
+hybrid, the set
+
+instead U ∗, the
+
+of generating simulator uses
+
+PRG(βn) uniformly
+
+for all random
+
+hyb8
+
+In this hybrid, for the same user m′ selected in previous hybrid and all other user n ∈ U3\W, the simulator
+
+number rn with appropriate size to replace it. It is
+
+also uniformly selects a random number rn,m′ to replace
+
+easy to understand that the simulator just substitutes
+
+the computation of PRG(s′n,m′ ). Similar to hyb4, it is
+
+the output of PRG, where PRG is the Pseudorandom
+
+easy to understand that the simulator just substitutes the
+
+Generator [?] mentioned before. Therefore, the security
+
+output of PRG. Therefore, the security of Pseudorandom
+
+of Pseudorandom Generator [?] ensures that this hybrid
+
+Generator [?] ensures that this hybrid is indistinguishable
+
+hyb5
+
+is indistinguishable from the real protocol.
+
+In this hybrid, for each user generates the masked input
+
+n in the set as below:
+
+U
+
+∗,
+
+the
+
+simulator
+
+hyb9
+
+from the real protocol. In this hybrid, for each simulator submits
+
+user
+
+n
+
+in
+
+the
+
+set
+
+U3 \W ,
+
+the
+
+∑
+
+∑
+
+∑
+
+xˆn = rn +
+
+PRG(sn,m) −
+
+PRG(sm,n)
+
+xˆn = Rn + rn +
+
+∆n,m · rn,m
+
+m∈U2 :n<m
+
+m∈U2 :n>m
+
+m∈U2 \U3 \W
+
+instead of utilizing
+
+∑
+
+xˆn = xn+PRG(βn) +
+
+PRG(sn,m)
+
+∑
+
+m∈U2 :n<m
+
+−
+
+PRG(sm,n)
+
+m∈U2 :n>m
+
+Since PRG(βn) has been changed in the previous hybrid with a uniformly random number, we know that xn + rn
+
+instead of sending
+
+∑
+
+xˆn =xn + PRG(βn) +
+
+PRG(sn,m)
+
+∑
+
+m∈U2 :n<m
+
+−
+
+PRG(sm,n)
+
+m∈U2 :n>m
+
+where {Rn}n∈U3\W ∑is random value∑selected by the simulator,
+
+and subjected to
+
+Rn =
+
+xn = ξ. Therefore,
+
+n∈U3 \W
+
+n∈U3 \W
+
+1556-6013 (c) 2019 IEEE. Personal use is permitted, but republication/redistribution requires IEEE permission. See http://www.ieee.org/publications_standards/publications/rights/index.html for more information.
+
+This article has been accepted for publication in a future issue of this journal, but has not been fully edited. Content may change prior to final publication. Citation information: DOI 10.1109/TIFS.2019.2929409, IEEE Transactions on Information Forensics and Security
+9
+
+the simulator has already completed the simulation since SIM successfully simulates REAL without knowing xn for all parties n ∈ W. Based on the hybrid 1 to 9, we can infer that the distribution of this hybrid is identical to the real output. Completing the proof.
+VII. PERFORMANCE EVALUATION
+We recruit 600 mobile devices to evaluate the performance of our VerifyNet, where most smart devices come with 4GB of RAM and are equipped with Android 6.0 systems. Each mobile device runs the same convolutional neural network ofﬂine to obtain the local gradients of all parameters. All the raw data are selected from MNIST database (http://yann.lecun.com/exdb/mnist/) which has a training set of 60,000 examples, and a test set of 10,000 examples. Besides, the “ Cloud ” is simulated with a Lenovo server which has Intel(R) Xeon(R) E5-2620 2.10GHZ CPU, 16GB RAM, 256SSD, 1TB mechanical hard disk and runs on the Ubuntu 18.04 operating system. More speciﬁcally, we adopt the key agreement protocol based on Elliptic-Curve to achieve the key distribution between two users, and the standard Shamir’s tout-of-N secret sharing protocol [?] to generate the shares of secret. In addition, we use AES in counter mode and AES-GCM with 128-bit keys to achieve the authenticated encryption and pseudorandom generator, respectively.
+A. Functionality
+
+TABLE I: Comparison of Functionality
+
+Data Privacy Robustness to Failures
+Veriﬁability
+
+PPML ×
+
+PPDL
+× ×
+
+SafetyNets × ×
+
+VerifyNet
+
+As shown in TABLE.I, we compare the functionality with the latest work PPML [?], PPDL [?] and SafetyNets [?], since the main works of these schemes are similar to ours. Specifically, we know that both PPML and PPDL guarantee the conﬁdentiality of data privacy during the execution, however, the property of veriﬁability is not supported by their model. In addition, PPDL is also failure to deal with the problem of users dropping out. On the other hand, SafetyNets is primarily designed from the veriﬁability perspective, hence the problems of data privacy leakage and users dropping out in the training process are not considered in its protocol. Compared with these schemes, our VerifyNet supports each user to verify the results returned by the cloud server while guaranteeing the conﬁdentiality of user’s local gradients. Besides, similar to PPML, VerifyNet is also robust to users dropping out at any subprocess of whole work process.
+
+B. Classiﬁcation Accuracy
+In this section, we select data from MNIST database to test the classiﬁcation accuracy of our VerifyNet. The experiments were conducted on a CNN network [?], [?], which consists of two convolutional layers and two fully connected layers with
+
+Classification accuracy (%) Running time (min)
+
+90
+
+80
+
+70
+
+60
+
+50
+
+40
+
+30
+
+20
+
+Gradients=1000
+
+10
+
+Gradients=2000
+
+Gradients=3000
+
+0
+
+20
+
+40
+
+60
+
+80
+
+Number of iterations
+
+(a)
+
+80
+
+70
+
+60
+
+50
+
+40
+
+30
+
+20
+
+Gradients=1000
+
+10
+
+Gradients=2000
+
+Gradients=3000
+
+0
+
+20
+
+40
+
+60
+
+80
+
+Number of iterations
+
+(b)
+
+Fig. 5: (a) No dropout, |U|=100, classiﬁcation accuracy with the different number of gradients per user. (b) No dropout, |U|=100, running time with the different number of gradients
+per user.
+
+128 neurons each layer. Deﬁnitely, in federated learning, the accuracy of model’s outputs is closely related to two factors, i.e., the number of users participating in the training and the size of the local gradients owned by each user. In general, the accuracy of the model’s output is proportional to the number of gradients/users involved in the training, and also proportional to the computation and communication overhead generated by the system. To analyze the relationship between these factors, we record the classiﬁcation accuracy and running time of our VerifyNet under different number of users/gradients per user. Here we use the symbol |U| and |G| to indicate the number of users and gradients per user in our experiments, respectively.
+Fig. 5 shows the classiﬁcation accuracy and running time with the different number of gradients per user, where an iteration means that a parameter update (i.e., Round 0 to Round 4) is completed. For simplicity, here we only consider the case of no users dropping out. Clearly, the increase in the number of gradients facilitates the higher accuracy of the model output, but it also incurs more computation overhead (shown in Fig. 5(b)). However, by comparing classiﬁcation accuracy with different gradients (See gradients=2000 and gradients=3000, respectively), the number of gradients involved in training is not the more the better, because the accuracy of the model will converge when the number of gradients increases to a certain amount. Therefore, in practical applications, we can empirically choose the appropriate number of gradients to avoid unnecessary overhead. Fig. 6 shows the classiﬁcation accuracy and running time with the different number of users. Similarly, increasing the number of users in the system is beneﬁcial to improve the model’s classiﬁcation accuracy, but it also requires additional computation overheads. Note that for the sake of simplicity, we do not record the total amount of data transmitted in the system under different numbers of users/gradients. However, since VerifyNet is an interactive protocol, in theory, our scheme will inevitably generate a certain communication overhead as the number of users/gradients increases.
+C. Veriﬁcation Accuracy
+As discussed before, to prevent malicious spooﬁng by
+
+1556-6013 (c) 2019 IEEE. Personal use is permitted, but republication/redistribution requires IEEE permission. See http://www.ieee.org/publications_standards/publications/rights/index.html for more information.
+
+This article has been accepted for publication in a future issue of this journal, but has not been fully edited. Content may change prior to final publication. Citation information: DOI 10.1109/TIFS.2019.2929409, IEEE Transactions on Information Forensics and Security
+10
+
+Classification accuracy (%)
+y Running time (s)
+
+90
+
+80
+
+70
+
+60
+
+50
+
+40
+
+30
+
+20 Users=100
+
+10
+
+Users=200
+
+Users=300
+
+0
+
+20
+
+40
+
+60
+
+80
+
+Number of iterations
+
+(a)
+
+200
+
+195
+
+190
+
+185
+
+180
+
+175
+
+Users=100
+
+Users=200
+
+Users=300
+
+170
+
+20
+
+40
+
+60
+
+80
+
+Number of iterations
+
+(b)
+
+Fig. 6: (a) No dropout, |G|=1000, classiﬁcation accuracy with the different number of users. (b) No dropout,
+|G|=1000, running time with the different number of users.
+
+dropout users Dropout users
+
+30 Gradients=1000
+25
+20
+15
+10
+5 100 150 200 250 300 350 400 450 500 Number of users
+(a)
+
+12 Users=100
+10
+8
+6
+4
+2
+0 1000 1500 2000 2500 3000 3500 4000 4500 5000 Number of gradients
+(b)
+
+Fig. 8: Dropout users. (a) |G|=1000, with the different number of users. (b) |U|=100, with the different number of
+gradients per user.
+
+0.025 0.02
+
+Ideal data distribution N(50, 20) Real data distribution N(51.34, 19.37) Retrived data distribution N(51.34, 19.37)
+
+0.015
+
+0.01
+
+0.005
+
+0
+
+0
+
+20
+
+40
+
+60
+
+x
+
+80
+
+100
+
+Total running time of verification (s) Total running time of verification (s)
+
+100
+
+0% dropout
+
+90
+
+10% dropout
+
+20% dropout
+
+80
+
+30% dropout
+
+70
+
+60
+
+50
+
+40
+
+30
+
+20
+
+10
+
+0 1000
+
+2000
+
+3000
+
+4000
+
+5000
+
+Number of gradients per user
+
+(a)
+
+25
+
+0% dropout
+
+10% dropout
+
+20% dropout
+
+20
+
+30% dropout
+
+15
+
+10
+
+5
+
+0
+
+100
+
+200
+
+300
+
+400
+
+500
+
+Number of users
+
+(b)
+
+Fig. 7: Veriﬁcation accuracy
+
+Fig. 9: Total running time of each user (Veriﬁcation process). (a) |U|=100, with the different number of gradients per user.
+(b) |G|=1000, with the different number of users.
+
+the server, our VerifyNet supports each user to verify the correctness of the results returned by the server. In speciﬁc, the cloud server is required to provide the Proof about the correctness of its aggregated results to each user, and each user can reject or accept the results by checking the Proof. To give a simple presentation for the veriﬁcation accuracy, we simulate 200 users uploading encrypted local data to the server, where all the data are randomly selected from normal distribution N (50, 20). For simplicity, here we also only consider the case of no users dropping out. Since the randomly selected data are discrete points, their real distribution (N (51.34, 19.37), red line in Fig. 7) is slightly different from the original ideal distribution. Then, we require the cloud server to calculate the aggregated results along with corresponding Proof for each user. If the veriﬁcation is passed, the distribution of uploaded data used to generate the aggregated results should be the same as the real data. Based on this, we further use the aggregated results to calculate the mean and variance of the uploaded data. As shown in Fig. 7, we can ﬁnd that retrieved data distribution is exactly overlapping with the real data distribution, which also conﬁrms that a result returned from the server is correct once its Proof is veriﬁed.
+D. Probability of Users Dropping Out
+Our VerifyNet is robust to users dropping out in training
+
+process, because users dropping out is very common due to users’ device battery issues, hardware quality problems and the like occurring in workﬂow. To evaluate the universality of this phenomenon, we record the number of users who logged out under different number of users/gradients per user in whole system. In speciﬁc, we require all users to upload data to the server multiple times within the speciﬁed time, and record the average of dropout users under repeated experiments. As shown in Fig. 8, we ﬁnd that as the number of users/gradients increases, a certain number of users dropping out are inevitable, which is more pronounced as the number of users increases. However, Fig. 8 shows that the proportion of users dropping out is not signiﬁcant relative to the total number of users. Hence, this also provides a basis for using the secret sharing protocol to manage the problem of users dropping out.
+E. Performance Analysis of Client
+We analyze the performance of the client from both computation and communication overhead, where we test VerifyNet under different proportions of users dropping out.
+1) Computation Overhead: Fig. 9 shows the running time of each user during veriﬁcation process. Clearly, the user’s
+
+1556-6013 (c) 2019 IEEE. Personal use is permitted, but republication/redistribution requires IEEE permission. See http://www.ieee.org/publications_standards/publications/rights/index.html for more information.
+
+This article has been accepted for publication in a future issue of this journal, but has not been fully edited. Content may change prior to final publication. Citation information: DOI 10.1109/TIFS.2019.2929409, IEEE Transactions on Information Forensics and Security
+11
+
+Total running time (s) Total running time (s) Total running time of (s) Total running time of (s)
+
+100
+
+No dropout 90
+
+Verification cost
+
+80
+
+Total cost
+
+70
+
+60
+
+50
+
+40
+
+30
+
+20
+
+10
+
+0 1000 1500 2000 2500 3000 3500 4000 4500 5000 Number of gradients per user
+
+(a)
+
+100
+
+30% dropout
+
+90 Verification cost
+
+80
+
+Total cost
+
+70
+
+60
+
+50
+
+40
+
+30
+
+20
+
+10
+
+0 1000 1500 2000 2500 3000 3500 4000 4500 5000 Number of gradients per user
+
+(b)
+
+25 No dropout Verification cost Total cost
+20
+15
+10
+5
+0 100 150 200 250 300 350 400 450 500 Number of users
+(c)
+
+25 30% dropout
+
+Verification cost
+
+20
+
+Total cost
+
+15
+
+10
+
+5
+
+0 100 150 200 250 300 350 400 450 500 Number of users
+(d)
+
+Fig. 10: Comparison between veriﬁcation computation overhead and total overhead for each user. (a) No dropout, |U|=100, with the different number of gradients per user. (b) 30% dropout, |U|=100, with the different number of gradients per user. (c) No dropout, |G|=1000, with the different number of users. (d) 30% dropout, |G|=1000, with the different number of users.
+
+Total transmitted data of verification (KB) Total transmitted data of verification (KB)
+Total running time of verification (ms) Total running time of verification (ms)
+
+2000 1800 1600
+
+0% dropout 10% dropout 20% dropout 30% dropout
+
+1400
+
+1200
+
+1000
+
+800
+
+600
+
+400
+
+200
+
+0 1000
+
+2000
+
+3000
+
+4000
+
+5000
+
+Number of gradients per user
+
+(a)
+
+500
+
+0% dropout
+
+450
+
+10% dropout
+
+20% dropout
+
+400
+
+30% dropout
+
+350
+
+300
+
+250
+
+200
+
+150
+
+100
+
+50
+
+0
+
+100
+
+200
+
+300
+
+400
+
+500
+
+Number of users
+
+(b)
+
+3 104
+
+0% dropout
+
+10% dropout
+
+2.5
+
+20% dropout
+
+30% dropout
+
+2
+
+1.5
+
+1
+
+0.5
+
+0 1000
+
+2000
+
+3000
+
+4000
+
+5000
+
+Number of gradients per user
+
+(a)
+
+3 104
+
+0% dropout
+
+10% dropout
+
+2.5
+
+20% dropout
+
+30% dropout
+
+2
+
+1.5
+
+1
+
+0.5
+
+0
+
+100
+
+200
+
+300
+
+400
+
+500
+
+Number of users
+
+(b)
+
+Fig. 11: Total transmitted data of each user (Veriﬁcation Fig. 13: Total running time of the cloud server (Veriﬁcation process). (a) |U|=100, with the different number of gradients process). (a) |U|=100, with the different number of gradients per user. (b) |G|=1000, with the different number of users. per user. (b) |G|=1000, with the different number of users.
+
+running time increases linearly with the increasing of the number of gradients, but keeps a constant as the number of users increases. One of main reasons is that the veriﬁcation overhead is only related to the number of gradients owned by each user, since each user n needs to generate (An, Bn, Ln, Qn) for newly added gradient xn. Fig.10 shows the comparison between the computation overhead of veriﬁcation and the total overhead. For simplicity, we consider no user dropping out and 30% users dropping out in our experiments. We can see that the main computation cost of each user comes from the veriﬁcation process, regardless of the number of users or gradients. In addition, our VerifyNet maintains good performance in terms of computation overhead. For example, when the number of users is 500 and the total number of gradients in our system is 500000, each user only needs about 17 seconds to complete one iteration of parameter update.
+2) Communication Overhead: Fig. 11 shows the total transmitted data of each user during veriﬁcation process. Similar to Fig.9, the user’s total transmitted data also increases linearly with the increasing of the number of gradients, but keeps a constant as the number of users increases. Fig.12 shows the
+
+comparison between veriﬁcation communication overhead and total overhead of each user. We can see that the proportion of overhead generated in veriﬁcation process is not obvious to total overhead, and even can be ignored as the number of users increases. Moreover, experiments demonstrate that our VerifyNet still maintains good performance in terms of communication overhead. For instance, when the number of users is 500 and the total number of gradients in our system is 500000, each user only needs about 70M B to complete one iteration of parameter update.
+F. Performance Analysis of Server
+1) Computation Overhead: Fig.13 shows the running time of veriﬁcation process of the cloud server. We can see that the server’s running time increases linearly with the increasing of the number of gradients or users. The main reason is that as the number of gradients or users increases, the cloud server needs to generate the Proof of aggregated result for each new added gradients and users. Fig. 14 shows the comparison between veriﬁcation computation overhead and total overhead of the cloud server. We can ﬁnd that the proportion of users dropping
+
+1556-6013 (c) 2019 IEEE. Personal use is permitted, but republication/redistribution requires IEEE permission. See http://www.ieee.org/publications_standards/publications/rights/index.html for more information.
+
+This article has been accepted for publication in a future issue of this journal, but has not been fully edited. Content may change prior to final publication. Citation information: DOI 10.1109/TIFS.2019.2929409, IEEE Transactions on Information Forensics and Security
+12
+
+Total transmitted data (KB) Total transmitted data (KB) Total transmitted data (KB) Total transmitted data (KB)
+
+6000 No dropout
+
+5000
+
+Verification cost Total cost
+
+4000
+
+3000
+
+2000
+
+1000
+
+0 1000 1500 2000 2500 3000 3500 4000 4500 5000 Number of gradients per user
+(a)
+
+6000 30% dropout
+
+5000
+
+Verification cost Total cost
+
+4000
+
+3000
+
+2000
+
+1000
+
+0 1000 1500 2000 2500 3000 3500 4000 4500 5000 Number of gradients per user
+(b)
+
+8 104
+
+No dropout
+
+7
+
+Verification cost
+
+Total cost
+
+6
+
+5
+
+4
+
+3
+
+2
+
+1
+
+0 100 150 200 250 300 350 400 450 500 Number of user
+(c)
+
+8 104 30% dropput
+7 Verification cost Total cost
+6
+5
+4
+3
+2
+1
+0 100 150 200 250 300 350 400 450 500 Number of user
+(d)
+
+Fig. 12: Comparison between veriﬁcation communication overhead and total overhead for each user. (a) No dropout, |U|=100, with the different number of gradients per user. (b) 30% dropout, |U|=100, with the different number of gradients per user. (c) No dropout, |G|=1000, with the different number of users. (d) 30% dropout, |G|=1000, with the different number of users.
+
+Total running time (ms) Total running time (ms) Total running time (ms) Total running time (ms)
+
+3 104 No dropout
+2.5 verification cost Total cost
+2
+1.5
+1
+0.5
+0 1000 1500 2000 2500 3000 3500 4000 4500 5000 Number of gradients per user
+(a)
+
+4.5 104 30% dropout
+4 verification cost Total cost
+3.5
+3
+2.5
+2
+1.5
+1
+0.5
+0 1000 1500 2000 2500 3000 3500 4000 4500 5000 Number of gradients per user
+(b)
+
+10 104 9 No dropout verification cost 8 Total cost 7
+6
+5
+4
+3
+2
+1
+0 100 150 200 250 300 350 400 450 500 Number of user
+(c)
+
+2.5 105 30% dropout
+
+2
+
+verification cost Total cost
+
+1.5
+
+1
+
+0.5
+
+0 100 150 200 250 300 350 400 450 500 Number of user
+(d)
+
+Fig. 14: Comparison between veriﬁcation computation overhead and total overhead for the cloud server. (a) No dropout, |U|=100, with the different number of gradients per user. (b) 30% dropout, |U|=100, with the different number of gradients per user. (c) No dropout, |G|=1000, with the different number of users. (d) 30% dropout, |G|=1000, with the different number
+of users.
+
+out greatly determine the trend of overall cost of the cloud server, which is also obvious by comparing with Fig.14(c) and Fig.14(d). For example, when no user dropouts, the cloud sever only needs about 75000ms to complete an iteration of parameter updates, but it will take 220000ms if 30% of users dropout.
+2) Communication Overhead: Fig. 15 shows the total transmitted data of veriﬁcation process of the cloud server. We can see that as the number of users or gradients increases, the communication overhead of the cloud server also grows linearly. TABLE.I and TABLE.II show the computation and communication overhead of each round, respectively, where the red font indicates the overhead during the veriﬁcation process. For each user, both the computational and communication overhead are mainly from the Masked Input and Veriﬁcation, since each user n needs generating σn and verifying Proof for each gradient, and sending the encrypted results to the cloud server. For the cloud server, after receiving all the messages on the Masked Input round, it needs to aggregate the encrypted gradients of all users and restore the secrets of all the online users in the Unmasking round, which results in large computational/
+
+Total running time of verification (ms) Total running time of verification (ms)
+
+3 104
+
+0% dropout
+
+10% dropout
+
+2.5
+
+20% dropout 30% dropout
+
+2
+
+1.5
+
+1
+
+0.5
+
+0 1000
+
+2000
+
+3000
+
+4000
+
+5000
+
+Number of gradients per user
+
+(a)
+
+3 104
+
+0% dropout
+
+10% dropout
+
+2.5
+
+20% dropout
+
+30% dropout
+
+2
+
+1.5
+
+1
+
+0.5
+
+0
+
+100
+
+200
+
+300
+
+400
+
+500
+
+Number of users
+
+(b)
+
+Fig. 15: Total transmitted data of the cloud server (Veriﬁcation process). (a) |U|=100, with the different number
+of gradients per user. (b) |G|=1000, with the different number of users.
+
+1556-6013 (c) 2019 IEEE. Personal use is permitted, but republication/redistribution requires IEEE permission. See http://www.ieee.org/publications_standards/publications/rights/index.html for more information.
+
+This article has been accepted for publication in a future issue of this journal, but has not been fully edited. Content may change prior to final publication. Citation information: DOI 10.1109/TIFS.2019.2929409, IEEE Transactions on Information Forensics and Security
+13
+
+Total transmitted data (KB) Total transmitted data (KB) Total transmitted data (KB) Total transmitted data (KB)
+
+15 104 No dropout Verification cost Total cost
+10
+5
+0 1000 1500 2000 2500 3000 3500 4000 4500 5000 Number of gradients per user
+(a)
+
+104 12 30% dropout
+
+Verification cost
+
+10
+
+Total cost
+
+8
+
+6
+
+4
+
+2
+
+0 1000 1500 2000 2500 3000 3500 4000 4500 5000 Number of gradients per user
+(b)
+
+3.5 105 No dropout
+3 Verification cost Total cost
+2.5
+2
+1.5
+1
+0.5
+0 100 150 200 250 300 350 400 450 500 Number of users
+(c)
+
+3.5 105 30% dropout
+3 Verification cost Total cost
+2.5
+2
+1.5
+1
+0.5
+0 100 150 200 250 300 350 400 450 500 Number of users
+(d)
+
+Fig. 16: Comparison between veriﬁcation communication overhead and total overhead for the cloud server. (a) No dropout, |U|=100, with the different number of gradients per user. (b) 30% dropout, |U|=100, with the different number of gradients per user. (c) No dropout, |G|=1000, with the different number of users. (d) 30% dropout, |G|=1000, with the different number
+of users.
+
+TABLE II: Computation Overhead of Each Round
+
+Client Client Client Client Server Server Server Server
+
+Dropout 0% 10% 20% 30% 0% 10% 20% 30%
+
+Key Sharing 2508(ms) 2510(ms) 2492(ms) 2480(ms) 0(ms) 0(ms) 0(ms) 0(ms)
+
+Masked Input (1311 + 11919) (ms) (1263 + 11942)(ms) (1250 + 11892)(ms) (1245 + 11971) (ms)
+0 (ms) 0 (ms) 0 (ms) 0 (ms)
+
+Unmasking 4(ms) 4(ms) 4(ms) 4(ms)
+(50136 + 27311)(ms) (112379 + 24799)(ms) (163551 + 21519)(ms) (207222 + 19705)(ms)
+
+Veriﬁcation 5941(ms) 5830 (ms) 5942 (ms) 5942 (ms)
+0 (ms) 0 (ms) 0 (ms) 0 (ms)
+
+Total 21683 (ms) 21549 (ms) 21580 (ms) 21642 (ms) 77477 (ms) 137178 (ms) 185070 (ms) 226927 (ms)
+
+TABLE III: Communication Overhead of Each Round
+
+Client Client Client Client Server Server Server Server
+
+Dropout 0% 10% 20% 30% 0% 10% 20% 30%
+
+Key Sharing 274(KB) 273(KB) 274(KB) 274(KB) 72(MB) 72(MB) 72(MB) 72(MB)
+
+Masked Input (74002 + 184) (KB) (73998 + 184) (KB) (73999 + 184)(KB) (73998 + 184)(KB)
+(111 + 90) (MB) (110 + 81) (MB) (102 + 72) (MB) (98 + 63) (MB)
+
+Unmasking 65(KB) 65(KB) 65(KB) 65(KB)
+(32 + 0.18)(MB) (29 + 0.18)(MB) (25 + 0.18)(MB) (22 + 0.18)(MB)
+
+Veriﬁcation (4 + 184)(KB) (4 + 184)(KB) (4 + 184) (KB) (4 + 184) (KB)
+0 (MB) 0 (MB) 0 (MB) 0 (MB)
+
+Total 73 (MB) 73 (KB) 73 (MB) 73 (MB) 305.18 (MB) 292.18 (MB) 271.18 (MB) 255.18 (MB)
+
+communication overheads.
+G. Performance Analysis by Comparing with Existing Approaches
+In this section, we analyze the cost of VerifyNet by comparing with the state-of-the-art approaches MDL [?], PPDL [?], SafetyNets [?] and Original Federated Learning model OFL[?], where OFL is the original model for performing federated learning in the plaintext environment. Here we use OFL to describe the performance differences between federated learning in plaintext and ciphertext. MDL [?] and PPDL [?] are consistent with the scenarios considered in our VerifyNet, and their goal is also to protect the privacy of
+
+user’s local gradients by using privacy protection techniques. However, they do not consider the veriﬁability issue of the results returned by the server. Conversely, SafetyNets aims [?] to verify the correctness of results returned from the cloud, which is the ﬁrst approach for veriﬁable execution of deep neural networks on untrusted cloud. It can convert certain types of deep neural networks into arithmetic circuits, and then verify the correctness of returned results through multiple interactions with the server.
+1) Performance of Encryption Process: As shown in Fig.17 and Fig.18, we record the running time and total transmitted data of VerifyNet, MDL, PPDL and OFL with different number of users/gradients per user. Since veriﬁable calculations
+
+1556-6013 (c) 2019 IEEE. Personal use is permitted, but republication/redistribution requires IEEE permission. See http://www.ieee.org/publications_standards/publications/rights/index.html for more information.
+
+This article has been accepted for publication in a future issue of this journal, but has not been fully edited. Content may change prior to final publication. Citation information: DOI 10.1109/TIFS.2019.2929409, IEEE Transactions on Information Forensics and Security
+14
+
+Total running time (s) Total running time (s) Total transmitted data(KB) Total transmitted data(KB)
+
+35
+
+VerifyNet
+
+PPDL
+
+30
+
+MDL
+
+OFL
+
+25
+
+20
+
+15
+
+10
+
+5
+
+0 1000 2000 3000 4000 5000 Number of gradients per user
+(a)
+
+200 VerifyNet PPDL MDL
+150 OFL
+100
+50
+0 100 200 300 400 500 Number of user
+(b)
+
+Fig. 17: Running time. (a) |U|=100, with the different number of gradients per user. (b) |G|=1000, with the
+different number of users
+
+4 105
+
+VerifyNet
+
+3.5 PPDL
+
+MDL
+
+3
+
+OFL
+
+2.5
+
+2
+
+1.5
+
+1
+
+0.5
+
+0 1000 2000 3000 4000 5000 Number of gradients per user
+(a)
+
+105
+
+VerifyNet
+
+6 PPDL MDL
+
+5
+
+OPL
+
+4
+
+3
+
+2
+
+1
+
+0 100 200 300 400 500 Number of users
+(b)
+
+Fig. 18: Total transmitted data. (a) |U|=100, with the different number of gradients per user. (b) |G|=1000, with
+the different number of users
+
+are not considered in MDL and PPDL, the computation and communication overhead required for veriﬁcation are also excluded from our VerifyNet. In addition, here we only consider the case of no users dropping out because MDL and PPDL are not supportive for users dropping out in training process. We can see that the cost of VerifyNet is signiﬁcantly smaller than MDL and PPDL, while not much larger than the original solution OFL. This is mainly due to the high efﬁciency of our double-masking protocol compared with technologies used in MDL and PPDL. Speciﬁcally, ElGamal cryptosystem [?] is used in MDL to encrypt users’ local gradients, while guaranteeing multiplicative homomorphism over encrypted domain. However, since encrypting each gradient involves multiple exponential operations, ElGamal is not suitable for federated learning that is driven by large-scale data. LWEbased homomorphic encryption [?] is exploited in PPDL, which is faster than ElGamal cryptosystem. However, its computation/ communication overhead also grows signiﬁcantly as the number of users/gradients per user increases. Compared with MDL and PPDL, we design a double-masking protocol to encrypt users’ local gradients. Since we do not consider the case of users dropping out in training process, each user n only needs to calculate the shares of NnP K once. As a result, the encryption operation is equivalent to adding several random values to each gradient, which greatly reduces the computation and communication overhead in the encryption process.
+2) Performance of Veriﬁcation Process: By comparing with the works SafetyNets [?] and OFL[?], we evaluate the performance of VerifyNet during the veriﬁcation process. The scenario implemented in SafetyNets is different from our VerifyNet, which aims to verify the correctness of the results returned by the server during the prediction process, and only considers the number of users in whole system is 1. In order to compare the overhead in the same experimental environment, we set |U|=1, and exploit the veriﬁable technologies of SafetyNets to accomplish the same task of our VerifyNet. In addition, here we only consider the case of no users dropping out. Then, we record the running time and total transmitted data of three schemes with different number of gradients per user. Fig.19 shows that the cost of VerifyNet and SafetyNets
+
+Running time (ms) Total transmitted data(KB)
+
+1000 800
+
+VerifyNet SafetyNets OFL
+
+600
+
+400
+
+200
+
+0 1000 2000 3000 4000 5000 Number of gradients per user
+(a)
+
+7000 6000 5000
+
+VerifyNet SafetyNets OFL
+
+4000
+
+3000
+
+2000
+
+1000
+
+0 1000 2000 3000 4000 5000 Number of gradients per user
+(b)
+
+Fig. 19: (a) |U|=1, with the different number of gradients per user. (b) |U|=1, with the different number of gradients per user.
+
+are signiﬁcant compared with original model OFL. However, the performance of our VerifyNet is signiﬁcantly better than SafetyNets. One reason for this is the technical limitations of SafetyNets, and the other reason is the combination of Homomorphic Hash and pseudo-random functions exploited in our proposed protocol. Speciﬁcally, SafetyNets uses the Interactive Proof Systems [?] to check the correctness of the calculated result returned by the cloud server. It requires multiple interactions and calculations with the server to complete the veriﬁcation task, and has been shown to be ﬂawed in computation and communication overheads [?]. However, we exploit the homomorphic hash function integrated with pseudorandom technology as the underlying structure of VerifyNet, which are well known for efﬁciently processing of data. Hence, our VerifyNet can ensure users to verify the correctness of results returned by the cloud server with relatively low overhead.
+VIII. RELATED WORKS
+In this section, we introduce the latest related works of deep learning in terms of privacy protection and veriﬁability.
+
+1556-6013 (c) 2019 IEEE. Personal use is permitted, but republication/redistribution requires IEEE permission. See http://www.ieee.org/publications_standards/publications/rights/index.html for more information.
+
+This article has been accepted for publication in a future issue of this journal, but has not been fully edited. Content may change prior to final publication. Citation information: DOI 10.1109/TIFS.2019.2929409, IEEE Transactions on Information Forensics and Security
+15
+
+A. Privacy-Preserving Deep Learning
+Most deep learning-based privacy protection algorithms focus on protecting users’ data privacy. The main tools used in their protocols are differential privacy, secure multi-party computing [?], [?], and cryptographic primitives [?]. However, the issue of privacy leakage is still not completely addressed. For example, Shokri et al. [?] proposed a privacy-preserving deep learning approach by utilizing differential privacy to achieve the balance between security and accuracy. Unfortunately, any differential privacy-based strategy has been exposed to be insecure [?] if adversaries utilize the GAN network to attack the protocol. Trieu Phong et al. [?] proposed a more secure deep learning system by utilizing additively homomorphic encryption and asynchronous stochastic gradient, but the implementation requires all users to share the same key for expected security level. Recently, Keith Bonawitz et al. [?] designed a federated deep learning approach utilizing secure multi-party computing to protect the local gradient of each user, which is supportive for users ofﬂine during the training process.
+B. Veriﬁable Deep Learning
+In deep learning, the cloud server may return incorrect results to the user due to unexpected situations. To combat that, Several schemes [?], [?] have been successively proposed to alleviate this problem. For example, Zahra Ghodsi et al. [?] designed a framework called SafetyNets. It uses the Interactive Proof Systems [?] to check the correctness of the calculated result returned by the cloud server. Later, Florian Tramr et al. [?] proposed a veriﬁable scheme called Slalom to perform veriﬁcation by exploiting trusted hardware such as SGX, TrustZone and Sanctum. However, these schemes either support a small variety of activation functions or require additional hardware assistance. More notably, to the best of our knowledge, for a neural network being trained, there is no solution which supports the veriﬁability to the correctness of computation results from the cloud. Compared with existing approaches, we propose VerifyNet, the ﬁrst privacypreserving approach supporting veriﬁcation in the process of training neural networks. We ﬁrst utilize homomorphic hash function integrated with pseudorandom technology to support the veriﬁability for each user. Then, we use a variant of secret sharing technology along with key agreement protocol to protect the privacy of users’ local gradients, and deal with the users dropping out problem during the training process.
+IX. CONCLUSION
+In this paper, we have proposed VerifyNet which supports veriﬁcation of the server’s calculation results to each user. Besides, VerifyNet is supportive for users dropping out in training process. Security analysis shows the high security of our VerifyNet under the honest but curious security setting. In addition, experiments conducted on real data also demonstrate the practical performance of our proposed scheme. As part of future research work, we will focus on reducing the communication overhead of the entire protocol.
+
+ACKNOWLEDGMENT
+This work is supported by the National Key R&D Pro-
+gram of China under Grants 2017YFB0802300 and 2017YF-
+B0802000, the National Natural Science Foundation of China
+under Grants 61802051, 61772121, 61728102, and 61472065,
+the Fundamental Research Funds for Chinese Central Univer-
+sities under Grant ZYGX2015J056.
+REFERENCES
+[1] K. Ahiska, M. K. Ozgoren, and M. K. Leblebicioglu, “Autopilot design for vehicle cornering through icy roads,” IEEE Transactions on Vehicular Technology, vol. 67, no. 3, pp. 1867–1880, 2018.
+[2] G. Xu, H. Li, and R. Lu, “POSTER:practical and privacy-aware truth discovery in mobile crowd sensing systems,” in Proceedings of ACM CCS, 2018, pp. 2312–2314.
+[3] P. Mohassel and Y. Zhang, “Secureml: A system for scalable privacypreserving machine learning,” in proceedings of IEEE S&P, 2017, pp. 19–38.
+[4] Y. Zhang, C. Xu, H. Li, K. Yang, J. Zhou, and X. Lin, “Healthdep: An efﬁcient and secure deduplication scheme for cloud-assisted ehealth systems,” IEEE Transactions on Industrial Informatics, 2018.
+[5] G. Xu, H. Li, S. Liu, M. Wen, and R. Lu, “Efﬁcient and privacypreserving truth discovery in mobile crowd sensing systems,” IEEE Transactions on Vehicular Technology, vol. 68, no. 4, pp. 3854–3865, 2019.
+[6] A. Datta, M. Fredrikson, G. Ko, P. Mardziel, and S. Sen, “Use privacy in data-driven systems: Theory and experiments with machine learnt programs,” in proceedings of ACM CCS, 2017, pp. 1193–1210.
+[7] G. Xu, H. Li, Y. Dai, K. Yang, and X. Lin, “Enabling efﬁcient and geometric range query with access control over encrypted spatial data,” IEEE Transactions on Information Forensics and Security, vol. 14, no. 4, pp. 870–885, 2019.
+[8] Y. Zhang, C. Xu, X. Liang, H. Li, Y. Mu, and X. Zhang, “Efﬁcient public veriﬁcation of data integrity for cloud storage systems from indistinguishability obfuscation,” IEEE Transactions on Information Forensics and Security, vol. 12, no. 3, pp. 676–688, 2017.
+[9] G. Xu, H. Li, C. Tan, D. Liu, Y. Dai, and K. Yang, “Achieving efﬁcient and privacy-preserving truth discovery in crowd sensing systems,” Computers & Security, vol. 69, pp. 114–126, 2017.
+[10] V. Smith, C.-K. Chiang, M. Sanjabi, and A. S. Talwalkar, “Federated multi-task learning,” in Advances in Neural Information Processing Systems, 2017, pp. 4424–4434.
+[11] K. Bonawitz, V. Ivanov, B. Kreuter, A. Marcedone, H. B. Mcmahan, S. Patel, D. Ramage, A. Segal, and K. Seth, “Practical secure aggregation for privacy-preserving machine learning,” in Proceedings of ACM CCS, 2017, pp. 1175–1191.
+[12] Y. Liu, S. Ma, Y. Aafer, W. Lee, J. Zhai, W. Wang, and X. Zhang, “Trojaning attack on neural networks,” in proceedings of NDSS, 2018.
+[13] W. Xu, D. Evans, and Y. Qi, “Feature squeezing: Detecting adversarial examples in deep neural networks,” in proceedings of NDSS, 2018.
+[14] B. Hitaj, G. Ateniese, and F. Pe´rez-Cruz, “Deep models under the GAN: information leakage from collaborative deep learning,” in proceedings of ACM CCS, 2017, pp. 603–618.
+[15] R. Shokri, M. Stronati, C. Song, and V. Shmatikov, “Membership inference attacks against machine learning models,” in proceedings of IEEE S&P, 2017, pp. 3–18.
+[16] Z. Ghodsi, T. Gu, and S. Garg, “Safetynets: Veriﬁable execution of deep neural networks on an untrusted cloud,” in Advances in Neural Information Processing Systems, 2017, pp. 4672–4681.
+[17] F. Tramer and D. Boneh, “Slalom: Fast, veriﬁable and private execution of neural networks in trusted hardware,” arXiv preprint arXiv:1806.03287, 2018.
+[18] R. Shokri and V. Shmatikov, “Privacy-preserving deep learning,” in Proceedings of ACM CCS, 2015, pp. 1310–1321.
+[19] L. T. Phong, Y. Aono, T. Hayashi, L. Wang, and S. Moriai, “Privacypreserving deep learning via additively homomorphic encryption,” IEEE Transactions on Information Forensics and Security, vol. 13, no. 5, pp. 1333–1345, 2018.
+[20] L. Bottou, “Large-scale machine learning with stochastic gradient descent,” in Proceedings of COMPSTAT. Springer, 2010, pp. 177–186.
+[21] B. Recht, C. Re, S. Wright, and F. Niu, “Hogwild: A lock-free approach to parallelizing stochastic gradient descent,” in Advances in neural information processing systems, 2011, pp. 693–701.
+
+1556-6013 (c) 2019 IEEE. Personal use is permitted, but republication/redistribution requires IEEE permission. See http://www.ieee.org/publications_standards/publications/rights/index.html for more information.
+
+This article has been accepted for publication in a future issue of this journal, but has not been fully edited. Content may change prior to final publication. Citation information: DOI 10.1109/TIFS.2019.2929409, IEEE Transactions on Information Forensics and Security
+16
+
+[22] H. Li, D. Liu, Y. Dai, and T. H. Luan, “Engineering searchable encryption of mobile cloud networks: when qoe meets qop,” IEEE Wireless Communications, vol. 22, no. 4, pp. 74–80, 2015.
+[23] H. Li, D. Liu, Y. Dai, T. Luan, and S. Yu, “Personalized search over encrypted data with efﬁcient and secure updates in mobile clouds,” IEEE Transactions on Emerging Topics in Computing, vol. 6, no. 1, pp. 97– 109, 2018.
+[24] A. Yun, J. H. Cheon, and Y. Kim, “On homomorphic signatures for network coding,” IEEE Transactions on Computers, vol. 59, no. 9, pp. 1295–1296, 2010.
+[25] D. Fiore, R. Gennaro, and V. Pastro, “Efﬁciently veriﬁable computation on encrypted data,” in Proceedings of the ACM CCS, 2014, pp. 844–855.
+[26] A. Shamir, How to share a secret. Communications of the ACM, 1979. [27] W. Difﬁe and M. E. Hellman, “New directions in cryptography,” IEEE
+Transactions on Information Theory, vol. 22, no. 6, pp. 644–654, 1976. [28] H. Li, D. Liu, Y. Dai, T. H. Luan, and X. S. Shen, “Enabling efﬁcient
+multi-keyword ranked search over encrypted mobile cloud data through blind storage,” IEEE Transactions on Emerging Topics in Computing, vol. 3, no. 1, pp. 127–138, 2015. [29] M. Blum and S. Micali, “How to generate cryptographically strong sequences of pseudo-random bits,” in Symposium on Foundations of Computer Science, 2008, pp. 112–117. [30] P. Rewagad and Y. Pawar, “Use of digital signature with difﬁe hellman key exchange and aes encryption algorithm to enhance data security in cloud computing,” in Proceedings of the IEEE CSNT, 2013, pp. 437– 439. [31] M. Bellare and C. Namprempre, “Authenticated encryption: Relations among notions and analysis of the generic composition paradigm,” Journal of Cryptology, vol. 21, no. 4, pp. 469–491, 2008. [32] D. Boneh and M. Franklin, “Identity-based encryption from the weil pairing,” in Advances in Cryptology — CRYPTO 2001, J. Kilian, Ed. Berlin, Heidelberg: Springer Berlin Heidelberg, 2001, pp. 213–229. [33] X. Zhang, S. Ji, H. Wang, and T. Wang, “Private, yet practical, multiparty deep learning,” in Proceedings of IEEE ICDCS. IEEE, 2017, pp. 1442– 1452. [34] T. ElGamal, “A public key cryptosystem and a signature scheme based on discrete logarithms,” IEEE transactions on information theory, vol. 31, no. 4, pp. 469–472, 1985. [35] Z. Brakerski, C. Gentry, and S. Halevi, “Packed ciphertexts in lwebased homomorphic encryption,” in International Workshop on Public Key Cryptography. Springer, 2013, pp. 1–13. [36] J. Thaler, “Time-optimal interactive proofs for circuit evaluation,” in Advances in Cryptology - CRYPTO, 2013, pp. 71–89. [37] J. Keuffer, R. Molva, and H. Chabanne, “Efﬁcient proof composition for veriﬁable computation,” in European Symposium on Research in Computer Security. Springer, 2018, pp. 152–171.
+
+Hongwei Li (M’12-SM’18) is currently the Head and a Professor at Department of Information Security, School of Computer Science and Engineering, University of Electronic Science and Technology of China. Dr. Li serves as the Associate Editor of IEEE Internet of Things Journal, and Peer-to-Peer Networking and Applications, the Guest Editor of IEEE Network and IEEE Internet of Things Journal. He also serves/served the technical symposium cochair of ACM TUR-C 2019, IEEE ICCC 2016, IEEE GLOBECOM 2015 and IEEE BigDataService 2015, and many technical program committees for international conferences, such as IEEE INFOCOM, IEEE ICC and IEEE GLOBECOM. He won the Best Paper Award from IEEE MASS 2018 and IEEE HELTHCOM 2015. He is the Senior Member of IEEE, Distinguished Lecturer of IEEE Vehicular Technology Society.
+Sen Liu (S’17) received the BS degree in information security from Guizhou University in 2017. Currently, he is working toward the Masters degree at the School of Computer Science and Engineering, University of Electronic Science and Technology of China. His research interests include Cryptography, Searchable Encryption.
+
+distributed systems.
+
+Kan Yang(M’13) received the B.Eng. degree in information security from the University of Science and Technology of China in 2008 and the Ph.D. degree in computer science with Outstanding Research Thesis Award from the City University of Hong Kong in 2013. He is an Assistant Professor with the Department of Computer Science and the Associate Director of the Center for Information Assurance, University of Memphis. His research interests focus on security and privacy in cloud computing, big data, Internet of Things, information-centric network, and
+
+Guowen Xu (S’15) received his B.S. degree in information and computing science from Anhui University of Architecture in 2014. Currently, he is a Ph.D. student at the School of Computer Science and Engineering, University of Electronic Science and Technology of China , China. His research interests include Cryptography, Searchable Encryption, and the Privacy-preserving Deep Learning.
+
+Xiaodong Lin (M’09-SM’12-F’17) received the PhD degree in Information Engineering from Beijing University of Posts and Telecommunications, China, and the PhD degree (with Outstanding Achievement in Graduate Studies Award) in Electrical and Computer Engineering from the University of Waterloo, Canada. He is currently an associate professor in the School of Computer Science at the University of Guelph, Canada. His research interests include computer and network security, privacy protection, applied cryptography, computer forensics, and software security. He is a Fellow of the IEEE.
+
+1556-6013 (c) 2019 IEEE. Personal use is permitted, but republication/redistribution requires IEEE permission. See http://www.ieee.org/publications_standards/publications/rights/index.html for more information.
+

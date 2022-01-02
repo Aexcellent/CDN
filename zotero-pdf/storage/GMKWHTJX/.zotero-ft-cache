@@ -1,0 +1,786 @@
+第 36 卷第 8 期 2019 年 8 月
+
+计算机应用研究 Application Ｒesearch of Computers
+
+Vol． 36 No． 8 Aug． 2019
+
+基于动态平衡策划下的集装箱堆场箱位分配方案研究*
+
+倪敏敏，苌道方
+( 上海海事大学 物流科学与工程研究院，上海 201306)
+
+摘 要： 针对集装箱在码头堆存时存在的箱位分配问题，在研究了原有多场桥同时作业方案的基础上，提出了多
+
+场桥分区域动态平衡策划方案，弥补了原方案中因保证场桥间的安全距离而带来的缺陷。以合理利用堆存空间，
+
+提高场桥作业效率为目标，建立数学模型，结合遗传算法对所提方案进行验证。结果表明，分区域动态平衡策划方
+
+案能有效减少场桥的无效作业时间，提高场桥的工作效率，并能充分地利用堆场贝位，更好地利用堆场空间。
+
+关键词： 箱位分配; 分区域动态平衡; 遗传算法; 场桥调度
+
+中图分类号： TP274; U691． 3
+
+文献标志码： A
+
+文章编号： 1001-3695( 2019) 08-025-2363-05
+
+doi： 10． 19734 / j． issn． 1001-3695． 2018． 01． 0069
+
+Storage space allocation based on dynamic strategy in container terminal yard
+Ni Minmin，Chang Daofang
+（ Institute of Logistics Science ＆ Engineering，Shanghai Maritime University，Shanghai 201306，China）
+Abstract： For the problem of container allocation stored in container yard，this paper developed a dynamic sub-region balance planning scheme of multiple yard cranes based on the original multiple yard sub- regional balanced strategy scheme，which made up the shortcomings of the original scheme because of the consideration of the safe distance without the effective utilization of the relevant space． With the goal of using storage space rationally，and improving working efficiency of yard cranes， this paper established a mathematical model，and it used genetic algorithm to verify the proposed program． The results show that the sub regional dynamic balance planning scheme can effectively reduce the ineffective working time of the yard cranes and improve the work efficiency ． In addition，it can make full use of the yard belt and make better use of yard space． Key words： storage space allocation； dynamic balance of yard cranes； genetic algorithm； yard cranes scheduling
+
+0 引言
+传统的集装箱堆场采用在同一区域存放同类箱组，当采用 多场桥协同工作时作业效率低下，已不满足当前大型船舶的作 业需求。因此，研究同一箱区多场桥工作时存在的堆存分配问 题，对提高堆存作业效率有着重要的现实意义。
+目前，国内外学者对集装箱码头堆场箱位分配问题进行了 大量研究。Taleb-Ibrahimi［1］ 提 出 了 针 对 临 时 箱 存 储 空 间 分 配 的策略，但是研究主要针对于分配给船舶的空间大小，并未给 出到场箱的具体位置分配；Kim 等人［2］基于考虑集装箱在场时 间，采用滚动计划建立了混合整数规划（ MIP） 模型，并结合启 发式算法对模型进行优化求解；Chen 等人［3］重点研究并优化 了集装箱装卸过程的移动距离和各箱区的工作量；刘婵娟等 人［4］以最小化集卡运输距离和取箱装船过程中贝位内翻箱数 最小为目标，建立多目标优化模型，采用 YALMIP 软件求解；文 献［5，6］优化了码头堆场出口箱位的分配策略，却没有考虑出 口集装箱到场的随机性；陶莎等人［7］ 以最大化集装箱港口效 率和顾客满意度为目标，根据出口箱的箱位分配准则，设计了 出口箱堆场空间分配的研究模型；周鹏飞等人［8］ 提出了分阶 段的调度方法，以减少场桥作业时间，并采用启发式算法来对 目标问题进行优化。但是以上模型和算法只解决了集装箱到 场后的箱区分配问题，并未给出到场集装箱具体位置分配方法 且堆存以单场桥作业为主。
+文献［9，10］针 对 堆 场 同 一 箱 区 的 两 端 作 业 （ 堆 存 或 取
+
+出） ，考虑双起重机时空同步约束条件，提出了双起重机调度 的 MIP 数学模型来优化作业总完成时间；Luo 等人［11］把堆存 位置的选择和水平运输车辆协调作业结合起来，建立了 MIP 模型，以尽量减少船舶停港时间，并运用遗传算法来优化模型， 但是其主要针对堆存的卸载过程； Homayouni 等人［12］提出用 遗传算法来解决自动化导引小车和堆场装卸平台的综和调度 问题，结果表明用遗传算法得出的解相比模拟退火算法更优。 以上研究均以堆存位置已知为前提，但现实是场桥的调度和堆 存位置两者相互影响，密不可分。
+范厚明等人［13］对堆场箱位分配问题作了研究，并提出了 分区域策划方案，场桥作业效率较传统场地规划有所提高。但 该方案缺点也较明显：a） 在种群初始化时就将相邻场桥间不 满足安全距离的个体剔除，虽然保证了场桥作业时互不干扰， 却损害了种群的多样性，进而无法保证其结果是否最优；b） 若 初始数据中两侧的贝位已满，货物必须存放到中部贝位，场桥 间无法满足静态安全距离，该策略将失去意义，而实际中该情 况确实可能存在。
+综上所述，现有的研究大多集中在单场桥作业，但对于非 单场桥作业的研究则设定已知集装箱堆存位置，且各场桥独立 作业，没有涉及场桥间的协同问题。本文将综合研究箱区分配 和多场桥调度问题，把堆存位置分为安全区和影响区，安全区 场桥直接移动，影响区场桥互相配合保证互不干扰。以获得最 小场桥非作业时间为目标，设计分区域动态平衡策划方案，并 用遗传算法进行优化求解。
+
+收稿日期： 2018-01-22; 修回日期： 2018-03-09 基金项目： 上海市科委科研计划项目( 16DZ1201402，16040501500) ; 上海市人才发展基 金项目( 201508) ; 上海市科委重点项目( 17595810300)
+作者简介： 倪敏敏( 1993-) ，女，江苏南通人，硕士，主要研究方向为场桥调度工程研究( 525152427@ qq． com) ; 苌道方( 1978-) ，男，河南封丘人， 教授，博导，主要研究方向为物流系统设计与优化、供应链与运营管理．
+
+·2364·
+
+计算机应用研究
+
+第 36 卷
+
+1 问题描述
+
+行分析求解，目标是协调场桥作业，减少场桥的无效工作时间。
+
+根据码头堆场 堆 存 的 既 定 要 求，同 一 贝 位 上 需 要 堆 放 重 量、箱型、目的港一致的集装箱，有时同一船舶的集装箱还要求 集中放到同一区域，进而提高作业效率。为了加快船舶的离港 时间，有时需 要 配 备 两 个 场 桥 协 同 作 业。 而 两 个 场 桥 一 起 作 业，存在以下问题：a） 任务分配不均，致使一个场桥一直工作， 另一个场桥却长时间处于空闲状态；b） 场桥间彼此干扰，相互 影响，造成堆存效率低下；c） 任务分配不合理，相邻两个任务 距离间隔太远，造成长距离跑位，效率低下。
+为了对箱区进行合理分配，均衡场桥间的作业，范厚明等 人［13］提出了均衡分配方案。某时刻场桥的移动区间如图 1 所示。
+
+图 1 中，N∈［1，32］保证任意时刻，场桥间互不干扰。但 该方案对是否满足安全距离的判断在种群初始化时进行，看的 是静态距离，没有考虑实际中两个场桥可以互相配合实现保持 动态安全距离。例如种群初始化时，该方案把目标贝位为 N + 1 的货物 k（ k∈［1，49］） 给了场桥 1，同时把目标贝位为 N + 8 的货物 k + 1 给场桥 2，该方案将因不满足静态安全距离而被 排除。但实际中，场桥 2 可以在 N + 9 处等待，场桥 1 作业结束 时，场桥 2 往 N + 8 处移动幷作业，同时场桥 1 往 N 处移动，在 移动中保证了安全距离。
+本文提出了动态平衡分配方案，在场桥移动过程中进行安 全距离的判断，通过场桥间的相互配合来保证互不干扰。通过 分析范厚明等人［13］的实验结果可知，获得最优方案时两个场 桥任务量方差为 0，因此对区域进行了重新划分，将区域划分 为安全区和影响区，具体方案如图 2 所示。
+同样，场桥在安全区可以独立作业，在影响区作业时，需要 两个场桥间进行状态传递，以便两个场桥配合。通过读取相邻 场桥的当前位置以及作业状态，判断是否存在干扰，进而调整 场桥运行状态。
+图 3 所示为场桥 1 的运行流程。 当场桥 1 的当前任务目标贝位 B1 （0）处于安全区时，场桥 1 直接跑位并作业；当 B1 （0）处于影响区时，通过读取场桥 2 的当 前位置 B2 （0）判断是否满足安全距离，若 B2 （0） － B1 （0） ＞ l（ 安 全距离），则场桥 1 直接跑位作业，否则计算出场桥 2 需要额外 移动的距离 temp，当场桥 1 跑位至 B1 （0） － temp 时，读取场桥 2 当前工作状态：若场桥 2 已经完成当前任务，场桥 1 继续跑位至 B1 （0）并作业；若场桥 2 正在作业，等待场桥 2 完成当前作业后， 场桥 1 移动至 B1 （0）并作业，场桥 2 移动至 B2 （0） + temp（ 分区 时，场桥 2 在右边工作）进行下一作业任务。 综合考虑堆场分配与场桥工作效率，以减少场桥工作时间 为目标设计了 MIP 数学模型，采用遗传算法，对 MIP 模型进行 分析计算，得到最佳方案。
+2 模型建立
+文中设计了分区域动态平衡策略方案，采用 MIP 模型进
+
+2. 1 基本假设
+
+模型建立的前提：a） 堆场内有足够的集卡来进行集港卸 箱；b） 已知集卡到达的时间，集装箱卸货港；c） 相邻场桥留有 安全距离；d）贝位内预留翻箱位；e） 场桥作业的任务总量等于 集装箱数。
+
+2. 2 相关符号意义
+
+本文使用的符号及说明如表 1 所示。
+表 1 本文符号约定
+
+字符表示
+
+说明
+
+B
+
+贝位总数
+
+b
+
+b∈［1，B］，具体的箱区贝位号
+
+D
+
+目的港总数
+
+d
+
+d∈［1，D］，具体的目的港号
+
+N
+
+任务总数
+
+n
+
+n∈［1，N］，任务编号
+
+输
+
+e
+
+入
+
+珋e
+
+参
+
+α
+
+数
+
+Cb
+
+Nb C0bd
+
+l0
+
+L0
+
+V
+
+e∈［1，2］，作业场桥编号 另一个作业场桥编号（ 模型设定为两个场桥）
+权重系数，使场桥均衡作业 贝位 b 的容量
+贝位 b 的预留缓存箱位数 目的港 d 的集装箱在贝位 b 的初始箱量
+单位贝位长度 相邻两个场桥的安全距离
+场桥移动速度
+
+T0
+
+场桥完成单个装卸任务花费的时间
+
+Qe
+
+作业场桥 e 的任务量
+
+珚Q
+
+作业场桥任务量的平均值
+
+Hi
+
+场桥 e 的第 i 个任务
+
+temp珋e（ Hi）
+
+场桥 e 进行任务 Hi 的时候，基于场桥间 安全距离考虑，场桥 珋 e 需要移动的距离
+
+状 Te（ Hi）
+
+场桥 e 进行任务 Hi 的目标位置与场桥 珋e 现有位置 不满足安全距离时，场桥 e 从上一位置进入影响区的时间
+
+态 T0e（ Hi）
+
+变 量
+
+TSe（ Hi）
+
+TＲe（ Hi）
+
+场桥 e 进行任务 Hi 时，等待场桥 珋 e 完成现有任务所用的时间 场桥 e 的第 i 个集装箱到达时间 场桥 e 到达 Hi 任务位置的时间
+
+TFe（ Hi）
+
+场桥 e 完成 Hi 任务时的时间，其中 TFe（ H0） = 0
+
+TWe（ Hi）
+
+场桥 e 完成任务 Hi 过程中，场桥 e 的等待时间
+
+Te（ Hi － 1 － Hi） 场桥 e 从上一个任务处移动到当前任务处所需的时间
+
+Be（ Hi）
+
+场桥 e 的任务 Hi 所在贝位
+
+P
+
+t e
+
+任意 t 时刻，场桥 e 所处的贝位
+
+第8 期
+
+倪敏敏，等: 基于动态平衡策划下的集装箱堆场箱位分配方案研究
+
+·2365·
+
+字符表示
+
+决
+
+X ne
+
+策
+
+变
+
+量
+
+Y ndb
+
+Xne = 1 Xne = 0
+Yndb = 1 Yndb = 0
+
+续表 1 说明 任务 n 分给场桥 e 任务 n 未分给场桥 e
+目的港为 d 的任务 n 分给贝位 b 目的港为 d 的任务 n 未分给贝位 b
+
+2. 3 MIP 模型
+
+目标函数
+
+min F = f1 + （1 － ） f2
+
+（1）
+
+2
+
+f1
+
+=
+
+∑（
+e =1
+
+Qe
+
+－ 珚Q） 2
+
+（2）
+
+2 Qe
+
+2 Qe
+
+f2
+
+=
+
+∑ ∑T
+e = 1i = 1
+
+We
+
+（
+
+H
+
+i
+
+）
+
++ e∑= 1i∑= 1Te （ H（i － 1） ，Hi ）
+
+（3）
+
+约束条件：
+
+2
+e∑= 1Xne = 1
+
+B
+b∑= 1Yndb = 1
+
+ND
+
+D
+
+∑∑
+n = 1d = 1
+
+Yndb
+
++
+
+Nb
+
++ d∑= 1C0bd ≤Cb
+
+N2
+
+NDB
+
+∑∑
+n = 1e = 1
+
+X
+
+ne
+
+=
+
+n∑= 1d∑= 1b∑= 1Yndb
+
+N
+Qe = n∑= 1Xne
+
+2
+
+Q
+
+=
+
+∑
+e =1
+
+Qe
+
+2
+
+（4） （5） （6） （7） （8）
+（9）
+
+temp珋 e （ Hi ） = max｛ L0 － （ B珋e （ Hi ） － Be （ Hi ） ） ，0｝
+
+（10）
+
+Te （ Hi ）
+
+=
+
+TFe （ Hi － 1 ）
+
++
+
+Te （ Hi － 1 ，Hi ）
+
+－
+
+temp珋e （ Hi ） V
+
+×
+
+l0
+
+（11）
+
+Toe （ Hi ） = max｛ TF珋e （ Hi ） － Te （ Hi ） ，0｝
+
+（12）
+
+TＲe （ Hi ） = TFe （ Hi － 1 ） + Te （ Hi － 1 ，Hi ） + Toe （ Hi ）
+
+（13）
+
+TFe （ Hi ） = T0 + max｛ TＲe （ Hi ） ，TSe （ Hi ） ｝
+
+（14）
+
+TWe （ Hi ） = max｛ TSe （ Hi ） － TＲe （ Hi ） ，0｝
+
+（15）
+
+Te （ Hi － 1 ，Hi ）
+
+=
+
+| Be（Hi）
+
+－
+
+Be （ H（i － 1） ） V
+
+|
+
+×
+
+l0
+
+（16）
+
+|
+
+P
+
+t e
+
+－
+
+Pt珋e | ≥L0
+
+（17）
+
+目标函数中：F 表示模型的适应度函数；f1 表示各场桥任 务量的方差；f2 表示各场桥等待时间与跑位时间。
+约束条件中：式（4） 表示每个任务只能被执行一次；式（ 5 ）
+
+表示一个任务对应一个贝位；式（6） 表示贝内可堆存的箱位数
+
+不能超过贝内容量；式（7） 表示两个场桥作业箱量之和等于箱
+
+区增加的箱数；式（8）表示作业场桥 e 的任务量；式（9） 表示作
+
+业场桥任务量的平均值；式（10） 表示当场桥 e 的目标位置与场
+
+桥 珋 e 现有位置不满足安全距离时，场桥 珋e 完成作业后需要额外
+
+移动的距离；式（11） 表示在式（10） 的前提下，场桥 e 到达影响
+
+区的时间；式（12） 表示在式（10） 的前提下，当前场桥 e 在影响
+
+区边缘等待场桥 珋 e 完成工作所用时间；式（13） 表示场桥 e 到达
+
+任务 Hi 目标位置的时间；式（14） 表示场桥 e 完成任务 Hi 需要 的时间；式（15） 表示场桥 e 完成任务 Hi 时在目标贝位等待的 时间；式（16） 表示场桥 e 从上一位置移动到当前任务位置所需
+
+的时间；式（17） 表示任意时刻工作场桥必须满足安全距离。
+
+3 模型求解
+
+通过研究集装箱贝位的分配方案，就可以根据集装箱到达 港口的时间以及场桥作业具体区域确定场桥调度方案。因此， 本文利用遗传算法的定向收敛能力，对模型进行求解，获取最 佳方案。
+a） 染色体编码。根据约束条件，染色体编码为集装箱随 机选择满足目的港位的贝位号。染色体采用实数编码，长度为
+
+集装箱数量，基因值为对应位置的贝位号。例如，把 10 个集装 箱在 40 个贝位进行分配，采用本模型对应的编码如图 4 所示， 其中场桥作业集装箱序号由各集装箱分配的贝位号决定。
+b） 种群初始化。在式（4） ～ （7） 的约束下，随机生成初始 种群。
+c） 适应 度 函 数。采 用 目 标 函 数 的 倒 数 作 为 适 应 度 函 数 值，进行后续的选择、交叉、变异操作。
+d） 选择操作。采用轮盘赌进行个体的选取，构成新的种 群。并采用优秀个体保留法，将最优秀的个体保留到新一代种 群中。
+e） 交叉操作。利用 rand 函数随机选择两个染色体，并取 得交叉点的坐标，把两个交叉点之间的基因进行互换操作，生 成新染色体。过程如图 5 所示。对新的个体进行约束条件检 测，不满足约束条件的个体则利用种群初始化的方法产生新的 个体进行替换。
+
+f） 变异操作。利用 rand 函数取得变异点坐标，如图 6 所示 对该位置进行单点变异。对新的个体进行约束条件检测。若 不满足约束条件，则利用种群初始化的方法产生新的个体进行 替换。
+
+g） 结束条件。当程序运行到 1 500 代时结束。
+
+4 算法实现 A
+
+初始条件：场桥数为两台（ 模型中 e 与 珋 e 表示两个不同的
+
+场桥） ；箱区的规模设为 40（ 贝位） × 6（ 堆垛） × 4（ 堆层） ；考虑
+
+到实际中的倒箱操作，每个贝位都预留 3 个缓存箱位，即每个
+
+贝位只有 21 个可用箱位。本次实例中，共有 50 个装卸任务，
+
+为了与均衡区域策略对比，任务详情如表 2 所示，各贝位信息
+
+如表 3 所示。
+
+表 2 装卸任务情况
+
+任务
+1 2
+
+到达 时刻 / min
+1
+2
+
+卸货港 任务
+
+2
+
+18
+
+1
+
+19
+
+到达 时刻 / min 20
+26
+
+卸货港 任务
+
+1
+
+35
+
+1
+
+36
+
+到达 时刻 / min 53
+58
+
+卸货港
+3 1
+
+3
+
+3
+
+1
+
+20 27
+
+2
+
+37 59
+
+3
+
+4
+
+6
+
+2
+
+21 28
+
+3
+
+38 60
+
+3
+
+5
+
+7
+
+1
+
+22 30
+
+3
+
+39 62
+
+2
+
+6
+
+7
+
+2
+
+23 32
+
+1
+
+40 64
+
+2
+
+7
+
+9
+
+3
+
+24 35
+
+2
+
+41 65
+
+1
+
+8
+
+10
+
+1
+
+25 42
+
+2
+
+42 66
+
+3
+
+9
+
+10
+
+3
+
+26 43
+
+2
+
+43 68
+
+1
+
+10 12
+
+1
+
+27 45
+
+1
+
+44 69
+
+2
+
+·2366·
+
+计算机应用研究
+
+第 36 卷
+
+续表 2
+
+任务
+
+到达 时刻 / min
+
+卸货港 任务
+
+到达 时刻 / min
+
+卸货港 任务
+
+到达 时刻 / min
+
+卸货港
+
+11
+
+12
+
+2
+
+28 47
+
+1
+
+45 71
+
+3
+
+12
+
+13
+
+1
+
+29 47
+
+2
+
+46 74
+
+3
+
+13
+
+13
+
+1
+
+30 47
+
+1
+
+47 75
+
+2
+
+14
+
+15
+
+1
+
+31 51
+
+1
+
+48 76
+
+1
+
+15
+
+17
+
+1
+
+32 51
+
+3
+
+49 77
+
+2
+
+16
+
+17
+
+1
+
+33 52
+
+2
+
+50 80
+
+3
+
+17
+
+18
+
+1
+
+34 52
+
+3
+
+表 3 各贝位信息
+
+贝位 初始 卸货 贝位 初始 卸货 贝位 初始 卸货 贝位 初始 卸货 号 箱量 港 号 箱量 港 号 箱量 港 号 箱量 港
+
+1 7 1 11 5 2 21 3 1 31 15 2
+
+2 12 1 12 10 2 22 8 1 32 8 2
+
+3 9 1 13 9 2 23 5 1 33 7 2
+
+4 13 1 14 15 2 24 6 1 34 3 2
+
+5 16 1 15 9 2 25 11 1 35 16 2
+
+6 16 1 16 7 3 26 3 1 36 7 3
+
+7 9 1 17 9 3 27 5 1 37 14 3
+
+8 16 1 18 12 3 28 4 1 38 10 3
+
+9 2 1 19 6 3 29 4 1 39 7 3
+
+10 9 2 20 13 3 30 6 2 40 15 3
+
+4. 1 算例描述
+本算例中，参数作如下初始化：l0 = 8 贝位，l = 7 m，V = 100 m / min，T0 = 3 min，B = 40，N = 50，B1 （0） = 1，B2 （0） = 40， α = 0． 5。
+4. 2 结果分析与比较
+在软件 MATLAB Ｒ2014b 中完成代码的编写，通过多次实 验，为了避免陷入局部最优，把种群规模设定为 500，交叉概率 设为 0． 85，变异率设为 0． 15，迭代次数设为 1 500，同时对每代 中的最优个体进行保留，如图 7 所示。
+图 7 中，迭代次数为 1 294 代时，系统最优值为 5． 77，空闲 时间为 2． 57 min，跑位时间为 7． 77 min，本次任务完成时间为 160． 34 min。针对该算例，若采用范厚明等人的分区域平衡分 配法：在两个区域间空出 8 个贝位的安全距离，以保证多个场 桥工作时互不干扰，在种群初始化时就剔除不满足安全距离的 个体。场 桥 的 非 工 作 时 间 为 17． 52 min，其 中 等 待 时 间 为 6． 74 min，移动时间为 10． 78 min；该批任务总用时为 167． 52 min。 具体场桥调度方案如图 8 所示，场桥的实时行走路径如图 9 所示。
+
+干扰，互相配合以满足安全距离。
+5 算法实现 B
+为了更进一步展现该策略中两个场桥间的配合在实际中 的应用优势。该算例中，货物的到达时间及目标港仍然采用表 2 的数据，对表 3 中的初始箱量进行更改，以限制场桥的作业 区域，具体如表 4 所示。
+表 4 改后各贝位信息 贝位 初始 卸货 贝位 初始 卸货 贝位 初始 卸货 贝位 初始 卸货 号 箱量 港 号 箱量 港 号 箱量 港 号 箱量 港
+1 21 1 11 21 2 21 0 1 31 21 2 2 21 1 12 21 2 22 20 1 32 21 2 3 21 1 13 21 2 23 21 1 33 21 2 4 21 1 14 21 2 24 21 1 34 21 2 5 21 1 15 6 2 25 21 1 35 21 2 6 21 1 16 21 3 26 21 1 36 21 3 7 21 1 17 21 3 27 21 1 37 21 3 8 21 1 18 21 3 28 21 1 38 21 3 9 21 1 19 21 3 29 21 1 39 21 3 10 21 2 20 8 3 30 21 2 40 21 3
+结合表 2 和 4 可以发现，目标港为 1 的货物将集中存放在 21 号贝位和 22 号贝位；目标港为 2 的货物将集中存放在 15 号 贝位；目标港为 3 的货物 将 集 中 存 放 在 20 号 贝 位。根 据 式 （17） 可知，任意时刻工作场桥间必须满足 8 个贝位的安全距 离，若用范厚明等人［13］的先判断安全距离再工作的策略，本次 调度将无法采用两个场桥协同完成。采用文中所提方案运行 结果如图 10 和 11 所示。
+
+结合图 8 的场桥调度图可以看出，两个场桥在各自的区域 工作，整体没有出现交叉；除了第 3、4 号任务，两个场桥间的距 离都满足安全工作的要求。
+结合图 9 的场桥实时路径图可以看出，在两个场桥的第 3、4 任务的位置（20 号贝位与 27 号贝位） 间的距离不满足安 全工作要求时，两个场桥出现了自动配合：场桥 2 在完成 3 号 任务后，为了给场桥 1 足够的工作空间，自动从 27 号贝位移动 到 28 号贝位；场桥 1 在完成 3 号任务后，自动从 20 号贝位移 动到 19 号贝位，以便场桥 2 进行 27 号贝位任务。全程保证了 两个场桥在实际工作过程中，没有出现场桥间的相互影响或者
+
+从图 10 中可以看出，除了初始状态，场桥 1 和 2 同一个时 刻的目标港都不满足安全距离，无法直接进行作业。从图 11 可以看出，在场桥 1 作业时，场桥 2 会主动远离场桥 1 以保证 互不影响；当场桥 1 完成作业后主动远离场桥 2，同时场桥 2 到达目标港进行作业。场桥 1 和 2 通过相互配合的方式实现 安全作业，进而完成 本 次 调 度 任 务。 而 范 厚 明 等 人［13］ 提 出 的 分区域平衡法在初始化种群时就进行安全距离检测，除了初始 状态，场桥 1 和 2 同一时刻的目标港都不满足安全距离，将这 些解剔除出去后，将无法进行接下去的操作，场桥不会进行动 态调整以满足安全距离的要求，因此分区域平衡法将无法完成 本次调度策略的制定。
+6 结束语
+针对多场桥下的集装箱堆场分配问题作了深入研究，考虑 到多场桥作业时 的 安 全 距 离，设 计 了 分 区 域 动 态 平 衡 策 划 方
+
+第8 期
+
+倪敏敏，等: 基于动态平衡策划下的集装箱堆场箱位分配方案研究
+
+·2367·
+
+案：将堆场分为两个安全区和一个影响区，通过实时获取其相 邻场桥的作业状态，计算最佳运行方式，时刻保证相邻场桥间 满足安全距 离。 采 用 遗 传 算 法 对 方 案 进 行 算 例 验 证，结 果 表 明，与分区域平衡策划方案相比，在同样的堆场空间中，本文所 提方案作业效率更高；且本文所提方案能适应更加复杂的环 境，解决多个场桥工作时的干扰问题。但本文方案还存在一些 不足，即默认各货物都能准时到达目标贝位，而在实际中到达 时间是很难确定的，且未考虑翻箱问题，因此实际中的带有翻
+箱问题的箱位分配问题和多场桥联合作业调度问题将是未来 的研究方向。
+参考文献：
+［1］ Teleb-Ibrahimi D C M． Storage space vs． handling work in container terminals［J］． Transportation Ｒesearch B，1993，12( 1) : 13-32．
+［2］ Kim K H，Park K T． A note on a dynamic space-allocation method for outbound containers［J］． European Journal of Operational Ｒesearch，2003，148( 1) : 92-101．
+［3］ Chen Lu，Lu Zhiqiang． The storage location assignment problem for outbound containers in a maritime terminal［J］． International Journal of Production Economics，2012，135( 1) : 73-80．
+［4］ 刘婵娟，胡志华． 基于滚动计划的堆场出口箱存储位置分配两阶 段模型［J］． 上海大学学报: 自然科学版，2017，23 ( 5) : 789-800． ( Liu Chanjuan，Hu Zhihua． Two-stage model for outbound containers ＇ space allocation assignment using rolling horizon method［J］． Journal of Shanghai University: Natural Science Edition，2017，23 ( 5 ) : 789-800． )
+［5］ Preston P，Kozan E． An approach to determine storage locations of containers at seaport terminal［J］． Computers ＆ Operations Ｒesearch，2001，28( 10) : 983-995．
+［6］ Bazzazi M，Safaei N． A genetic algorithm to solve the storage space allocation problem in a container terminal［J］． Computers ＆ Industrial Engineering，2009，56( 1) : 44-52．
+
+［7］ 陶莎，胡志华． 集装箱堆场出口箱箱位分配的多策略集成优化 ［J］． 大连海事大学学报，2012，38( 3) : 59-63． ( Tao Sha，Hu Zhihua． Integral optimization with multi-strategies for storage allocation for export containers at container yard［J］． Journal of Dalian Maritime University，2012，38( 3) : 59-63． )
+［8］ 周鹏飞，方波． 动态环境下集装箱码头堆场出口箱箱位分配建模 与算法研究［J］． 控制与决策，2011，26 ( 10 ) : 1571-1576． ( Zhou Pengfei，Fang Bo． Modeling and algorithm research on export container slots allocation under dynamic environments［J］． Control and Decision，2011，26( 10) : 1571-1576． )
+［9］ Hu Zhihua，Sheu J B，Luo J X． Sequencing twin automated stacking cranes in a block at automated container terminal［J］． Transportation Ｒesearch Part C: Emerging Technologies，2016，69: 208-227．
+［10］ 魏晨，胡志华，高超锋，等． 自动化集装箱码头堆场内双起重机调 度模型与算法［J］． 大连海事大学学报，2015，41 ( 4) : 75-80，89． ( Wei Chen，Hu Zhihua，Gao Chaofeng，et al． Scheduling model and algorithm of twin synchronized stacking cranes in stack yard of automated container terminal［J］． Journal of Dalian Maritime University，2015，41( 4) : 75-80，89． )
+［11］ Luo Jiabin，Wu Yue，Mendes A B． Modelling of integrated vehicle scheduling and container storage problems in unloading process at an automated container terminal［J］． Computers ＆ Industrial Engineering，2016，94: 32-44．
+［12］ Homayouni S M，Tang S H，Motlagh O． A genetic algorithm for optimization of integrated scheduling of cranes，vehicles，and storage platforms at automated container terminals［J］． Journal of Computational and Applied Mathematics，2014，270( 11) : 545-556．
+［13］ 范厚明，姚茜，马梦知． 多场桥分区域平衡策划下的集装箱堆场箱 位分配问 题［J］． 控 制 与 决 策，2016，31 ( 9 ) : 1603-1608． ( Fan Houming，Yao Xi，Ma Mengzhi． Storage space allocation based on regional workload balance planning of multiple yard cranes in container terminal yard［J］． Control and Decision，2016，31 ( 9 ) : 16031608． )
+
+( 上接第 2358 页)
+参考文献：
+［1］ Ma Meng，Wang Ping，Chu C H，et al． Efficient multipattern event processing over high-speed train data streams ［J］． IEEE Internet of Things Journal，2017，2( 4) : 295-309．
+［2］ Giatrakos N，Artikis A，Deligiannakis A，et al． Complex event recognition in the big data era ［J］． Proceedings of the VLDB Endowment，2017，10( 12) : 1996-1999．
+［3］ Mei Yuan，Madden S． ZStream: a cost-based query processor for adaptively detecting composite events ［C］/ / Proc of ACM SIGMOD International Conference on Management of Data． New York: ACM Press，2009: 193-206．
+［4］ Sun Jinan，Huang Yu，Huang Shuzi，et al． Formal method based on Petri nets to detect ＲFID event ［J］． Journal of Computer Ｒesearch ＆ Development，2012，49( 11) : 2334-2343．
+［5］ Liu Hongying，Goto S，Li Junhua． The study and application of treebased ＲFID complex event detection algorithm ［C］/ / Proc of International Symposium on Web Information Systems and Applications． 2009: 520-524．
+［6］ 柯佳，詹永照，陈潇君，等． 基于超图模型的复杂视频事件检测 ［J］． 计算机应用研究，2012，29( 12) : 4770-4774． ( Ke Jia，Zhan Yongzhao，Chen Xiaojun，et al． Detection of complexity video event based on hypergraph model ［J］． Application Ｒesearch of Computers，2012，29( 12) : 4770-4774． )
+［7］ Schultz-Mller N P，Migliavacca M，Pietzuch P． Distributed complex event processing with query rewriting ［C］/ / Proc of the 3rd ACM International DEBS Conference on Distributed Event-Based Systems． New York: ACM Press，2009: article No 4．
+［8］ Akdere M，Tatbul N． Plan-based complex event detection across distributed sources ［J］． Very Large Data Base Endowment，2008，1
+
+( 1) : 66-77． ［9］ 陈皓，李瑜，虎嵩林，等． 基于 S4 框架的并行复杂事件处理系统
+［J］． 通信学报，2012，33 ( Z1 ) : 165-169． ( Chen Hao，Li Yu，Hu Songlin，et al． Parallel complex event processing system based on S4 framework［J］． Journal on Communications，2012，33 ( Z1 ) : 165169． ) ［10］ Hedtstück U． Complex event processing ［J］． Methoden Und Innovative Anwendungen Der Informatik Und Informationstechnik， 2009，51( 5) : 241-242． ［11］ 孟强． 应用 ＲFID 技术实现地铁列车精确定位的研究 ［J］． 科技 信息，2010 ( 33) : 77-78． ( Meng Qiang． Application of ＲFID technology to realize accurate positioning of subway trains ［J］． Sience ＆ Technology Information，2010 ( 33) : 77-78． ) ［12］ Wang Di，Ｒundensteiner E A，Ellison Ｒ T． Active complex event processing over event streams ［J］． Proceedings of the VLDB Endowment，2012，4( 4) : 634-645． ［13］ Kolchinsky I，Sharfman I，Schuster A． Lazy evaluation methods for detecting complex events ［C］/ / Proc of the 9th ACM International Conference on Distributed Event-Based Systems． New York: ACM Press，2015: 34-45． ［14］ Xu Chuanfei，Lin Shukuan，Lei Wang，et al． Complex event detection in probabilistic stream ［C］/ / Proc of the 12th International AsiaPacific Web Conference． Washington DC: IEEE Computer Society， 2010: 361-363． ［15］ Verssimo P E，Aniello L，Luna G A D，et al． Collaborative inter-domain stealthy port scan detection using esper complex event processing ［M］． Berlin: Springer，2012: 139-156． ［16］ 利浩能． 浅谈 ＲFID 技术在地铁行业的应用［J］． 科技信息，2011 ( 22) : 379，382． ( Li Haoneng． Talking application of ＲFID technology in subway industry［J］． Sience ＆ Technology Information，2011 ( 22) : 379，382． )
+

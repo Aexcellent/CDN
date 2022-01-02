@@ -1,0 +1,3585 @@
+Transportation Research Part B 153 (2021) 272–295 Contents lists available at ScienceDirect
+Transportation Research Part B
+journal homepage: www.elsevier.com/locate/trb
+
+A game theoretic approach to sustainable freight transportation: Competition between road and intermodal road–rail systems with government intervention
+Mohammad Tamannaei a,*, Hamid Zarei b, Morteza Rasti-Barzoki b
+a Department of Transportation Engineering, Isfahan University of Technology, Isfahan 84156-83111, Iran b Department of Industrial and Systems Engineering, Isfahan University of Technology, Isfahan 84156-83111, Iran
+
+ARTICLE INFO
+Keywords: Game theory Freight transportation Sustainability Rebound effect Government Policy-making
+
+ABSTRACT
+Sustainable freight transportation is a logistics approach that provides affordable services to consumers where environmental, economic, and social sustainability dimensions are concerned. Governments usually improve sustainability dimensions in freight transportation by imposing taxes on transportation systems. Therefore, they should extend their knowledge on interactions between sustainability dimensions and how their interventions affect each dimension. In this regard, we analyze competition between two freight transportation systems in the context of government intervention. These systems include road and intermodal road–rail transportation modes, where the latter is regarded as an environmentally sustainable mode. A sequential game is addressed to analyze the duopoly competition. In the upper level, a government, as a Stackelberg leader, imposes taxes on fuel usage based on environmental, economic, and social concerns. In the lower level, a Nash game is developed to analyze price competition in the transportation market. Our analyses reveal that: (a) Given a fixed level of the consumers’ loyalty to their specific transportation systems, economic and social sustainability are consistent with each other, while they conflict with environmental sustainability. (b) Economic risks increase economic sustain­ ability requested by the transportation systems. Such a relationship and the mentioned conflict between environmental and economic sustainability imply that a reduction of economic risks by the government indirectly contributes to environmental sustainability. (c) An increase in the consumers’ loyalty simultaneously improves the three sustainability dimensions. (d) The energy efficiency improvements of the transportation systems may pose adverse environmental and so­ cial effects, called the rebound effects. Moreover, government intervention effectively eliminates such rebound effects. (e) Government support for the service enhancement of the intermodal system, combined with the national advertisement of this system, may exempt the government from subsidy payment.
+
+* Corresponding author. E-mail address: m.tamannaei@iut.ac.ir (M. Tamannaei).
+https://doi.org/10.1016/j.trb.2021.09.002 Received 1 December 2019; Received in revised form 9 April 2021; Accepted 3 September 2021 Available online 21 October 2021 0191-2615/© 2021 Elsevier Ltd. All rights reserved.
+
+M. Tamannaei et al.
+
+Transportation Research Part B 153 (2021) 272–295
+
+Nomenclature
+
+Parameters
+
+i
+
+Freight transportation system index (FTSi, i = 1, 2)
+
+θu
+
+Fuel consumption rate of a truck for carrying one unit of demand within one unit of distance, θu > 0.
+
+θa
+
+Fuel consumption rate of a train for carrying one unit of demand within one unit of distance, 0 < θa < θu.
+
+Ai
+
+The market base for the demand of FTSi, Ai > 0.
+
+βp
+
+Self-price sensitivity of the demands, βp > 0.
+
+γp
+
+Cross-price sensitivity of the demands, 0 < γp < βp.
+
+Di
+
+Distance between the origin and the destination in FTSi, Di > 0.
+
+d
+
+Total roadway ratio in the distance between the origin and the destination in intermodal road-rail transportation, 0 ≤
+
+d < 1.
+
+f
+
+Base price of one unit of fuel, f > 0.
+
+ci
+
+Summation of costs excluding the fuel cost, imposed on FTSi for carrying one unit of demand from the origin to the
+
+destination, ci > 0. c2 includes transloading costs.
+
+g1
+
+Fuel consumption of FTS2 for carrying a unit of demand in the road mode, g1 = dD2θu
+
+g2
+
+Fuel consumption of FTS2 for carrying a unit of demand in the rail mode, g2 = (1 − d)D2θa
+
+ωi
+
+Fuel consumption of FTSi for carrying a unit of demand, ω1 = D1θu, ω2 = g1 + g2, 0 < ω2 < ω1.
+
+ϕi
+
+Basic transportation costs of FTSi (excluding the fuel taxes), φi = ci + ωif
+
+Mi
+
+Minimum acceptable profit of FTSi, Mi ≥ 0.
+
+F
+
+Maximum acceptable consumption of fuel for the government, F > 0.
+
+Decision variables
+
+pi
+
+Transportation price for carrying one unit of demand from the origin to the destination in FTSi
+
+xu
+
+The amount of tax levied by the government on a unit of fuel consumed by truck, xu < 0 denotes a subsidy.
+
+xa
+
+The amount of tax levied by the government on a unit of fuel consumed by train, xa < 0 denotes a subsidy.
+
+Dependent variables
+
+ci
+
+Total cost, imposed on FTSi for transportation of one unit of demand from the origin to the destination
+
+qi
+
+Transportation demand of FTSi
+
+πi
+
+Profit function of FTSi
+
+TFC
+
+Total fuel consumption
+
+TCS
+
+Total consumer surplus
+
+Xi
+
+Total tax paid by FTSi for carrying a unit of demand, X1 = ω1xu, X2 = g1xu + g2xa.
+
+1. Introduction
+With the rapid expansion of freight transportation worldwide, serious concerns are of essence if sustainability is sought. Sus­ tainability is a policy concept that takes the environmental, economic, and social dimensions into account (Jeon et al., 2010). A sustainable freight transportation system offers reasonable access to freight facilities in an environmentally sound and equitable manner (Black, 2004). Since transportation is a key contributor to supply chain management (Parsa et al., 2020), sustainable trans­ portation modes are of great importance, especially from a government perspective. In many countries, road systems provide a major portion of freight transportation (Bhattacharya et al., 2014). Trucks are the most common vehicles in freight transportation due to their advantages (e.g., flexibility, speed, and simplified maintenance). In contrast, there are some substantial negative externalities of road transportation, which make this system unsustainable. Energy consumption, accidents, noise, and environmental pollution are the major negative impacts of road systems (de Miranda Pinto et al., 2018; Guoquan et al., 2014; Reis et al., 2013; Santos et al., 2010; Tamannaei and Irandoost, 2019; Tavassoli and Tamannaei, 2020). Energy consumption and environmental pollution are associated to climate change (Akhmat et al., 2014; Knippertz et al., 2015; Lam and Mercure, 2021). Hence, the optimal usage of transportation systems, especially road infrastructures, should be prioritized at the national and even global levels.
+A railway transportation system is considered as a green transportation mode since it can save energy with low emissions (Chen et al., 2017a; Cichenski et al., 2017). According to van Essen et al. (2011), the average external costs of freight transportation, including climate change, air pollution, accident, and noise, are about 6.4 times lower for rail transport than those of the road. Moreover, a rail system is favored for hauling large quantities of cargo for long distances compared to a road system (Demir et al., 2016; Ghiani et al., 2013; Guoquan et al., 2014; Wang et al., 2017). Regarding each system’s advantages, a common strategy is to use both the road and rail modes in the logistics, called intermodal road–rail transportation.
+Findings in some studies indicate that the consumers’ decisions to select a transportation mode for their freights are prominently subject to the critical criterion of transportation prices (Chen et al., 2017b; Dimitriou and Sartzetaki, 2017; Duan and Heragu, 2015; Kanafani, 1983; Kim et al., 2017; Larranaga et al., 2017; Reis et al., 2013). It is also worth highlighting that sustainability is not regarded as the main concern for transportation companies; their effort is to maximize their profits in the competitive market. Consequently, the government may intervene in the market by developing some incentive and penalty policies. It aims to shift freight
+273
+
+M. Tamannaei et al.
+
+Transportation Research Part B 153 (2021) 272–295
+
+transportation to a more efficient and sustainable system. A government tends to follow three types of considerations when governing a sustainable freight transportation market with both
+road and intermodal road–rail systems. From its point of view, the environmental, economic, and social dimensions of sustainability must be satisfied. For example, the Intermodal Surface Transportation Efficiency Act (ISTEA), governed by the U.S. Department of transportation, declares that:
+"It is the policy of the United States to develop a National Intermodal Transportation System that is economically efficient and environ­ mentally sound, provides the foundation for the nation to compete in the global economy, and will move people and goods in an energy-efficient manner" (Congress, 1991; Morlok, 1998).
+Also, the European Commission has recently initiated a Sustainable Urban Mobility Plan (SUMP). The economic, environmental, and social dimensions of sustainability are all significant in this plan:
+"A sustainable transport system improves accessibility for all, regardless of income and social status; enhances quality of life and the attractiveness of the urban environment; improves road safety and public health; reduces air and noise pollution, greenhouse gas emissions and energy consumption; and improves economic viability, social equity, and environmental quality" (Commission, 2020).
+As mentioned in the SUMP (Commission, 2020), fossil fuel consumption is a significant concern from an environmental perspective. Also, the affordability and accessibility of transportation services are two significant social factors for consumers (Commission, 2020; Ramani et al., 2011), which can be integrated into the consumer surplus indicator (Xiao et al., 2020). The economic dimension, herein the profits of transportation companies, has a prominent role in the competitive market. In a short-term horizon, a government does not tend to expel road operators from the transportation system, because this expulsion may impose economic and political challenges on the entire nation.1 Instead, the government tends to integrate and connect different transportation modes in a sustainable manner. For example, the ISTEA declares that:
+"The National Intermodal Transportation System shall consist of all forms of transportation in a unified, interconnected manner, including the transportation systems of the future, to reduce energy consumption and air pollution while promoting economic development and supporting the Nation’s preeminent position in international commerce" (Congress, 1991; Morlok, 1998).
+Also, the SUMP plan declares that: "It helps cities and regions integrate transport modes and encourage sustainable mobility. SUMPs contribute to realizing key mobility goals, such as better air quality, improved accessibility, and mobility, increased road safety, decreased traffic noise, higher energy efficiency, and enhanced quality of life" (Commission, 2020). Finally, China is the third example that highlights the significance of all transportation modes. The Chinese government is increasing its attention to the role of the truck sector in mitigating air pollution. Improvement in road transportation, combined with a market share increase of railway transportation and cleaner ports, is expected to reach an eighty percent increase of days with good air quality in cities (Karl, 2020). Although a government desires to achieve the three sustainability dimensions, they may not be aligned with each other, which poses a significant challenge to the government’s decision-making. Therefore, governments should extend their knowledge on the interactions between different sustainability dimensions and how their interventions could affect each dimension. Also, a solution that simultaneously improves all three dimensions is practically relevant. To address these issues, the first and second research questions of this article are as follows:
+
+Question 1 How do the economic, social, and environmental dimensions of sustainability interact in a freight transportation market? Question 2 How to simultaneously improve economic, social, and environmental sustainability in freight transportation?
+
+Governments usually pursue sustainability objectives in transportation markets by implementing taxes or subsidies on fuels. For example, in Germany, fuel taxes for ultra-low sulfur Diesel and conventional unleaded petrol are equal to €0.4704 and €0.6545, respectively (Programme, 2020). A simulation study based on data from the U.S. freight transportation market revealed that a fuel tax policy of $1.50 per gallon for both rail and road modes could promote sustainability in different ways (Austin, 2015). The tax policy could shift a 0.8 percentage of transportation from road to rail, which causes a reduction of road transportation externalities by $0.6 billion. It also saves 176 million gallons of total fuel consumption per annum. The mentioned study also shows that the tax policy could increase $26 billion per year in tax revenues.
+Governments usually tend to support intermodal transportation to stimulate the market share of this transportation mode. For example, the Belgian government provided a subsidy of €30 million per annum to intermodal transportation from 2006 to 2007 (Santos et al., 2015). However, the Belgian government aims to gradually reduce the subsidies it shoulders for supporting intermodal transportation. In 2014, the subsidies paid to intermodal transportation was about €15 million per annum (Santos et al., 2015). Accordingly, a response to the following research question can support this decision of the government:
+
+Question 3 How can the government be exempted from subsidy payment without adversely affecting sustainability of freight transportation?
+
+1 In contrast, in the long-term horizon, governments tend to gradually expelling road operators from transportation markets. By 2030, the Eu­ ropean Commission aims to shift 30% of road freight transportation over 300 km to more environmentally sustainable modes, such as rail or maritime modes. By 2050, its target is to shift more than 50% (Tawfik and Limbourg, 2018).
+274
+
+M. Tamannaei et al.
+
+Transportation Research Part B 153 (2021) 272–295
+
+The energy efficiency improvement of freight transportation systems is a common strategy adopted in recent years with the aim of contributing to environmental sustainability. Programs for such improvements require initial investments. Based on data from Council (2010), the energy efficiency improvement of class-8 trucks may require up to $5.7 billion for a large transportation company.2 In spite of such significant investments, counterintuitively, these initiatives may increase total fuel consumption, which are usually called rebound effects (Agrawal and Bellos, 2016; Wang and Lu, 2014). Energy efficiency improvement allows transportation systems to charge less transportation prices, and consequently allows them to absorb more demands. The rationale behind the rebound effects is that such an increase in transportation demands may negate the decrease in unit fuel consumption (for transportation of one unit of demand). However, little is known about social effects of energy efficiency improvement in freight transportation. In addition, to the best of our knowledge, no study has investigated the influence of government intervention on rebound effects. Hence, the fourth and fifth research questions of this article are as follows:
+
+Question 4 How can energy efficiency improvement in freight transportation affect social sustainability? Question 5 How does government intervention influence rebound effects in freight transportation?
+This article contributes to the literature on sustainable freight transportation by responding to the above-mentioned research questions. The remainder of the article is structured as follows. Section 2 reviews the literature. Section 3 provides a problem description. In Section 4, the costs, demands, and the agents’ objective functions are formulated. Section 5 investigates competition between the two road and intermodal transportation systems. Section 6 investigates the optimal government policies. Section 7 provides some sensitivity analyses and responses to the research questions. A numerical example is presented in Section 8. Finally, Section 9 concludes the article.
+
+2. Literature review
+
+There are many studies where different dimensions of freight transportation systems are discussed. A structured review study has been conducted on the literature on multimodal freight transportation based on the strategic, tactical, and operational levels of planning (SteadieSeifi et al., 2014). Crainic et al. (2018) presented a new taxonomy for the literature on intermodal transportation. Their research is an instrument to categorize the literature and identify trends and future research on intermodal freight transportation across modes, time horizons, geographical extensions, and simulation objectives. Some researchers focused on relations between sustainability and transportation by assessing the negative impacts of different transportation modes in freight systems (Beheshtian et al., 2018; de Miranda Pinto et al., 2018; Demir et al., 2015; Fan and Lei, 2017; Huang et al., 2016; Mostert et al., 2017; Swarts et al., 2012; Tolliver et al., 2013; Zhu et al., 2016). The discussion on sustainability and the selection of green freight modes like intermodal road-rail systems are still new and emerging issues in this field (Bask et al., 2017). Some of the previous studies have taken into account competition between freight transportation systems. In a study presented by Chen et al. (2017b), competition in container freight transportation is analysed from the perspectives of consumers. They used a game-theoretic model, and discussed competition between rail and sea shipping modes with respect to both travel time and transportation costs. Their model is numerically evaluated through a case study of intercontinental container freight transportation between China and Germany. Tawfik and Limbourg (2018) and Tawfik and Limbourg (2019) studied the pricing decisions of intermodal operators as powerful instruments to promote intermodal trans­ portation and reduce the environmental externalities of transportation systems.
+Larranaga et al. (2017) assessed transportation policies that can encourage intermodal transportation to enhance sustainability in Brazil. Their results demonstrate that infrastructure investments have greater effects on intermodal utilities compared to cost re­ ductions. Guo et al. (2016) discussed cooperation mechanisms for road and rail companies, to determine revenue-sharing plans, transhipment procedures, and service quality controls. Saeedi et al. (2017) developed a multi-level market analysis framework to model competition in intermodal freight transportation networks. They assessed the effects of different business practices on a competitive transport market and the welfare of the society. Zhang et al. (2018) developed a competition model for an intermodal network design problem to maximize profits considering the shipper’s route choice behavior by using game theory.
+There are some studies focusing on the government intervention in a freight transportation market. Duan and Heragu (2015) assessed a government tax policies on intermodal freight transportation including railway and highway modes. This tax is imple­ mented as an emission regulation, in order to achieve a trade-off between the economic costs and environmental impacts of freight transportation. Kundu and Sheu (2019) analyzed the effects of a government subsidy program on the shippers’ modal shift from maritime to rail and found the optimal subsidies that cause heterogeneous shippers to switch between the two mentioned modes. Fahimnia et al. (2015) developed a tactical supply chain planning model under a carbon tax policy scheme. They provided a cost/­ emission trade-off analysis to evaluate the effects of the governmental tax decisions on emissions reduction. Wang et al. (2015) developed a two-stage Stackelberg game approach to analyze the effects of government carbon-emission tax on the selection of transportation modes. They found that imposing reasonable carbon-emission taxes can improve social welfare.
+Santos et al. (2015) focused on the improvement of intermodal road-rail freight transportation in Europe by developing three policies: subsidizing intermodal operations, internalizing external costs, and optimizing the locations of intermodal terminals. The
+
+2 Council (2010) estimated that a comprehensive program reduces about 51% of fuel consumption of class-8 trucks, and requires an investment of $84,600 per truck (Pg. 148). A large company like Penske Truck Leasing Co. owns over 67,000 class-8 trucks (Pgs. 17 & 19). Therefore, it requires about $5.7 billion for investment in such an energy efficiency improvement.
+275
+
+M. Tamannaei et al.
+
+Transportation Research Part B 153 (2021) 272–295
+
+results demonstrate some considerable effects of the policies on intermodal competitiveness. de Rus and Socorro (2014) analyzed the optimal solution for investing in a complementary or rival new infrastructure under the existence of an incumbent transport infra­ structure and presented the optimal access pricing with respect to different investment decisions. Jiang et al. (2015) focused on government policies in assigning different capital subsidies. They developed a method based on the Stackelberg game theory to assess the effectiveness of subsidies in different freight transportation systems. Feng et al. (2016) assessed the pricing issue in rail freight transportation, by regarding both the environmental policies of the government and the profit maximization of rail companies in a simultaneous manner. Kuo et al. (2016) analyzed the government policies and enterprise strategies for implementing carbon taxes in a supply chain, considering greenhouse gas emission. The relations between the government and two competitive green and non-green supply chains were studied in Madani and Rasti-Barzoki (2017). They considered government intervention with social objectives by adopting different pricing policies. Saberi (2018) presented a network model for freight carriers to address a sustainable supply chain with multi-periods and multi-tiers including carriers, retailers and manufacturers by using dynamic games. The results could provide strategic solutions to help decision makers for tax policies.
+|In the context of transportation, an emerging research stream has focused on specific government sustainability policies on fuel consumption. Using a case study in Iran, Tamannaei et al. (2021) addressed some sustainability objectives of a government in a transportation market, which consists of an incumbent and an entrant intermodal operators and a road transportation system. Their numerical results indicate that fuel taxing policies can affect the entrant operator’s location decision and the equilibrium trans­ portation pattern in the transportation network. They found that high values of fuel tax on the road mode do not necessarily improve safety and environmental conditions. This result is mainly due to the fact that both the intermodal and road operators use the road mode.
+Tscharaktschiew (2020) addressed the interplay between a government’s maximum speed and fuel tax regulations for highway drivers. Conventional wisdom suggests that the maximum speed regulation should be adopted. This is because drivers do not consider the externalities of their high speeds imposed on the other drivers and stakeholders, i.e. high accident risks and high fuel consumption. Counterintuitively, the researcher shows that a high fuel tax can trivialize a maximum speed regulation. The tax regulation encourages drivers to lower their speeds and aligns their economic benefits (tax save) with the externalities of their speeds.
+Rasti-Barzoki and Moon (2020) addressed two types of government intervention policies in the Korean vehicle market. The policies include: (1) taxing policies, i.e., fuel taxes and vehicle purchasing tax, and (2) support for the research and development (R&D) expenditure of the vehicle manufacturer, and support for consumer awareness programs. The researchers argue that the consumers’ vehicle usage depends on various factors, such as the rebound effects related to the vehicle manufacturer’s R&D program, their environmental awareness, and the final fuel price. The results indicate that the first intervention policy, combined with the govern­ ment’s social sustainability maximization, is more effective to maximize the manufacturer’s profit and minimize the vehicle price than the second policy.
+Lam and Mercure (2021) addressed the interplay between six sustainability policy instruments of governments in the trans­ portation sector of five countries. The instruments include: vehicle tax, electric vehicle (EV) subsidy, EV mandate, fuel economy standards, annual registration tax, and fuel tax. The researchers investigated the combination of instruments from both perspectives of emission reduction and cost-effectiveness. They concluded that the EV mandate should synergize with the fuel tax instrument so that the effectiveness of the EV mandate is enhanced.
+There are few studies conducted on the influence of government decisions on sustainable freight transportation in a competitive market. To the best of our knowledge, no study has comprehensively investigated the role of government intervention in different sustainability dimensions of a competitive freight transportation market. A recent review article on transportation markets has con­ tended the relevance of this topic for future research: “The governments set the rules of the game but are often also important players in the market; hence their role and decision variables should be included directly in the analysis, possibly in a first stage of the game”, said (Adler et al., 2021). Accordingly, our study contributes to the literature on freight transportation in two main ways. First, a game-theoretic model is developed to effectively analyze the competitive behaviors between road and intermodal road-rail freight transportation systems. The competition is modelled as a non-cooperative game. Second, a Stackelberg leader-follower game approach is adopted to address the effects of government intervention. Also, the interplay between the mentioned competition and different sustainability dimensions, without and with government intervention, are discussed.
+3. Problem description
+
+The objective of this article is to analyze competition between two freight transportation systems (road and intermodal road-rail),
+abbreviated as FTSs by the authors, in the context of government intervention. Subscripts ‘1’ and ‘2’ in FTS1 and FTS2 introduce the
+road and intermodal systems, respectively. They offer services to consumers for the haulage of their cargoes from an origin to a
+destination. In FTS1, the cargoes, represented by transportation demand q1, are hauled from the origin to the destination only by means of trucks
+travelling on a road network. In FTS2, the cargoes, represented by transportation demand q2, are hauled by both the road and the rail. In this case, the cargoes are hauled from the origin to the nearest rail station by means of trucks, and then are hauled to another railway station by freight trains, and finally trucks deliver the cargoes to their destination. Both systems are managed by third-party logistics (3PL) companies, which provide freight transportation services. On the other hand, the consumers of transportation services decide on their freight proportion as to be transported by each of the two FTSs. Their decisions are subject to different factors. Transportation prices are regarded as the most important governing factors. In fact, the ordering decisions made by the consumers determine the market share of each FTS (Chen et al., 2017b). Consequently, competition is established between the 3PL companies to gain maximum profits by attracting transportation demands. This indicates that FTS1 and FTS2 are partially substitutable in the competitive
+
+276
+
+M. Tamannaei et al.
+
+Transportation Research Part B 153 (2021) 272–295
+
+transportation market.
+
+The two competing systems FTS1 and FTS2 are illustrated in Fig. 1. Because the rail, as an environmentally sustainable trans­
+
+portation mode, is capable of saving energy and reducing emissions, FTS2 is of less negative effects compared to FTS1, so it is considered
+
+to be the green mode. In this article, the government, as the Stackelberg leader, intervenes in the competitive transportation market in
+
+the financial and policy-making contexts. The timing of the problem is illustrated in Fig. 2. In stage 1, the government announces fuel
+
+taxes xa and xu. These taxes are added to the base price of one unit of fuel. A negative value of tax evidently acts as a fuel subsidy. In
+
+stage 2, FTS1 and FTS2 announce their transportation prices p1 and p2 per unit of cargo transported. It is straightforward that the
+
+government can affect their decisions by implementing the fuel taxes. Therefore, the transportation prices (p1 and p2) and the
+
+transportation demands (q1 and q2) depend on the values of xa and xu.
+
+The following assumptions are considered for the problem.
+
+Assumption 1. The self-price sensitivity of demand with respect to the transportation price is greater than the corresponding cross-
+
+price sensitivity (i.e. βp > γp > 0), indicating that the demand of an FTS is more sensitive to a change in its own price compared to an equal change in the price of the competing FTS (Dan et al., 2012; Karray and Sigu´e, 2015; Kurata et al., 2007; Wei et al., 2013).
+
+Assumption 2. The road distance between the origin and the destination in FTS1 is greater than that of the two road segments in
+
+FTS2, i.e., D1 > d D2.
+
+Assumption 3. The fuel consumption rate of a train is less than that of a truck (i.e. θa < θu), as shown in Fig. 3. Also, for carrying
+
+one unit of demand, the amount of fuel consumed in FTS2 is less than that in FTS1; so, ω2 = D2(dθu + (1 − d)θa) cannot exceed ω1 =
+
+θuD1.
+
+In
+
+other
+
+words,
+
+the
+
+ratio
+
+of
+
+ω2 ω1
+
+,
+
+as
+
+the
+
+relative
+
+fuel
+
+consumption
+
+of
+
+FTS2
+
+with
+
+respect
+
+to
+
+FTS1,
+
+is
+
+less
+
+than
+
+one.
+
+Fig. 1. Two competing freight transportation systems FTS1 and FTS2.
+Fig. 2. The timing of the problem. 277
+
+M. Tamannaei et al.
+
+Transportation Research Part B 153 (2021) 272–295
+
+Fig. 3. Comparison of fuel consumption rates in FTS1 and FTS2.
+4. Model formulation
+In this section, given the government taxes xa and xu, the costs, demands, and profits of FTS1 and FTS2 are formulated. Next, the government policies for intervention in the competitive transportation market are explained.
+
+4.1. The costs, demands, and profits of the FTSs
+
+For each one of the two competing systems, the fuel cost imposed on the transportation system is associated with the fuel con­ sumption rates of the applied vehicles, the distance between the origin and the destination, and the total price of one unit of fuel. The costs are presented in Eqs. (1) and (2):
+
+c1(xu) = c1 + D1θu(f + xu) = φ1 + ω1xu = φ1 + X1
+
+(1)
+
+c2(xa, xu) = c2 + dD2θu(f + xu) + (1 − d)D2θa(f + xa) = φ2 + g1xu + g2xa = φ2 + X2
+
+(2)
+
+The phrases added to ci represent the fuel cost imposed on FTSi for carrying one unit of demand from the origin to the destination. In Eq. (2), the first added part is the fuel cost in road segments, and the second one is that of the rail segment. The values (f + xu) and (f + xa) are the after-tax cost of one unit of fuel applied in truck and train, respectively.
+For FTSi (i = 1, 2), transportation demand qi depends on its own price pi and the price associated with its competing system. The demand is assumed to be a linear function of transportation prices, with respect to self-price and cross-price sensitivities. The linear demand function is common in the related literature (Adler et al., 2021; Anderson and Bao, 2010; Chen and Wang, 2015; Choi, 1991; Edirisinghe et al., 2011; Hafezalkotob, 2018; Jeuland and Shugan, 1983; Li et al., 2016; Pan et al., 2010; Xiao and Yang, 2008; Xie, 2015; Zhao et al., 2017). Thus, the transportation demands of FTS1 and FTS2 are expressed as follows, respectively:
+
+q1(xa, xu) = A1 − βpp1(xa, xu) + γpp2(xa, xu)
+
+(3)
+
+q2(xa, xu) = A2 − βpp2(xa, xu) + γpp1(xa, xu)
+
+(4)
+
+Generally, having a relatively higher market base of FTSi (i.e. a positive value of Ai − Aj), or bearing a relatively lower basic trans­ portation cost (i.e. a negative value of ϕi − ϕj), provides a positive competitive advantage of FTSi over FTSj. This article investigates the effect ofthe competitive advantages of the FTSs on the equilibrium outcomes of different government policies. Finally, the profit function for each one of the FTSs is obtained as follows:
+
+π1(xa, xu) = (p1(xa, xu) − c1(xu))q1(xa, xu)
+
+(5)
+
+π2(xa, xu) = (p2(xa, xu) − c2(xa, xu))q2(xa, xu)
+
+(6)
+
+4.2. The government policies
+In order to establish sustainable freight transportation, the government must adopt comprehensive policies with respect to sus­ tainability. In this article, three government considerations regarding the environmental, economic, and social perspectives are
+278
+
+M. Tamannaei et al.
+
+Transportation Research Part B 153 (2021) 272–295
+
+assessed for establishing sustainability. In Section 1, some information has been provided about the role of governments in sustainable freight transportation. Here, more details are presented.
+For the economic considerations of sustainability, the competing systems FTS1 and FTS2 may expect minimum acceptable profits M1 and M2, respectively. These profits may originate from economic expectations in exchange for their initial investments. Evidently, if economic activities do not satisfy the rate of return requested by a transportation system, it will no longer survive in the competitive transportation market (Adler, 2001). Therefore, the values of M1 and M2 can be estimated by using data from the investments of the FTSs and their expected rates of return. For the environmental consideration, some governments have focused on reducing total fuel consumption. The reduction may originate from future shortages in fossil fuels or international agreements, such as the Paris Agreement. The government may minimize total fuel consumption or to consider a maximum acceptable fuel consumption F for the transportation market. For example, the European Union (EU) has adopted a policy to reduce fuel consumption from 1800 million tons of oil equivalent (Mtoe) per year in 2005 to approximately 1600 Mtoe per year in 2020 (Wesselink et al., 2010). For a social consideration, as mentioned in Section 1, the government aims to focus on the consumer surplus indicator. For example, a subsidy program from the Chinese government could increase consumer surplus by 39% (Xiao et al., 2020).
+Two government policies are investigated. In the first policy, the government focuses on environmental sustainability (Subsection 4.2.1). In the second one, it focuses on social sustainability (Subsection 4.2.2).
+
+4.2.1. Policy 1: environmental sustainability A government with an environmental sustainability policy seeks to minimize total fuel consumption (TFC) in freight transportation.
+The value of TFC is obtained as follows.
+
+TFC(xa, xu) = q1(xa, xu)D1θu + q2(xa, xu)D2(dθu + (1 − d)θa) = ω1q1(xa, xu) + ω2q2(xa, xu)
+
+(7)
+
+The first term is total fuel consumed in FTS1, and the second term is of FTS2. In this policy, the minimum acceptable profits of FTS1 and FTS2 must be satisfied. Otherwise, they exit the competitive transportation market. Consequently, the policy is modelled as follows:
+minTFC(xa, xu)
+xa ,xu
+
+subjectto : πi(xa, xu) ≥ Mi ∀i ∈ {1, 2}
+
+(8)
+
+4.2.2. Policy 2: social sustainability The government may adopt a policy that leads to social sustainability. Based on Policy 2, taxes xa and xu are determined to
+maximize social welfare. In order to quantify this policy, the concept of consumer surplus is applied, similar to Besanko and Cui (2016), Chen et al. (2016) and Hafezalkotob (2017). This concept is defined as the difference between what consumers are willing to pay for transportation prices and what they actually pay (Mancuso, 2014; Szeto et al., 2015). According to the demand functions of both competing systems and the common formulation in the literature, total consumer surplus (TCS) is formulated as follows:
+
+A1 +p2 (xa ,xu )γp
+
+A2 +p1 (xa ,xu )γp
+
+∫βp
+
+(
+
+)
+
+∫βp
+
+(
+
+)
+
+TCS(xa, xu) =
+
+A1 − βpx + γpp2(xa, xu) dx +
+
+A2 − βpx + γpp1(xa, xu) dx
+
+(9)
+
+p1 (xa ,xu )
+
+p2 (xa ,xu )
+
+The first and second terms are the consumer surplus associated to FTS1 and FTS2, respectively. In this policy, the minimum acceptable profits of FTS1 and FTS2, and the maximum acceptable fuel consumption must be satisfied. Therefore, this policy is modelled as follows:
+MaxTCS(xa, xu)
+
+subject to: TFC(xa,xu≤F
+
+πi(xa, xu) ≥ Mi ∀i ∈ {1, 2}
+
+(10)
+
+5. Competition between the FTSs
+This section uses the backward induction methodology to obtain the equilibrium solutions. First, the best response strategies of the competing systems FTS1 and FTS2 are analyzed, where fuel taxes xa and xu are given. Under the Nash game approach, equilibrium prices p1 and p2 are obtained. Then, according to the Stackelberg game approach, the effects of government policies on the competitive transportation market are assessed. The equilibrium government taxes xa and xu are achieved regarding the two government policies.
+
+5.1. The equilibrium outcomes of the competition
+In the Nash game approach, competing systems FTS1 and FTS2 (as the agents) have the same decision-making power, in a sense that they make their decisions p1 and p2 simultaneously. The model presenting the competition under the non-cooperative Nash game structure is as follows:
+279
+
+M. Tamannaei et al.
+{ maxπ1(p1, p2) p1 maxπ2(p1, p2) p2
+
+Transportation Research Part B 153 (2021) 272–295
+(11)
+
+Proposition 1 obtains the equilibrium results of competition between the two competing systems.
+
+Proposition 1. The equilibrium values of the transportation prices, transportation demands, and profits of FTS1 and FTS2 in the Nash game
+
+structure are obtained as follows.
+
+(
+
+)(
+
+)
+
+p*1(xa, xu) = 2βp
+
+A1 + c1(xu)βp + 4β2p −
+
+A2 + c2(xa, xu)βp γ2p
+
+γp
+
+(12)
+
+(
+
+)(
+
+)
+
+p*2(xa, xu) = 2βp
+
+A2 + c2(xa, xu)βp 4β2p −
+
++ A1 + c1(xu)βp γ2p
+
+γp
+
+(13)
+
+(
+
+q*1(xa, xu) = βp
+
+2A1βp + A2γp + c2(xa, xu)βpγp − 4β2p − γ2p
+
+( c1(xu) 2β2p −
+
+)) γ2p
+
+(14)
+
+(
+
+(
+
+))
+
+q*2(xa, xu) = βp
+
+2A2βp + A1γp + c1(xu)βpγp − 4β2p − γ2p
+
+c2(xa, xu)
+
+2β2p −
+
+γ2p
+
+(15)
+
+(
+
+π*1(xa, xu) = βp
+
+2A1βp + A2γp + c2(xa, xu)βpγp −
+
+(
+
+)2
+
+4β2p − γ2p
+
+( c1(xu) 2β2p −
+
+))2 γ2p
+
+(16)
+
+(
+
+(
+
+))2
+
+π*2(xa, xu) = βp
+
+2A2βp + A1γp + c1(xu)βpγp − c2(xa, xu)
+
+(
+
+)2
+
+2β2p −
+
+γ2p
+
+4β2p − γ2p
+
+(17)
+
+According to Eqs. (14)-(17), it can be easily verified that:
+
+π*i (xa,
+
+xu )
+
+=
+
+(
+
+q*i (xa, xu))2∀i βp
+
+∈
+
+{1,
+
+2}
+
+(18)
+
+According to Eq. (18), the equilibrium profits of FTSs depend on the second power of their equilibrium demands. In addition, after
+
+replacing q*1 and q*2 from Eqs. (14) and (15) into Eq. (7), the equilibrium value of TFC is obtained as follows:
+
+(
+
+(
+
+)
+
+TFC*(xa, xu) = ω1q*1(xa, xu) + ω2q*2(xa, xu) = βpω1
+
+2A1βp +
+
+A2 + c2(xa, xu)βp γp − 4β2p − γ2p
+
+( c1(xa) 2β2p −
+
+)) γ2p
++
+
+(
+
+(
+
+)
+
+(
+
+))
+
+βpω2 2A2βp + A1 + c1(xa)βp γp − c2(xa, xu) 2β2p − γ2p
+
+(19)
+
+4β2p − γ2p
+
+After replacing p*1 and p*2 from Eqs. (12) and (13) into Eq. (9), the equilibrium value of TCS is obtained as follows:
+
+(
+
+(
+
+)
+
+TCS*(xa, xu) = βp
+
+2A1βp +
+
+A2 + c2(xa, xu)βp (
+
+γp − )2
+
+2 4β2p − γ2p
+
+( c1(xa) 2β2p −
+
+))2 (
+
+(
+
+)
+
+(
+
+γ2p
+
+βp 2A2βp + A1 + c1(xa)βp γp − c2(xa, xu) 2β2p −
+
++
+
+(
+
+)2
+
+2 4β2p − γ2p
+
+))2 γ2p
+
+(20)
+
+Corollary 1 shows a link between the profits of FTSs and the total consumer surplus indicator.
+
+Corollary 1. The value of TCS*(xa,xu) is equal to the average value of π*1(xa, xu) and π*2(xa, xu), i.e., the following equation holds:
+
+TCS*(xa,
+
+xu )
+
+=
+
+(
+
+q*1)2 + ( 2βp
+
+q*2 )2
+
+=
+
+π*1(xa, xu) + π*2(xa, xu) 2
+
+(21)
+
+5.2. A preliminary analysis on the government policies
+
+Since fuel taxes xa and xu directly affect transportation costs c1 and c2, this subsection is devoted to understanding how changes in these costs affect the equilibrium outcomes of competition between the FTSs. Such an analysis can further help us justify the taxing
+
+280
+
+M. Tamannaei et al.
+
+Transportation Research Part B 153 (2021) 272–295
+
+policies of the government.
+
+Corollary 2. The equilibrium demand of an FTS is decreasing in its own transportation cost and increasing in the rival’s cost (Eqs. (22) and
+
+(23)). Also, the sensitivity to its own transportation cost is higher than the one to the rival’s cost (Eq. (24)).
+
+(
+
+)
+
+∂q*i ∂ci
+
+=−
+
+βp 2β2p − γ2p 4β2p − γ2p
+
+< 0 ∀i ∈ {1, 2}
+
+(22)
+
+∂q*j ∂ci
+
+=
+
+β2p γp 4β2p − γ2p
+
+>
+
+0
+
+∀i, j
+
+∈ {1,
+
+2}, i ∕=
+
+j
+
+(
+
+)
+
+⃒⃒⃒⃒∂∂qc*ii ⃒⃒⃒⃒
+
+=
+
+βp
+
+2β2p 4β2p −
+
+−
+
+γ2p γ2p
+
+>
+
+β2p γp 4β2p −
+
+γ2p
+
+= ∂q*j ∂ci
+
+∀i, j ∈ {1,
+
+2}, i ∕= j
+
+(23) (24)
+
+When transportation cost ci changes, the behaviors of consumers can be explained according to Corollary 2. With one unit decrease in
+
+ci,
+
+there
+
+is
+
+a
+
+number
+
+of
+
+βp(2β2p − γ2p 4β2p − γ2p
+
+)
+
+new
+
+consumers
+
+that
+
+are
+
+attracted
+
+to
+
+FTSi,
+
+as
+
+a
+
+result
+
+of
+
+an
+
+increase
+
+in
+
+its
+
+competitive
+
+advantage.
+
+These
+
+new
+
+consumers
+
+can
+
+be
+
+classified
+
+into
+
+two
+
+groups:
+
+shifting
+
+consumers
+
+and
+
+new
+
+market
+
+entrants.
+
+There
+
+is
+
+a
+
+number
+
+of
+
+β2p γp 4β2p − γ2p
+
+shifting
+
+consumers, which shift their service provider from FTSj to FTSi, according to Eq. (24). The new market entrants are the consumers that
+
+had been previously outside the transportation market, but an increase in the competitive advantage of FTSi persuades them to get its
+
+service. The size of the second group is equal to:
+
+⃒⃒ ⃒⃒⃒∂∂qc*ii ⃒⃒⃒ −
+
+(
+
+)
+
+∂q*j ∂ci
+
+=
+
+βp
+
+2β2p 4β2p −
+
+−
+
+γ2p γ2p
+
+−
+
+β2p γp 4β2p − γ2p
+
+=
+
+( βp 2β2p −
+4β2p
+
+γ2p −
+
+− γ2p
+
+) βpγp
+
+=
+
+( βp βp −
+2βp −
+
+) γp > 0 ∀i, j ∈ {1, γp
+
+2}, i ∕= j
+
+(25)
+
+Similarly,
+
+with
+
+one
+
+unit
+
+increase
+
+in
+
+ci,
+
+a
+
+group
+
+consisting
+
+of
+
+β2p γp 4β2p − γ2p
+
+consumers
+
+shifts
+
+their
+
+service
+
+provider
+
+from
+
+FTSi
+
+to
+
+FTSj,
+
+and
+
+another
+
+group
+
+consisting
+
+of
+
+βp (βp− 2βp −
+
+γp γp
+
+)
+
+consumers
+
+of
+
+FTSi
+
+leaves
+
+the
+
+transportation
+
+market.
+
+Based
+
+on
+
+the
+
+analysis
+
+in
+
+Corollary
+
+2,
+
+the
+
+effectiveness
+
+of
+
+taxes and subsidies on total fuel consumption is addressed in Corollary 3 by comparing two government policies: (a) imposing higher
+
+total tax on FTS1 that results in one unit increase in c1, and (b) providing higher total subsidy for FTS2 that results in one unit decrease
+
+in c2.
+
+Corollary 3. To decrease total fuel consumption (TFC*), adoption of policy (a) is more effective than adoption of policy (b).
+
+((
+
+)
+
+∂TFC*
+
+βp
+
+=−
+
+∂c1
+
+2β2p − γ2p ω1 − 4β2p − γ2p
+
+) βp γp ω2
+<0
+
+(26)
+
+(
+
+(
+
+∂TFC* βp βpγpω1 − 2β2p −
+
+= ∂c2
+
+4β2p − γ2p
+
+)) γ2p ω2
+
+(27)
+
+(
+
+)
+
+∂TFC*
+
+−
+
+−
+
+∂TFC* = βp βp −
+
+γp (ω1 + ω2) > 0
+
+∂c1
+
+∂c2
+
+2βp − γp
+
+(28)
+
+The total effects of the two policies on the behaviors of consumers are explained based on Corollary 2 and Corollary 3. By adopting
+
+policy
+
+(a),
+
+two
+
+different
+
+behaviors
+
+of
+
+consumers
+
+occur,
+
+both
+
+of
+
+which
+
+reduce
+
+total
+
+fuel
+
+consumption.
+
+A
+
+group
+
+consisting
+
+of
+
+βp (βp − 2βp −
+
+γp ) γp
+
+consumers
+
+leaves
+
+the
+
+transportation
+
+market,
+
+which
+
+reduces
+
+fuel
+
+consumption.
+
+In
+
+addition,
+
+another
+
+group
+
+consisting
+
+of
+
+β2p γp 4β2p − γ2p
+
+con­
+
+sumers shifts from FTS1 to FTS2, which leads to a net decrease of ω1 − ω2 per consumer in fuel consumption.
+
+In
+
+contrast,
+
+adoption
+
+of
+
+policy
+
+(b)
+
+results
+
+in
+
+opposite
+
+effects
+
+in
+
+fuel
+
+consumption.
+
+Similar
+
+to
+
+policy
+
+(a),
+
+a
+
+group
+
+of
+
+β2p γp 4β2p − γ2p
+
+consumers
+
+shifts
+
+from
+
+FTS1
+
+to
+
+FTS2.
+
+However,
+
+another
+
+group
+
+of
+
+βp (βp − 2βp −
+
+γp γp
+
+)
+
+consumers
+
+enters
+
+the
+
+transportation
+
+market
+
+and
+
+chooses
+
+FTS2,
+
+which
+
+leads
+
+to an increase in fuel consumption. By comparing the consumers’ exit in policy (a) and their entrance in policy (b), the higher
+
+effectiveness of policy (a) with respect to total fuel consumption can be concluded.
+
+A unilateral tax on FTS1 seems appropriate from an environmental perspective according to Corollary 3. However, it may affect
+
+economic sustainability, i.e., the profitability of the FTSs. Therefore, a reasonable policy for FTS2 must also be joined to the tax policy
+
+of FTS1, to care the profits of the FTSs. Moreover, the environmental effect of these joint policies should be evaluated. Corollary 4
+
+addresses these issues.
+
+Corollary 4. Simultaneous taxes on both FTSs
+
+Policy (c): One unit of increase in c1, followed by y units of increase in c2 (0 < y < 1), keeps the profit of FTS2 unchanged, while reduces the
+
+281
+
+M. Tamannaei et al.
+
+Transportation Research Part B 153 (2021) 272–295
+
+profit of FTS1. Policy (d): One unit of increase in c1, followed by z units of increase in c2 (z > 1), keeps the profit of FTS1 unchanged, while reduces the profit of FTS2. Both policies (c) and (d) reduce total fuel consumption (TFC*). The values of y and z are equal to:
+
+y
+
+=
+
+βpγp 2β2p − γ2p
+
+∈
+
+(0,
+
+1)
+
+(29)
+
+z = 2β2p − γ2p > 1 βpγp
+
+(30)
+
+According to Corollary 4, stringent taxing policies on both FTSs, i.e. high values of total taxes or low values of total subsidies, are consistent with environmental sustainability. Although these policies seem reasonable for the non-green FTS (FTS1), they need to be justified for the green one (FTS2). Corollary 2 and Corollary 3 revealed that the entrance of new consumers to the market may degrade the effectiveness of a subsidy policy for FTS2. In contrast, implementing stringent taxing policies on both FTSs does not lead to an entrance of new consumers and, therefore, is appropriate from an environmental perspective.
+Corollary 4 also implies that a solution consisting of stringent taxes on both FTSs may partially balance the FTSs’ profits. Therefore, this solution may be appropriate for alleviating adverse economic impacts of environmental considerations. To achieve such a balance in the transportation market, Corollary 4 indicates that different scenarios of tax discrimination may exist. In Subsection 7.2, the mediating role of competitive advantages in the tax discrimination between the FTSs is revealed.
+
+6. The optimal government policies
+
+In this article, the government, as the Stackelberg leader, intervenes in the competitive transportation market, while both FTS1 and FTS2 act as the followers. According to this dynamic game structure, the government determines the values of xa and xu. Subsequently, the followers make their decisions on p1 and p2, see Fig. 2.
+
+6.1. The equilibrium solutions for policy 1: environmental sustainability
+
+The environmental sustainability policy is presented in the optimization problem in Eq. (8). Proposition 2 obtains the equilibrium
+
+decisions of the government if it adopts environmental sustainability.
+
+Proposition 2. Under the environmental sustainability policy, the equilibrium values of the decisions made by the government (x*a and x*u) and the equilibrium value of TFC, are as follows:
+
+x*a
+
+=
+
+A2
+
+β3p/2
+
++A1
+
+√̅̅̅ √̅̅̅̅ βp√γp−̅̅̅ M1βp
+
+γp
+
+−
+
+( ) βp β2p − γ2p
+
+g2
+
+√̅M̅̅2̅(2β2p −
+
+)γ2p
+
+−
+
+⎛
+⎜⎜⎜⎜φ1 − ⎝ φ2 +
+
+⎞
+
+A2 γp +A1 β3p/2 −
+
+√̅M̅2̅̅βp√γp ̅− ̅̅√̅M̅̅1̅(2β2p −
+βp
+β2p − γ2p
+
+γ2p )⎟⎟ ⎟⎟g1 ⎠
+
+ω1 g2
+
+(31)
+
+x*u
+
+=
+
+A1
+
+β3p/2
+
++A2
+
+√̅̅̅ √̅̅̅̅ βp√γp−̅̅̅ M2βp
+
+γp
+
+−
+
+( ) βp β2p − γ2p
+
+ω1
+
+√̅M̅̅1̅(2β2p −
+
+)γ2p
+
+−
+
+φ1
+
+(32)
+
+TFC*
+
+=
+
+√̅̅̅̅ (√̅̅̅̅̅̅ βp M1 ω1
+
+√̅̅̅̅̅̅ + M2
+
+) ω2 , TCS*
+
+=
+
+M1
+
++ 2
+
+M2
+
+(33)
+
+Corollary 5. The equilibrium values of prices, costs, profit margins, demands, and profits of the FTSs under the environmental sustainability policy are presented in Table 1.
+
+Table 1 The equilibrium outcomes under the environmental sustainability policy.
+
+Outcome p*i c*i
+p*i − c*i
+q*i π*i
+
+FTS1 (i = 1)
+
+√̅̅̅̅ √̅̅̅̅̅̅ √̅̅̅̅̅̅ A1βp + A2γp − βp( M1 βp + M2 γp)
+
+A1 β3p/2 √̅̅̅̅̅̅
+
++
+
+√̅̅̅̅β2p − γ√2p ̅̅̅̅̅̅
+
+A2
+
+βp
+
+γp√− ̅̅̅̅ βp
+
+M2βpγp − (β2p − γ2p )
+
+√̅̅̅̅̅̅ M1
+
+(2β2p
+
+−
+
+γ2p )
+
+M1
+
+√̅β̅̅̅p̅̅̅̅̅̅̅̅ M1 βp
+
+M1
+
+FTS2 (i = 2)
+
+√̅̅̅̅ √̅̅̅̅̅̅ √̅̅̅̅̅̅ A2βp + A1γp − βp( M2 βp + M1 γp)
+
+A2 β3p /2 √̅̅̅̅̅̅
+
++
+
+√̅̅̅̅β2p − γ√2p ̅̅̅̅̅̅
+
+A1
+
+βp
+
+γp√− ̅̅̅̅ βp
+
+M1βpγp − (β2p − γ2p )
+
+√̅̅̅̅̅̅ M2
+
+(2β2p
+
+−
+
+γ2p )
+
+M2
+
+√̅β̅̅̅p̅̅̅̅̅̅̅̅ M2 βp
+
+M2
+
+282
+
+M. Tamannaei et al.
+
+Transportation Research Part B 153 (2021) 272–295
+
+6.2. The equilibrium solutions for policy 2: social sustainability
+
+The social sustainability policy is presented in the optimization problem in Eq. (10). Proposition 3 obtains the equilibrium decisions
+
+of the government if it adopts social sustainability.
+
+√̅̅̅̅ √̅̅̅̅̅̅
+
+√̅̅̅̅̅̅
+
+Proposition 3. The social sustainability policy has a feasible solution if and only if: F ≥ βp( M1 ω1 + M2 ω2). Under this policy, the
+
+equilibrium values √̅̅̅̅̅
+
+a) If
+
+< M2 ω2
+M1 ω1
+
+of <
+
+t1heanddec√isi̅βo̅̅p̅n(s√m̅M̅̅a̅̅1d̅ ωe 1by+√th̅Me̅̅̅g̅2̅oωve2r)n≤meFn≤t (√x*a̅β̅p̅a(√n̅Md̅̅1̅̅xω*u1ω)− 21,√− a̅Mω̅n̅222̅̅dω2t)h(ωe21e+qωu22)ilhiborlidu,mthveaflouleloowf iTnCg Sreasureltsasarfoelolobwtasi:ned:
+
+( F− x*a =
+
+√̅̅̅̅̅̅̅̅̅̅ M1βp
+
+ω1 (
+
+)(( 2β2p)−
+
+) γ2p ω1 −
+
+βp γ2p − β2p ω1ω2g2
+
+) βp γp g1
+
++
+
+√̅̅̅̅̅̅̅̅̅̅ M1 βp γp
+
++
+
+( (β2p
+
+−
+
+)
+
+γ2p
+
+φ2 − )
+
+γ2p − β2p g2
+
+A2βp −
+
+A1 γp
+
+( g1 A1β3p/2 − +
+
+√̅̅̅̅̅̅ M1
+
+( 2β2p
+
+−
+
+) √̅̅̅̅ ( γ2p + βp A2γp −
+
+√̅̅̅̅ ( βp γ2p −
+
+) β2p ω1g2
+
+( β2p −
+
+) )) γ2p φ1
+
+(34)
+
+x*u
+
+=
+
+(A1
+
+β3p/2
+
++A2
+
+√̅̅̅ βp
+
+γp
+
+−
+
+√̅M̅√̅1̅ (̅̅2̅β2p−
+
+γ2p
+
+))ω2
+
+√̅̅̅̅
++ M1 βp
+
+γp
+
+ω1
+
+−
+
+( ) βp β2p− γ2p ω2
+
+ω1
+
+√̅̅̅ βp γp F
+
+−
+
+φ1
+
+(35)
+
+⎛
+
+⎞2
+
+M1
+
++
+
+⎜⎜√F̅β̅p̅−
+
+√̅̅̅̅ M1 ω1 ⎟⎟
+
+⎝ ω2 ⎠
+
+TCS* =
+
+≥ M1 + M2, TFC* = F
+
+2
+
+2
+
+(36)
+
+b) Otherwise, the following results are obtained:
+
+x*a
+
+=
+
+β3pω1(φ1(g1 − βp β2p −
+
+φ2ω)1) − Fγ2pg1 γ2p ω21g2
+
++
+
+( γp ω1
+
+(
+
+A1
+
++
+
+) γpφ2 ω1
+
+−
+
+(
+
+)
+
+)(
+
+A2 +(γpφ1
+
+g1
+
+− )
+
+F
+
++ βp A2ω21 + (2F −
+
+β2p − γ2p ω21g2
+
++
+
+√̅̅̅̅̅̅( M2 βpγpω1(g1
+
++
+
+(
+
+)
+
+ω2) − √̅̅̅̅ βp
+
+(2β2p β2p
+
+−
+
+ω21 + g1ω2 )
+γ2p ω21g2
+
++
+
+( γ2p
+
+ω21
+
++
+
+)) g1ω2
+
+) A1 ω1 )g1
+
+(37)
+
+ω x*u
+
+=
+
+( Fγ2p + A1 β2p +A2 βp γp −
+
+√̅̅̅̅ M2
+
+β3p/2
+
+γp
+
+)ω1
+
+√̅̅̅̅̅̅̅
++ M2 βp
+
+(2β2p
+
+−
+
+( ) βp β2p − γ2p ω1
+
+)γ2p ω2−
+
+2Fβ2p
+
+−
+
+1
+
+φ1
+
+(38)
+
+⎛
+
+⎞2
+
+M2
+
++
+
+⎜⎜⎝√F̅β̅p̅−
+
+√̅̅̅̅
+M2 ω2 ω1
+
+⎟⎟⎠
+
+TCS* =
+
+≥ M1 + M2, TFC* = F
+
+2
+
+2
+
+(39)
+
+Corollary 6. The equilibrium values of prices, costs, profit margins, demands, and profits of the FTSs under the environmental sustainability policy are presented in Table 2.
+
+Table 2
+
+The equilibrium outcomes under the social sustainability policy.
+
+Outcome
+p*1 p*2 c*1 c*2
+
+√̅̅̅̅̅̅ M2 M1
+
+<
+
+ω2 ω1
+
+<
+
+1
+
+√̅̅̅̅̅̅̅̅̅̅̅
+
+and
+
+F
+
+≤
+
+√̅̅̅̅ √̅̅̅̅̅̅ βp( M1
+√̅̅̅̅̅̅̅̅̅̅̅
+
+ω1 −
+
+√̅̅̅̅̅̅ M2
+
+ω2
+
+)(ω21
+
+ω21 − ω22
+
++
+
+ω22 )
+
+(A1 − M1βp )βpω2 + γp( M1βp ω1 + A2ω2 − F)
+
+√̅̅̅̅̅̅ M1
+
+β3p/2
+
+ω1
+
++
+
+(A2
+
+(β2p − γ2p βp + (A1
+
+)ω√2 ̅̅̅̅̅̅̅̅̅̅̅ − M1βp
+
+)γp )ω2
+
+−
+
+Fβp
+
+√(2̅Mβ̅̅̅2p̅1̅−(ββ√pγpγ2p(̅βp)̅β̅ωp(̅2p(√1β− 2p−̅M̅̅γ−̅̅1(2p̅̅2β)̅γ̅ωβp̅2p̅2pω(2)βω−12p2−−γ2pF)γω)2p+)2ω)A2+2
+
+A1 βp
+
+βp +
+
+ω2 + (β2p − (A1 − β2p −
+
+γp(A2ω2 − F) √γ2p̅)̅̅ω̅̅̅2̅̅̅̅̅
+M1βp )γp γ2p
+
+ω2 ω1
+
+≤
+
+√̅̅̅̅̅̅
+
+M2 M1
+
+or
+
+√̅̅̅̅̅̅̅̅̅̅̅
+
+F
+
+>
+
+√̅̅̅̅ √̅̅̅̅̅̅ βp( M1 ω1 −
+
+√̅̅̅̅̅̅ M2
+
+ω2
+
+)(ω21
+
+√̅̅̅̅̅̅̅̅̅̅ω̅ 21 − ω22
+
++
+
+ω22 )
+
+(A2 − M2βp )γpω1 + βp( M2βp ω2 + A1ω1 − F)
+
+√̅̅̅̅̅̅̅̅̅̅̅
+
+(β2p − γ2p )ω1√̅̅̅̅̅̅̅̅̅̅̅
+
+M2βpγpω2 + (A1γp + (A2 − M2βp )βp)ω1 − Fγp
+
+√̅̅̅̅̅̅ M2
+√̅̅̅̅̅̅ M2
+
+(β2p − γ2p )ω1
+
+(((β√2pγβ̅βp2p̅̅ωp̅−(2√β2pγ− 2p̅β̅−̅)p(̅ω(2γββ22p2p2p)−−ω− 1βγγp2pγ2p)p)ωωω111
+
+) )
+
++ −
+
+βpω1(A1βp + A2γp) − F(2β2p
+
+√̅̅̅̅ βp(β2p − γ2p )ω1
+
+Fγp
+
+βp
+
++
+
+A2 βp β2p
+
++ −
+
+A1 γp γ2p
+
+−
+
+γ2p )
+
+(continued on next page)
+
+283
+
+M. Tamannaei et al.
+
+Table 2 (continued ) Outcome
+p*1 − c*1 p*2 − c*2 q*1 q*2 π*1 π*2 TFC*
+
+√̅̅̅̅̅̅ M2 M1
+√̅̅̅̅̅̅
+
+<
+
+ω2 ω1
+
+<
+
+1
+
+and
+
+F
+
+≤
+
+√̅̅̅̅ √̅̅̅̅̅̅ βp( M1
+
+ω1 −
+
+√̅̅̅̅̅̅ M2
+
+ω2
+
+)(ω21
+
+ω21 − ω22
+
++
+
+ω22 )
+
+M1
+
+βp√̅̅̅̅̅̅̅̅̅̅̅ F − M1βpω1
+
+√̅̅̅̅̅β̅̅̅p̅̅ω̅ 2 M1 βp
+
+√̅̅̅̅̅̅̅̅̅̅̅ F − M1βpω1
+ω2 M1
+
+(F −
+
+√̅̅̅̅̅̅̅̅̅̅̅ M1 βp βp ω22
+
+ω1 )2
+
+≥
+
+M2
+
+F
+
+Transportation Research Part B 153 (2021) 272–295
+
+ω2 ω1
+
+√̅̅̅̅̅̅
+
+≤
+
+M2 M1
+
+or
+
+√̅̅̅̅̅̅̅̅̅̅̅
+
+F
+
+>
+
+√̅̅̅̅ √̅̅̅̅̅̅ βp( M1
+
+ω1 −
+
+√̅̅̅̅̅̅ M2
+
+ω2
+
+)(ω21
+
+ω21 − ω22
+
++
+
+ω22 )
+
+F − M2βpω2
+
+√̅̅̅̅̅β̅ pω1
+
+M2
+
+βp√̅̅̅̅̅̅̅̅̅̅̅ F − M2βpω2
+
+√̅̅̅̅̅̅̅̅ω̅̅̅1 M2 βp
+
+(F −
+
+√̅̅̅̅̅̅̅̅̅̅̅ M2 βp
+
+ω2
+
+)2
+
+βp ω21
+
+≥
+
+M1
+
+M2
+
+F
+
+7. Sensitivity analyses
+Sensitivity analyses on a wide variety of parameters can help us respond to the research questions and provide some managerial insights. Table 3 depicts some information about each subsection.
+Some of the analyses are based on Table 4 and Table 5. According to Eq. (33), the sensitivities of TFC* and TCS* under an envi­ ronmental sustainability policy are provided in Table 4. Also, according to Eqs. (36) and (39), the sensitivities of TFC* and TCS* under
+
+Table 3 Information about sensitivity analyses in the subsections of Section 7.
+
+Subsection
+
+Investigated parameters
+
+Answered question(s)
+
+7.1
+
+M1,M2,F
+
+7.2
+
+A1,A2,ϕ1,ϕ2
+
+7.3
+
+A1,A2,ϕ1
+
+ϕ2,βp,γp
+
+7.4
+
+A1,A2
+
+7.5
+
+ω1,ω2
+
+Question 1 Question 2
+Question 3 Question 4, Question 5
+
+Intervention status With government intervention
+✔ ✔ ✔
+✔ ✔
+
+Without government intervention ✘ ✘ ✔
+✘ ✔
+
+Table 4 Sensitivities of TFC* and TCS* to some parameters in the environmental sustain­ ability policy.
+
+Sensitivity√t̅o̅̅̅ M1, βp, and ω1
+
+∂TFC* ∂M1 ∂TFC* ∂βp
+
+=
+
+√βp̅̅ω̅̅̅̅1 √2̅̅̅̅M̅̅ 1
+
+>
+
+0 √̅̅̅̅̅̅
+
+= M1ω1√+̅̅̅̅̅ M2ω2
+
+2 βp
+
+>0
+
+∂TFC* ∂ω1
+
+√̅̅̅̅̅̅̅̅̅̅̅ = βpM1 > 0
+
+∂TCS* ∂ω1
+
+=0
+
+Sensitivity√t̅o̅̅̅ M2, γp, and ω2
+
+∂TFC* ∂M2 ∂TFC* ∂γp
+
+= =
+
+√βp̅̅ω̅̅̅̅2 2 M2 0
+
+>0
+
+∂TFC* ∂ω2
+
+√̅̅̅̅̅̅̅̅̅̅̅ = βpM2 > 0
+
+∂TCS* ∂ω2
+
+=0
+
+Table 5 Sensitivities of TFC* and TCS* to some parameters in the social sustainability policy.
+
+S√e̅n̅̅s̅̅i̅tivity M2 < ω2 M1 ω1
+
+under
+< 1 and F √̅̅̅̅̅̅̅̅̅̅̅
+
+≤
+
+√̅̅̅̅̅ √̅̅̅̅̅̅ βp( M1 √̅̅̅̅̅̅̅̅̅̅̅
+
+ω1 − ω21
+
+√̅̅̅̅̅̅ M2
+
+ω2
+
+)(ω21
+
+− ω22
+
++
+
+ω22 )
+
+∂TCS* = F − ∂F
+
+βpMω122√βp̅ω̅̅̅1̅̅̅̅≥̅̅̅
+
+M2 βp βp ω22
+
+ω2
+
+>0 √̅̅̅̅̅̅̅̅̅̅̅
+
+∂TCS* = −
+
+∂βp
+
+∂TCS* ∂γp
+
+=0
+
+F(F −
+
+M1 βp 2β2p ω22
+
+ω1 )
+
+≤
+
+−
+
+√̅̅̅̅̅̅ √̅̅̅̅̅̅̅̅̅̅̅
+
+F
+
+M2 βp ω2 2β2p ω22
+
+<
+
+0
+
+∂TCS* ∂ω1 ∂TCS* ∂ω2 ∂TFC* ∂ω1
+
+=− =− =0
+
+M1(F − √̅ω̅̅̅22̅̅
+
+√̅M̅̅̅1 √β̅̅p̅̅
+
+βp
+
+(F − M1 βp ω1
+
+βp ω32
+
+ω1) < )2
+<0
+
+0
+
+Sensit√ivi̅̅t̅y̅̅̅
+
+ω2 ≤ M2
+
+ω1
+
+M1
+
+under √̅̅̅̅̅ √̅̅̅̅̅̅
+
+or F > βp( √̅̅̅̅̅̅̅̅̅̅̅
+
+M1 ω1 − √̅̅̅̅̅̅̅ω̅̅̅̅21
+
+√̅̅̅̅̅̅ M2
+− ω22
+
+ω2
+
+)(ω21
+
++
+
+ω22 )
+
+∂TCS* = F − ∂F
+
+βpMω221√βp̅ω̅̅̅2̅̅̅̅≥̅̅̅
+
+M1 βp βp ω21
+
+ω1
+
+>0 √̅̅̅̅̅̅̅̅̅̅̅
+
+∂TCS* = −
+
+∂βp
+
+∂TCS* ∂γp
+
+=0
+
+∂TCS* = −
+
+∂ω1
+
+F(F −
+
+M2 βp 2β2p ω21
+
+ω2
+
+)
+
+≤
+
+−
+
+(F −
+
+√̅̅̅̅̅̅̅̅̅̅̅ M2 βp
+
+ω2
+
+)2
+
+√̅̅̅̅̅̅ βpω√31 ̅̅̅̅̅̅̅̅̅̅̅
+
+<
+
+0
+
+F
+
+M1 βp ω1 2β2p ω21
+
+<
+
+0
+
+∂TCS* = − ∂ω2
+
+M2
+
+(F − √̅M̅̅̅2βp ω21 βp
+
+ω2 )
+
+<
+
+0
+
+∂TFC* ∂ω2
+
+=0
+
+284
+
+M. Tamannaei et al.
+
+Transportation Research Part B 153 (2021) 272–295
+
+a social sustainability policy are provided in Table 5.
+
+7.1. An analysis on environmental regulations and the economic expectations of the FTSs
+
+In this article, the FTSs’ profits, total fuel consumption (TFC), and total consumer surplus (TCS) represent economic, environ­ mental, and social sustainability, respectively. Also, it seems that the intermodal system FTS2 can potentially contribute to environ­ mental sustainability because it includes rail transportation, as a green mode.
+According to Table 4, the equilibrium value of total fuel consumption TFC* is increasing in the minimum acceptable profits of FTS1 and FTS2, i.e., M1 and M2, respectively. This indicates that environmental sustainability is in conflict with economic sustainability. It is worth noting that even higher minimum acceptable profits of the green FTS (FTS2) increases environmental externalities. The rationale behind this claim is that higher values of M2 stimulate FTS2 to absorb new consumers (see Eq. (18)), which leads to a net increase in total fuel consumption. In addition, decreasing the economic expectation of the non-green FTS (FTS1) has more priority over FTS2 because of the higher fuel consumption rate of FTS1. Given a fixed value of total economic expectations, i.e. M1 + M2, Eq. (33) shows that the less economic expectation of FTS1 is, the less total fuel consumption TFC* is achieved. In contrast, according to Corollary 1, social sustainability is fully consistent with economic sustainability, because TCS is directly and linearly increasing in the profits of FTSs
+The above-mentioned result suggests that the government with an environmental point of view can adopt an indirectly induced intervention. It should adopt policies that decrease the economic expectations of all transportation systems, especially the road system. As an example of such policies, Basu (2017) points out that different types of economic risks, including volatility in reg­ ulations, the evolution of new technologies, the risk of rising in prices of raw materials, currency fluctuations, etc., have a positive relationship with the rate of return requested by investors. Therefore, the appropriate management of such risks can greatly contribute to environmental sustainability because it decreases the minimum acceptable profits of the FTSs, leading to a lower value of total fuel consumption.
+According to Table 5, the equilibrium amount of total consumer surplus (TCS*) is always increasing in maximum acceptable fuel consumption (F). Hence, environmental sustainability is in conflict with social sustainability. This suggests that stricter environmental regulations (lower values of F) can result in a significant social side-effect: the stricter the environmental regulations are, the less social sustainability can be achieved.
+The analyses are summarized in Managerial insight 1 and Fig. 4 and can respond to Question 1. Managerial insight 1. The economic and social sustainability policies of the government are consistent with each other, while both of them are in conflict with the environmental sustainability policy.
+
+Fig. 4. Interactions between the three dimensions of sustainability. 285
+
+M. Tamannaei et al.
+
+Transportation Research Part B 153 (2021) 272–295
+
+7.2. An analysis on the tax discrimination between the FTSs
+
+Proposition 4 investigates the conditions in which FTSi incurs less equilibrium value of total tax (Xi*) than its rival under the
+
+environmental and social sustainability policies.
+
+Proposition 4. a) Under the environmental sustainability policy, the value of X2* − X1* is negative if and only if:
+
+( √̅̅̅̅̅̅ √̅̅̅̅̅̅ )(
+
+)
+
+(
+
+)
+
+A2 − A1 − βp + γp (φ2 − φ1) ≤
+
+M2 − √M̅1̅̅̅ 2βp + γp βp
+
+(40)
+
+b) Under the social sustainability policy (part (a) of Proposition 3), the value of X2* − X1* is negative if and only if:
+
+(
+
+)(
+
+√̅̅̅̅̅̅̅̅̅̅ )
+
+A2 −
+
+A1 −
+
+(φ2 −
+
+(
+
+)
+
+φ1) βp + γp ≤
+
+2βp + γp
+
+F − (ω1 + ω2) βpω2
+
+M1 βp
+
+(41)
+
+c) Under the social sustainability policy (part (b) of Proposition 3), the value of X2* − X1* is negative if and only if:
+
+(
+
+)( √̅̅̅̅̅̅̅̅̅̅
+
+)
+
+A2 −
+
+A1 −
+
+(φ2 −
+
+(
+
+)
+
+φ1) βp + γp ≤
+
+2βp + γp
+
+M2βp (ω1 + ω2) − F βpω1
+
+(42)
+
+According to Proposition 4, indicator A2 − A1 − (βp + γp)(ϕ2 − ϕ1) is always significant in determining which FTS incurs less equi­ librium value of total tax. This indicator can appropriately represent the competitive advantage of FTS2 over FTS1, as mentioned in Subsection 4.1. According to Subsection 5.2, the government may alleviate the adverse economic impacts of its environmental con­ siderations by balancing the profits of the FTSs. According to Proposition 4, such a balance is realized through implementing higher total tax on an FTS that has a competitive advantage over its rival.
+The intermodal system (FTS2) incurs high values of transloading costs during transshipment in rail stations, which increase its basic transportation costs ϕ2. In contrast, FTS1 benefits from a competitive advantage over FTS2 since it does not incur such costs (Austin, 2015). Accordingly, Proposition 4 predicts that there may exist a tax discrimination in favor of FTS2 due to the transloading costs.
+
+7.3. An analysis on the competitive advantages, competition intensity, and consumers’ loyalty
+
+We investigate the role of parameters γp and βp in the sustainability indicators. According to Subsection 4.1, the value of γp can
+
+appropriately represent competition intensity between the two FTSs; it measures how many consumers shift from their specific FTS to
+
+the other one if the FTS increases its price. To show the role of competition intensity (γp), we investigate whether it has a relationship
+
+with the way the FTSs utilize their competitive advantages. Also, a lower value of βp means that the consumers are highly loyal to their
+
+specific FTSs, and do not easily leave them if the FTSs increase their prices. Signing long-term contracts between consumers and their
+
+specific FTSs (Hubbard, 2001; Shah and Brueckner, 2012), and more locational proximity to the consumers’ operational centers (Shah
+
+and Brueckner, 2012) can enhance the consumers’ loyalty.
+
+First, the relationship between competitive advantages and competition intensity is investigated in the case of "without government
+
+intervention" (i.e. xa = xu = 0, c1 = ϕ1,c2 = ϕ2). Corollary 7 shows that an FTS can utilize its competitive advantage to strengthen its
+
+transportation market share.
+
+Corollary
+
+7.
+
+Without
+
+government
+
+intervention,
+
+the
+
+equilibrium
+
+market
+
+share
+
+of
+
+FTSi,
+
+i.e.
+
+, q*i
+q*1 +q*2
+
+is
+
+increasing
+
+in
+
+ϕj
+
+and
+
+decreasing
+
+in
+
+ϕi
+
+(i
+
+∕=
+
+j).
+
+Moreover,
+
+q*i q*1 +q*2
+
+is
+
+increasing
+
+in
+
+Ai
+
+or
+
+decreasing
+
+in
+
+Aj,
+
+or
+
+both.
+
+In
+
+addition,
+
+one
+
+unit
+
+increase
+
+in
+
+Ai,
+
+followed
+
+by
+
+one
+
+unit
+
+decrease
+
+in
+
+Aj,
+
+increases
+
+the
+
+value
+
+of
+
+q*i q*1 +q*2
+
+(i
+
+∕=
+
+j).These
+
+analyses
+
+indicate
+
+that
+
+the
+
+equilibrium
+
+market
+
+share
+
+of
+
+FTSi
+
+is
+
+increasing
+
+in
+
+its
+
+competitive
+
+advantage.
+
+Without government intervention, Corollary 7 indicates that enhancing the competitive advantage of an FTS incentivizes this FTS
+
+to exert more efforts to serve the consumers. This leads to an enhancement in its market share. Hence, it can be deduced that there may
+
+be a relationship between competition intensity (γp) and the way the FTSs utilize their competitive advantages. Corollary 8. Without government intervention, q*1, q*2, TFC*, and TCS* are increasing in γp. According to Corollary 7 and Corollary 8, without government intervention, higher competition intensity reinforces the efforts of
+
+the FTSs to utilize their competitive advantages, which benefits their consumers, but has adverse environmental impacts.
+
+In the second case, government intervention is investigated. As indicated in Subsection 7.2, to balance adverse economic impacts,
+
+the government counteracts the competitive advantages in the market. This is realized through implementing higher total tax on an
+
+FTS that has an advantage over its rival. It is deduced that enhancing competitive advantages do not any longer induce more efforts of
+
+the FTSs to attract larger market shares. Since the FTSs do not any longer utilize their competitive advantages, it is anticipated that
+
+competition intensity does not play a significant role in the sustainability indicators. Corollary 9 confirms these two claims.
+
+Corollary 9. With government intervention, either environmental or social:
+
+q*i
+
+and
+
+q*i q*1 +q*2
+
+are
+
+irrelevant
+
+to
+
+Ai,
+
+Aj,
+
+ϕi,
+
+ϕj,
+
+and
+
+γp
+
+(i
+
+∕=
+
+j).
+
+Therefore,
+
+the
+
+equilibrium
+
+demand
+
+and
+
+market
+
+share
+
+of
+
+FTSi
+
+are
+
+irrelevant
+
+to
+
+its
+
+competitive advantage and competition intensity. Moreover, competition intensity is irrelevant to sustainability indicators TFC* and TCS*.
+
+Therefore, when the government intervenes in the market, strategies that enhance the competitive advantage of an FTS are not
+
+286
+
+M. Tamannaei et al.
+
+Transportation Research Part B 153 (2021) 272–295
+
+effective to improve the market share and profitability of that FTS. Instead, Corollary 10 shows the role of the consumers’ loyalty in the sustainability dimensions, and the market share and profitability of the FTSs. Under the social sustainability policy, Corollary 10 indicates that one of the FTSs can improve its market share and profitability through adopting initiatives that enhance the consumers’ loyalty.
+Corollary 10. With government intervention:
+
+• Under the environmental sustainability policy, consumers’ loyalty is irrelevant to the equilibrium market shares and profits of the FTSs. • Under the social sustainability policy, enhancement of consumers’ loyalty improves the equilibrium values of demand, market share, and
+profit for only one of the two FTSs (i.e. FTS2 in part (a) of Proposition 3 and FTS1 in part (b) of Proposition 3). • According to Table 4 and Table 5, TFC* and TCS*are increasing and decreasing in βp, respectively. Therefore, the enhancement of the
+consumers’ loyalty simultaneously improves all the three dimensions of sustainability.
+
+Managerial insight 2 summarizes the analyses and responds to Question 2. Managerial insight 2. With government intervention, the enhancement of the consumers’ loyalty to their specific FTSs improves the three dimensions of sustainability, while the intensity of competition between the FTSs is irrelevant to these dimensions.
+
+7.4. An analysis on the market bases
+
+Subsection 5.2 implies that for a government with an environmental point of view, new market entrants may restrict the policy options of the government. In addition, Subsection 7.3 indicates that, under government intervention, the FTSs cannot improve their profits and transportation market shares by extending their market bases. Nevertheless, this subsection shows that the government can benefit from the new market entrants and market base extensions to exempt from subsidy payment, without any adverse effects on sustainability.
+The intermodal system (FTS2) can enhance its services through different solutions like the extension of transportation capacity, better fleet scheduling, the promotion of transloading facilities, etc. By applying such solutions, its market base A2 will be extended. A part of this extension is provided from consumers within the market base A1 that shift from FTS1 to FTS2; while, the other part is associated with new market entrants.
+We define parameter k (0 < k < 1) as the value of reduction in A1 due to a unit increase in A2, see Fig. 5. When services offered by FTS2 are enhanced, parameter k measures the ratio of new potential consumers attracted by FTS2 that are provided from the potential consumers of FTS1. The value of k can be estimated using a questionnaire. It should be distributed between all consumers in the nation that often get transportation services. If a consumer does not get services offered by FTS2, it should respond to these questions: Does it often get services offered by FTS1? Does it follow news about FTS2? If so, is it willing to get services offered by FTS2 if FTS2 enhances its services? The value of k can be estimated by calculating the ratio of consumers that responded "Yes" to all the three questions with respect to total consumers that responded "Yes" to the latter two questions.
+Proposition 5 investigates how the improvement of services offered by FTS2 can affect the equilibrium values of fuel taxes. Proposition 5. For both social and environmental sustainability policies of the government, the following results are obtained:
+
+∂x*a − ∂A2
+
+k
+
+∂x*a ∂A1
+
+>
+
+0
+
+∀k
+
+∈
+
+(0, 1)
+
+(]
+
+(]
+
+∂x*u − k ∂x*u ≥ 0 : ∀k ∈ 0, γp , ∂x*u − k ∂x*u < 0 : ∀k ∈ γp , 1
+
+∂A2 ∂A1
+
+βp ∂A2 ∂A1
+
+βp
+
+(43) (44)
+
+∂π*1 = ∂π*1 = ∂π*2 = ∂π*2 = 0 ⇒ ∂π*1 − k ∂π*1 = ∂π*2 − k ∂π*2 = 0 ∀k ∈ (0, 1)
+
+∂A1 ∂A2 ∂A1 ∂A2
+
+∂A2 ∂A1 ∂A2 ∂A1
+
+∂TFC* ∂TFC*
+
+∂TFC* ∂TFC*
+
+∂A1 = ∂A2 = 0 ⇒ ∂A2 − k ∂A1 = 0 ∀k ∈ (0, 1)
+
+Fig. 5. Interaction between the market bases of the FTSs. 287
+
+M. Tamannaei et al.
+
+Transportation Research Part B 153 (2021) 272–295
+
+∂TCS* ∂TCS*
+
+∂TCS* ∂TCS*
+
+=
+
+=0⇒
+
+−k
+
+= 0 ∀k ∈ (0, 1)
+
+∂A1
+
+∂A2
+
+∂A2
+
+∂A1
+
+(45)
+
+Proposition 5 suggests an indirectly induced government intervention. The government can support FTS2 for enhancing its services. This support results in an extension in its market base A2, and consequently a reduction in the rival market base A1. According to Proposition 5, the net effect of these changes may lead to an increase in the government’s revenue from high values of fuel taxes.(To
+
+achieve this positive effect, the increase in A2 must mainly be provided by new market entrants, not by a reduction in A1, i.e., k ∈ 0,
+
+]
+
+γp βp
+
+. An appropriate national advertisement may satisfy this requirement (a low value of k). National advertisement increases the
+
+population of all potential consumers that follow news about FTS2 and willingly get its services when improved. Hence, national advertisement increases the role of new market entrants and thus decreases the role of potential consumers that shift from FTS1 to FTS2, according to Fig. 5. Managerial insight 3 summarizes the analyses and can respond to Question 3.
+Managerial insight 3. Government support for the enhancement of services offered by the intermodal transportation system (FTS2) always leads to an increase in the fuel tax imposed on the rail mode (x*a). If the government announces such enhancement through national adver­ tisement, the fuel tax imposed on the road mode (x*u) will also increase. The adoption of these two government initiatives has no negative, nor positive, impacts on the FTSs’ profits, total fuel consumption, and total consumer surplus. These results are robust under both the environmental
+and social sustainability policies of the government.
+
+7.5. An analysis on the fuel consumption rates
+
+The effects of fuel consumption rates (i.e. ω1 and ω2) on the equilibrium values of TFC and TCS are assessed. The FTSs can improve
+
+their energy efficiency, through some solutions like the employment of modern fleets (De Borger and Mulalic, 2012), as mentioned in Section 1. However, based on the rebound effect phenomenon, such a reduction in ω1 and ω2 may even increase TFC*.3 Proposition 6
+
+addresses the rebound effects.
+
+Proposition 6. Without government intervention (xa = xu = 0, c1 = ϕ1,c2 = ϕ2):
+
+a)q*1 is decreasing in ω1 and increasing in ω2, while q*2 is decreasing in ω2 and increasing in ω1.
+
+b)
+
+In
+
+Table
+
+6,
+
+the
+
+conditions
+
+indicating
+
+the
+
+rebound
+
+effects
+
+of
+
+parameter
+
+ωi
+
+for
+
+environmental
+
+sustainability
+
+(i.e.
+
+∂TFC* ∂ωi
+
+≤
+
+0)
+
+and
+
+social
+
+sustainability
+
+(i.e.
+
+∂TCS* ∂ωi
+
+≥
+
+0)
+
+are
+
+addressed,
+
+i
+
+∈
+
+{1,
+
+2}.
+
+The rebound effect means that a decrease in unit fuel consumption leads to an increase in the total fuel consumption (TFC*), or a
+
+decrease in the social sustainability indicator (TCS*). Based on Proposition 6, in the case of "without government intervention", the
+
+energy efficiency improvement of FTSi increases the value of q*i , which may lead to an increase in total fuel consumption, see Eq. (19). Also, this improvement decreases the value of q*j (j ∕= i), which may lead to a decrease in total consumer surplus, see Eq. (21). Fig. 6 and
+
+Fig. 7 depict the schematic views of rebound effects on total fuel consumption and total consumer surplus, respectively.
+
+In contrast, government intervention eliminates the rebound effects in the transportation market. According to Table 4 and Table 5,
+
+if the government adopts environmental sustainability, the energy efficiency improvements reduce TFC*, while it has no effect on
+
+TCS*. Furthermore, if the government adopts social sustainability, such improvements increase TCS*, while they have no effect on
+
+TFC*. The effects of energy efficiency improvements of the FTSs are summarized in Managerial insight 4 and Table 7, and can respond
+
+to Question 4 and Question 5.
+
+Table 6 Conditions for the rebound effects1.
+The dimension of rebound effect Environmental sustainability
+(∂T∂FωCi * ≤ 0) Social sustainability (∂T∂CωSi * ≥ 0)
+
+Fuel⎧consumption rate of FTS⎫1 (ω1)
+
+⎨ Max⎩ω2
+
+,
+
+ξω2
+
++ θ
+
+M̃ 2, θω2
+
++ ξ
+
+Ã 1 ⎬ ⎭
+
+≤
+
+ω1
+
+≤
+
+θω2
+
+− ξ
+
+M̃ 1
+
+⎧
+
+⎫
+
+⎨ Max⎩ω2
+
+,
+
+ξω2
+
++ θ
+
+M̃ 2
+
+,
+
+2ξθω2 − Ã3 ξ2 + θ2
+
+⎬ ⎭
+
+≤
+
+ω1
+
+≤
+
+θω2 − M̃ 1 ξ
+
+1The new expressions are defined in the appendix section.
+
+Fuel⎧consumption rate of FT⎫S2 (ω2)
+
+⎧
+
+⎫
+
+⎨ Max⎩0,
+
+ξω1
+
++ θ
+
+M̃ 1
+
+,
+
+θω1
+
++ ξ
+
+Ã2
+
+⎬ ⎭
+
+≤
+
+ω2
+
+≤
+
+⎨ Min⎩ω1 ,
+
+θω1
+
+− ξ
+
+M̃ 2⎬ ⎭
+
+⎧
+
+⎫
+
+⎧
+
+⎨ Max⎩0,
+
+ξω1
+
++ θ
+
+M̃ 1
+
+,
+
+2ξθω1 − Ã4 ξ2 + θ2
+
+⎬ ⎭
+
+≤
+
+ω2
+
+≤
+
+⎨ Max⎩ω1 ,
+
+⎫ θω1 − M̃ 2⎬
+
+ξ⎭
+
+3 As in Agrawal and Bellos (2016), we focus on rebound effects whose rates are more than 100%, in which enhancing energy efficiency is totally harmful to fuel consumption. It almost makes sense in real-world freight transportation markets, especially in developing countries. For example, Wang and Lu (2014) showed that rebound effects in the freight transportation sector in China may even reach more than 80%.
+288
+
+M. Tamannaei et al.
+
+Transportation Research Part B 153 (2021) 272–295
+
+Fig. 6. A schematic view of rebound effects on total fuel consumption.
+
+Fig. 7. A schematic view of rebound effects on total consumer surplus.
+
+Table 7 The effects of energy efficiency improvement of the FTSs.
+
+Government Intervention
+
+Government policy
+
+Without
+
+—
+
+intervention
+
+With intervention
+
+Environmental Social
+
+Different possible situations
+
+for the rebound effect on
+
+TFC*
+
+TCS*
+
+✘
+
+✘
+
+✔
+
+✘
+
+✘
+
+✔
+
+✔
+
+✔
+
+✘
+
+✘
+
+✘
+
+✘
+
+TFC*
+↓ ↑ ↓ ↑ ↓ Constant
+
+TCS*
+↑ ↑ ↓ ↓ Constant ↑
+
+Managerial insight 4. If the government does not intervene in the market, then the energy efficiency improvement of the FTSs may lead to rebound effects on TFC* and TCS*. In contrast, if the government does intervene in the market, then the rebound effects on both TFC* and TCS* are effectively eliminated. In this case, the adoption of a policy among environmental and social sustainability, along with the energy efficiency improvement, leads to an improvement in the outcome of the adopted policy, without any side effect on the outcome of the other policy.
+Managerial insight 4 contributes to the literature on rebound effects in two main ways. First, there may exist rebound effects not only on fuel consumption, but also on the consumer surplus (as an indicator of social sustainability). Second, government intervention can effectively eliminate the rebound effects.
+289
+
+M. Tamannaei et al.
+
+Transportation Research Part B 153 (2021) 272–295
+
+8. A numerical example
+
+A numerical example is provided in this section. The Bushehr port is the location of an important branch of the Iranian customs.
+Hence, it is considered as the origin. Tehran, the capital of Iran, is considered as the destination. FTS1 uses the direct road to transport goods from the origin to the destination. FTS2 is an intermodal system and involves the road transportation mode from the Bushehr port to Shiraz, and the railway transportation mode from Shiraz to Tehran. The values of the main parameters are provided in Table 8.
+The values of the other parameters are calculated based on Table 8. They are provided in Table 9.
+Without government intervention, the equilibrium outcomes of the duopoly competition is presented in Table 10. Superscript “WI”
+in Table 10 denotes “without intervention”. To support FTS2, its profit without government intervention is considered equal to its economic expectation, i.e. M2 = πW2 I. In
+addition, the economic expectation of FTS1 is equal to α × 100% of its profit without government intervention, i.e. M1 = απW1 I, where 0 < α < 1. Table 11 depicts the equilibrium outcomes of an environmental sustainability policy for three scenarios of α. Superscript
+“ES” in Table 11 denotes “Environmental Sustainability”.
+The equilibrium outputs in Table 11 are consistent with the results presented in Subsection 5.2. Although stringent taxes are
+implemented on both FTSs in the three scenarios, the profit of FTS2 remains unchanged in them. Hence, stringent taxes on both the
+
+Table 8 The main parameters and their values in the numerical example.
+
+Parameter Explanation
+
+f
+
+The price of diesel fuel in Iran
+
+Value $0.1 per liter
+
+Reference (Prices, 2020)
+
+D1 D2 θa θu c1 and c2 A1 A2 βp and γp
+
+The road distance from Bushehr port (origin) to Tehran (destination) The road distance from Bushehr port to Shiraz plus the rail distance from Shiraz to Tehran Fuel usage in the rail mode
+Fuel usage in the road mode
+Transloading costs of FTS1 and FTS2
+Market base of FTS1
+Market base of FTS2
+Self-price and cross-price sensitivities of the demands
+
+1068 km 288 km+933 km
+7.16 L/103TK(liters per 1000 tonkilometers) 44.5 L/103TK (liters per 1000 tonkilometers) c1 = 0, c2 = 7.5 per ton1
+1700 tons (on a daily basis)
+1650 tons (on a daily basis)
+βp = 1.961, γp = 1.373 2
+
+(calculator, 2020b) (calculator, 2020a,calculator, 2020c) (de Miranda Pinto et al., 2018)
+(de Miranda Pinto et al., 2018)
+(Austin, 2015; ELARUM, 2020) An estimation from market experts An estimation from market experts (de Rus and Socorro, 2014)
+
+1According to Austin (2015), the typical transloading cost for intermodal rail-road transportation is about $150 per road container. The capacity of a
+
+typical
+
+container
+
+is
+
+about
+
+20
+
+tons
+
+(ELARUM,
+
+2020).
+
+Hence,
+
+the
+
+estimated
+
+value
+
+of
+
+c2
+
+is
+
+equal
+
+to
+
+150 20
+
+=
+
+7.5
+
+per
+
+ton.
+
+In
+
+contrast,
+
+FTS1
+
+does
+
+not
+
+incur
+
+transloading costs (Austin, 2015).
+
+2 In (de Rus and Socorro, 2014), the authors mentioned that there is a degree of product differentiation between unimodal and intermodal trans­
+
+portation modes, denoted by δ. They estimated that δ = 0.7 (Pg. 383). Moreover, in a duopoly market with a unimodal and an intermodal trans­
+
+portation modes, their results indicate that the demand is linear in the prices and the following relations hold between the sensitivities and parameter
+
+δ (Pg. 380): βp
+
+=
+
+1
+
+1 −
+
+δ2, γp
+
+δ
+
+= 1−
+
+δ2. Hence, the results presented in this work could be used to estimate the values of βp and γp.
+
+Table 9 The values of other parameters in the numerical example.
+
+Parameter Value
+
+d
+
+288 288 + 933
+
+=
+
+0.236
+
+g1 12.823
+
+g2 6.679
+
+ω1 47.526
+
+ω2 19.502
+
+ϕ1 4.753
+
+ϕ2 9.450
+
+Table 10 The equilibrium outcomes without government intervention.
+
+Output Value
+
+pW1 I $666.44
+
+pW2 I $658.73
+
+qW1 I 1298 tons
+
+qW2 I 1273 tons
+
+πW1 I $858′ 573
+
+πW2 I $826′ 693
+
+TCSWI $842′ 633
+
+TFCWI 86′498 Liters
+
+Table 11 The equilibrium outcomes in the environmental sustainability policy.
+
+α
+0.97 0.95 0.92
+
+xEa S
+0.86 1.44 2.32
+
+xEu S
+0.62 1.04 1.68
+
+XE1S
+29.62 49.62 80.02
+
+XE2S
+13.74 23.01 37.11
+
+pE1S
+686.05 699.30 719.44
+
+pE2S
+672.47 681.74 695.84
+
+qE1 S
+1278 1264 1245
+
+qE2S
+1273 1273 1273
+
+πE1S
+832′ 816 815′ 644 789′ 887
+
+πE2S
+826′ 693 826′ 693 826′ 693
+
+TCSES
+829′ 754 821′ 169 808′ 290
+
+TFCES
+85′ 566 84′ 937 83′ 981
+
+290
+
+M. Tamannaei et al.
+
+Table 12 The equilibrium outcomes in the social sustainability policy.
+
+α
+0.97 0.95 0.92
+
+xSa S
+0.43 0.72 1.16
+
+xSuS
+0.31 0.52 0.84
+
+XS1S
+14.83 24.83 40.01
+
+XS2S
+6.88 11.51 18.56
+
+pS1S
+676.26 682.88 692.94
+
+pS2S
+665.61 670.25 677.29
+
+qS1S
+1288 1281 1271
+
+qS2S
+1273 1273 1273
+
+Transportation Research Part B 153 (2021) 272–295
+
+πS1S
+845′ 626 836′ 957 823′ 868
+
+πS2S
+826′ 693 826′ 693 826′ 693
+
+TCSSS
+836′ 160 831′ 825 825′ 280
+
+TFCSS
+86′ 032 85′ 718 85′ 240
+
+Table 13 The equilibrium outcomes in three situations with respect to government intervention.
+
+υ
+
+xva
+
+xvu
+
+Xv1
+
+Xv2
+
+pv1
+
+pv2
+
+qv1
+
+qv2
+
+WI
+
+0
+
+0
+
+0
+
+0
+
+666.44
+
+658.73
+
+1298
+
+1273
+
+ES
+
+0.86
+
+0.62
+
+29.62
+
+13.74
+
+686.05
+
+672.47
+
+1278
+
+1273
+
+SS
+
+0.43
+
+0.31
+
+14.83
+
+6.88
+
+676.26
+
+665.61
+
+1288
+
+1273
+
+πv1
+858′ 573 832′ 816 845′ 626
+
+πv2
+826′ 693 826′ 693 826′ 693
+
+TCSv
+842′ 633 829′ 754 836′ 160
+
+TFCv
+86′ 498 85′ 566 86′ 032
+
+FTSs can partially balance adverse economic impacts of an environmental consideration. Moreover, it is interesting to see that
+
+although the rail mode pays higher values of taxes than the road mode, i.e. xEaS > xEuS, FTS2 pays less values of total taxes than FTS1. Hence, higher taxes on the green transportation mode may be consistent with a tax discrimination in favor of FTS2. The rationale
+
+behind this fact is that the lower fuel consumption rate of the rail mode, i.e. θa < θu, allows the government to implement higher fuel
+
+taxes on it, while the total fuel tax on FTS2 is still lower than total fuel tax on FTS1.
+
+The results in Table 12 show the interactions between the three dimensions of sustainability. The higher economic expectations of
+
+FTS1 are equivalent to higher values of consumer surplus and fuel consumption. Finally, Table 13 compares the three situations for α =
+
+0.97.
+
+According to Table 13, a social sustainability policy is equivalent to lower transportation prices, and lower taxes, compared to the
+
+environmental sustainability policy. Finally, Fig. 8 and Fig. 9 depict the schematic views of the government policies for α = 0.97.
+
+Table 12 depicts the equilibrium outcomes of a social sustainability policy for three values of α. Superscript "SS" in Table 12 denotes
+
+"Social Sustainability". Moreover, in each scenario, the value of F is considered as the average value of the total fuel consumptions in
+
+the
+
+earlier
+
+two
+
+situations,
+
+i.e.
+
+F
+
+=
+
+. TFCWI +TFCES
+2
+
+Fig. 8. The schematic view of environmental sustainability maximization. 291
+
+M. Tamannaei et al.
+
+Transportation Research Part B 153 (2021) 272–295
+
+Fig. 9. The schematic view of social sustainability maximization.
+9. Conclusions
+Transportation is essential for the sustainable development of countries. Governments adopt policies for improving different sustainability dimensions in transportation systems, usually by implementing taxes on these systems. Therefore, governments should extend their knowledge on the interactions between different sustainability dimensions, and how their interventions can affect each dimension. Accordingly, this article addresses interactions between three sustainability dimensions, within the context of competition in a duopoly freight transportation market. This article investigates the environmental, social, and economic dimensions of sustainability.
+With regard to the main theme of this article, competition between two freight transportation systems (FTSs), with and without government intervention, is discussed. These systems include the road and intermodal road-rail systems, i.e. FTS1 and FTS2, respec­ tively. The latter is regarded as an environmentally sustainable transportation mode. The government, as the Stackelberg leader, intervenes in the transportation market by implementing taxes xu and xa on the fuel used in road and rail freight transportation, respectively. These taxes are determined based on environmental, economic, and social concerns. The government with an envi­ ronmental sustainability policy seeks to maximize fuel savings, while the social policy is equivalent to consumer surplus maximization.
+Given a fixed level of the consumers’ loyalty to their specific transportation systems, the findings indicate that the environmental sustainability of freight transportation is in conflict with economic and social sustainability. Therefore, governments face the challenge of conflicting objectives when they intervene in freight transportation markets. To address this challenge, it is shown that enhancing consumers’ loyalty simultaneously improves all the three sustainability dimensions.
+The findings also indicate that government intervention significantly changes the results of competition between FTS1 and FTS2 in two main ways. First, without government intervention, the energy efficiency improvements of the FTSs may counterintuitively have adverse environmental and social effects, called the rebound effects. In contrast, government intervention effectively eliminates such rebound effects. Second, without government intervention, higher competition intensity between the FTSs reinforces their efforts to utilize their competitive advantages. Such efforts benefit their consumers, but have adverse environmental impacts. In contrast, with government intervention, the FTSs’ competitive advantages are balanced by government taxes, and competition intensity becomes irrelevant to the sustainability indicators.
+Along with the direct government intervention, this article suggests two indirectly induced interventions. Paying subsidies is a challenge of governments when intervening in transportation markets. As the first indirect intervention, government support for the service enhancement of the intermodal system (FTS2), followed by national advertisement of this system, may exempt the government from subsidy payment. It is shown that this indirect intervention does not have any adverse effects on the sustainability indicators. Second, decreasing economic expectations of all transportation systems, especially the road system, contributes to environmental sustainability. Since economic risks are positively associated with the economic expectations, the appropriate management and reduction of such risks by the government can greatly contribute to environmental sustainability.
+Some other issues in sustainable freight transportation deserve future research. The competitive market can be extended for more
+292
+
+M. Tamannaei et al.
+
+Transportation Research Part B 153 (2021) 272–295
+
+than two freight transportation systems. Also, the above-mentioned indirect interventions require further cost-benefit analyses to assess whether or not to implement them. Finally, the impacts of other government regulations, such as cap and trade systems, on the sustainability dimensions should be addressed in freight transportation.
+
+CRediT authorship contribution statement
+
+Mohammad Tamannaei: Conceptualization, Methodology, Supervision, Project administration, Writing – original draft, Writing – review & editing. Hamid Zarei: Conceptualization, Methodology, Software, Formal analysis, Investigation, Data curation, Writing – original draft, Writing – review & editing. Morteza Rasti-Barzoki: Investigation, Visualization, Supervision.
+
+Acknowledgments
+The authors wish to thank the two anonymous reviewers and the editors for their useful comments and suggestions that help greatly improve the early version of this article.
+
+Supplementary materials Supplementary material associated with this article can be found, in the online version, at doi:10.1016/j.trb.2021.09.002.
+
+Appendix: definitions of new expressions θ ––– βpγp ξ ≡ 2β2p − γ2p
+
+Â1 ≡ 2A1βp + A2γp
+
+Â2 ≡ 2A2βp + A1γp
+
+Ã1
+
+≡
+
+Â 1
+
++
+
+θc2 2f
+
+−
+
+ξc1
+
+Ã2
+
+≡
+
+Â 2
+
++
+
+θc1 2f
+
+−
+
+ξc2
+
+(
+
+)
+
+Ã3 ≡ ξ2 + θ2 c1 −
+
+2ξθc2 − f
+
+ξÂ1 + θÂ2
+
+(
+
+)
+
+Ã4 ≡ ξ2 + θ2 c2 −
+
+2ξθc1 − f
+
+ξÂ2 + θÂ1
+
+M̂ 1 ≡ √̅Mβ̅̅̅p̅1̅(4β2p −
+
+) γ2p −
+
+(
+
+2A1 βp
+
++
+
+) A2 γp
+
+=
+
+√̅Mβ̅̅̅p̅1̅(4β2p
+
+−
+
+) γ2p −
+
+Â 1
+
+M̂ 2 ≡ √̅Mβ̅̅̅p̅2̅(4β2p −
+
+) γ2p −
+
+(
+
+2A2 βp
+
++
+
+) A1 γp
+
+=
+
+√̅Mβ̅̅̅p̅2̅(4β2p
+
+−
+
+) γ2p −
+
+Â 2
+
+M̃ 1 ≡ M̂ 1 −
+
+θc2 + ξc1 f
+
+M̃ 2 ≡ M̂ 2 −
+
+θc1 + ξc2 f
+
+References
+Adler, N., 2001. Competition in a deregulated air transportation market. Eur. J. Oper. Res. 129, 337–345. Adler, N., Brudner, A., Proost, S., 2021. A review of transport market modeling using game-theoretic principles. Eur. J. Oper. Res. 291, 808–829. Agrawal, V.V., Bellos, I., 2016. The potential of servicizing as a green business model. Manag. Sci. 63, 1545–1562.
+293
+
+M. Tamannaei et al.
+
+Transportation Research Part B 153 (2021) 272–295
+
+Akhmat, G., Zaman, K., Shukui, T., Sajjad, F., 2014. Does energy consumption contribute to climate change? Evidence from major regions of the world. Renew. Sustain. Energy Rev. 36, 123–134.
+Anderson, E.J., Bao, Y., 2010. Price competition with integrated and decentralized supply chains. Eur. J. Oper. Res. 200, 227–234. Austin, D., 2015. Pricing freight transport to account for external costs. In: Congressional Budget Office. Washington, DC, pp. 1–44. Bask, A., Bask, A., Rajahonka, M., Rajahonka, M., 2017. The role of environmental sustainability in the freight transport mode choice: a systematic literature review
+with focus on the EU. Int. J. Phys. Distrib. Logist. Manag. 47, 560–602. Basu, C., 2017. Various factors that affect the required rate of return. https://bizfluent.com/info-12089451-effect-reinvestment-rate-assumption-npv-irr-calculations.
+html. Beheshtian, A., Donaghy, K.P., Gao, H.O., Safaie, S., Geddes, R., 2018. Impacts and implications of climatic extremes for resilience planning of transportation energy: a
+case study of New York city. J. Clean. Prod. 174, 1299–1313. Besanko, D., Cui, S., 2016. Railway restructuring and organizational choice: network quality and welfare impacts. J. Regul. Econ. 50, 164–206. Bhattacharya, A., Kumar, S.A., Tiwari, M., Talluri, S., 2014. An intermodal freight transport system for optimal supply chain logistics. Transp. Res. Part C: Emerg.
+Technol. 38, 73–84. Black, W.R., 2004. Sustainable Transport: Definitions and Responses, Integrating Sustainability into the Transportation Planning Process. Transportation Research
+Board, pp. 35–43. http://onlinepubs.trb.org/Onlinepubs/conf/CP37.pdf. calculator, D., 2020a. Distance from Bandar-e Bushehr to Shiraz. https://www.distancecalculator.net/from-bandar-e-bushehr-to-shiraz. calculator, D., 2020b. Distance from Bandar-e Bushehr to Tehran. https://www.distancecalculator.net/from-bandar-e-bushehr-to-tehran. calculator, D., 2020c. https://www.distancecalculator.net/from-shiraz-to-tehran. Chen, F., Shen, X., Wang, Z., Yang, Y., 2017a. An evaluation of the low-carbon effects of urban rail based on mode shifts. Sustainability 9, 401. Chen, L., Schonfeld, P., Miller-Hooks, E., 2016. Welfare maximization for bus transit systems with timed transfers and financial constraints. J. Adv. Transp. 50,
+421–433. Chen, X., Wang, X., 2015. Free or bundled: channel selection decisions under different power structures. Omega 53, 11–20. Chen, X., Zhu, X., Zhou, Q., Wong, Y.D., 2017b. Game-theoretic comparison approach for intercontinental container transportation: a case between China and Europe
+with the B&R initiative. J. Adv. Transp. 2017. Choi, S.C., 1991. Price competition in a channel structure with a common retailer. Mark. Sci. 10, 271–296. Cichenski, M., Jaehn, F., Pawlak, G., Pesch, E., Singh, G., Blazewicz, J., 2017. An integrated model for the transshipment yard scheduling problem. J. Sched. 20,
+57–65. Commission, E., 2020. Decision makers summary for developing and implementing a sustainable urban mobility plan. https://www.eltis.org/sites/default/files/
+sump_decision_makers_summary_interactive_high.pdf. Congress, U., 1991. Intermodal Surface transportation efficiency act. Public Law 102–240. https://www.congress.gov/bill/102nd-congress/house-bill/2950. Council, N.R., 2010. Technologies and Approaches to Reducing the Fuel Consumption of Medium-and Heavy-Duty Vehicles. National Academies Press. Crainic, T.G., Perboli, G., Rosano, M., 2018. Simulation of intermodal freight transportation systems: a taxonomy. Eur. J. Oper. Res. 270, 401–418. Dan, B., Xu, G., Liu, C., 2012. Pricing policies in a dual-channel supply chain with retail services. Int. J. Prod. Econ. 139, 312–320. De Borger, B., Mulalic, I., 2012. The determinants of fuel use in the trucking industry—volume, fleet characteristics and the rebound effect. Transp. Policy 24,
+284–295. de Miranda Pinto, J.T., Mistage, O., Bilotta, P., Helmers, E., 2018. Road-rail intermodal freight transport as a strategy for climate change mitigation. Environ. Dev. 25,
+100–110. de Rus, G., Socorro, M.P., 2014. Access pricing, infrastructure investment and intermodal competition. Transp. Res. Part E: Logist. Transp. Rev. 70, 374–387. Demir, E., Burgholzer, W., Hruˇsovský, M., Arıkan, E., Jammernegg, W., Van Woensel, T., 2016. A green intermodal service network design problem with travel time
+uncertainty. Transp. Res. Part B: Methodol. 93, 789–807. Demir, E., Huang, Y., Scholts, S., Van Woensel, T., 2015. A selected review on the negative externalities of the freight transportation: modeling and pricing. Transp.
+Res. Part E: Logist. Transp. Rev. 77, 95–114. Dimitriou, D., Sartzetaki, M., 2017. Competitor analysis to quantify the benefits and for different use of transport infrastructure. Int. J. Bus., Hum. Soc. Sci. 11, 1–4. Duan, X., Heragu, S., 2015. Carbon emission tax policy in an intermodal transportation network, IIE annual conference. In: Proceedings. Institute of Industrial and
+Systems Engineers (IISE), pp. 566–574. Edirisinghe, N.C.P., Bichescu, B., Shi, X., 2011. Equilibrium analysis of supply chain structures under power imbalance. Eur. J. Oper. Res. 214, 568–578. ELARUM, 2020. Container dimensions. https://elarum.com/info/references/container-dimensions/. Fahimnia, B., Sarkis, J., Choudhary, A., Eshragh, A., 2015. Tactical supply chain planning under a carbon tax policy scheme: a case study. Int. J. Prod. Econ. 164,
+206–215. Fan, F., Lei, Y., 2017. Responsive relationship between energy-related carbon dioxide emissions from the transportation sector and economic growth in Beijing—based
+on decoupling theory. Int. J. Sustain. Transp. 11, 764–775. Feng, F., Liu, C., Liu, H., Ji, Z., 2016. Research on price of railway freight based on low-carbon economy. Math. Probl. Eng. 2016, 1–7. Ghiani, G., Laporte, G., Musmanno, R., 2013. Introduction to Logistics Systems Management. John Wiley & Sons. Guo, Y., Peeta, S., Mannering, F., 2016. Rail-truck multimodal freight collaboration: a statistical analysis of freight-shipper perspectives. Transp. Plann. Technol. 39,
+484–506. Guoquan, L., Tamura, K., Masai, M., Okuda, D., 2014. Fundamental analyses for constructing road-rail intermodal freight transport system. J. Transp. Syst. Eng. Inf.
+Technol. 14, 1–7. Hafezalkotob, A., 2017. Competition, cooperation, and coopetition of green supply chains under regulations on energy saving levels. Transp. Res. Part E: Logist.
+Transp. Rev. 97, 228–250. Hafezalkotob, A., 2018. Direct and indirect intervention schemas of government in the competition between green and non-green supply chains. J. Clean. Prod. 170,
+753–772. Huang, Y., Wang, K., Zhang, T., Pang, C., 2016. Green supply chain coordination with greenhouse gases emissions management: a game-theoretic approach. J. Clean.
+Prod. 112, 2004-2014. Hubbard, T.N., 2001. Contractual form and market thickness in trucking. RAND J. Econ. 32 (2), 369–386. Jeon, C.M., Amekudzi, A.A., Guensler, R.L., 2010. Evaluating plan alternatives for transportation system sustainability: Atlanta metropolitan region. Int. J. Sustain.
+Transp. 4, 227–247. Jeuland, A.P., Shugan, S.M., 1983. Managing channel profits. Mark. Sci. 2, 239–272. Jiang, C., Li, H., Hua, G., Ru, Y., 2015. Multimodal transportation government subsidies strategy based stackelberg game and DEA. In: Fifth International Conference
+on Transportation Engineering. ASCE library, pp. 274–279. Kanafani, A., 1983. Transportation demand analysis. In: Transportation Research Board. https://trid.trb.org/view/279849. Karl, T., 2020. Analysis of the Chinese Truck Market and Assessment of Future Power Technologies. GIZ China, pp. 1–28. http://www.sustainabletransport.org/wp-
+content/uploads/2020/07/20200713_Chinese_Truck_Studie.pdf. Karray, S., Sigu´e, S.P., 2015. A game-theoretic model for co-promotions: choosing a complementary versus an independent product ally. Omega 54, 84–100. Kim, E., Hewings, G.J., Amir, H., 2017. Economic evaluation of transportation projects: an application of financial computable general equilibrium model. Res.
+Transp. Econ. 61, 44–55. Knippertz, P., Evans, M.J., Field, P.R., Fink, A.H., Liousse, C., Marsham, J.H., 2015. The possible role of local air pollution in climate change in West Africa. Nat. Clim.
+Change 5, 815–822. Kundu, T., Sheu, J.-B., 2019. Analyzing the effect of government subsidy on shippers’ mode switching behavior in the Belt and Road strategic context. Transp. Res.
+Part E: Logist. Transp. Rev. 129, 175–202.
+
+294
+
+M. Tamannaei et al.
+
+Transportation Research Part B 153 (2021) 272–295
+
+Kuo, T.C., Hong, I.-H., Lin, S.C., 2016. Do carbon taxes work? Analysis of government policies and enterprise strategies in equilibrium. J. Clean. Prod. 139, 337–346. Kurata, H., Yao, D.-Q., Liu, J.J., 2007. Pricing policies under direct vs. indirect channel competition and national vs. store brand competition. Eur. J. Oper. Res. 180,
+262–281. Lam, A., Mercure, J.-F., 2021. Which policy mixes are best for decarbonising passenger cars? Simulating interactions among taxes, subsidies and regulations for the
+United Kingdom, the United States, Japan, China, and India. Energy Res. Soc. Sci. 75, 101951. Larranaga, A.M., Arellana, J., Senna, L.A., 2017. Encouraging intermodality: a stated preference analysis of freight mode choice in Rio Grande do Sul. Transp. Res.
+Part A: Policy Pract. 102, 202–211. Li, B., Zhu, M., Jiang, Y., Li, Z., 2016. Pricing policies of a competitive dual-channel green supply chain. J. Clean. Prod. 112, 2029–2042. Madani, S.R., Rasti-Barzoki, M., 2017. Sustainable supply chain management with pricing, greening and governmental tariffs determining strategies: a game-theoretic
+approach. Comput. Ind. Eng. 105, 287–298. Mancuso, P., 2014. An analysis of the competition that impinges on the Milan–Rome intercity passenger transport link. Transp. Policy 32, 42–52. Morlok, E.K., 1998. Policy Options for Intermodal Freight Transportation: Special Report 252, Transportation Research Board. DC: National Academies Press,
+Washington, pp. 1–326. http://www.trb.org/publications/sr/sr252.pdf. Mostert, M., Caris, A., Limbourg, S., 2017. Road and intermodal transport performance: the impact of operational costs and air pollution external costs. Res. Transp.
+Bus. Manag. 23, 75–85. Pan, K., Lai, K.K., Leung, S.C.H., Xiao, D., 2010. Revenue-sharing versus wholesale price mechanisms under different channel power structures. Eur. J. Oper. Res. 203,
+532–538. Parsa, M., Nookabadi, A.S., Atan, Z., 2020. A joint economic lot-size model for sustainable industries of recycled content products. Int. J. Prod. Res. 58, 7439–7470. Prices, G.P., 2020. Diesel prices, liter, 26-Oct-2020. https://www.globalpetrolprices.com/diesel_prices/. Programme, U.N.E., 2020. The European union automotive fuel economy policy. https://www.fiafoundation.org/transport/gfei/autotool/case_studies/europe/cs_eu_
+0.asp. Ramani, T.L., Zietsman, J., Gudmundsson, H., Hall, R.P., Marsden, G., 2011. Framework for sustainability assessment by transportation agencies. Transp. Res. Rec.
+2242, 9–18. Rasti-Barzoki, M., Moon, I., 2020. A game theoretic approach for car pricing and its energy efficiency level versus governmental sustainability goals by considering
+rebound effect: a case study of South Korea. Appl. Energy 271, 115196. Reis, V., Meier, J.F., Pace, G., Palacin, R., 2013. Rail and multi-modal transport. Res. Transp. Econ. 41, 17–30. Saberi, S., 2018. Sustainable, multiperiod supply chain network model with freight carrier through reduction in pollution stock. Transp. Res. Part E: Logist. Transp.
+Rev. 118, 421–444. Saeedi, H., Wiegmans, B., Behdani, B., Zuidwijk, R., 2017. Analyzing competition in intermodal freight transport networks: the market implication of business
+consolidation strategies. Res. Transp. Bus. Manag. 23, 12–20. Santos, B.F., Limbourg, S., Carreira, J.S., 2015. The impact of transport policies on railroad intermodal freight competitiveness–the case of Belgium. Transp. Res. Part
+D: Transp. Environ. 34, 230–244. Santos, G., Behrendt, H., Maconi, L., Shirvani, T., Teytelboym, A., 2010. Part I: externalities and economic policies in road transport. Res. Transp. Econ. 28, 2–45. Shah, N., Brueckner, J.K., 2012. Price and frequency competition in freight transportation. Transp. Res. Part A: Policy Pract. 46, 938–953. SteadieSeifi, M., Dellaert, N.P., Nuijten, W., Van Woensel, T., Raoufi, R., 2014. Multimodal freight transportation planning: a literature review. Eur. J. Oper. Res. 233,
+1–15. Swarts, S., King, D., Simpson, Z., Havenga, J., Goedhals-Gerber, L., 2012. Calculation of freight externality costs for South Africa. J. Transp. Supply Chain Manag. 6,
+207–222. Szeto, W., Jiang, Y., Wang, D., Sumalee, A., 2015. A sustainable road network design problem with land use transportation interaction over time. Netw. Spatial Econ.
+15, 791–822. Tamannaei, M., Irandoost, I., 2019. Carpooling problem: a new mathematical model, branch-and-bound, and heuristic beam search algorithm. J. Intell. Transp. Syst.
+23, 203–215. Tamannaei, M., Zarei, H., Aminzadegan, S., 2021. A game-theoretic approach to the freight transportation pricing problem in the presence of intermodal service
+providers in a competitive market. Netw. Spatial Econ. 21, 123–173. Tavassoli, K., Tamannaei, M., 2020. Hub network design for integrated bike-and-ride services: a competitive approach to reducing automobile dependence. J. Clean.
+Prod. 248, 119247. Tawfik, C., Limbourg, S., 2018. Pricing problems in intermodal freight transport: research overview and prospects. Sustainability 10, 3341. Tawfik, C., Limbourg, S., 2019. A bilevel model for network design and pricing based on a level-of-service assessment. Transp. Sci. 53, 1609–1626. Tolliver, D., Lu, P., Benson, D., 2013. Comparing rail fuel efficiency with truck and waterway. Transp. Res. Part D: Transp. Environ. 24, 69–75. Tscharaktschiew, S., 2020. Why are highway speed limits really justified? An equilibrium speed choice analysis. Transp. Res. Part B: Methodol. 138, 317–351. van Essen, H., Schroten, A., Otten, M., Sutter, D., Schreyer, C., Zandonella, R., Maibach, M., Doll, C., 2011. External costs of transport in Europe. https://uic.org/IMG/
+pdf/external_costs_of_transport_in_europe-update_study_for_2008-2-2.pdf. Wang, H., Wang, X., Zhang, X., 2017. Dynamic resource allocation for intermodal freight transportation with network effects: approximations and algorithms. Transp.
+Res. Part B: Methodol. 99, 83–112. Wang, M., Liu, K., Choi, T.-M., Yue, X., 2015. Effects of carbon emission taxes on transportation mode selections and social welfare. IEEE Trans. Syst., Man, Cybern.:
+Syst. 45, 1413–1423. Wang, Z., Lu, M., 2014. An empirical study of direct rebound effect for road freight transport in China. Appl. Energy 133, 274–281. Wei, J., Zhao, J., Li, Y., 2013. Pricing decisions for complementary products with firms’ different market powers. Eur. J. Oper. Res. 224, 507–519. Wesselink, B., Harmsen, R., Eichhammer, W., 2010. Energy savings 2020: how to triple the impact of energy saving policies in Europe, pp. 1-8. http://roadmap2050.
+eu/attachments/files/2EnergySavings2020-ExecutiveSummary.pdf. Xiao, P., Xiao, R., Liang, Y., Chen, X., Lu, W., 2020. The effects of a government’s subsidy program: accessibility beyond affordability. Manag. Sci. 66, 3211–3233. Xiao, T., Yang, D., 2008. Price and service competition of supply chains with risk-averse retailers under demand uncertainty. Int. J. Prod. Econ. 114, 187–200. Xie, G., 2015. Modeling decision processes of a green supply chain with regulation on energy saving level. Comput. Oper. Res. 54, 266–273. Zhang, Q., Wang, W., Peng, Y., Zhang, J., Guo, Z., 2018. A game-theoretical model of port competition on intermodal network and pricing strategy. Transp. Res. Part
+E: Logist. Transp. Rev. 114, 19–39. Zhao, Q., Jin, J., Deng, X., Wang, D., 2017. Considering environmental implications of distribution channel choices: a comparative study based on game theory.
+J. Clean. Prod. 167, 1155–1164. Zhu, W., Nowak, M.P., Erikstad, S.O., 2016. Emission allocation issues in repositioning transportation. Int. J. Sustain. Transp. 10, 365–375.
+
+295
+

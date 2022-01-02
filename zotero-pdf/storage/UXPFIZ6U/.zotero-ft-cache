@@ -1,0 +1,2504 @@
+Scheduling Policies for Federated Learning in Wireless Networks
+Howard H. Yang, Member, IEEE, Zuozhu Liu, Student Member, IEEE, Tony Q. S. Quek, Fellow, IEEE, and H. Vincent Poor, Fellow, IEEE
+
+arXiv:1908.06287v2 [cs.IT] 9 Oct 2019
+
+Abstract—Motivated by the increasing computational capacity of wireless user equipments (UEs), e.g., smart phones, tablets, or vehicles, as well as the increasing concerns about sharing private data, a new machine learning model has emerged, namely federated learning (FL), that allows a decoupling of data acquisition and computation at the central unit. Unlike centralized learning taking place in a data center, FL usually operates in a wireless edge network where the communication medium is resource-constrained and unreliable. Due to limited bandwidth, only a portion of UEs can be scheduled for updates at each iteration. Due to the shared nature of the wireless medium, transmissions are subjected to interference and are not guaranteed. The performance of FL system in such a setting is not well understood. In this paper, an analytical model is developed to characterize the performance of FL in wireless networks. Particularly, tractable expressions are derived for the convergence rate of FL in a wireless setting, accounting for effects from both scheduling schemes and inter-cell interference. Using the developed analysis, the effectiveness of three different scheduling policies, i.e., random scheduling (RS), round robin (RR), and proportional fair (PF), are compared in terms of FL convergence rate. It is shown that running FL with PF outperforms RS and RR if the network is operating under a high signal-to-interference-plus-noise ratio (SINR) threshold, while RR is more preferable when the SINR threshold is low. Moreover, the FL convergence rate decreases rapidly as the SINR threshold increases, thus conﬁrming the importance of compression and quantization of the update parameters. The analysis also reveals a trade-off between the number of scheduled UEs and subchannel bandwidth under a ﬁxed amount of available spectrum.
+Index Terms—Federated learning, scheduling policies, parallel and distributed algorithms, stochastic geometry, convergence analysis.
+I. INTRODUCTION
+Next-generation computing networks will encounter a paradigm shift from a conventional cloud computing setting, which aggregates computational resources in a data center, to edge computing systems which largely deploy computational power to the network edges to meet the needs of applications that demand very high bandwidth and low latency, as well as supporting resource-constrained nodes reachable only over unreliable network connections [1]–[4]. Along with the burgeoning development of machine learning, it is expected
+H. H. Yang and T. Q. S. Quek are with the Information System Technology and Design Pillar, Singapore University of Technology and Design (e-mail: {howard yang, tonyquek}@sutd.edu.sg).
+Z. Liu is with the Department of Statistics and Applied Probability, National University of Singapore (e-mail: staliuz@nus.edu.sg).
+H. V. Poor is with the Department of Electrical Engineering, Princeton University, Princeton, NJ 08544 USA (e-mail: poor@princeton.edu).
+
+that by leveraging computing capability in the edge nodes, usually access points (APs), future networks will be able to utilize local data to conduct intelligent inference and control on many activities, e.g., learning activities of mobile phone users, predicting health events from wearable devices, or detecting burglaries within smart homes [5], [6]. Due to the sheer volume of data generated, as well as the growing capability of computational power and the increasing concerns about sharing private data at end-user devices, it becomes more attractive to perform learning directly on user equipments (UEs) as opposed to sending raw data to an AP. To this end, a new machine learning model has emerged, namely federated learning (FL), that allows decoupling of data acquisition and computation at the central unit [7]–[9]. Speciﬁcally, as illustrated by Fig. 1, an FL system optimizes a global model by repeating the following processes: i) the UEs perform local computing with their own data to minimize a predeﬁned empirical risk function and update the trained weights to the AP, ii) the AP collects the updates from UEs and consults the FL unit to produce an improved global model, and iii) output from the FL model is redistributed to the UEs and the UEs conduct further local training by using the global model as a reference. In this fashion, the global unit, i.e., the AP, is able to train a statistical model from the data stored on a swarm of end devices, i.e., the UEs, without sacriﬁcing their privacy. As such, the FL touts the trial as having smarter models, lower latency, and less power consumption, all while ensuring privacy. These properties identify the FL as one of the most promising technologies of future intelligent networks.
+Nonetheless, to make FL possible, one needs to tackle new challenges that require a fundamental departure from the standard methods designed for distributed optimization [7]. In particular, different from traditional machine learning systems, where an algorithm runs on a large data set partitioned homogeneously across multiple servers in the cloud, FL is usually trained from a large non-i.i.d., and often unbalanced, data set generated by distinct distributions across different UEs. Just as crucial is what could happen at the parameter update stage: While an iterative algorithm running on FL requires very low latency and high throughput connection between computing units, the AP generally needs to link a vast number of UEs through a resource-constrained spectrum and thus can allow only a limited number of UEs to send their trained weights via unreliable channels for global aggregation. These challenges make issues such as stragglers and fault tolerance for FL signiﬁcantly more important than for the conventional training in data centers. To deliver a successful deployment of FL,
+
+2
+
+D1
+
+UE1
+
+Update Transmission: Distribute Aggregation:
+
+are generally limited, one needs to appropriately schedule the UEs for channel access upon each global update. To this end, for the successful delivery of FL in large-scale wireless networks, a complete understanding of its performance when operating under different scheduling schemes with unreliable communication links becomes essential.
+
+D2
+
+UE2
+
+...
+
+AP
+
+DK
+
+UEK
+
+(A)
+
+(C)
+
+(B)
+
+Fig. 1. An illustration of the federated learning process: (A) each UE computes an individual update based on its locally stored data, (B) the AP aggregates the updates received from UEs to build a new global model, (C) the new model is sent back to the UEs, and the process is repeated.
+
+network operators need to adopt new tools and a new way of thinking: model development and training with no direct access to the raw data, with communication cost as a limiting factor [10], [11].
+In response, considerable research has been carried out, which can be mainly categorized into two directions: algorithmic and communication. From an algorithmic perspective, the idea is to reduce the overhead in the update uploading phase to make the model training communication efﬁcient, where typical methods range from reducing the communication bandwidth by only updating the UEs with signiﬁcant training improvement [12], compressing the gradient vectors via quantization [13], or adopting a momentum method in the sparse update to accelerate the training process [14]. Recognizing that the unique properties of the wireless channel are not fully explored, another series of studies have followed up from the communication perspective. Particularly, when the amount of training time is limited, solutions are taken by adapting the number of locally computing steps to the variance of the global gradient [11], [15], [16], or scheduling the maximum number of UEs in a given time frame [10]. When spectral resources become the communication bottleneck, there are new methods exploiting the compute-over-air mechanism and arrive at a jointly decode-and-average scheme at the edge computing unit [17], [18]. Moreover, if perfect channel state information (CSI) is not available at the receiver, the trade-off between delay and number of users selected for parameter updating has also been investigated [19]. Among the prior work, the setup of communication is assumed in the single-cell scenario where received signals are affected only by the additive noise and thus can be correctly decoded upon each global aggregation. However, to fully realize the potential of federated learning, it is necessary to scale up the deployment across a large distributed network. In this context, due to the shared nature of the wireless medium, communications are subjected to inter-cell interference and can encounter failure. Additionally, since the spectral resources
+
+A. Approach and Summary of Contributions
+In this paper, we develop an analytical framework to study the impact of different scheduling policies on the performance of FL in large-scale wireless networks. Speciﬁcally, we model the AP deployment and UE locations as independent Poisson point processes (PPPs), where every UE possesses a private data set and each AP needs to collaboratively learn a statistical model with its associated UEs through FL. Recognizing the potential inefﬁciency of the conventional FL training approach [16], we leverage methods from distributed coordinate descent [20] and propose an algorithm that decouples the global averaging at the AP and local computing at each UE, whereas the partial solutions from UEs constitutes a proximal step toward the global optimal that implicitly accelarates the convergence. By leveraging tools from optimization theory and stochastic geometry [21]–[23], we derive tractable expressions for the FL convergence rate in a general setting that accounts for the employed scheduling policy and inter-cell interference that affects the data transmission phases. Our main contributions are summarized below.
+• We propose an algorithm to train an FL model in the context of wireless networks. The algorithm is able to decompose a global statistical model into a number of local subproblems that can be efﬁciently solved using only the data set residing on each UE, and the solution of each local problem constitutes a proximal step toward the global optimum, which has the potential to accelerate the convergence rate. Moreover, the learning rate of each UE is set to be adjustable to changes in the communication environment.
+• We develop a formal framework to analyze the convergence performance of FL algorithms run on wireless networks. Our analysis provides a tractable expression of the convergence rate, which takes into account the key features of a wireless communication system, including the transmission scheduling policy, small-scale fading, large-scale path loss, and inter-cell interference.
+• We present the convergence rate of FL under three practical scheduling policies, i.e., random scheduling (RS), round robin (RR), and proportional fair (PF). We also analyze the convergence rate of FL in three special cases where i) only one UE can be scheduled upon each global aggregation, ii) the AP collects more updates by allowing multiple communications before each global aggregation, and iii) all UEs send out the trained weights without scheduling in every communication round.
+• Through our analysis, we show that under high SINR threshold, running FL with PF outperforms RS and RR in terms of convergence rate, while RR is preferable when the SINR threshold is low. Moreover, for networks operating under very low SINR thresholds, sending
+
+3
+
+TABLE I NOTATION SUMMARY
+
+TABLE II LOSS FUNCTIONS FOR POPULAR MACHINE LEARNING MODELS
+
+Notation Φa; λ
+K; N; G
+Put; α γk,t; θ
+ρ˜k,t; ρ¯k,t
+Dk; nk ℓi(·); r(·) ℓ∗i (·); r∗(·)
+µ; ζ; κ
+P (w); w
+D(a); a ηt; β
+Skz,t; Ukz
+
+Deﬁnition
+PPP modeling the location of APs; the AP spatial deployment density
+Number of associated UEs per AP; number of subchannels; UE number over subchannel number ratio, i.e., G = K/N
+UE transmit power; path loss exponent
+SINR received from UE k at communication round t; the SINR decoding threshold
+Instantaneous SNR of UE k at communication round t; time average SNR of UE k till communication round t
+Data set of UE k; size of the data set Dk Loss function on data point xi; regularization function Conjugate function of ℓi(·); conjugate function of r∗(·) Smoothness of the loss function ℓi(·); convexity of the regularizer r(·); partition difﬁculty of the data set
+The objective function; optimization vector of the primal problem
+The dual form of the objective function; the dual variables
+Local learning rate; error level of the local solution
+Indicator of the selection state of UE k at communication round t, which takes value 1 if the UE is selected and 0 otherwise; parameter update success probability
+
+trained weights without scheduling can achieve better FL convergence rate than any scheduling methods employed. The FL convergence rate is shown to decrease rapidly as the SINR threshold increases, thus conﬁrming the importance of compression and quantization of the update parameters. • Our analysis also reveals that under a ﬁxed amount of available spectrum, there exists a trade-off between the number of scheduled UEs and subchannel bandwidth in the optimization of FL convergence rate, which allows further design options.
+The remainder of this paper is organized as follows. We introduce the system model in Section II. In Section III, we detail the local computing and parameter update process to run FL in wireless networks. In Section IV, we analyze the convergence rate of federated learning under various scheduling policies. We show the numerical results in Section V to compare the effectiveness of different scheduling methods and obtain design insights. We conclude the paper in Section VI.
+
+II. SYSTEM MODEL
+In this section, we introduce the network topology and propagation model, the generic procedure of FL, and the scheduling policies. The main notations used throughout the paper are summarized in Table I.
+
+Model Smooth SVM Linear regression Logistic regression
+K-means
+Neural Network
+
+Loss function ℓi(xTi w)
+
+1 2
+
+max{0,
+
+1
+
+−
+
+yiwT
+
+xi }
+
+1 2
+
+yi − wT xi
+
+2
+
+log 1 + exp(−yiwT xi)
+
+1 2
+
+minj ∈{1,2,...,K ′ }
+
+xi − wj
+
+2, where K′ is
+
+the number of clusters
+
+1 2
+
+yi −
+
+M m=1
+
+vm
+
+φ(wm T xi)
+
+,
+
+where
+
+φ(·)
+
+is
+
+the activation function, vm the weights connect-
+
+ing the neurons, and M the number of neurons
+
+its Voronoi cell1. In this network, a ﬁxed amount of spectrum is equally divided into N radio access channels, where N < K. We consider each AP is equipped with a single antenna and a computing processor. For a generic UE k, we consider it is equipped with a single antenna and has a local data set Dk = {xi ∈ Rd, yi ∈ R}ni=k1 with nk = |Dk| sample points, where | · | denotes the cardinality of a set. Each UE also has the capability of performing local training.
+In this network, all the UEs transmit with a constant power Put2. We adopt a block-fading propagation model, where the channels between any pair of antennas are assumed independent and identically distributed (i.i.d.) and quasi-static, i.e., the channel is constant during one transmission block and varies independently from block to block. We consider all propagation channels are narrow-band and affected by two attenuation components, namely the small-scale Rayleigh fading with unit mean power, and the large-scale path loss that follows a power law. Moreover, in consideration of spectral efﬁciency, we assume the whole spectrum is reused in every cell.
+
+B. Federated Learning
+
+At each AP, the goal is to learn a statistical model over data that reside on the K associated UEs, i.e., the AP needs to ﬁt a vector w ∈ Rd so as to minimize a particular loss function by using the whole data set from all the UEs under its service.
+Formally, such task can be expressed as
+
+min
+w∈Rd
+
+P (w)
+
+=
+
+1 n
+
+n
+
+ℓi(xTi w) + ξr(w)
+
+i=1
+
+(1)
+
+where n =
+
+K i=1
+
+ni
+
+is
+
+the
+
+size
+
+of
+
+the
+
+whole
+
+data
+
+set,
+
+ξ is the regularizing parameter and r(w) a deterministic
+
+penalty function. Common choices for r(w) include the L-
+2 penalty w 22, the L-1 penalty w 1, or a family of folded concave functions [25]. The function ℓi(·) represents the loss
+
+function associated with data point xi. Several examples of
+
+loss functions used in popular machine learning models are
+
+summarized in Table II.
+
+A. Network Structure and Propagation Channel
+Let us consider a wireless network that consists of APs and UEs, as depicted in Fig. 1. The locations of APs follow a homogeneous PPP Φa with spatial density λ. We assume each AP has K associated UEs uniformly distributed within
+
+1 This is equivalent to the maximum average power association rule, and we ﬁx the total number of UEs in each cell to simplify the notational complexity. Note that relaxing this assumption does not change the conclusions drawn from this paper.
+2We unify the transmit power for notational simplicity. Nonetheless, note that the analysis of this paper can be extended to account for power control in a straightforward way [24].
+
+4
+
+If the data set D = ∪Kk=1Dk is completely available at the AP, problem (1) can be easily solved via a number of machine learning algorithms. However, such a data set is generally unavailable in a real-world setting because i) the amount of data at each UE can be large and the data uploading task may be constrained by energy and bandwidth limitations, and more importantly, ii) the data from to each UE may contain highly sensitive information, e.g., medical records, words typed in messager APPs, or web browsing history, and users are unwilling to share it. As such, the FL algorithm has emerged, where the data collection process is decoupled from the global model training. The general procedure of FL is summarized in Algorithm 1. Particularly, each UE downloads a global model, wt, from the AP to conduct stochastic gradient descent (SGD) per equation (3), aiming to minimize the objective function P (w) by only using information from the globally shared vector wt and data set Dk (note that this data set is private). The AP periodically collects all the trained parameters from UEs to produce a global average and then redistributes the improved model back to the UEs. After a sufﬁcient amount of training and update exchanges, usually termed communication rounds, between the AP and its associated UEs, the objective function (1) is able to converge to the global optimal. When all the updates can be correctly received by the AP in every communication round, the convergence property of FL has been quantitatively demonstrated [7]. However, as the FL algorithm is generally run in a wireless setting where updates are sent through shared spectrum, which is unreliable due to random fading and intercell interference, updates from some UEs can be lost during the data transmission phase. Moreover, the wireless medium is usually resource-constrained, and the AP thus needs to select a subgroup of UEs for parameter updates in each communication round.
+Apart from the scheduling issue, the generic training approach per Algorithm 1 suffers potential setback of slow convergence [26], especially when the loss function or regularizer has a complicated form. Furthermore, the duration of local training in Algorithm 1 needs to be carefully designed so as to ensure the local solutions do not diverge from the global model [16]. As a result, the local training period needs to be small and that may incur a large number of communication rounds which is not desirable. In that respect, we propose an algorithm, which will be elaborated in Section III, that presents a more suitable alternative to train FL in a wireless setting.
+C. Scheduling Policies
+In many real-world systems, communicating data between machines is several orders of magnitude slower than reading data from main memory and performing local computing [27]. Hence, sequentially updating the trained parameters from all UEs before global aggregation as proposed in [10] can lead to large overhead in the communication time and is not desirable. Instead, the AP shall only select a subgroup of UEs and update their parameters simultaneously so as to keep the communication time within an acceptable range. To this end, the scheduling policy plays a crucial role in assigning the
+
+Algorithm 1 Generic Federated Learning Algorithm
+1: Parameters: τ = number of local steps per communication round, η = step size for stochastic gradient descent.
+
+2: Initialize: w0 ∈ Rd
+
+3: for t = 0, 1, 2, ..., T − 1 do
+
+4: for each UE k ∈ {1, 2, ..., K} in parallel do
+
+5:
+
+Initialize wkt = wt
+
+6:
+
+for s = 1 to τ do
+
+7:
+
+Sample i ∈ Dk uniformly at random, and update
+
+the local parameter wkt as follows
+
+wkt = wkt −η(∇ℓi(wkt ) + ∇r(wt)) (3)
+
+8:
+
+end for
+
+9:
+
+Send parameter wkt to the AP
+
+10: end for
+
+11:
+
+The AP collects all the parameters
+
+updates
+
+wt+1
+
+=
+
+1 n
+
+K k=1
+
+nk wkt
+
+{wkt }Kk=1,
+
+and
+
+12: end for
+
+13: Output: wT
+
+resource-limited radio channels to the appropriate UEs. In the following, we denote by G = K/N the ratio of the number of UEs to the number of subchannels 3 and consider three practical policies as our scheduling criteria [28], [29]:
+(a) Random Scheduling (RS): In each communication round, the AP uniformly selects the N associated UEs at random for parameter update, each selected UE is assigned a dedicated subchannel to transmit the trained parameter.
+(b) Round Robin (RR): The AP arranges all the UEs into G groups and consecutively assigns each group to access the radio channels and update their parameters per communication round.
+(c) Proportional Fair (PF): During each communication round, the AP selects N out of the K associated UEs according to the following policy:
+
+m∗ = arg max
+
+ρ˜m1,t , ..., ρ˜mN ,t
+
+(2)
+
+m⊂{1,2,...,K} ρ¯m1,t
+
+ρ¯mN ,t
+
+where m = (m1, ..., mN ) is a length-N vector and m∗ = (m∗1, ..., m∗N ) represents the indices of the selected UEs, ρ˜mi,t and ρ¯mi,t are the instantaneous and time
+average signal-to-noise ratio (SNR) of UE mi at the
+communication round t, respectively [29].
+
+The following sections are devoted to the design of algorithms to run federated learning in wireless networks, as well as the analysis that quantiﬁes the running time of FL under different scheduling policies.
+
+III. DISTRIBUTED COMPUTING AND PARAMETER UPDATE
+In this section, we detail the procedure that decomposes the problem from (1) into a number of subproblems which can be solved by using only the local data at each UE. We
+3For simplicity, we assume K is a multiple of N . In more general scenarios where G = K/N is not an integer, we can choose G = ⌈K/N ⌉, where the ⌈·⌉ denotes the ceiling function.
+
+5
+
+also describe how the local training and update adapt to the
+scheduling policy. To facilitate the design and analysis, we
+make the following assumptions on the loss function and the
+regulator throughout this paper. Assumption 1: The function r : Rd → R is ζ-strongly
+convex, i.e., ∀i ∈ {1, ..., n} and ∀ x, ∆x ∈ Rd it holds that
+
+r(x
+
++
+
+∆x)
+
+≥
+
+r(x)
+
++
+
+∇r(x)T
+
+∆x
+
++
+
+ζ 2
+
+∆x
+
+2
+
+(4)
+
+where ∇r(·) denotes the gradient of the function r(·)4. Assumption 2: The functions ℓi : R → R are 1/µ-smooth,
+i.e., ∀i ∈ {1, ..., n} and ∀ x, ∆x ∈ R it holds that
+
+ℓi(x
+
++
+
+∆x)
+
+≤
+
+ℓi(x)
+
++
+
+∇ℓi(x)∆x
+
++
+
+1 2µ
+
+(∆x)2
+
+(5)
+
+where ∇ℓi(·) denotes the gradient of the function ℓi(·).
+
+A. Local Decomposition
+
+First of all, using the Fenchel-Rockafeller duality, we can express the local dual optimization problem of (1) in the following way.
+Lemma 1: The optimization problem (1) can be rewritten in the following dual form:
+
+max D(a) = − n ℓ∗i (−ai) − ξr∗( 1 Xa)
+
+a∈Rn
+
+n
+
+ξn
+
+(6)
+
+i=1
+
+where {ai}ni=1 ⊂ R represents the set of the dual variables, X = [x1, x2, ..., xn] ∈ Rd×n is the total data set, ℓ∗(·) and r∗(·) are the convex conjugate functions of ℓi(·) and r(·), respectively, given as follows:
+
+ℓ∗i (−ai) = sup {−aiui − ℓi(ui)},
+
+(7)
+
+ui ∈R
+
+r∗(a) = sup {sT a − r(s)}.
+
+(8)
+
+s∈Rn
+
+Proof: We ﬁrst denote u = XT w. By using the Lagrangian, we can write the original problem (1) equivalently as follows:
+
+1 n
+
+min
+u,w
+
+n
+ℓi(xTi w) + ξnr(w) + aT (u − XT w)
+
+i=1
+
+=
+
+1 n
+
+inf
+w
+
+ξnr(w) − aT XTw
+
+n
++ inf
+ui
+
+ℓi(ui) + aiui
+
+i=1
+
+= − ξ sup
+w
+
+wT
+
+Xa ξn
+
+−
+
+r(w)
+
+n
+− sup − aiui − ℓi(ui)
+i=1 ui
+
+= − ξr∗
+
+1 Xa
+ξn
+
+−
+
+n
+
+ℓ∗i (−ai) n
+
+=
+
+D(a).
+
+(9)
+
+i=1
+
+Note that when a is chosen so as to maximize (9), the value of D(a) is equivalent to (1) due to the ﬁrst-order optimality condition [31]. As such, the result in (9) then follows from maximizing the above problem with respect to a.
+
+The advantage of using the dual formulation in (6) is that it allows us to better separate the global problem into a number of distributed subproblems solvable via federated computing across different UEs. In particular, we deﬁne v(a) = Xa/ξn and ﬁrst decompose D(a) into the following form:
+
+K
+
+D(a) = − ξ r∗(v(a)) +
+
+−
+
+ℓ∗i (−ai) n
+
+k=1 i∈Dk
+
+K
+
+= − ξ r∗(v(a)) − Rk(a[k])
+
+(10)
+
+k=1
+
+where Rk(a[k]) = 1/n i∈Dk ℓ∗i (−ai) with a[k] ∈ Rn being the coordinates of the vector a that corresponds to the data
+set Dk and the other entries are set to zero. As such, for a randomly initialized vector a¯, varying its value by ∆a will
+result in the following change to (10):
+
+K
+D(a¯ + ∆a) = −ξ r∗(v(a¯ + ∆a)) − Rk(a¯[k] + ∆a[k]).
+k=1
+(11)
+
+Notably, the changes in the second term of the above equation
+correspond to only the data set Dk of each local UE k, while the ﬁrst term involves all the global variations. Because r(·) is ζ-strongly convex, we know that r∗(·) is 1/ζ-smooth [32, Theorem 4.2.1] and can thus bound r∗(v(a¯ +∆a)) as follows:
+
+r∗(v(a¯
+
++
+
+∆a))
+
+≤
+
+r∗(
+
+Xa¯ ξn
+
+)
+
++
+
+1 ξn
+
+XT
+
+∇r∗(v(a¯)),
+
+∆a
+
++
+
+κ 2(ξn)2
+
+X∆a 2
+
+K
+= r∗(v(a¯)) +
+
+1 ξn
+
+XT[k]
+
+∇r∗(v(a¯)),
+
+∆a[k]
+
+k=1
+
++
+
+κ 2(ξn)2
+
+K
+
+X[k]∆a[k] 2,
+
+(12)
+
+k=1
+
+where κ > 1/ζ is a data dependent term measuring the difﬁculty of the partition to the whole data set. By substituting (12) into (11) it yields
+
+K
+D(a¯ + ∆a) ≥ −ξr∗(v(a¯)) −
+
+1 n
+
+XT[k]
+
+∇r∗(v(a¯)),
+
+∆a[k]
+
+k=1
+
+−
+
+κ 2ξn2
+
+K
+
+K
+X[k]∆a[k] 2 − Rk(a¯[k] + ∆a[k]).
+
+(13)
+
+k=1
+
+k=1
+
+To this end, if each UE k ∈ {1, 2, ..., K} can optimize ∆a[k] using its own data set Dk so as to maximize the right hand side
+(R.H.S.) of (13), the resultant improvements can be combined to direct D(a¯) toward the optimal value5. To be more concrete, during any communication round t, the AP produces v(at) by
+using updates received from the last round and broadcasts that
+
+4In this paper, we follow the convention and write the deﬁnition of strong convexity using the gradient [30]. Nevertheless, note that strongly convex functions may not be differentiable, and in that case, one shall replace the gradient by the subgradient [31].
+
+5Instead of directly solving the original optimization problem, we solve for an approximated surrogate which is advantageous due to the savings per communication round and the fact that solutions with extremely high accuracy are not necessary for machine learning in practice.
+
+6
+
+UE 1
+
+UE 2
+
+UE 3
+
+...
+
+UE 1
+
+UE 2
+
+UE 3
+
+...
+
+...
+
+... ...
+... ...
+
+UE K
+
+UE K
+
+Time
+
+comput.
+
+communication
+
+comput.
+
+communication
+
+comput.
+
+communication
+
+Fig. 2. A typical iteration round of the learning procedure: i) each UE solves a subproblem using its locally stored data, ii) the AP selects a subgroup of UEs to collect updates based on which it produces an enhanced model, iii) the new model is sent back to the UEs, and the process is repeated.
+
+to all the UEs. The task at any given UE k is to solve for ∆at[k] that maximizes the following:
+
+∆Dk (∆at[k] ;
+
+v(at),
+
+at[k] )
+
+=
+
+−Rk(at[k] +∆at[k])
+
+−
+
+ξ K
+
+r∗(v(at ))
+
+−
+
+1 n
+
+XT[k] ∇r∗(v(at
+
+)),
+
+∆at[k]
+
+−
+
+κ/ξ 2n2
+
+X[k]∆at[k] 2,
+
+(14)
+
+and then send the parameter ∆vkt = Xt[k]∆at[k]/ξn to the AP.
+
+The AP then updates the global vector as v(at + ∆at) =
+
+v(at) +
+
+K k=1
+
+∆vkt .
+
+As
+
+such,
+
+by
+
+alteratively
+
+updating
+
+v(at )
+
+and {∆at[k]}Kk=1 on the global and local sides, respectively,
+
+it is expected that the solutions to the dual problem can
+
+be enhanced at every step and that guarantees the original
+
+problem converges to the optimal.
+
+It is important to note that unlike (3), the subproblem (14) is
+
+simple in the sense that it is always a quadratic objective (apart
+
+from the Rk(·) term). The subproblem does not dependent on the function r∗(·) itself, but only its linearization at the shared vector v(at). This property additionally simpliﬁes the task of local solvers, especially when the function r∗(·) takes
+
+on a complicated form. Moreover, if the local problems were
+
+solved exactly, this can be interpreted as a data-dependent
+
+block separable proximal step, which is known as a method
+
+to accelerate the learning process.
+
+The requirement for such a decomposition method to work
+
+is that during each global aggregation, the changes in the local variables {at[k]}Kk=1 on each UE and that in the global vector v(at) are kept consistent [19]. However, because the wireless
+
+channels are generally unreliable, updates can be lost during
+
+the data transmission phase which leads to misalignment in
+
+the global and local parameters. In the following, we will
+
+develop an algorithm that adapts the local training at each
+
+UE along with the communication condition in the global
+
+parameter updating phase.
+
+B. Parameter Updates
+During a typical communication round t, in order to update the parameter ∆vkt from a generic UE k to the global AP, two conditions need to be simultaneously satisﬁed: i) the UE is selected by the AP, and ii) the transmitted data is successfully decoded. In that respect, we ﬁrst introduce Skz,t ∈ {0, 1} as a selection indicator, with z ∈ {RS, RR, PF} specifying the
+
+employed scheduling policy, where Skz,t = 1 corresponds to the event that UE k is chosen by the AP for transmission and Skz,t = 0 otherwise.
+Next, we characterize the transmission quality of the wire-
+less links. Note that although the depicted wireless network
+contains inﬁnitely many APs, thanks to the stationary property
+of PPPs, the FL convergence rates of all APs are statistically
+equivalent. As such, by applying Slivnyak’s theorem to the
+stationary PPP of APs, it is sufﬁcient to evaluate the SINR of
+a typical AP at the origin [33], [34]. For signals transmitted from UE k that is located at ck, the SINR received at the typical AP takes the following form:
+
+γk,t =
+
+Puthk ck −α c∈Φ˜ ku Puthc c −α + σ2
+
+(15)
+
+where α is the path loss exponent, hk ∼ exp(1) is the small scale fading, σ2 is the variance of Gaussian additive noise, and Φ˜ ku represents the locations of out of cell UEs that interfere with the typical AP. In order for the AP to successfully decode
+
+the updates from UE k, it is required that the received SINR
+
+exceeds a decoding threshold θ, i.e., γk,t > θ. Since the
+
+updated parameters from each UE have the same size, we
+
+assume the APs adopt a uniﬁed SINR decoding threshold in
+
+this network.
+
+In any typical communication round, the probability of a
+
+generic UE being selected by its tagged AP depends on the
+
+scheduling policy employed. On the other hand, since both the
+
+signal strength and the interference received at a given AP are
+
+governed by a number of stochastic processes, e.g., the random
+
+spatial distribution of AP/UE locations and small-scale fading,
+
+the resulting SINR is a random variable. As such, we deﬁne
+
+the following quantity, termed the parameter update success
+
+probability, to characterize the transmission performance in
+
+each update
+
+Ukz = P(γk,t > θ, Skz,t = 1), z ∈ {RS, RR, PF}. (16)
+
+This variable fully captures the key aspects for the successful update of parameters in each UE, and, as we will show later on, plays a critical role in the convergence analysis.
+
+C. Federated Learning in Wireless Networks
+Armed with the above preparation, we are now ready to present the FL algorithm in a wireless network, which is
+
+7
+
+Algorithm 2 Wireless Federated Learning Algorithm
+
+1: Input: Data set {Dk}Kk=1 at the UEs, scheduling policy z ∈ {RS, RR, PF} at the AP
+
+2: Initialization: Each UE k randomly initiates a starting
+point a0[k] ∈ Rn. The AP randomly selects a portion of the associated UEs to collect XT[k]a0[k]/ξn, produces v(a0) := XT[k]a0[k]/ξn, and sends the parameters v(a0) and η0 = K/2N to all the UEs
+
+3: for t = 0, 1, 2, ..., T − 1 do
+
+4: for each UE k ∈ {1, 2, ..., K} in parallel do
+
+5:
+
+Compute XT[k]∇r∗(v(at))
+
+6:
+
+Let ∆at[k] be an approximated solution of the local
+
+subproblem in (14), i.e.,
+
+∆at[k]
+
+≈
+
+arg max ∆Dk
+∆at[k]∈Rn
+
+(∆at[k]
+
+;
+
+v(at ),
+
+at[k] )
+
+(17)
+
+where κ is chosen as κ = K/ζ 7: Update and store the local reference parameter
+
+at+1
+[k]
+
+=
+
+at[k]
+
++
+
+η t ∆at[k] ,
+
+(18)
+
+8:
+
+If Skz,t = 1, compute the following global parameter
+
+and send it to AP via the allocated spectrum:
+
+∆vkt
+
+=
+
+1 ξn
+
+X[k]
+
+∆at[k]
+
+(19)
+
+otherwise, no update on the global parameter will be
+performed at the UE
+9: end for
+10: The AP receives signals from the selected UEs, decodes the packets to extract each ∆vkt , and computes the improved parameter as
+
+K
+
+v(at+1) = v(at) + ∆v˜kt ,
+
+(20)
+
+k=1
+
+where ∆v˜kt is given as
+
+∆v˜kt =
+
+∆vkt , 0,
+
+if Skz,t = 1 and γk,t > θ, otherwise.
+
+(21)
+
+The AP also updates the variable ηt as follows:
+
+ηt+1
+
+=
+
+t × ηt t+1
+
++
+
+K k=1
+
+½{Skz,t
+N (t
+
+= +
+
+1, γk,t 1)
+
+>
+
+θ} ,
+
+(22)
+
+and then broadcasts the updated global parameters v(at+1) and ηt+1 back to all the UEs.
+11: end for 12: Output: wT = ∇r∗(v(aT )).
+
+summarized in Algorithm 2 and illustrated by Fig. 2. We can
+see that the algorithm mainly consists of two parts:
+• At a typical UE k, it solves a local optimization problem
+(14) using only the data stored on the device. Based on the solution, the UE updates the local reference at[k] per (18), and if being selected by the AP, it sends out a global update ∆vkt via the allocated subchannel. • At the AP side, it selects a subgroup of UEs for update
+
+collection, decodes the received packet, and performs a global aggregation according to (20). The new global parameter is redistributed to all the associated UEs using an error free channel.
+Note that there is an incessant alternation between communication and computation during the training stage (cf. Fig. 2). In this regard, retransmissions of the failed packets may not be beneﬁcial because each uplink transmission of local updates will be followed by a downlink transmission of the global average, and upon the reception of that, the UEs will refresh their reference parameters and start to solve a new subproblem using the local data6.
+Note that Algorithm 2 is essentially coordinate ascent working in the wireless setting. The crucial property here is that the optimization algorithm on UE k changes only the coordinates of the dual optimization variable at[k] corresponding to the data set Dk. Moreover, the factor ηt acts as a time-averaging approach to calculate the parameter update success probability, which steadily learns the quantity through the update status from each transmission. As such, the update in (18) is able to adjust the local training along with the parameter update quality. To be more concrete, under good channel conditions, the updates from UEs can be successfully received in each communication round, which leads to high value of the quantity ηt, indicating that the local references {at[k]}Kk=1 can progress more aggressively. On the contrary, when the UEs are under a disadvantageous communication environment, the local learning rate ηt also declines automatically, making the progress of local training more conservative. This is because when communications are not reliable, the AP normally only receives a few updates from the UEs, which results in small changes in the global vector v(at). In correspondence, local references shall not change abruptly but rather maintain the changes in line with the global ones7.
+Remark 1: The main beneﬁt of Algorithm 2 arises from three properties: i) it is based on local second-order information and does not require sending gradients and Hessian matrices to the AP, which would be a signiﬁcant cost in terms of communication, ii) the local subproblems are in the form of proximal steps, which can potentially accelerate the convergence rate, and iii) the local step size adjusts in accordance with the communication environment.
+Remark 2: While methods in [20] have a similar structure to Algorithm 2, they require the changes in local variables at[k] from each UE and the global change in vt to be kept consistent, i.e., vt = 1/ξnXat[k], which may hardly be satisﬁed in situations where communication is unreliable. In contrast, Algorithm 2 allows local updates to be asynchronized with the global aggregation. In fact, as we will show in Section IV, as long as the local and global updates are aligned in an average manner, the FL is guaranteed to converge.
+6If the transceivers are equipped with full duplex communications, it is possible to boost up the convergence rate because that has the potential to double the efﬁciency in both communication and computation aspects.
+7Note that it is possible to prove the convergence of Algorithm 2 when ηt is set differently. Nevertheless, the value of this quantity affects the ultimate rate of convergence [35].
+
+8
+
+Remark 3: In certain scenarios, e.g., the AP is training a support vector machine (SVM) with the UEs under ideal communication conditions, namely N = K and θ = 0. The advantage of Algorithm 2 over Algorithm 1 is clear due to a) the subproblem (14) exactly matches the dual format and b) the partial solutions can be attained by means of second-order methods, which has a competitive edge of achieving faster convergence rate, rather than the SGD.
+IV. CONVERGENCE ANALYSIS
+In the following, we provide a quantitative analysis of the convergence properties of our proposed algorithm under various scheduling schemes. We also investigate two special cases to develop further insights. For better readability, most proofs and mathematical derivations have been relegated to the appendix.
+
+A. Preliminaries
+
+First of all, by using the ﬁrst-order optimality condition, a mapping between the dual variable a ∈ Rn and the primal candidate vector w ∈ Rd exists and can be expressed as
+follows:
+
+w(a) = ∇r∗(v(a)) = ∇r∗(Xa/n).
+
+(23)
+
+From strong duality we know that if a∗ is an optimal solution of (6), then w(a∗) is an optimal solution of (1), i.e., the
+following duality gap holds:
+
+P (w(a∗)) − D(a∗) = 0,
+
+(24)
+
+This result lies at the core of our convergence analysis because it allows us to quantify the impact of different scheduling policies on the updates of the objective function. It can be observed from (27) that for a scheduling scheme that provides higher parameter update success probability, there is also larger potential to improve the objective function, and vice versa.
+On the other side, since the trained parameters are periodically collected by the AP, UEs will need to ﬁnish their local computing before a given deadline. Due to the heterogeneity in the local computing environment, e.g., the difference in the size of the data sets or the computational capabilities, some UEs may not be able to obtain the optimal local solution upon the time for global updating. As such, we introduce the error level and make the following assumption.
+Assumption 3: During each iteration t, we assume all the UEs can solve their local problem with error level β ∈ (0, 1), i.e., ∀k ∈ {1, 2, ..., K}, the following holds:
+∆Dk(∆a∗[k]; v(at), at[k]) − ∆Dk(∆at[k]; v(at), at[k])
+≤ β ∆Dk(∆a∗[k]; v(at), at[k]) − ∆Dk(0; v(at), at[k]) (28)
+where ∆a∗[k] is the minimizer of subproblem (14). The error level represents the quality of local computing,
+whereas in the above assumption we limit the quality of all the local solutions to be within a certain range. Note that the value of the error level β can actually change across time, while we ﬁx it as a constant for the sake of facilitating the analysis. With all these results on hand, we are able to investigate the effect of scheduling methods on federated learning.
+
+which ensures that by solving the dual problem (6) we also solve the original primal problem of interest (1). To this end, it is sufﬁcient to use the gap between primal-dual as a measure of solution quality.
+Next, note that ηt in (22) can be rewritten as follows:
+
+ηt
+
+=
+
+1 Nt
+
+t−1
+
+K
+
+½{Skz,l = 1, γk,l > θ}.
+
+(25)
+
+l=0 k=1
+
+By noticing that the updates are i.i.d. and using the law of large numbers, we arrive at the following relationship:
+
+Ukz
+
+=
+
+lim
+t→∞
+
+1 Nt
+
+t−1
+
+K
+
+½{Skz,l = 1, γk,l > θ},
+
+(26)
+
+l=0 k=1
+
+which is equivalent to that Ukz = E[ηt]. As such, we are able to evaluate the expected change in the
+
+dual objective function in (6) over any typical communication
+
+round. Lemma 2: At any iteration t, with parameters at[k+]1, ∆atk,
+and ∆vk(at[k]), k ∈ {1, 2, ..., K}, being updated according to Algorithm 2, the following condition holds:
+
+K
+
+E D(at+1) ≥
+
+Ukz ∆Dk(∆at[k]; v(at), at[k])
+
+k=1
+
++ 1 − Ukz D(at)/K , ∀z ∈ {RS, RR, PF}. (27)
+
+Proof: See Appendix A.
+
+B. Analysis
+
+We now analyze the convergence of FL operating in wireless systems. In particular, we quantify the convergence rate of an FL algorithm using the number of required communication rounds such that the primal and dual problems can reach a certain duality gap, since upon that the trained parameter can be guaranteed to be in the vicinity of the optimal solution. This brings us to the main theoretical result of this paper.
+Theorem 1: For any convergence target ε, the FL running under Algorithm 2 is able to achieve an ε duality gap after Tz rounds of communication, i.e.,
+
+E[P (w(aTz )) − D(aTz )] < ε
+
+(29)
+
+if Tz satisﬁes the following
+
+Tz ≥ log
+
+log(ε/n) 1 − (1 − β) Ukz
+
+,
+
+z ∈ {RS, RR, PF}.
+
+(30)
+
+Proof: See Appendix B.
+
+The above theorem demonstrates the general convergence
+
+property of FL in wireless networks. Using (30), we can
+
+summarize the roles of iteration algorithms and scheduling
+
+policies in the remark below.
+
+Remark 4: Due to the gradient descent (GD) based training
+
+approach, iteration complexities under all the scheduling policies are on the same order of GD’s complexity, i.e., log(n/ε),
+
+while different scheduling policies affect the multiplicity constant, i.e., Ukz.
+
+9
+
+Based on Theorem 1, we analyze and compare the convergence rate of FL running under three different scheduling policies, i.e., RS, RR, and PF, in the following.
+1) Random Scheduling Policy : Selecting UEs uniformly at random for the update is the simplest and most widely adopted approach in practice. This method does not leverage any information from either the computing stage or the channel state. The following result characterizes the FL convergence performance under this method.
+Corollary 1: Under the RS policy, the parameter update success probability from a typical UE is given by
+
+UkRS
+
+≈
+
+1
+
+1/G + V(θ, α)
+
+(31)
+
+where V(θ, α) is given as
+
+V(θ, α) =
+
+σ2
+
+θλ1−
+
+α 2
+
+Put2α−2
+
++
+
+θ
+
+2 α
+
+0
+
+∞
+
+1
+
+− e− 1+
+
+12 5π
+
+θ
+
+uα 2
+
+2 α
+
+u
+
+du.
+
+(32)
+
+Hence, by choosing the TRS such that
+
+TRS ≥ log
+
+log(ε/n)
+
+1
+
+−
+
+(1−β)/G 1+V (θ,α)
+
+,
+
+(33)
+
+the expected duality gap satisﬁes
+
+E[P (w(aTRS )) − D(aTRS )] < ε.
+
+(34)
+
+Proof: See Appendix C. It is noteworthy that the term V(θ, α) can be intuitively interpreted as the average interference plus noise power over the weighted received signal power, where the weight is proportional to 1/θ. As such, V(θ, α) can be regarded as a metric to gauge the difﬁculty of decoding. In particular, when θ is small, the power of the desired signal is ampliﬁed and that gives a higher chance for the AP to successfully decode the signal. This results in a small value of V(θ, α) and vice versa. Analogously, when α is small, that gives rise to higher interference levels which deteriorates the decoding process. And this fact is also reﬂected in an increase of V(θ, α). 2) Round Robin Policy: Unlike RS, the RR is operated under strict control and provides short-term fairness for all the UEs, i.e., each UE is guaranteed to update its parameter in a sequential way. This fairness property is captured in the following corollary. Corollary 2: Under the RR policy, the parameter update success probability from a typical UE is given by
+
+UkRR ≈
+
+1 1+V (θ,α)
+
+,
+
+if scheduled,
+
+0,
+
+otherwise
+
+(35)
+
+where V(θ, α) is given in (32). Hence, by choosing the TRR such that
+
+TRR
+
+≥
+
+log
+
+G log(ε/n)
+
+1
+
+−
+
+1−β 1+V (θ,α)
+
+,
+
+(36)
+
+the expected duality gap satisﬁes
+
+E[P (w(aTRR )) − D(aTRR )] < ε.
+
+(37)
+
+Proof: See Appendix D.
+
+3) Proportional Fair Policy: When using PF as a scheduling policy, the AP can leverage additional information from the channel state for the UE selection. Intuitively, there will be an improvement in the parameter update probability via PF, and the following result conﬁrms such intuition.
+Corollary 3: Under the PF policy, the parameter update success probability from a typical UE is given by
+
+K−N+1
+UkPF ≈
+
+K−N +1 i
+
+(−1)i+1/G 1 + V(iθ, α)
+
+(38)
+
+i=1
+
+where V(θ, α) is given in (32). Hence, by choosing the TPF such that
+
+TPF ≥ log 1−( 1−β )
+
+log(ε/n)
+
+, (39)
+
+K−N+1 K−N+1 (−1)i+1/G
+
+i=1
+
+i
+
+1+V (iθ,α)
+
+the expected duality gap satisﬁes
+
+E[P (w(aTPF )) − D(aTPF )] < ε.
+
+(40)
+
+Proof: See Appendix E. Several remarks regarding Corollaries 1 to 3 are in order. Remark 5: The convergence rate of FL degrades monotonically with an increase in the number of UEs per AP, K, since the additional UEs exacerbate the competition for communication resources and that deteriorates the parameter update probability of each UE. Remark 6: When the wireless system is operating under high SINR threshold, i.e., θ ≫ 0 dB, in order to achieve an ε duality gap, the required communication rounds of FL running under RS, RR, and PF are respectively given as follows:
+
+TRS
+
+G
+
+log(n/ε)
+
+1
+
++ V(θ, 1−β
+
+α)
+
+,
+
+(41)
+
+TRR
+
+G
+
+log(n/ε)
+
+1
+
++ V(θ, 1−β
+
+α)
+
+,
+
+(42)
+
+TPF
+
+N
+
+(1
+
+log(n/ε) − 1/G) +
+
+1/G
+
+1
+
++ V(θ, 1−β
+
+α)
+
+.
+
+(43)
+
+It can be seen that in the high SINR regime, the RS and RR policies have similar convergence performance, while the PF policy converges more rapidly.
+Remark 7: When the wireless system is operating under low SINR threshold, i.e., θ ≪ 0 dB, in order to achieve an ε duality gap, the required communication rounds of FL running under RS, RR, and PF are respectively given as follows:
+
+TRS
+
+log(ε/n)
+
+log(1
+
+−
+
+1−β G
+
+)
+
+,
+
+(44)
+
+TRR
+
+G
+
+log(ε/n) log(β)
+
+,
+
+(45)
+
+TPF
+
+log(ε/n)
+
+log(1
+
+−
+
+1−β G
+
+)
+
+.
+
+(46)
+
+It can be seen that in the low SINR regime, the RS and PF policies have similar convergence performance, while the RR policy converges more rapidly.
+
+10
+
+C. Special Cases
+
+By leveraging the mathematical framework above, we are able to further consider three special cases: a) one shot communication, i.e., the UEs update their parameters in a oneby-one sequential order (which is equivalent to taking G = K in the RR policy) and the APs allocate all the spectrum for the transmission in each communication round, b) multi-round communication, in which the AP waits several communication rounds to collect more updates before one global aggregation is performed, and c) all at once communication, namely all the UEs simultaneously access the spectrum during each communication round without any scheduling policy being employed.
+We ﬁrst characterize the convergence of FL under one shot communication.
+Corollary 4: When parameters from each UE are updated via one shot communication, for a given convergence target ε, by choosing the training time TOS such that
+
+TOS ≥ log
+
+K log(ε/n)
+
+1
+
+−
+
+1−β 1+V (θ/N ,α)
+
+,
+
+(47)
+
+the expected duality gap satisﬁes
+
+E[P (w(aTNS )) − D(aTNS )] < ε.
+
+(48)
+
+Proof: This result easily follows by noticing that under one shot communication, UEs can access the whole spectrum once in every K communication rounds, and since every UE fully utilize the spectrum for its transmission, the required SINR threshold reduces to (1 + θ)1/N − 1 ≈ θ/N .
+This corollary delivers a twofold message: i) the FL can perform very robustly in wireless system, where even the updates from each UE are sent far apart in time (proportional to the total UE number), the scheme is still guaranteed to converge, and ii) packing more UEs into each communication round facilitates faster convergence, which can be observed by comparing (33) and (47) and notice that even RS can largely outperform one shot communication in terms of the convergence rate. Hence, being able to collect updates from more UEs is more desirable than getting a small number of updates but in a highly reliable manner, which conﬁrms the intuition and empirical approaches of packing more UEs into the spectrum during each communication round [10], [18].
+Next, we study the effect of multi-round communication on the FL convergence rate. To be formal, let us denote by C a divisor of K and assume the AP adopts the RS as its scheduling policy. With C rounds of update transmissions before each global aggregation, the FL has the following convergence performance.
+Corollary 5: When parameters are updated under multiround communication, for any given convergence target ε, by choosing the TMC such that
+
+TMC ≥
+
+log
+
+C log(ε/n)
+
+1
+
+−
+
+(1−β)C/G 1+V (θ,α)
+
+,
+
+(49)
+
+the expected duality gap satisﬁes
+
+E[P (w(aTMC )) − D(aTMC )] < ε.
+
+(50)
+
+Proof: Note that under such a scheme, both the parameter update success probability and the required communication rounds are increased by a factor of C. The result then follows by leveraging an approach similar to the proof of Corollary 1.
+
+The equation above reveals that the gain from enhanced communication reliability cannot compensate for the loss of degrees of freedom in the time domain. Therefore, waiting for more updates before the global aggregation is not desirable if that incurs additional communication rounds. This result also provides theoretical support to our claim in Section II-C that sequentially updating parameters from all the UEs before global aggregation is not desirable in FL.
+Finally, when no schedule is asserted, i.e., all the UEs can access the spectrum simultaneously during each communication round, it increases the efﬁciency of channel use for each UE while also giving rise to a higher level of mutual interference. To simplify the notational complexity, we assume each subchannel has G simultaneously transmitting UEs. The following corollary then describes the convergence in such a scenario.
+Corollary 6: When parameters are updated via all at once communication, for any given convergence target ε, by choosing the TNS such that
+
+TNS ≥ log
+
+log(ε/n)
+
+1
+
+−
+
+1−β 1+Z (θ,α)
+
+,
+
+(51)
+
+where Z(θ, α) is given as
+
+Z(θ, α)
+
+=
+
+θσ2
+
+λ
+
+α 2
+
+Put
+
+2
+
+α 2
+
+−1
+
++G
+
+0
+
+∞
+1
+
+θ
+
+2 α
+
+du
+
++ uα/2
+
+,
+
+(52)
+
+the expected duality gap satisﬁes
+
+E[P (w(aTNS )) − D(aTNS )] < ε.
+
+(53)
+
+Proof: When no scheduling is asserted, we have P(Sk,t = 1) = 1 and the SINR received at UE k can be written as
+
+γkN,St =
+
+Puthk ck c∈ΦNu S Puthc c
+
+−α −α
+
++
+
+σ2
+
+,
+
+(54)
+
+where ΦNu S is the set of locations of interfering UEs under the all at once communication. By Slivnyark’s theorem [33], the
+
+interfering points form a PPP with spatial density λG and the
+
+transmission success probability can be calculated as
+
+P(γkN,St > θ|rk, Sk,t = 1)
+
+=E
+
+exp
+
+−
+
+θσ2rkα Put
+
+−
+
+∞
+0 1+
+
+λGπ x α/θrkα
+
+dx
+
+≈ exp
+
+−θσ2rk2
+
+Put(2λ)
+
+α 2
+
+−1
+
+−
+
+λGπ
+
+rk2
+
+θ
+
+2 α
+
+∞
+01
+
+1
+
++
+
+u
+
+α 2
+
+du
+
+.
+
+(55)
+
+The result follows by deconditioning (55) with respect to (68) to obtain the parameter update success probability, and then using a similar approach per Corollary 1 to show the necessary iterations for a desired duality gap.
+Note that the quantity Z(θ, α) plays a similar role as V(θ, α), with the interference counted from different regions. We further note that when the network is operating under very
+
+11
+
+Normalized communication rounds Normalized communication rounds
+
+600
+
+500
+
+RS: θ = 15 dB
+
+RR: θ = 15 dB
+
+PF: θ = 15 dB 400
+
+60
+
+50
+
+RS: θ = -25 dB
+
+RR: θ = -25 dB
+
+PF: θ = -25 dB 40
+
+300
+
+30
+
+200
+
+20
+
+100
+
+10
+
+0
+
+0
+
+10
+
+20
+
+30
+
+40
+
+50
+
+Ratio of the number of UEs to the number of subachannels, G=K/N
+
+0
+
+0
+
+10
+
+20
+
+30
+
+40
+
+50
+
+Ratio of the number of UEs to the number of subachannels, G=K/N
+
+(a)
+
+(b)
+
+Fig. 3. Normalized communication rounds vs UE number over subchannel number ratio, the number of subchannels is set as N = 10. In Fig. (a), we plot the normalized communication rounds under high SINR threshold regime. In Fig. (b), we depict the normalized communication rounds under low SINR threshold regime.
+
+low SINR threshold, i.e., θ ≪ 0 dB, then Z(θ, α) ≈ V(θ, α) and the required iterations to achieve duality gap ε is
+
+TNS
+
+log(n/ε) log(β)
+
+.
+
+(56)
+
+By comparing (42) with (56), we can observe that in the very low SINR regime, round robin scheduling performs not even as good as naively transmitting the parameters from all UEs simultaneously, i.e., no schedule, showing the importance of choosing appropriate scheduling methods in different regimes.
+Several numerical results based on the analysis derived in this section will be shown in Section V to give more practical insights into the design of scheduling schemes for federated learning in wireless networks.
+
+V. NUMERICAL RESULTS
+In this section, we evaluate the performance of FL under different scheduling policies through both numerical analysis and experimental simulations. Speciﬁcally, we start with the numerical study to draw insights and then follow with simulations for validation. Unless otherwise stated, the following system parameters will be used: AP deployment density λ = 10−4m2, number of associated UEs per cell K = 100, number of orthogonal subchannels N = 10, path loss exponent α = 3.8, and SINR decoding threshold θ = 0 dB.
+
+A. Numerical Study
+We ﬁrst explore the effect of the network parameters on the convergence rate of FL using the analysis derived in Section VI. Because the value of the data set size n and the targeted duality gap ε often depend on speciﬁc tasks, we adopt a “normalized” performance metric by dividing the required communication rounds with respect to log(n/ε) and refer to this quantity as normalized communication rounds.
+In Fig. 3, we plot the normalized communication rounds as a function of the total group number, G, under two
+
+different SINR operating regimes, namely, high SINR (θ = 15 dB) and low SINR (θ = −25 dB). Fig. 3(a) reveals that under high SINR threshold, running FL with PF results in a large reduction in the iteration time compared to those with RS and RR, whereas the latter two schemes have similar convergence performance. This observation is in line with Remark 6, and the reason stems from the fact that high SINR threshold reduces the chance of successful transmission from an arbitrary UE, while PF improves the convergence rate by selecting UEs with better channel quality for the radio access so as to increase their transmission success probability. On the other hand, it can be seen from Fig. 3(b) that for networks operating under low SINR threshold, RR outperforms both RS and PF, which is in line with Remark 7. This is because in this scenario, transmissions from UEs can achieve very high success probability and the scheduling order becomes the bottleneck, i.e., guaranteeing the timely parameter update from each UE determines the convergence performance. Since RR is the fairest scheduling scheme among the three, it thus attains the best performance. Fig. 3 also implies that the required iteration rounds increase almost linearly with respect to the total number of associated UEs, which coincides with the simulation result in [10]. This is because additional UEs not only reduce the selection probability for radio access but also creates new updates that will be subjected to staleness, which together prolong the communication rounds.
+Fig. 4 further illustrates the normalized communication rounds as a function of the SINR decoding threshold, under different error levels. This ﬁgure illustrates two phenomena. One, in wireless networks with low SINR threshold, simply running FL without any scheduling, namely the no schedule (NS) approach, can outperform those with speciﬁc scheduling policies, because the impact of interference is minor and the success probability is high. However, the performance of FL under NS quickly worsens as the SINR threshold goes up, while the ones with good scheduling schemes, e.g., the PF scheduling, are able to keep the required communication
+
+12
+
+Normalized communication rounds
+
+180
+
+160
+
+NS: β = 0.30
+
+NS: β = 0.05
+
+140
+
+RS: β = 0.30
+
+RS: β = 0.05
+
+RR: β = 0.30
+
+120
+
+RR: β = 0.05
+
+PF: β = 0.30
+
+100
+
+PF: β = 0.05
+
+80
+
+60
+
+40
+
+20
+
+0
+
+-15
+
+-10
+
+-5
+
+0
+
+5
+
+10
+
+SINR threshold, θ [dB]
+
+Normalized communication rounds
+
+45
+
+Random Scheduling
+
+40
+
+Round Robin
+
+Proportional Fair
+
+35
+
+30
+
+25
+
+20
+
+15
+
+5
+
+10
+
+15
+
+20
+
+25
+
+Number of subchannels, N
+
+Fig. 4. Normalized communication rounds vs SINR decoding threshold, Fig. 5. Normalized communication rounds vs number of subchannels, N . where N = 10 and G = 20.
+
+rounds at a low level. Hence, adopting appropriate scheduling policies in different SINR regimes is critical to achieving good convergence performance of FL. Second, regardless of the particular scheduling policy employed, the required communication rounds toward a given duality gap ratchets up as the SINR threshold increases. As such, reducing the dimension of the updated parameters via compression or quantization [36] so as to maintain a relatively small decoding threshold at the AP side is important to improve the convergence rate of FL in wireless networks. In fact, from Fig. 3 we can see that if quantization can achieve a 5 dB reduction in the decoding threshold, e.g., decreasing it from 10 dB to 5 dB, then even though that gives rise to a six-fold higher error level (namely β grows from 0.05 to 0.3) the resulting convergence rate is nevertheless better than the original one. Further, if the decoding threshold can be reduced from 10 dB to 0 dB, then RR can achieve similar convergence rate as PF with conservative parameter compression, i.e., the one with 0.05 error level and decoding threshold of 10 dB. To this end, the tradeoff between error level and decoding threshold is of importance to study.
+Fig. 5 compares the normalized communication rounds of FL under RS, RR, and PF as a function of the number of subchannels, N . Note that an optimal N that minimizes the required communication rounds exist for each of the scheduling policies, due to a trade-off between simultaneously serving more UEs and attaining higher success probability in each round of transmission. The ﬁgure shows that in each update iteration, fewer UEs should be scheduled under RS and RR, thus leaving more spectrum to enhance the transmission success probability. On the other hand, as PF is able to choose the UEs with good channel quality for the update, it thus allows more UEs to be selected while maintaining the transmissions success probability, which further accelerates the convergence rate of FL.
+In summary, among the three scheduling policies, i.e., RS, RR, and PF, the PF has the best performance in scenarios with high SINR threshold, while RR is preferable when the SINR threshold is low. Moreover, the detection threshold has a direct
+
+1.0
+
+0.9
+
+0.8
+
+Test accuracy
+
+0.7
+
+0.6
+
+0.5 0
+
+10
+
+20
+
+30
+
+Communication rounds
+
+Algorithm 1 Algorithm 2
+
+40
+
+50
+
+Fig. 6. Comparison between Algorithm 1 and Algorithm 2: K = 100, N = 10, and θ = −10 dB.
+
+impact on the required running time of the algorithm, thus quantizing weights into a lower dimension is more desirable in wireless FL. Further, there is a trade-off between the number of scheduled UEs and the subchannel bandwidth in optimizing the FL convergence rate, thus leaving room for further design opportunities.
+
+B. Experimental Study
+In this section, we showcase the effects of scheduling policies under different SINR scenarios. We ﬁrst compare the performance between Algorithm 1 and Algorithm 2 in Fig. 6, which plots the result of training an SVM on the MNIST data set, which consists of handwritten numerals. As ﬁgure shows, the proposed Algorithm 2 attains better convergence performance than the vanilla approach Algorithm 1. This mainly is due to the fact that Algorithm 2 can leverage advanced approaches to tackle the local subproblems than merely adopting the SGD.
+Next, two machine learning models, namely an SVM and
+
+13
+
+Test accuracy
+
+1 0.95
+0.9 0.85
+0.8 0.75
+0.7 0.65
+0.6 0.55
+0.5 0
+
+Random Scheduling Round Robin Proportional Fair
+
+50
+
+100
+
+150
+
+200
+
+250
+
+300
+
+Communication rounds
+
+Test accuracy
+
+1 0.95
+0.9 0.85
+0.8 0.75
+0.7 0.65
+0.6 0.55
+0.5 0
+
+Random Scheduling Round Robin Proportional Fair
+
+50
+
+100
+
+150
+
+200
+
+250
+
+300
+
+Communication rounds
+
+(a)
+
+(b)
+
+Fig. 7. Test performance of the trained SVM with different scheduling policies RS, RR, and PF. The results are averaged over 20 trails under (a) high SINR threshold, θ = 20 dB and (b) low SINR threshold, θ = −25 dB.
+
+Test accuracy
+
+0.9
+
+0.8
+
+0.7
+
+0.6
+
+0.5
+
+0.4
+
+0.3
+
+0.2
+
+Random Scheduling
+
+0.1
+
+Round Robin
+
+Proportional Fair
+
+0
+
+0
+
+100
+
+200
+
+300
+
+400
+
+500
+
+Communication rounds
+
+Test accuracy
+
+1
+
+0.9
+
+0.8
+
+0.7
+
+0.6
+
+0.5
+
+0.4
+
+0.3
+
+0.2
+
+Random Scheduling
+
+0.1
+
+Round Robin
+
+Proportional Fair
+
+0
+
+0
+
+100
+
+200
+
+300
+
+400
+
+500
+
+Communication rounds
+
+(a)
+
+(b)
+
+Fig. 8. Test performance of the trained CNNs with different scheduling policies RS, RR, and PF. The results are averaged over 5 trials under (a) high SINR threshold, θ = 20 dB and (b) low SINR threshold, θ = −25 dB. We set K = 30 for the high SINR regime and K = 100 for the low SINR regime for a better
+illustration.
+
+a convolutional neural network (CNN)8, are evaluated by clamping the low SINR threshold as θ = −25 dB and high SINR threshold as θ = 20 dB. The number of UEs for each AP is K = 100 or 30, and the number of subchannels is N = 5. For the SVM, we consider a two-class classiﬁcation task to recognize digits 0 and 8 where each UE is assigned with 5 training samples. We also evaluate the CNN for the multi-class classiﬁcation task, namely, recognizing from 0 to 9, where each UE has 100 training samples locally. The models are tested every 10 training steps over 1000 test samples. Results are reported in Fig. 7 and Fig. 8. The learning rate is η = 0.01 for both models.
+The results in the higher SINR regime are consistent with
+8Note that a CNN has a non-convex objective function and hence the analysis of this paper does not directly apply to this model. Nonetheless, this experiment demonstrates that similar behavior may still hold under nonconvex objective functions.
+
+the theorems, i.e., PF theoretically converges faster than RR. We can observe from Fig. 7.(a) that at a higher SINR threshold, i.e., θ = 20 dB, the SVM model trained with PF reaches a steady stage in 60 training steps while that trained with RR takes around 100 steps. Also note that RS is worse than RR or PF in this scenario. The advantage of PF over RR in the high SINR regime is even obvious for more complicated models such as CNNs. As shown in Fig.8, models trained with PF achieve an average accuracy of 0.94 while models trained with RR get stuck in an accuracy of 0.5. This is mainly due to the fewer successful global aggregations in RR as opposed to PF where subchnnels with highest SINR are invariably selected. Note that RS also performs similarly to PF because of the relatively higher probability for successful aggregations when K is small.
+We also report the results in the low SINR regime, as shown in Fig.7.(b) and Fig.8.(b). We notice that the performance
+
+14
+
+gap among different scheduling policies disappears when the model is very simple. For example, PF, RR and RS exhibit almost the same performance when θ = −25 dB. This is because every local UE is able to achieve reasonable performance on the classiﬁcation task. Were this to happen, models trained with PF, RR and RS are expected to behave similarly, since global aggregation would be very likely successful when the SINR threshold is as low as −25 dB. When the model becomes more intricate, models trained with RR perform better than PF, as shown in Fig.8.(b), which is also in an agreement with the above theorems.
+VI. CONCLUSION
+In this paper, we have undertaken an analytical study of the effects of three practical scheduling policies, i.e., random scheduling (RS), round robin (RR), and proportional fair (PF), to the performance of federated learning (FL) in wireless networks. We used a general model that accounts for scheduling schemes, inter-cell interference, and resource allocation between the radio access links and the training stage. Our analysis has shown that running FL with PF is able to achieve much smaller iteration time than RS and RR if the network is operating under a high SINR threshold, while RR is more preferable when the SINR threshold is low. Moreover, the convergence rate of FL decreases rapidly as the SINR threshold increases, conﬁrming the importance of compression and quantization of the update parameters. Our analysis has also revealed a trade-off between the number of scheduled UEs and the subchannel bandwidth under a ﬁxed amount of available spectrum, showing further design opportunities.
+The framework provided in this paper allows one to explicitly characterize the interplay between model training and parameter update phases in general FL algorithms, where stragglers and transmission failure can be severe depending on the transmission protocol and scheduling policies employed. More generally, our work helps to understand how the key features of a wireless network, i.e., fading, path loss, interference, and deployment strategy, affect the convergence rate of FL running in such a context. This paper has considered the current state-of-the-art scheduling policies deployed in practice. More advanced scheduling policies that account for both RR and PF can be considered, and improving the FL performance via more advanced wireless technologies, e.g., massive multiple-input-multiple-output (MIMO), full-duplex transmissions, or nonorthogonal multiple access (NOMA) is also a concrete direction.
+APPENDIX
+A. Proof of Lemma 2
+Without loss of generality, we assume the learning process has progressed to the t-th communication round. Upon completion, the global parameters will be updated from v(at) to v(at+1), whereas the local parameters at UE k are updated to at[k] + ηt∆at[k]. On the one hand, according to the duality between smoothness and strong convexity, we know that given a closed convex function f , it holds that if f is x-strongly
+
+convex (resp. smooth), the conjugate function f ∗ is (1/x)smooth (resp. strongly convex) [32, Theorem 4.2.1, 4.2.2]. Hence, following Assumptions 1 and 2, we have that the functions ℓ∗(·) are µ-strongly convex and r∗(·) is 1/ζ-smooth. On the other hand, the update aggregation in (19) can be written as
+
+K
+v(at+1) = v(at) + ∆vk½{Skz,t = 1, γk,t > θ}. (57)
+k=1
+
+As such, the expectation of the updated objective function (6) can be written as
+
+K
+
+E D(at+1) = E
+
+−Rk(at[k] + ηt∆at[k])
+
+k=1
+
+−
+
+ξ K
+
+r∗
+
+v(at) +
+
+K
+
+∆vkt ·½{Skz,t = 1, γk,t > θ}
+
+.
+
+(58)
+
+k=1
+
+It can be seen that the right hand side of the above equation contains K local terms and one global term. We can thus deal
+with them individually. First of all, we deal with the global update term. Because r∗(·) is 1/ζ-smooth, the following holds:
+
+E
+
+ξ K
+
+r∗
+
+v(at ) +
+
+K
+
+∆vkt ·½{Skz = 1, γk,t > θ}
+
+k=1
+
+≤
+
+ξ K
+
+r∗ (v(at ))
+
++
+
+1 2ζ
+
+E
+
+K
+vkt ½{Skz = 1, γk,t > θ}) 2
+k=1
+
+K
+
++ ∇r∗(v(at))T ∆vkt E ½{Skz = 1, γk,t > θ}
+
+k=1
+
+≤
+
+1 K
+
+ξr∗
+
+(v(at
+
+))
+
++
+
+Ukz
+
+κ/ξ 2n2
+
+K
+
+X[k]∆at[k] 2
+
+k=1
+
+K
++ Ukz
+
+1 n
+
+XT[k]∇r∗(v(at
+
+)),
+
+∆at[k]
+
+k=1
+
+. (59)
+
+On the other hand, as ℓ∗i (·) are µ-strongly convex, it follows that Rk(·) are also µ-strongly convex. Using the convexity of
+Rk(·), we have
+
+E Rk(at[k] + ηt∆at[k])
+
+= E Rk [ 1 − ηt ] at[k] + ηt(at[k] + ∆at[k])
+
+≤ E (1 − ηt)Rk(at[k]) + ηtRk(at[k] + ∆at[k])
+
+= (1 − Ukz )Rk(at[k]) + UkzRk(at[k] + ∆at[k]).
+
+(60)
+
+By substituting (59) and (60) into (58), we have
+
+K
+
+E D(at+1) ≥ (1 − Ukz) − ξr∗(v(at)) − Rk(at[k])
+
+k=1
+
+K
+
++ Ukz − ξr∗(v(at)) − ∇r∗(v(at))T ∆vkt
+
+k=1
+
+−
+
+κ/ξ 2n2
+
+K
+
+K
+
+X[k]∆at[k] 2 −
+
+Rk(at[k] + ∆at[k]) ,
+
+k=1
+
+k=1
+
+(61)
+
+and the result follows by substituting (10) and (14) into the above inequality.
+
+15
+
+B. Proof of Theorem 1
+After receiving updates from the t-th to the (t + 1)-th communication round, the expected increment in the objective function is
+
+E D(at+1) − D(at)
+
+K
+
+≥ Ukz
+
+∆D(∆a∗[k]; v(at), at[k]) − E D(at)
+
+k=1
+
+K
+
+K
+
++ ∆D(∆at[k]; v(at), at[k])− ∆D(∆a∗[k]; v(at), at[k])
+
+k=1
+
+k=1
+
+(a)
+≥ (1
+
+−
+
+β)
+
+Ukz
+
+K
+∆D(∆a∗[k]; v(at), at[k]) − E D(at)
+
+k=1
+(62)
+
+where (a) follows from Assumption 3 and noticing that
+
+D(at) =
+
+K k=1
+
+∆D(0;
+
+v(at
+
+),
+
+at[k]
+
+).
+
+Moreover,
+
+because
+
+ℓi(·)
+
+is 1/µ-smooth, ℓ∗i (·) is µ-strongly convex. Hence, there exist a
+
+scalar s ∈ [0, 1] and an n-dimension vector u = (u1, · · · , un)
+
+whereas u[k] ∈ ∂(Rk) with ∂(Rk) being the subgradient of
+
+Rk, such that ∆at[k] = s(ut[k] − at[k]) and the following holds
+
+[20]:
+
+K
+
+E D(at) − ∆D(∆a∗[k]; v(at), at[k])
+
+k=1
+
+≤
+
+1 n
+
+n
+
+−
+
+sℓ∗i (−ui)
+
+−
+
+sℓ∗i (−ai)
+
+−
+
+µ 2
+
+(1
+
+−
+
+s)s(ui
+
+−
+
+ai)2
+
+i=1
+
++
+
+1 n
+
+XT[k] ∇r∗(v(at
+
+)),
+
+∆at[k]
+
+K
++
+
+κ/ξ 2n2
+
+X[k]s(ut[k] −at[k]) 2
+
+k=1
+
+≤ s¯ D(a∗) − D(at) ,
+
+(63)
+
+where s¯ ∈ (0, 1). As such, we have the following:
+
+E D(a∗) − D(at+1) ≤ E D(a∗) − D(at)
+
+K
+
++(1 − β) Ukz D(at) − ∆D(∆a∗[k]; v(at), at[k])
+
+k=1
+
+≤ 1 − (1 − β) Ukz E D(a∗) − D(at)
+
+≤ 1 − (1 − β) Ukz tE D(a∗) − D(a0) .
+
+(64)
+
+The result then follows by upper bounding the R.H.S. of (64) by ε and noticing that E[D(v0) − D(v∗)] < n [37].
+
+C. Proof of Corollary 1
+Using the law of total probability, the parameter update success probability of UE k can be written as follows:
+
+UkRS = P(γk,t > θ, SkR,St = 1)
+
+= Ps(γk,t > θ|SkR,St = 1)P(SkR,St = 1).
+
+(65)
+
+For a generic UE, the probability of being selected by the AP for parameter update during one typical iteration is given by
+
+P(Sk,t = 1) = 1 − P(Sk,t = 0)
+
+=1
+
+−
+
+K− K
+
+1
+
+×
+
+K K
+
+− −
+
+2 1
+
+×
+
+·
+
+·
+
+·
+
+×
+
+K
+
+K −N − (N +
+
+1)
+
+=
+
+1 G
+
+.
+
+(66)
+
+Once UE k is selected, the probability that its parameters can
+
+be successfully updated at the AP is equivalent to the proba-
+
+bility that the received SINR exceeds the decoding threshold.
+
+Using tools from stochastic geometry [33], we ﬁrst condition on the distance xk = rk and arrive at the following:9
+
+P(γk,t > θ|rk, Sk,t = 1) = P
+
+hck > θrkα
+c∈Φ˜ ku
+
+hc cα
+
++
+
+σ2 Put
+
+≈E
+
+exp
+
+−
+
+θσ2rkα Put
+
+exp
+
+−λπ
+
+∞ 0
+
+(1 1
+
+− +
+
+e− x
+
+12 5
+
+λ
+
+x
+
+2
+
+α/θrkα
+
+)
+
+dx
+
+= exp
+
+−θσ2rk2
+
+Put
+
+(2λ)
+
+α 2
+
+−1
+
+−
+
+λπrk2
+
+θ
+
+2 α
+
+∞ 0
+
+1
+
+− e− 1+
+
+12 5π
+
+θ
+
+uα 2
+
+2 α
+
+u
+
+du
+
+.
+
+(67)
+
+Notice that the probability density function of rk follows Rayleigh distribution [33]
+
+fRk (rk) = 2πλrk exp(−λπrk2);
+
+(68)
+
+we can thus decondition rk in (67) according to (68) and obtain the desired result.
+
+D. Proof of Corollary 2
+By employing RR, each UE is selected to transmit per G communication rounds. As such, the selected probability of a typical UE is
+
+P(SkR,Rt = 1) =
+
+1, 0,
+
+if scheduled, otherwise.
+
+(69)
+
+The result then follows by noticing that P(γk,t > θ|SkR,Rt = 1) can be calculated via the same approach as in RS. Under RR,
+the trained parameter from any particular UE is updated once per G communication rounds. Without loss of generality, we assume that the update of UE k starts at time index 0. As such, each communication epoch of UE k occurs at t = mG, m ∈ N. Thus, using Theorem 1 and similar approach as in
+(64), we have
+
+E D(a∗) − D(at+1) ≤ E D(a∗) − D(at)
+
+≤ 1 − (1 − β) UkRR tE D(a∗) − D(a0)
+
+= 1− 1−β
+
+⌊
+
+t G
+
+⌋
+
+E
+
+D(a∗) − D(a0)
+
+1 + V(θ, α)
+
+(70)
+
+where ⌊·⌋ is the ﬂoor function. By upper bounding (70) by ε, we arrive at the desired result.
+
+E. Proof of Corollary 3
+
+Due to the stationary property of PPPs, in the steady state, the average SNR from each UE will be indentical and the PF is equivalent to selecting N UEs out of K with the highest channel gains [29]. As such, a typical UE k will be selected only if its channel gain is among the highest N out of the K UEs, i.e.,
+
+P(Sk,t
+
+= 1) =
+
+N K
+
+=
+
+1 G
+
+.
+
+(71)
+
+9The actual locations of uplink UEs form a Poisson-Voronoi perturbed lattice, and an exact interference characterization for this point process is not yet available. We thus approximate the locations by a non-homogeneous PPP [38], which gives a very tight approximation.
+
+16
+
+And the channel gain of the selected UE can be written as hk = max{hi1 , ..., hiK−N+1} which has the following distribution:
+
+K−N +1
+
+P(hk < h) =
+
+P(him < h) = (1 − e−h)K−N+1. (72)
+
+m=1
+
+The transmission success probability of a selected UE can then be calculated as
+
+P(γk,t > θ) = 1 − E 1−e−θ ck α c∈Φ˜ku chcα+Pσu2t N−K+1
+
+K−N+1
+=
+
+K−N +1 i
+
+(−1)i+1E
+
+e−iθ ck α
+
+i=1
+
+K−N +1
+(=a)
+
+K−N +1
+
+(−1)i+1 ,
+
+i
+
+1 + V(iθ, α)
+
+i=1
+
+c∈Φ˜ ku chcα+Pσu2t
+(73)
+
+where the derivation in (a) follows a similar approach as that in the proof of Corollary 1. We obtain the result by taking (71) and (73) to compute the parameter update success probability.
+
+REFERENCES
+[1] Y. Mao, C. You, J. Zhang, K. Huang, and K. B. Letaief, “A survey on mobile edge computing: The communication perspective,” IEEE Commun. Surveys & Tutorials, vol. 19, no. 4, pp. 2322–2358, Aug. 2017.
+[2] H. H. Yang and T. Q. S. Quek, Massive MIMO meets small cell: Backhaul and cooperation. SpringerBriefs in Computer Science, 2017.
+[3] T. Q. Dinh, J. Tang, Q. D. La, and T. Q. S. Quek, “Ofﬂoading in mobile edge computing: Task allocation and computational frequency scaling,” IEEE Trans. Commun., vol. 65, no. 8, pp. 3571–3584, Aug. 2017.
+[4] H. Lee, S. H. Lee, T. Q. S. Quek, and I. Lee, “Deep learning framework for wireless systems: Applications to optical wireless communications,” IEEE Commun. Mag., vol. 57, no. 3, pp. 35–41, Mar. 2019.
+[5] G. Zhu, D. Liu, Y. Du, C. You, J. Zhang, and K. Huang, “Towards an intelligent edge: Wireless communication meets machine learning,” Available as ArXiv:1809.00343, 2018.
+[6] J. Park, S. Samarakoon, M. Bennis, and M. Debbah, “Wireless network intelligence at the edge,” Availabel as ArXiv:1812.02858, 2018.
+[7] J. Konecˇny`, B. McMahan, and D. Ramage, “Federated optimization: Distributed optimization beyond the datacenter,” Available as ArXiv:1511.03575, 2015.
+[8] J. Konecˇny`, H. B. McMahan, F. X. Yu, P. Richta´rik, A. T. Suresh, and D. Bacon, “Federated learning: Strategies for improving communication efﬁciency,” arXiv preprint arXiv:1610.05492, 2016.
+[9] H. B. McMahan, E. Moore, D. Ramage, S. Hampson et al., “Communication-efﬁcient learning of deep networks from decentralized data,” Available as ArXiv:1602.05629, 2016.
+[10] T. Nishio and R. Yonetani, “Client selection for federated learning with heterogeneous resources in mobile edge,” arXiv preprint arXiv:1804.08333, 2018.
+[11] X. Wang, Y. Han, C. Wang, Q. Zhao, X. Chen, and M. Chen, “In-edge AI: Intelligentizing mobile edge computing, caching and communication by federated learning,” arXiv preprint arXiv:1809.07857, 2018.
+[12] T. Chen, G. B. Giannakis, T. Sun, and W. Yin, “LAG: Lazily aggregated gradient for communication-efﬁcient distributed learning,” in Advances in Neural Information Processing Systems (NIPS), Montreal, CANADA, Dec. 2018.
+[13] A. F. Aji and K. Heaﬁeld, “Sparse communication for distributed gradient descent,” in Conference on Empirical Methods in Natural Language Processing (EMNLP), Copenhagen, Denmark, Sep. 2017.
+[14] Y. Lin, S. Han, H. Mao, Y. Wang, and W. J. Dally, “Deep gradient compression: Reducing the communication bandwidth for distributed training,” in International Conference on Learning Representation (ICLR), Vancouver, Canada, May 2018.
+[15] S. Wang, T. Tuor, T. Salonidis, K. K. Leung, C. Makaya, T. He, and K. Chan, “When edge meets learning: Adaptive control for resourceconstrained distributed machine learning,” in Proc. IEEE Conf. on Computer Commun., Honolulu, HI, Apr. 2018, pp. 63–71.
+
+[16] ——, “Adaptive federated learning in resource constrained edge computing systems,” IEEE J. Sel. Areas Commun., vol. 37, no. 6, pp. 1205– 1221, Jun. 2019.
+[17] G. Zhu, Y. Wang, and K. Huang, “Low-latency broadband analog aggregation for federated edge learning,” Available as ArXiv:1812.11494, 2018.
+[18] K. Yang, T. Jiang, Y. Shi, and Z. Ding, “Federated learning via overthe-air computation,” Available as ArXiv:1812.11750, 2018.
+[19] S. Ha, J. Zhang, O. Simeone, and J. Kang, “Coded federated computing in wireless networks with straggling devices and imperfect CSI,” Available as ArXiv:1901.05239, 2019.
+[20] C. Ma, J. Konecˇny`, M. Jaggi, V. Smith, M. I. Jordan, P. Richta´rik, and M. Taka´cˇ, “Distributed optimization with arbitrary local solvers,” Optimization Methods and Software, vol. 32, no. 4, pp. 813–848, 2017.
+[21] H. H. Yang and T. Q. S. Quek, “The meta distribution of SINR for small cell networks with temporal trafﬁc,” in Proc. IEEE Int. Conf. Commun., Shanghai, P. R. China, May 2019, pp. 1–6.
+[22] ——, “Spatiotemporal analysis for SINR coverage in small cell networks,” IEEE Trans. Commun., vol. 67, no. 8, pp. 5520 – 5531, May 2019.
+[23] H. H. Yang, G. Geraci, and T. Q. S. Quek, “Energy-efﬁcient design of MIMO heterogeneous networks with wireless backhaul,” IEEE Trans. Wireless Commun., vol. 15, no. 7, pp. 4914–4927, Jul. 2016.
+[24] H. ElSawy and E. Hossain, “On stochastic geometry modeling of cellular uplink transmission with truncated channel inversion power control,” IEEE Trans. Wireless Commun., vol. 13, no. 8, pp. 4454–4469, Aug. 2014.
+[25] C.-H. Zhang, “Nearly unbiased variable selection under minimax concave penalty,” The Annals of statistics, vol. 38, no. 2, pp. 894–942, 2010.
+[26] Z. Zhao, C. Feng, H. H. Yang, and X. Luo, “Federated learningenabled intelligent fog-radio access networks: Fundamental theory, key techniques, and future trends,” IEEE Wireless Commun. Mag., submitted.
+[27] G. Lan, S. Lee, and Y. Zhou, “Communication-efﬁcient algorithms for decentralized and stochastic optimization,” Math. Program., pp. 1–48, Dec. 2018.
+[28] H. H. Yang, Y. Wang, and T. Q. S. Quek, “Delay analysis of random scheduling and round robin in small cell networks,” IEEE Wireless Commun. Lett., vol. 7, no. 6, pp. 978– 981, Dec. 2018.
+[29] J.-G. Choi and S. Bahk, “Cell-throughput analysis of the proportional fair scheduler in the single-cell environment,” IEEE Trans. Vehicular Tech., vol. 56, no. 2, pp. 766–778, Mar. 2007.
+[30] S. Bubeck, “Convex optimization: Algorithms and complexity,” Foundations and Trends R in Machine Learning, vol. 8, no. 3-4, pp. 231–357, 2015.
+[31] R. T. Rockafellar, Convex analysis. Princeton university press, 1970, vol. 28.
+[32] J.-B. Hiriart-Urruty and C. Lemare´chal, Fundamentals of convex analysis. Springer Science & Business Media, 2012.
+[33] F. Baccelli and B. Blaszczyszyn, Stochastic Geometry and Wireless Networks. Volumn I: Theory. Now Publishers, 2009.
+[34] M. Haenggi, Stochastic geometry for wireless networks. Cambridge University Press, 2012.
+[35] C. Ma, V. Smith, M. Jaggi, M. I. Jordan, P. Richta´rik, and M. Taka´cˇ, “Adding vs. averaging in distributed primal-dual optimization,” in Int. Conf. Machine Learn. (ICML), Lille, France, Jul. 2015.
+[36] E. Nekouei, T. Alpcan, G. N. Nair, and R. J. Evans, “Convergence analysis of quantized primal-dual algorithms in network utility maximization problems,” IEEE Trans. Control of Network Systems, vol. 5, no. 1, pp. 284–297, Mar. 2018.
+[37] V. Smith, S. Forte, C. Ma, M. Taka´cˇ, M. I. Jordan, and M. Jaggi, “CoCoA: A general framework for communication-efﬁcient distributed optimization,” Journal of Machine Learning Research, vol. 18, no. 230, pp. 1–49, 2018.
+[38] M. Haenggi, “User point processes in cellular networks,” IEEE Wireless Commun. Lett., vol. 6, no. 2, pp. 258–261, Apr. 2017.
+

@@ -1,0 +1,171 @@
+第 41 卷，第 5 期 2020 年9 月
+
+中国铁道科学 CHINA RAILWAY SCIENCE
+
+Vol. 41 No. 5
+September，2020
+
+文章编号： 1001-4632 （2020） 05-0153-09
+铁路一体化信息集成平台总体架构及关键技术研究
+马建军 1，李 平 2，马小宁 2，邵 赛 2
+（1. 中国铁道科学研究院集团有限公司，北京 100081； 2. 中国铁道科学研究院集团有限公司 电子计算技术研究所，北京 100081）
+
+摘 要：在分析铁路信息化当前面临问题及国家“十三五”期信息化发展外部环境的基础上，依托铁路信息 化“CR1623”标志性工程建设，提出基于“平台+应用”模式的铁路一体化信息集成平台总体架构，包含客户 服务平台、集成服务平台、数据服务平台和基础设施平台 4 大子平台。各子平台在建设过程中解决的关键技术包 括：数据负载均衡、软件分发、服务过程实时监控和异常报警、业务建模与解析、海量数据智能分析与工作流调 度、基于深度学习的图像及文本特征提取和智能分析挖掘、软件定义数据中心、自主可控超融合云平台、绿色节 能等技术。国铁集团级一体化信息集成平台的建成使用，使铁路业务不断强化与物联网、云计算、大数据等信息 技术的深度融合和创新应用，形成能力强大、运行稳定、保障有力的信息基础设施，完善了大数据分析、应用集 成以及客户服务能力，将有力支撑和促进整个铁路信息化大综合、大集成的实现。
+
+关键词：一体化信息集成平台；客户服务平台；集成服务平台；数据服务平台；基础设施平台
+
+中图分类号：TP39；U29-39 文献标识码：A
+
+：10. 3969/j. issn. 1001-4632. 2020. 05. 18 doi
+
+信息技术是当今经济与社会发展的重要驱动 力，信息化水平已成为衡量企业乃至国家整体实力 的重要标志。铁路运输组织、客货服务及经营管理 等企业核心业务发展对信息化建设提出了新的更高 需求。中国铁路将广泛利用现代通信和信息技术， 构建技术先进、功能完善、经济适用、安全可靠、 具有中国特色的铁路信息系统，实现调度指挥智能 化、客货服务社会化、经营管理现代化，为提高运 输效率、扩大运输能力、优化资源配置、保障运输 安全、改进服务质量、提升管理水平、提高经济效 益提供支撑，为智能铁路发展提供坚实基础 。 ［1］
+铁路信息化经过多年发展，在单项业务应用和 部门级应用方面成效显著，部分应用已达到世界铁 路先进水平。但目前仍存在缺乏统一的企业信息化 架构指导，基础设施分散建设，系统点状发展，共 享程度不高，各层级业务应用水平参差不齐，对全 面提升业务能力支撑不足等问题。因此，通过新一 代信息技术的综合应用，实现信息系统互联互通、 信息资源充分共享、信息技术与铁路业务深度融 合，是推动铁路高质量建设和发展的必由途径。本 文在梳理铁路信息化建设现状和面临需求的基础
+
+上，设计一体化信息集成平台总体架构，分析客户 服务平台、集成服务平台、数据服务平台、基础设 施平台 4 大子平台的关键技术和应用现状，对平台 下步应用提出相关的意见建议。
+1概述
+当前是我国从网络大国迈向网络强国、成长为 全球互联网引领者的关键窗口期，是信息技术从跟 跑并跑到并跑领跑、抢占战略制高点的激烈竞逐 期。伴随着“中国制造 2025”［2］、“互联网+”行 动计划 ［3］、大数据战略 ［4］ 等国家战略的不断推出， 以及“十三五”时期信息化发展面临的环境、条件 和内涵发生深刻变化 ， ［5］ 2017 年中国铁路总公司 （现中国国家铁路集团有限公司，简称国铁集团） 发布新一轮 《铁路信息化总体规划》，规范和指导 “十三五”乃至更长一段时期内铁路信息化建设。 铁路信息化的主要目标是全力推进“CR1623”标 志性工程建设，建设中国标准的智能铁路信息系统 （CRIS），构建一体化信息集成平台，打造战略决
+
+收稿日期：2020-02-01；修订日期：2020-05-25 基金项目：中国国家铁路集团有限公司科技研究开发重大课题 （K2019X003） 第一作者：马建军 （1969—），男，辽宁绥中人，教授级高工，博士。E-mail：majianjun1071@126. com
+
+154
+
+中国铁道科学
+
+第 41 卷
+
+策、运输生产、经营开发、资源管理、建设管理、 综合协同六大企业级业务应用系统，健全网络安全 和信息化治理两大体系，实现信息全面共享、数据 价值充分挖掘、技术业务深度融合，有力提高铁路 客户服务能力、生产经营能力及开放共享能力。铁 路信息化总体蓝图如图 1 所示。
+图 铁路信息化总体蓝图 1
+作为铁路信息化总体蓝图的支撑，一体化信息 集成平台是评价铁路信息化水平的重要指标，是实 现“平台+应用”模式的基础依托。
+2 一体化信息集成平台总体架构
+一体化信息集成平台是实现数据集成、应用集
+
+成、流程集成的技术平台，是支撑业务应用系统运 行的基础平台，由客户服务平台、集成服务平台、 数据服务平台、基础设施平台 4 部分组成。 2. 1 客户服务平台
+客户服务平台采用多种内外部交互方式，对内 提供统一的用户访问入口，拓展部门间相互协作能 力，对外打造多种信息交互的全媒体、多渠道接入 方式，提高经营服务质量。客户服务平台主要由企 业门户、电子商务、客服中心、移动应用等平台构 成，总体架构如图 2 所示。其中企业门户、客服中 心、移动应用平台按国铁集团、铁路局 2 级部署， 电子商务平台在国铁集团集中部署。
+企业门户由外部门户和内部门户组成，外部门 户为铁路对外新闻发布、形象宣传和信息交互的窗 口，内部门户为内部协作工作平台、办公系统的统 一入口，集成日常工作中相关的业务应用系统，集 中展示定制信息。
+电子商务以提升并拓展铁路运输服务功能、服 务水平和服务质量为出发点，打造中国铁路 12306 网站和 95306 网站，提供车票预订、出行向导、信 息服务、延伸服务，以及发货、货物追踪、运费计 算、大宗商品信息等服务，拓展电子商务服务渠 道，促进内部生产组织优化，提升铁路经营效益、 服务质量和市场竞争力。
+
+图 客户服务平台总体架构 2
+
+第5期
+
+铁路一体化信息集成平台总体架构及关键技术研究
+
+155
+
+客服中心以客户为中心，支持咨询投诉建议、 业务办理、客货营销、增值服务等全方位服务，成 为广大客户联系铁路的重要渠道和服务窗口 。 ［6］
+移动应用通过移动 APP、短信平台、社交平 台、移动微门户等，为铁路客户提供多渠道服务手 段，为内部员工提供多渠道系统访问方式。 2. 2 集成服务平台
+集成服务平台提供应用集成和流程集成服务， 推进业务应用系统间横向集成、纵向贯通，实现数 据高度共享、流程闭环管理和作业高效协同，支撑
+
+铁路信息系统高效建设和平稳运行。集成服务平台 主要包括业务流程引擎、企业服务总线和外部协作 平台，总体架构如图 3 所示。
+业务流程引擎通过业务流程编排、流程发布和 管理等工具，为不同的应用系统以及跨业务的流程 集成提供服务，实现跨应用系统的流程整合与 集成。
+企业服务总线通过统一的通信协议和报文标 准，提供标准化服务协议和接口，为各业务系统提 供统一的应用集成服务。
+
+图 集成服务平台总体架构 3
+
+外部协作平台为外部合作方和内部应用系统之 间的集成提供手段，促进铁路内部与政府机构、客 户企业及其他国内国外合作方系统间的集成。 2. 3 数据服务平台
+数据服务平台提供一站式全业务数据集成、多 类型数据存储、标准化数据治理、海量数据分析计 算、数据可视化展现等能力，促进数据资源综合利 用，实现数据价值增值，有力支撑铁路大数据及智 能铁路典型应用 ［7-8］。数据服务平台主要由基础数 据管理、数据集成、数据共享、大数据存储与分析 4 部分组成，总体架构如图 4 所示 。 ［9］
+基础数据管理实现基础数据的统一、规范管 理，范围包括各业务系统共享的主数据、铁路地理 信息数据，以及实施数据服务平台所产生的元数据
+
+信息。 数据集成以业务系统数据、物联网数据、以及
+互联网数据、外部相关机构和企业交互数据为数据 源，提供结构化数据和非结构数据等不同数据类型 的数据接入能力，对来自数据源层的原始数据，通 过清洗、抽取、转换、标注、规范化后，加载提供 给数据共享服务。
+数据共享构建适应铁路大数据环境的操作性数 据存储、非结构化数据存储，为各业务应用系统提 供数据共享服务，并对数据进行准实时分析，为数 据仓库提供整合数据。
+大数据存储与分析包括统计分析、多维分析、 挖掘算法库、数据挖掘等工具，对海量数据进行模 拟分析和计算预测，满足实时、离线应用的数据分
+
+156
+
+中国铁道科学
+
+第 41 卷
+
+图 数据服务平台总体架构 4
+
+析挖掘需求。 2. 4 基础设施平台
+基础设施平台是铁路信息化建设的基础支撑， 主要由数据中心，以及支撑数据中心运行的信息网 络、开发测试平台、运维支撑平台等部分组成。数 据中心是铁路业务应用系统生产运行中心，按云数 据中心规划设计，承载系统部署及数据资源存储， 利用既有资源建设同城应急机房，实现同城应用级 灾难备份 ， ［10］ 布局如图 5 所示；信息网络由国铁 集团、铁路局和站段 3 级局域网，以及连接局域网 的广域网构成；开发测试平台引入云计算技术，提 供统一的开发测试云环境，实现开发测试资源共 享；运维支撑平台将非云化物理设备、云化虚拟设 备进行集中监控和管理，实现系统运维监控自动 化、服务流程化、展示互动化。
+图 数据中心布局 5
+3 一体化信息集成平台关键技术
+一体化信息集成平台关键技术包括数据负载均 衡、软件分发、服务过程实时监控和异常报警、业
+
+务建模与解析、海量数据智能分析与工作流调度、 图像文本特征提取和智能分析、软件定义数据中 心、自主可控超融合云平台和绿色节能等技术，如 图 6 所示。 3. 1 客户服务平台
+客户服务平台关键技术主要包括客运 12306 和 货运 95306 网站相关技术。
+12306 网站：采用 SOA 技术将不同业务功能 模块和交易服务平台进行无缝整合，通过资源分 区、分库分表、交易排队、售取分离、异步下单等 技术手段和应用策略，解决超大规模并发交易的问 题；在高并发交易方面，采用数据负载均衡、同 步/异步消息服务、内存缓存服务、通信协议适配 器、异构数据访问、服务组件发布、组件管理和监 控等技术；在高可用性方面，采用存储虚拟化、数 据枷锁压缩、日志同步技术、故障切换技术等。
+95306 网站：构建统一门户、一级部署、双活 的架构，各应用功能以微服务方式为用户提供应用 服务，每个微服务之间是松耦合方式，提高部署和 管理的灵活性；同时，在批处理、实时、海量数据 整合技术，货运客户画像，以及多式联运最优方案 设计等方面开展了前期应用实践。
+1） 数据负载均衡技术 维持 12306 网站交易数据负载均衡是保证整个 系统稳定可靠运行的基础。开展基于关键交易数据 的预售强度和销售量的双工作量证明优化负载均衡 研究 ， ［11］ 建立双工作量证明形式化算法，解决了
+
+第5期
+
+铁路一体化信息集成平台总体架构及关键技术研究
+
+157
+
+图 一体化信息集成服务平台关键技术 6
+
+传统静态均衡方法无法实现抢票高峰办理时的数据 负载均衡问题，实现对各个数据中心数据负载合理 的分配和评估。
+2） 软件分发技术 软件分发的实时性、高效性、便捷性，对用户 购票体验的提升以及 12306 网站相关系统的优化升 级起到非常重要的作用。目前，可定制部署环境、 工作流动态部署规划、自保护部署风险规避和客户 端自动化应用更新等关键技术已在 12306 系统软件 分发流程中进行应用 。 ［12］ 其中，以自定义分发服 务目录方式，通过对服务器 IP 地址、传输端口、 本地软件存放目录以及服务器存放软件目录等信息 进行设置，完成定制部署软件分发服务目录；工作 流动态部署规划是采用工作流方法部署分发计划流 程，将分发到每个终端进行应用部署，实现最新软 件包的自动获取；自保护部署风险规避主要是以测 试环境模拟生产环境实际应用需求的方式，当中途 出现升级失败情况时，自动退出部署流程，恢复之 前备份系统和软件包，并分析原因重新开始避环测 试；客户端自动化应用更新是自动启动客户端获取 下载任务并同步更新应用，主要通过客户端分发下 载代理程序查询分发定义，并将要分发的软件包下 载安装到规定位置，实现客户端的自动化下载和 升级。 3. 2 集成服务平台 集成服务平台的关键技术主要包括：采用基于 SOA 和 EDA 架构的企业服务总线，提供资源分 配、扩展机制、重试机制、异常处理等功能；在企 业服务总线架构的基础上，基于适配器和 JMX 协
+
+议，提供标准、灵活的外部系统接入能力；依托企 业服务总线监控台，实现系统运行期间的事前预 警、事中告警、事后分析；业务流程管理平台为业 务分析人员提供可视化业务建模功能。
+1） 服务过程实时监控和异常报警技术 支持系统运行期间的监控和报警，对进度、差 错、纠正、恢复等节点实现服务过程进行动态监 控、异常报警和故障诊断。同时提供集系统管理、 适配部署、MQ 配置、流程定义、日志统计于一体 的配置部署功能，通过可视化技术以业务的视角展 现应用集成需要解决的问题和难点。 2） 业务建模与解析技术 通过业务视图构建技术，通过图形化设计建模 工具设计流程模型，为业务分析人员提供业务流程 的梳理与建模。在流程业务建模后，构建面向无技 术人员参与的即时模拟测试验证环境。支持抽象并 定义流程中的业务规则、所调用业务操作、用户界 面等，并可实现复用。 3. 3 数据服务平台 数据服务平台关键技术主要包括：组件集成与 微服务治理技术，海量多源异构数据采集技术，面 向快速响应的非关系型数据存储技术，面向海量数 据处理的分布式数据仓库存储技术，海量数据智能 分析与工作流调度技术，时空数据敏捷可视化技 术，基于场景的数据同化技术，分布式数据库数据 协同技术，基于数据活化的数据目录构建技术，基 于深度学习的图像及文本特征提取和智能分析挖掘 技术等。基于“平台+应用”的铁路大数据应用模 式，实现海量文本视频图像识别等上百种大数据场
+
+158
+
+中国铁道科学
+
+第 41 卷
+
+景应用 。 ［13］ 1） 海量数据智能分析与工作流调度关键技术 该关键技术优化大数据分析计算底层组件的协
+同调度问题，提供分布式运行引擎和协同计算功 能，支撑分布式批量计算、流计算、深度学习计算 和图计算，为大数据分析计算提供强大的分析计算 能力。同时提出大数据分析计算的任务调度和工作 流配置方法，实现按照工作流或任务优先级进行大 数据分析计算任务的管理和调度，实时监控大数据 分析计算任务的运行状态和计算结果、反馈和共享 计算结果。
+2） 基于深度学习的图像及文本特征提取和智 能分析挖掘技术
+针对铁路非结构化数据占比高，文本和图像数 据的铁路业务特征提取和分析困难等问题，建立基 于双向长短时神经网络和条件随机场 （BidirectionalLong Short-Term Memory+Conditional Random Field，Bi-LSTM+CRF） 的铁路事故故障文本特 征提取方法，实现重点事故故障的超前防范 。 ［14］ 提出结合深度卷积神经网络 （Deep Convolutional Neural Network，DCNN） 与加权梯度的类激活映 射 （Gradient-weighted Class Activation Mapping， Grad-CAM） 的可视化场景分类模型，建立基于迁 移学习的网络结构级联 Grad-CAM 可视化层，大 幅度提高图像场景分类识别的准确率 。 ［15］ 针对铁 路设备事故故障文本分析问题，提出基于合成少数 类过采样及集成学习 （Synthetic Minority Oversam⁃ pling Technique+Ensemble Learning， SMOTE+ EL） 的不平衡故障智能分类模型，实现故障类别 的自动识别，有效地提高故障诊断准确性和现场作 业人员故障排除效率 。 ［16］ 3. 4 基础设施平台
+基础设施平台综合利用云计算、虚拟化、软件 定义等技术，为一体化信息集成平台提供集中统 一、按需服务、弹性扩展、安全可控的硬件和软件 资源。涉及的关键技术主要包括：软件定义数据中 心、自主可控超融合云平台和绿色节能等技术。
+1） 软件定义数据中心技术 依托国铁集团虚拟化应用基础，搭建集约化、 弹性化、自动化的云资源池、云资源平台、云管平 台，通过关键组件相互协作实现 9 大核心能力，包 括按需供给、快速发布、弹性伸缩、故障自愈、开 发运维一体化、泛在接入、资源池化、服务可计 量、多租户。通过这 9 项核心能力，充分体现云计
+
+算技术优势，支持数据中心横向扩展，支撑铁路业 务应用系统跨基础技术平台、跨数据中心建设。
+2） 自主可控超融合云平台技术 运用国产化硬件和具有自主知识产权云平台， 构建基于超融合架构开放的云计算数据中心，支持 超大规模应用敏捷部署。 3） 绿色节能技术 采用绿色建筑设计及自然冷源、磁悬浮变频、 云平台动态调配资源等等新工艺，构建绿色、环 保、节能的数据中心，使满载运行的电源使用效率 值低于 1. 5。
+4 当前应用情况
+目前国铁集团级一体化信息集成平台已正式投 入使用。客户服务平台、集成服务平台和数据服务 平台根据应用情况持续完善核心功能。国铁集团级 数据中心投产应用，有效提升了信息系统对铁路业 务连续性的保障能力。
+1） 客户服务平台 不断完善 12306 网站服务，使其成为客票销售 的主渠道，实现了电子客票 ［18］、票额预分 、 ［19］ 异 常行为识别 ［20］、多语言自动售票等客运业务功能。 目前 12306 网站售票注册用户超 4 亿，互联网售票 量占比 80% 以上，极大节约了旅客购票时间成本， 同时为旅客提供覆盖出行规划、酒店预订、旅游预 订、餐饮服务、租车服务等全过程的一体化、个性 化的出行服务。 完成 95306 网站建设，提供了网上货运交易、 物资采购、招商及全程物流信息服务，打造基于 “互联网+”的线上线下一体化物流供应链服务创 新体系，同时正在推进铁路电子招投标和物资采购 等对外服务应用建设。 2） 集成服务平台 已完成国铁集团级平台建设和部署。其中，企 业服务总线提供标准化服务协议和接口。业务流程 引擎 （BPM） 实现了跨系统、跨部门、跨专业的 业务流程运端到端行监控及重要业务流程全过程完 整闭环追踪管理，有效提高了流程整合能力和服务 编排能力。外部协作平台为铁路内外部数据交换及 业务集成应用提供平台支撑。 3） 数据服务平台 已完成平台在国铁集团及部分铁路局的 2 级部
+
+第5期
+
+铁路一体化信息集成平台总体架构及关键技术研究
+
+159
+
+署，各专业大数据应用不断深化，跨专业的大数据 应用初步展开 ， ［21］ 在客货服务、安全生产、设备 维修、经营管理等领域应用取得实质性成效，数据 共享交互、数据价值深度挖掘、数据综合利用等能 力全面提升。同时，铁路地理信息平台作为收集、 存储、维护和共享空间数据及相关属性数据的平 台，为铁路各个部门和业务应用系统提供空间信息 服务。
+4） 基础设施平台 于 2018 年建成了总面积近 6 万 m2 的铁路主数 据中心，其中云平台管理各类服务器 1 944 台，网 络设备 871 台，提供了 13 800 余台虚拟机资源和 394 台物理机资源，承载国铁集团级应用系统部 署、全路集中应用系统部署及数据资源存储，提供 能力强大、运行稳定、保障有力的信息基础设施， 实现了重要信息资源集中管理、集中存储和综合利 用，改善了过去铁路数据中心缺乏统筹利用、分散 建设的局面。
+5结语
+全面推进铁路信息化建设是推动铁路创新发 展、增强核心竞争力的必然选择，是促进铁路从运 输企业向物流企业转型、传统企业向现代化企业转
+
+型的重要途径。一体化信息集成平台作为铁路信息 化建设的有力抓手，不断强化与物联网、云计算、 大数据等信息技术的深度融合和创新应用，形成能 力强大、运行稳定、保障有力的信息基础设施，完 善的大数据分析、应用集成以及客户服务能力，有 力促进和支撑整个铁路信息化大综合、大集成的 实现。
+未来应按照国铁集团业务发展需求，结合信息 技术发展趋势，持续深化“平台+应用”模式，推 进客户服务平台与“互联网+”深度融合，12306 网站运用大数据、人工智能等技术为旅客提供个性 化的精准服务，95306 网站建立静态和动态的客户 画像模型为精准营销提供决策支持；集成服务平台 提高跨系统、跨部门、跨专业的业务流程执行和协 同效率，制定统一的对外数据协作标准，保障数据 的安全性；数据服务平台构建知识图谱关联的多源 异构数据图关系，指导未来数据以图状结构存储， 为人工智能技术应用提供良好的数据基础，提高各 业务系统预测未来的能力；基础设施平台充分运用 物联网、云计算、大数据、北斗、区块链等关键技 术，逐步发展为融合感知、传输、存储、计算、处 理为一体的智能化基础设施平台，不断提升铁路业 务数字化、网络化、智能化水平。
+
+参考文献
+
+［ 1 ］ 史天运 . 中国高速铁路信息化现状及智能化发展［J］. 科技导报，2019，37（6）：53-59. （SHI Tianyun. Present Situation of Wide Applications of Information and Intelligence in the Field of High-Speed Railway in China［J］. Science & Technology Review，2019，37（6）：53-59. in Chinese）
+［ 2 ］ 国务院 . 国发〔2015〕28 号 中国制造 2025［S］. 北京：国务院，2015. ［ 3 ］ 国务院 . 国发〔2015〕40 号 国务院关于积极推进“互联网+”行动的指导意见［S］. 北京：国务院，2015. ［ 4 ］ 国务院 . 国发〔2015〕50 号 促进大数据发展行动纲要［S］. 北京：国务院，2015. ［ 5 ］ 国务院 . 国发〔2016〕73 号“十三五”国家信息化规划［S］. 北京：国务院，2015. ［ 6 ］ 张伯驹 . 新一代铁路客户服务系统的研究与探讨［J］. 铁路计算机应用，2017，26（6）：20-23，30.
+（ZHANG Boju. New Generation of Railway Customer Service System ［J］. Railway Computer Application，2017，26 （6）：20-23，30. in Chinese） ［ 7 ］ 王同军 . 智能铁路总体架构与发展展望［J］. 铁路计算机应用，2018，27（7）：1-8. （WANG Tongjun. Overall Framework and Development Prospect of Intelligent Railway［J］. Railway Computer Application，2018，27（7）：1-8. in Chinese） ［ 8 ］ 王同军 . 中国智能高速铁路体系架构研究及应用［J］. 铁道学报，2019，41（11）：1-9. （WANG Tongjun. Research and Applications of China Intelligent High-Speed Railway Architecture［J］. Journal of the China Railway Society，2019，41（11）：1-9. in Chinese） ［ 9 ］ 武威，马小宁，刘彦军，等 . 铁路数据服务平台安全策略研究［J］. 中国铁路，2019（8）：63-68. （WU Wei，MA Xiaoning，LIU Yanjun，et al. Research on Safety Strategy of Railway Data Service Platform［J］. Chinese
+
+160
+
+中国铁道科学
+
+第 41 卷
+
+Railways，2019（8）：63-68. in Chinese） ［10］ 李博 . 云计算在铁路信息化基础设施建设中应用研究［J］. 铁路计算机应用，2015，24（10）：1-5.
+（LI Bo. Application of Cloud Computing in Railway Information Based Infrastructure Construction［J］. Railway Computer Application，2015，24（10）：1-5. in Chinese） ［11］ 周亮瑾，王富章 . 铁路客票系统数据负载均衡方法研究［J］. 铁道运输与经济，2018，40（5）：46-50. （ZHOU Liangjin，WANG Fuzhang. A Study on the Load Balancing of Data from the Railway Ticketing System ［J］. Railway Transport and Economy，2018，40（5）：46-50. in Chinese） ［12］ 江琳，刘相坤，李天翼，等 . 铁路客票系统软件分发关键技术与应用［J］. 铁路计算机应用，2017，26（12）：19-21. （JIANG Lin，LIU Xiangkun，LI Tianyi，et al. Key Technologies and Applications of Software Distribution in Railway Ticketing and Reservation System［J］. Railway Computer Application，2017，26（12）：19-21. in Chinese） ［13］ 王同军 . 中国铁路大数据应用顶层设计研究与实践［J］. 中国铁路，2017（1）：8-16. （WANG Tongjun. On Top-Level Design for China Railway's Big Data Application & Case Study［J］. Chinese Railways， 2017（1）：8-16. in Chinese） ［14］ LI Xinqin，SHI Tianyun，LI Ping，et al. BiLSTM-CRF Model for Named Entity Recognition in Railway Accident and Fault Analysis Report［C］// ACM International Conference Proceeding Series. Beijing：ACM，2018：Part F148260，1-5. ［15］ 赵冰，李平，代明睿，等 . 基于深度学习的铁路图像场景分类优化研究［J］. 计算机系统应用，2019，28（6）：228-234. （ZHAO Bing，LI Ping，DAI Mingrui，et al. Research on Optimization Method of Railway Image Scene Classification Based on Deep Learning Method［J］. Computer Systems and Applications，2019，28（6）：228-234. in Chinese） ［16］ 杨连报，李平，薛蕊，等 . 基于不平衡文本数据挖掘的铁路信号设备故障智能分类［J］. 铁道学报，2018，40（2）：59-66. （YANG Lianbao，LI Ping，XUE Rui，et al. Intelligent Classification of Faults of Railway Signal Equipment Based on Imbalanced Text Data Mining［J］. Journal of the China Railway Society，2018，40（2）：59-66. in Chinese） ［17］ LIU Jun，SHI Tianyun，LI Ping. Optimal Cloud Storage Problem in the Distributed Cloud Data Centers by the Discrete PSO Algorithm［C］// 2015 IEEE Congress on Evolutionary Computation. Sendai，Japan：IEEE，2015：156-163. ［18］ 黄欣，张志强，单杏花，等 . 基于电子客票的铁路旅客智能出行研究［J］. 中国铁路，2019（11）：1-6. （HUANG Xin，ZHANG Zhiqiang，SHAN Xinghua，et al. Intelligent Travel for Railway Passengers Based on E-Ticket ［J］. Chinese Railways，2019（11）：1-6. in Chinese） ［19］ 单杏花，周亮瑾，吕晓艳，等 . 铁路旅客列车票额智能预分研究［J］. 中国铁道科学，2011，32（6）：125-128. （SHAN Xinghua，ZHOU Liangjin，LÜ Xiaoyan，et al. Research on Intelligent Pre-Assignment of Ticket Allotment for Railway Passenger Train［J］. China Railway Science，2011，32（6）：125-128. in Chinese） ［20］ 周亮瑾，阎志远，戴琳琳 . 铁路互联网售票异常行为分类技术的研究与应用［J］. 中国铁道科学，2019，40（6）：133-139. （ZHOU Liangjin，YAN Zhiyuan，DAI Linlin. Research and Application of Classification Technology for Abnormal Behaviors in Railway Internet Ticketing［J］. China Railway Science，2019，40（6）：133-139. in Chinese） ［21］ 杨怀志，吴艳华，程智博 . 基于铁路数据服务平台的高速铁路工务设备大数据应用研究［J］. 铁路计算机应用，2018，27 （7）：85-89. （YANG Huaizhi，WU Yanhua，CHENG Zhibo. Big Data Application of High-Speed Railway Track Maintenance Equipment Based on Railway Data Service Platform ［J］. Railway Computer Application，2018，27 （7）：85-89. in Chinese）
+
+Research on the Overall Framework and Key Technologies of Railway Integrated Information Platform
+MA Jianjun1，LI Ping2，MA Xiaoning2，SHAO Sai2
+(1. China Academy of Railway Sciences Corporation Limited, Beijing 100081, China; 2. Institute of Computing Technology, China Academy of Railway Sciences Corporation Limited, Beijing 100081, China)
+Abstract: On the basis of analyzing the current problems faced by railway informatization and the external
+
+第5期
+
+铁路一体化信息集成平台总体架构及关键技术研究
+
+161
+
+environment of informatization development in the“13th Five-Year Plan”period in China, relying on the landmark project construction of railway informatization“CR1623”, this paper proposes the overall architecture of railway integrated information platform based on the“platform + application”mode, which includes customer service platform, integrated service platform, data service platform and infrastructure platform. The key technologies to be solved in the construction of each sub-platform include data load balancing, software distribution, real-time monitoring of service processes and abnormal alarms, business modeling and analysis, intelligent analysis of massive data and workflow scheduling, image and text feature extraction and intelligent analysis and mining based on deep learning, software-defined data center, autonomous controllable hyper-converged cloud platform, green energy-saving and other technologies. The establishment and use of the China Railway group-level integrated information platform has enabled the railway business to continuously strengthen the in-depth integration and innovative application of information technologies such as the Internet of Things, cloud computing and big data, forming an information infrastructure with powerful capacity, stable operation and strong guarantee. It has improved the capabilities of big data analysis, application integration and customer service, which will strongly support and promote the realization of the large integration of the entire railway informatization.
+
+Key words: Integrated information platform; Customer service platform; Integrated service platform; Data service platform; Infrastructure platform
+（责任编辑 刘卫华）
+

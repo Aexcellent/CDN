@@ -1,0 +1,1190 @@
+Additively Homomorphical Encryption based Deep Neural Network for Asymmetrically Collaborative
+Machine Learning
+
+arXiv:2007.06849v1 [cs.LG] 14 Jul 2020
+
+Yifei Zhang Chinese University of Hong Kong
+yifeiacc@gmail.com
+
+Hao Zhu Australian National University
+allenhaozhu@gmail.com
+
+Abstract
+The ﬁnancial sector presents many opportunities to apply various machine learning techniques. Centralized machine learning creates a constraint which limits further applications in ﬁnance sectors. Data privacy is a fundamental challenge for a variety of ﬁnance and insurance applications that account on learning a model across different sections. In this paper, we deﬁne a new practical scheme of collaborative machine learning that one party owns data, but another party owns labels only, and term this Asymmetrically Collaborative Machine Learning. For this scheme, we propose a novel privacy-preserving architecture where two parties can collaboratively train a deep learning model efﬁciently while preserving the privacy of each party’s data. More speciﬁcally, we decompose the forward propagation and backpropagation of the neural network into four different steps and propose a novel protocol to handle information leakage in these steps. Our extensive experiments on different datasets demonstrate not only stable training without accuracy loss, but also more than 100 times speedup compared with the state-of-the-art system.
+1 Introduction
+Machine learning makes use of algorithms to perform tasks such as prediction or classiﬁcation. Classical machine learning approaches need centralizing the training data on one machine or in a cluster. Centralized machine learning is, by far, the most common architecture. However, it also stops further applications in ﬁnance sectors (e.g., insurance and bank) from employing machine learning techniques. For conﬁdentiality reasons, these ﬁnance sectors are not able to share their data and store it in the cloud, and thus cannot beneﬁt from centralized machine learning with other organizations.
+Data privacy is a fundamental challenge for many machine learning applications depending on data aggregation across different entities, especially in ﬁnance sectors. The trade-off between data privacy and learning on aggregated data creates a collaborative circumstance. Decentralized machine learning applies to keeps data safe and ensures privacy under some conditions. A new method called Federated Learning (or Collaborative Machine Learning) [15][19], proposed by Google, offers a way of decentralized and conﬁdential machine learning. By using aggregated updating parameters of the model to train algorithms instead of raw data, federated learning empowers sectors where data cannot be transferred to third parties for conﬁdentiality reasons with data network effects. In fact, federated learning plays a similar role in data parallelism based distributed machine learning. In other words, federated learning is a kind of distributed version of deep neural networks that the data can be partitioned and stored in multiple machines. However, federated learning is only able to transform (or online) deep learning into horizontal parallelism, which splits the data based on the quantity of the data, i.e., the different amount of data subset goes into the parallel computation. Thus, the learning scheme of federated learning cannot handle the situation of vertical parallelism. Additionally, recent
+Preprint. Under review.
+
+researches [21] have shown that it is possible to obtain the private training data from the publicly shared gradients.
+In this paper, we investigate a learning technique that allows two parties to collaboratively train a model while one party (the active party) holds data and another party (the passive party) holds the corresponding labels. We term this Asymmetrically Collaborative Machine Learning since the learning task is based on the model that parties actively interact by sharing information and take on asymmetric roles. Compared with federated learning and collaborative machine learning, asymmetrically collaborative machine learning is to transform machine learning algorithms into Vertical parallelism, which splits the data based on one or more speciﬁc internal characteristics of the data.
+Technically, for this scheme, the straightforward solution is learning on encrypted data. There are two different ways to learn a model on encrypted data: differential privacy [6, 1] and homomorphic encryption [2]. Differential privacy injects noise into query results to avoid inferring information about any speciﬁc record. However, it needs careful calibration to balance privacy and model usability. Further, private attributes still remain in plaintext, which are unacceptable for ﬁnance sectors, so users may still have security concerns. A more promising solution comes from the recent advance in homomorphic encryption. It allows users to encrypt data with the public key and ofﬂoad computation to the cloud (or other parties). The cloud computes on the encrypted data and generates encrypted results. Without the secret key, the cloud simply serves as a computation platform but cannot access any user information. But it is extremely costly in computation, thus unsuitable for high dimension data and costly machine learning methods (e.g., deep neural networks).
+In this paper, we propose a novel privacy-preserving architecture to solve the problem of how the two parties can collaboratively train a model while one party holds data, and another party holds the label by neural networks. Intuitively, we avoid learning on encrypted data directly. Thus we decompose a Deep Neural Network (DNN) into two components: the ’Feature Extraction’ part and the ’Classiﬁer’ part. In ’Feature Extraction’ a locally unencrypted deep neural network is used to extract more compact features from unencrypted data. In the ’Classiﬁer,’ a shallow neural network is used to learn a classiﬁer on encrypted features came from the component of feature extraction. However, such a locally unencrypted and locally encrypted deep neural network results in a new challenge of preserving-privacy. Compared with learning on encrypted data, the ’classiﬁer’ needs to calculate the gradient of inputs and passes it back to the ’feature extraction’ part. Thus we also need to avoid information leakage in the gradient, which has been proved in [21]. Furthermore, we take a two-layer neural network as an example to decompose the forward and backward propagation into four different steps and propose a protocol to avoid information leakage in them. Our contribution includes:
+• We deﬁne a new scheme of collaborative machine learning, called asymmetrically collaborative machine learning which is promising in many real-world applications.
+• We propose a novel privacy-preserving, computationally efﬁcient, homomorphic encryptionbased backpropagation algorithm for asymmetrically collaborative machine learning.
+• An extensive empirical evaluation of the proposed approach is demonstrated to show the proposed method achieves 100 times speed-up compared with the methods based on learning on encrypted data.
+2 Related Work
+Traditional encryption methods, such as AES (Advanced Encryption Standard) [3], are extremely fast, and allow data to be stored conveniently in encrypted form. However, it is costly and quite a challenge to perform even simple analytics on the encrypted data (i.e. ciphertexts). For example, the cloud server needs access to the secret key, and the owner of the data needs to download, decrypt as well as operate on the data locally. These commonly lead to security concerns. Homomorphic Encryption (HE) is able to encrypt data before sending to a cloud computing platform while still allowing the operations of search, sort, and edit on the ciphertexts. This property avoids needing to ship data back and forth to be decrypted from the cloud computing platform. HE which supports any function on ciphertexts is known as Fully Homomorphic Encryption (FHE) [7], while Partially Homomorphic Encryption (PHE) [4, 11] includes encryption schemes that have homomorphic properties, with respect to one operation (e.g., only addition or only multiplication, but not both). However, FHE
+2
+
+faces a fundamental problem which extremely costly in computation. Thus it is unpractical for some machine learning methods (e.g. high dimension linear model and neural network). Paillier [16], as well known one method of PHE, supports unlimited numbers of additions between ciphertext, and multiplication between a ciphertext and a scalar constant. In other words, given Enc(m1) and Enc(m2), you can not get Enc(m1) ⊗ Enc(m2). You can only get Enc(m1) ⊕ Enc(m2) which equals Enc(m1 + m2). Given Enc(m1) and m2, you can get Enc(m1) ⊗ m2 which equals Enc(m1 · m2). But notice that m2, in this case, was not encrypted. ⊕ is the homomorphic addition with ciphertext and ⊗ is the homomorphic multiplication between ciphertext and a scalar constant. Enc(x) is the ciphertext of plaintext x.
+GELU-Net [20] proposes a novel privacy-preserving architecture based on paillier. The main difference between the proposed method and GELU is that GELU works under the situation that one party In this paper, we focus on solving the privacy issue that data and labels are distributed on different parties.
+
+3 Methodology
+
+3.1 Applying Neural Networks to Collaborative Machine Learning
+
+To solve this problem, our main strategy is making a deep neural network partially learn on unencrypted data and partially learn on encrypted features to reduce the computation cost in the stage of learning on encrypted data. More speciﬁcally, a deep neural network is carefully partitioned into two parts: the ’feature extraction’ and the ’classiﬁer’ (or ’regression’). The ’feature extraction’ plays a role of dimension reduction in the plaintext and produces compact features to the ’classiﬁer’. And then the implementation of ’the classiﬁer’ is learning a simpliﬁed model (e.g. logistic regression) on encrypted features generated from the ’feature extraction’ part. It is easy to observe that this setting is insensitive to the dimension of inputs and network architectures not only because the ’feature extraction’ part contains the majority of neural network and it does not use arithmetic operations of homomorphic encryption, but also because the computational complexity of ’classiﬁer’ part is related to the dimension of features generated from the ’feature extraction’ part rather than the dimension of raw inputs and the former is far more compact. Take a two-layer neural network as an example, one for ’feature extraction’ and another one for ’classiﬁer’, The corresponding training objective is shown in Eq. 1, for simplicity the bias items are omitted:
+
+1
+
+min W1,W2 |D|
+
+D
+
+Li(ti, F{W1,W2}(xi)) =
+
+D
+
+Li(ti, Softmax(W2σ(W1xi))), xi ∈ D
+
+(1)
+
+where D is the dataset. xi and ti represend the input data sample and its related target (label). σ(.) is ReLU function [9] W1 ∈ Rdh×di and W2 ∈ Rc×dh are parameters of two layers respectively. di is the dimension of input sample. dh is the dimension of hidden layer. c is the output dimension as the same as the number of categories. Assuming Li is CrossEncropy [14], η is learning rate, We can further decompose forward and backward propagation into two different parts respectively, and then
+there are four steps as following:
+
+• Step 1 The forward propagation on the active party: the active party feeds the data into the
+neural net (feature extraction ) on the active party. The output activations ai = σ(W1xi) ∈ Rhd is then send to the passive party.
+
+• Step 2 The forward propagation on the passive party: the passive party propagates the received activation ai through its neural nets pi = softmax(zi), zi = W2ai and compute the CrossEncropy loss Li(ti, pi) = ti log(pi).
+
+• Step 3 The back propagation on the passive party: the passive party compute the required
+
+gradients:
+
+∂Li ∂pi
+
+=
+
+ti
+
+− pi,
+
+∂Li ∂W2
+
+=
+
+∂Li ∂pi ∂pi ∂W2
+
+=
+
+∂Li ∂pi
+
+ai
+
+,
+
+∂Li ∂ai
+
+=
+
+∂Li ∂pi ∂pi ∂ai
+
+=
+
+∂Li ∂pi
+
+W2
+
+and
+
+update
+
+parameter
+
+via
+
+W2
+
+=
+
+W2
+
+−
+
+η
+
+∂Li ∂W2
+
+and
+
+send
+
+∂Li ∂ai
+
+back
+
+to
+
+the
+
+active
+
+party.
+
+•
+
+Step 4 The back propagation on the active party:
+
+the active party receives the gradient
+
+∂Li ∂ai
+
+from passives party, computes the gradient
+
+∂Li ∂W1
+
+=
+
+∂Li ∂ai ai ∂W1
+
+=
+
+∂Li ∂ai
+
+xi
+
+and
+
+updates
+
+the
+
+parameters
+
+W1
+
+=
+
+W1
+
+−
+
+η
+
+∂Li ∂W1
+
+.
+
+3
+
+To fulﬁl the requirement that both data and label cannot get or infer from the other side, we encrypt the intermediate results exchanged in both parties, and carefully design a Privacy-Preserving BackPropagation that is compatible with the PHE in the setting of Asymmetrically Collaborative Machine Learning. We detail the privacy issue and the algorithm in the following section.
+3.2 Secure Forward Propagation on the active party
+The secure forward propagation on the active party is similar to the normal forward propagation used in training neural nets. The only difference is that the last layer activations (outputs) ai in the secure forward propagation needs to be encrypted with PHE. We note the additive homomorphic encryption as [.]c Since these activations will be transmitted to the passive party, leaving them in the plaintext will lead to the issue of information leakage. The passive party or attacker can collect these activations as meaningfully features for later use. Potentially, the passive party or attacker may infer the personal information from these activations. Thus, the active party will encrypt the activations to [ai]c and then send to the passive party.
+Algorithm 1: Privacy-preserved Forward Propagation
+Initialization: acc, W2, W1 Input: learning rate η, data sample x Active Party: ai ← σ(W2x), [ai]c ← Enc(ai) Send [ai]c to passive party Passive Party: Compute the weighted sum [zi]c ← W2 [ai]c and add random noise [zi + s]c ← s ⊕ [zi]c Sent [zi + s]c to active party Active Party: zi + s ← Dec([zi + s]c) Remove noise: zi + s ← zi − accai + s; Send zi + s to the passive party Passive Party: Remove noise: zi ← zi + s Compute softmax result pi = Sof tmax(zi) Return pi
+3.3 Secure Forward Propagation on the passive party
+After receiving the encrypted activation [ai]c, the passive party keeps going forward propagation, as shown in the step 1 of Sec 3.1 It calculates the weighted sum ([zi]c = W2 [ai]c) and applies softmax. However, the non-linearity e[zi]c cannot be computed in the ciphertext. The solution to this problem is transmitting the weighted sum [zi]c back to the active party for decryption and get the plaintext zi to calculate the softmax results [20]. But directly sending the weighted sum [zi]c without any protection will leak the prediction to the active party. The active party can use the activation prediction pairs (ai, zi) to learn the classiﬁer part in the passive party. In this way, the active party can learn the weights of the model on the passive party and further approximate the label. To end this, instead of transmitting the weighted sum [zi]c directly back to the active party, the passive party will inject random noise to it [zi]c s. The noise s hides the real weighted sum, which prevents the active party from accumulating activation prediction pairs to infer the weights of the neural network on the passive party. Finally, the active party decrypts the noisy weighted sums[zi + s]c and sends the decrypted zi + s to the passive party. And then the passive party removes the noise injected before and computes the prediction (softmax result).
+Another problem here is that the passive party get both W2 and zi and can easily get ai via linear regression. To end this, the passive party should use noisy weight W2 to calculate the weighted sum ([zi]c = W2 [ai]c) where W2 = W2 + acc. Note that acc is generated by the active party, we will discuss how to inject acc to W2 in the Sec 3.4. With same procedure, the passive party still need to add additional noise to [zi]c and send [zi + s]c back the active party to avoid computing
+4
+
+Algorithm 2: Privacy-preserved Backward Propagation
+
+Input: Prediction: pi on passive party; Target ti; The encrypted activation [ai]c; Passive Party ;
+Compute the following gradients:;
+
+∂Li ∂pi
+
+←
+
+ti
+
+−
+
+pi,
+
+[
+
+∂Li ∂W2
+
+]c
+
+←
+
+∂Li ∂pi
+
+[ai]c,
+
+∂Li ∂ai
+
+←
+
+∂Li ∂pi
+
+W2
+
+;
+
+Add
+
+noise
+
+[
+
+∂Li ∂W2
+
++
+
+s]c
+
+←−
+
+[
+
+∂Li ∂W2
+
+]c
+
+s;
+
+Send
+
+[
+
+∂Li ∂W2
+
++
+
+s]c to the active party ;
+
+Active Party ;
+
+∂Li ∂W2
+
++
+
+s
+
+←−
+
+Dec([
+
+∂Li ∂W2
+
++
+
+]c);
+
+Add noise:
+
+∂Li ∂W2
+
++
+
+s
+
+←−
+
+∂Li ∂W2
+
++
+
+s−
+
+w
+η
+
+;
+
+Encrypt noise: [ acc]c ←− Enc( acc);
+
+Accumulate noise: acc ← acc + w;
+
+Send
+
+∂Li ∂W2
+
++
+
+s and [ acc]c to passive party.;
+
+Passive Party ;
+
+Remove noise:
+
+∂Li ∂W2
+
+←
+
+∂Li ∂W2
+
++
+
+s;
+
+Update
+
+weights
+
+W2
+
+←
+
+W2
+
+−
+
+η
+
+∂Li ∂W2
+
+;
+
+Remove
+
+noise
+
+from
+
+gradients:
+
+[
+
+∂Li ∂ai
+
+]c
+
+←
+
+∂Li ∂ai
+
+−
+
+[
+
+acc]c
+
+∂Li ∂pi
+
+;
+
+Send
+
+[
+
+∂Li ∂ai
+
+]c
+
+to
+
+the
+
+active
+
+party;
+
+Active Party
+
+∂Li ∂ai
+
+←−
+
+Dec([
+
+∂Li ∂ai
+
+]c
+
+);
+
+Do
+
+the
+
+normal
+
+backpropagation
+
+with
+
+∂Li ∂ai
+
+;
+
+non-linearity homomorphically. To perform the correct forward propagation the active party will cancel the noise in [zi]c via [zi]c = [zi]c − accai and send [zi]c to the passive party for computing the true softmax output pi with respect to W2. Since the passive party can only observe the noisy
+W2 and [z]c with respect to W2. The passive party cannot infer the activation ai. The whole forward propagation performs in a privacy-preserved manner.
+
+3.4 Secure Backward Propagation on the passive party
+
+During
+
+the
+
+backpropagation
+
+we
+
+need
+
+to
+
+estimate
+
+two
+
+gradient:
+
+the
+
+gradient
+
+∂Li ∂W2
+
+and
+
+the
+
+gradient
+
+∂Li ∂ai
+
+.
+
+Note
+
+that
+
+these
+
+two
+
+gradients
+
+are
+
+the
+
+linear
+
+transformation
+
+of
+
+either
+
+ai
+
+or
+
+W2,
+
+both
+
+the
+
+active
+
+party and the passive party can derive what they want via regression. Not carefully dealing with
+
+gradient updating may cause a signiﬁcant information leak. In backpropagation, the passive party
+
+will compute the following gradients:
+
+∂Li ∂ pi i
+
+=
+
+ti
+
+−
+
+pi,
+
+[
+
+∂Li ∂W2
+
+]c
+
+=
+
+∂Li ∂ pi i
+
+[ai]c
+
+and
+
+∂Li ∂ai
+
+=
+
+∂Li ∂pi
+
+W2
+
+.
+
+Note
+
+that
+
+the
+
+gradient
+
+of
+
+weights
+
+[
+
+∂Li ∂W2
+
+]c
+
+is
+
+in
+
+the
+
+encrypted
+
+form.
+
+After
+
+weights
+
+updating
+
+[W2]c
+
+=
+
+W2
+
+−
+
+η[
+
+∂Li ∂W2
+
+]c,
+
+the
+
+weights
+
+[W2]c
+
+will
+
+result
+
+in
+
+the
+
+encrypted
+
+form.
+
+This
+
+causes
+
+the
+
+issue
+
+that
+
+in
+
+the forward propagation of the next iteration, there will be two encrypted quantities in calculating
+
+weighted sum zi = [W2]c[ai]c, which is incompatible with PHE. To avoid this situation, the passive
+
+party
+
+need
+
+to
+
+send
+
+the
+
+gradients
+
+of
+
+weight
+
+[
+
+∂Li ∂W2
+
+]c
+
+to
+
+the
+
+active
+
+party
+
+and
+
+get
+
+the
+
+decrypted
+
+gradients
+
+∂Li ∂W2
+
+back.
+
+However,
+
+this
+
+solution
+
+is
+
+dangerous.
+
+Since
+
+the
+
+passive
+
+party
+
+holds
+
+∂Li ∂ pi i
+
+and
+
+the
+
+active
+
+party
+
+holds
+
+the
+
+ai,
+
+knowing
+
+the
+
+gradient
+
+∂Li ∂W2
+
+make
+
+both
+
+parties
+
+leak
+
+information
+
+at
+
+the
+
+same
+
+time.
+
+Thus, both two parties need to add random noise to the gradients of weights before sending it to the
+
+other side. Speciﬁcally, they do
+
+•
+
+The passive party add noise
+
+s
+
+to
+
+[
+
+∂Li ∂W2
+
+]c
+
+and
+
+send
+
+[
+
+∂Li ∂W2
+
++
+
+s] to the passive party.
+
+•
+
+the
+
+active
+
+party
+
+decrypt
+
+[
+
+∂Li ∂W2
+
++
+
+s]c
+
+5
+
+•
+
+The active party add random noise
+
+w
+η
+
+:
+
+∂Li ∂W2
+
++
+
+s
+
+←
+
+∂Li ∂W2
+
++
+
+s−
+
+w
+η
+
+•
+
+The
+
+active
+
+party
+
+send
+
+∂Li ∂W2
+
++
+
+s to the passive party
+
+•
+
+The passive party remove noise
+
+s:
+
+∂Li ∂W2
+
+←
+
+∂Li ∂W2
+
++
+
+s
+
+Note that noise generated by the passive party can be removed immediately while the gradients of
+
+weight
+
+∂Li ∂W2
+
+still contain noise where
+
+∂Li ∂W2
+
+=
+
+∂Li ∂W2
+
+−
+
+w
+η
+
+.
+
+With
+
+∂Li ∂W2
+
+the passive party blindly update
+
+the parameters as:
+
+W2t+1
+
+=
+
+W2t
+
+−
+
+(η
+
+∂Li ∂W2
+
+−
+
+w) η
+
+⇒
+
+W2t+1
+
+=
+
+W2t
+
+−
+
+η ∂Li ∂W2
+
++
+
+w ⇒ W2t+1 = W2t+1 +
+
+w
+
+We can see that the noise w will accumulate in weight W2 in each iteration. If we note the
+
+accumulated noise as
+
+acc =
+
+1 w
+
++
+
+2 w
+
++
+
+.
+
+.
+
+.
+
+t w
+
+,
+
+the
+
+true
+
+weights
+
+that
+
+supposed
+
+to
+
+be
+
+used
+
+in
+
+the
+
+forward and backward propagation should be W2t+1 = W2t+1 − acc. To perform the right forward
+
+propagation, the active party needs to cancel the noise by subtracting ai acc from the noisy weighted
+
+sums zi as described in Sec 3.3. Similar to the forward propagation, in the back propagation, the
+
+extra
+
+noisy
+
+gradients
+
+is
+
+also
+
+added
+
+to
+
+∂Li ∂ai
+
+and
+
+need
+
+to
+
+be
+
+removed
+
+before
+
+backpropagating
+
+to
+
+the
+
+active party. To achieve this, the active party needs to send the encrypted [ acc]c to the passive party.
+
+the
+
+passive
+
+party
+
+calculate
+
+the
+
+true
+
+gradient
+
+[
+
+∂Li ∂ai
+
+]c
+
+=
+
+∂Li ∂ai
+
+−
+
+[
+
+acc]c
+
+gradient
+
+[
+
+∂Li ∂ai
+
+]c
+
+to
+
+the
+
+active
+
+party.
+
+∂Li ∂pi
+
+and
+
+send
+
+the
+
+encrypted
+
+3.5 Secure Backward propagation on the active party
+
+The
+
+active
+
+party
+
+decrypt
+
+the
+
+gradient
+
+[
+
+∂Li ∂ai
+
+]c
+
+received
+
+from
+
+the
+
+passive
+
+party,
+
+compute
+
+the
+
+gradient
+
+∂Li ∂W1
+
+=
+
+∂Li ∂ai ai ∂W1
+
+=
+
+∂Li ∂ai
+
+xi
+
+and
+
+update
+
+the
+
+parameters
+
+W1
+
+=
+
+W1
+
+−
+
+η
+
+∂Li ∂W1
+
+.
+
+The whole privacy
+
+preserved backpropagation is detailed in Algorithm 1 and Algorithm 2.
+
+4 Experiment
+To evaluate the proposed method, speciﬁcally, we determine if our model (i) achieves lossless performance in classiﬁcation tasks and (ii) if it brings advantages over other solution based on learning on encrypted data. Please note we don’t want to highlight the performance of neural networks but we can achieve a lossless performance. we implement the passive party and the active party both on two PCs with CPU Core i7-6850k and 64GB RAM connected by 1Gbps LAN. The neural network of the active party is built using pytorch [17] and the neural net of the passive party is implemented by pure python integrated with numpy. We compare the proposed method with two previous studies that have considered privacy-preserved training with homomorphic encryption for deep neural networks. GELU [20] using PHE [16] and CryptoNets [8].
+4.1 Setting
+In order to make comparison with previous work: GELU and CryptoNets [8]. We implement the following architecture of the proposed method:
+• Multinomial Logistic Regression(MLR: Data-Dense(10)-Softmax
+• Conv-1: Data-Conv(5×5, stride 2, 5 ﬁlter) -ReLu-MeanPooling-ReLu-Dense(84))Dense(10)-Softmax
+• LeNet-5: Data-Conv(5×5, stride 1, 6 ﬁlter)-MeanPooling-ReLu-Conv(5×5, stride 1, 16 ﬁlter)-MeanPooling-ReLu-Dense(120)-Dense(84)-Dense(10)-Softmax
+For the proposed method, the ﬁnal layer, Dense(10)-Softmax, is on the passive party side, the rest of layers are on the active party side.
+
+6
+
+Figure 1: The computation speed for one inference with different input feature dimension
+
+4.2 Training Accuracy
+
+In this section, we show the proposed method is a lossless solution. The neural network architecture we use is Conv-1. Due to arithmetic operations of homomorphic encryption only support multiplication and addition, CryptoNets uses the square function to avoid computing the non-linear activation. However, this makes the training unstable and damage to the accuracy [8]. From the Table. 1, we can see that CryptoNets suffers an accuracy loss ranging from 2% to 5% compared with the proposed method. We also note that GELU is also a lossless solution. This is because GELU adopts the similar round trip strategy that sending activation back and forth between the passive party and the active party for handling non-linear operation as we do.
+
+Table 1: Test accuracy of different Architecture
+
+Architecture Iris Diabetes kr-vs-kp MNIST
+
+GELU 0.982 0.758 0.967 0.969
+
+CryptoNets 0.966 0.741 0.948 0.919
+
+Ours 0.980 0.760 0.965 0.970
+
+4.3 Computation Speed
+As above mentioned, the dimension of inputs and the neural network architecture are key factors to other methods. In this section we will demonstrate that the proposed method is insensitive to these two factors.
+Sensitivity of Input Dimension One problem of learning on the encrypted data is the computation speed depend on the input dimension. It is because the dimension of the encrypted data directly increases the number of homomorphic encryption operations. We compare our model with multinomial logistic regression that learned on encrypted data. We experiment with simulated data with various feature lengths. As shown in Fig. 1, our proposed method is insensitive to the dimensions of input data compared with multinomial logistic regression (i.e., shallow network with softmax activation). We do the experiment on the real word data using MNIST [13] and CIFAR-10 [12]. We can observe from the table. 2 the result of CIFAR-10 [12] (dimensions is 3 × 32 × 32) is very similar to the result on MNIST [13] (dimensions is 1 × 28 × 28). This beneﬁts from we employ learning on encrypted features generated from the ’feature extraction’ of the deep neural network, which can signiﬁcantly reduce raw data dimensions. Compared with learning on encrypted data, feature extraction is very efﬁcient. So that is why the proposed method consumes similar time in the different datasets.
+Sensitivity of Neural Network Architectures Note that the proposed method is designed to work on any architecture without much computation speed degrade. In comparison, the other baselines
+7
+
+Table 2: Time for different architectures on MNIST and CIFAR-10 dataset
+
+Archiecture Multinomial Logistic Regression (MNIST) Multinomial Logistic Regression (CIFAR-10) LeNet-5 (MNIST) LeNet-5 (CIFAR-10)
+
+Time(s) 0.5887 2.7027 0.0583 0.0592
+
+models like GELU and CryptoNet are sensitive to either the neural networks architecture or input data dimension. Thus, using complex neural net such as VGG [18], ResNet [10] with high dimension input such as ImageNet [5] is infeasible to the methods of learning on encrypted data, and it will take an extremely long time. Moreover, since the arithmetic operations in PHE is much faster than arithmetic operations in FHE. We mainly focus on comparing the proposed method with GELU. Thus, to make a fair comparison, we train the proposed method and GELU on different architecture described in Sec. 4.1. We report the computation time (for one inference). Table.3 shows the computation time
+
+Table 3: Test accuracy of different Architectures
+
+Architecture GELU-Net(LeNet-5) Multinomial Logistic Regression Our Method(LeNet-5)
+
+Time(s) 7.855 0.588 0.0583
+
+Accuracy 0.989 0.93 0.99
+
+Table 4: Time for the proposed method and GELU-Net on MNIST
+
+Archiecture GELU-Net(Conv-1) Our Method (Conv-1) Our Method(LeNet-5)
+
+Time(s) 3.8437 0.0582 0.0583
+
+(for one inference) and the accuracy on MNIST [13]. We observe that the proposed method achieves more than 100x speed-up over GELU-Net with no accuracy loss. Even compared with simpler architecture multinomial logistic regression (MLR), our method is much faster. Therefore our method works much faster than GELU and performs much better than the linear model with encrypted data due to the deep neural network can learning more semantic represendation for targets. Table. 4 shows the computation speed of the proposed method in both deep (LeNet-5) and shallow neural net (Conv-1). Result reveals that the time for one inference is almost invariant to the architectures as long as the output dimension is the same (both Conv-1 and LeNet-5 are 84). That means the mainly computational bottleneck is on the ’classiﬁer’ which learns the part model on encrypted data. It also shows that our deep model is highly potential to apply to more complicated data which need the deeper neural network.
+
+5 Conclusion
+In this paper, we have proposed a scheme, called asymmetrically collaborative machine learning where one party has data, but the other party has labels only. A deep neural network with a partly unencrypted and partly encrypted strategy is proposed to avoid learning on encrypted data directly for this scheme. Beyond that, we offer a series of solutions to preserve privacy from both parties involved. The design has ensured the efﬁciency and effectiveness of the proposed method. We have carried out extensive experiments that demonstrate more than 100× times speedup compared with the state-of-the-art solutions.
+
+8
+
+References
+[1] Martin Abadi, Andy Chu, Ian Goodfellow, H Brendan McMahan, Ilya Mironov, Kunal Talwar, and Li Zhang. Deep learning with differential privacy. In Proceedings of the 2016 ACM SIGSAC Conference on Computer and Communications Security, pages 308–318. ACM, 2016.
+[2] Abbas Acar, Hidayet Aksu, A Selcuk Uluagac, and Mauro Conti. A survey on homomorphic encryption schemes: theory and implementation. ACM Computing Surveys (CSUR), 51(4):79, 2018.
+[3] Joan Daemen and Vincent Rijmen. Aes proposal: Rijndael. 1999.
+[4] Ivan Damgård, Valerio Pastro, Nigel Smart, and Sarah Zakarias. Multiparty computation from somewhat homomorphic encryption. In Annual Cryptology Conference, pages 643–662. Springer, 2012.
+[5] Jia Deng, Wei Dong, Richard Socher, Li-Jia Li, Kai Li, and Li Fei-Fei. Imagenet: A large-scale hierarchical image database. In 2009 IEEE conference on computer vision and pattern recognition, pages 248–255. Ieee, 2009.
+[6] Cynthia Dwork, Aaron Roth, et al. The algorithmic foundations of differential privacy. Foundations and Trends R in Theoretical Computer Science, 9(3–4):211–407, 2014.
+[7] Craig Gentry. Fully homomorphic encryption using ideal lattices. In Proceedings of the forty-ﬁrst annual ACM symposium on Theory of computing, pages 169–178, 2009.
+[8] Ran Gilad-Bachrach, Nathan Dowlin, Kim Laine, Kristin Lauter, Michael Naehrig, and John Wernsing. Cryptonets: Applying neural networks to encrypted data with high throughput and accuracy. In International Conference on Machine Learning, pages 201–210, 2016.
+[9] Xavier Glorot, Antoine Bordes, and Yoshua Bengio. Deep sparse rectiﬁer neural networks. In Proceedings of the fourteenth international conference on artiﬁcial intelligence and statistics, pages 315–323, 2011.
+[10] Kaiming He, Xiangyu Zhang, Shaoqing Ren, and Jian Sun. Deep residual learning for image recognition. In Proceedings of the IEEE conference on computer vision and pattern recognition, pages 770–778, 2016.
+[11] Chiraag Juvekar, Vinod Vaikuntanathan, and Anantha Chandrakasan. {GAZELLE}: A low latency framework for secure neural network inference. In 27th {USENIX} Security Symposium ({USENIX} Security 18), pages 1651–1669, 2018.
+[12] Alex Krizhevsky and Geoffrey Hinton. Learning multiple layers of features from tiny images. Technical report, Citeseer, 2009.
+[13] Yann LeCun, Léon Bottou, Yoshua Bengio, and Patrick Haffner. Gradient-based learning applied to document recognition. Proceedings of the IEEE, 86(11):2278–2324, 1998.
+[14] Yann LeCun, Yoshua Bengio, and Geoffrey Hinton. Deep learning. nature, 521(7553):436, 2015.
+[15] Brendan McMahan, Eider Moore, Daniel Ramage, Seth Hampson, and Blaise Aguera y Arcas. Communication-efﬁcient learning of deep networks from decentralized data. In Artiﬁcial Intelligence and Statistics, pages 1273–1282, 2017.
+[16] Pascal Paillier. Public-key cryptosystems based on composite degree residuosity classes. In International Conference on the Theory and Applications of Cryptographic Techniques, pages 223–238. Springer, 1999.
+[17] Adam Paszke, Sam Gross, Soumith Chintala, Gregory Chanan, Edward Yang, Zachary DeVito, Zeming Lin, Alban Desmaison, Luca Antiga, and Adam Lerer. Automatic differentiation in pytorch. In NIPS-W, 2017.
+[18] Karen Simonyan and Andrew Zisserman. Very deep convolutional networks for large-scale image recognition. arXiv preprint arXiv:1409.1556, 2014.
+9
+
+[19] Qiang Yang, Yang Liu, Tianjian Chen, and Yongxin Tong. Federated machine learning: Concept and applications. ACM Transactions on Intelligent Systems and Technology (TIST), 10(2):1–19, 2019.
+[20] Qiao Zhang, Cong Wang, Hongyi Wu, Chunsheng Xin, and Tran V. Phuong. Gelu-net: A globally encrypted, locally unencrypted deep neural network for privacy-preserved learning. In Proceedings of the Twenty-Seventh International Joint Conference on Artiﬁcial Intelligence, IJCAI-18, pages 3933–3939, 7 2018.
+[21] Ligeng Zhu, Zhijian Liu, and Song Han. Deep leakage from gradients. In Advances in Neural Information Processing Systems, pages 14747–14756, 2019.
+10
+
