@@ -1,15 +1,15 @@
 {
 	"translatorID": "ab961e61-2a8a-4be1-b8a3-044f20d52d78",
+	"translatorType": 4,
 	"label": "BIBSYS",
 	"creator": "Ramesh Srigiriraju",
 	"target": "^https?://ask\\.bibsys\\.no/ask/action",
 	"minVersion": "1.0.0b4.r1",
-	"maxVersion": "",
+	"maxVersion": null,
 	"priority": 100,
 	"inRepository": true,
-	"translatorType": 4,
-	"browserSupport": "gcsbv",
-	"lastUpdated": "2014-04-04 10:08:22"
+	"browserSupport": "gcsibv",
+	"lastUpdated": "2022-01-03 23:35:00"
 }
 
 function detectWeb(doc, url)	{
@@ -33,21 +33,24 @@ function doWeb(doc, url)	{
 		titles.iterateNext();
 		while (title=titles.iterateNext())
 			items[codes.iterateNext().nodeValue]=title.nodeValue;
-		items=Zotero.selectItems(items);
-		var string="http://ask.bibsys.no/ask/action/result?control=ctr_top";
-		for (var codes in items)
-			string+="&valg="+codes;
-		string+="&control=ctr_bottom&eksportFormat=refmanager&eksportEpostAdresse=&eksportEpostFormat=fortekst&cmd=sendtil";
-		Zotero.Utilities.HTTP.doGet(string, function(text)	{
-			var trans=Zotero.loadTranslator("import");
-			trans.setTranslator("32d59d2d-b65a-4da4-b0a3-bdd3cfb979e7");
-			trans.setString(text);
-			trans.setHandler("itemDone", function(obj, item) {
-				item.title = item.title.replace(/\s\s+/, " ").replace(/\s:/, ":");
-				item.complete();
-			});	
-			trans.translate();
+		Zotero.selectItems(items, function (items) {
+			if (!items) return;
+			var string="http://ask.bibsys.no/ask/action/result?control=ctr_top";
+			for (var codes in items)
+				string+="&valg="+codes;
+			string+="&control=ctr_bottom&eksportFormat=refmanager&eksportEpostAdresse=&eksportEpostFormat=fortekst&cmd=sendtil";
+			Zotero.Utilities.HTTP.doGet(string, function(text)	{
+				var trans=Zotero.loadTranslator("import");
+				trans.setTranslator("32d59d2d-b65a-4da4-b0a3-bdd3cfb979e7");
+				trans.setString(text);
+				trans.setHandler("itemDone", function(obj, item) {
+					item.title = item.title.replace(/\s\s+/, " ").replace(/\s:/, ":");
+					item.complete();
+				});	
+				trans.translate();
+			});
 		});
+		return;
 	}
 	var singlereg=new RegExp("http://ask\.bibsys\.no/ask/action/show");
 	if (singlereg.test(url))	{

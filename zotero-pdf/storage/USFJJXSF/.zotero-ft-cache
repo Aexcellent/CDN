@@ -1,0 +1,234 @@
+arXiv:1812.01097v3 [cs.LG] 9 Dec 2019
+
+LEAF: A Benchmark for Federated Settings
+Sebastian Caldas∗,1, Sai Meher Karthik Duddu1, Peter Wu1, Tian Li1, Jakub Konecˇný2, H. Brendan McMahan2, Virginia Smith1, Ameet Talwalkar1,3
+1 Carnegie Mellon University 2 Google
+3 Determined AI
+https://leaf.cmu.edu
+Abstract
+Modern federated networks, such as those comprised of wearable devices, mobile phones, or autonomous vehicles, generate massive amounts of data each day. This wealth of data can help to learn models that can improve the user experience on each device. However, the scale and heterogeneity of federated data presents new challenges in research areas such as federated learning, meta-learning, and multi-task learning. As the machine learning community begins to tackle these challenges, we are at a critical time to ensure that developments made in these areas are grounded with realistic benchmarks. To this end, we propose LEAF, a modular benchmarking framework for learning in federated settings. LEAF includes a suite of open-source federated datasets, a rigorous evaluation framework, and a set of reference implementations, all geared towards capturing the obstacles and intricacies of practical federated environments.
+1 Introduction
+With data increasingly being generated on federated networks of remote devices, there is growing interest in empowering on-device applications with models that make use of such data [22, 23, 30, 19, 37]. Learning on data generated in federated networks, however, introduces several new obstacles: Statistical: Data is generated on each device in a heterogeneous manner, with each device associated with a different (though perhaps related) underlying data generating distribution. Moreover, the number of data points typically varies signiﬁcantly across devices. Systems: The number of devices in federated scenarios is typically order of magnitudes larger than the number of nodes in a typical distributed setting, such as datacenter computing. In addition, each device may have signiﬁcant constraints in terms of storage, computational, and communication capacities. Furthermore, these capacities may also differ across devices due to variability in hardware, network connection, and power. Thus, federated settings may suffer from communication bottlenecks that dwarf those encountered in traditional datacenter settings, and may require faster on-device inference. Privacy and Security: Finally, the sensitive nature of personally-generated data requires methods that operate on federated data to balance privacy and security concerns with more traditional considerations such as statistical accuracy, scalability, and efﬁciency [24, 4]. Recent works have proposed diverse ways of dealing with these challenges, but many of these efforts fall short when it comes to their experimental evaluation. As an example, consider the federated
+∗Corresponding author. Correspondence to: scaldas@cmu.edu.
+33rd Conference on Neural Information Processing Systems (NeurIPS 2019), Vancouver, Canada.
+
+learning paradigm, which focuses on training models directly on federated networks [22, 30, 28]. Experimental works focused on federated learning broadly utilize three types of datasets, each with their own shortcoming: (1) datasets that are commonly used and yet do not provide a realistic model of a federated scenario, e.g., artiﬁcial partitions of MNIST, MNIST-fashion or CIFAR-10 [22, 13, 8, 3, 11, 32, 34]; (2) realistic but proprietary federated datasets, e.g., data from an unnamed social network in [22], crowdsourced voice commands in [18], and proprietary data by Huawei in [5]; and (3) realistic federated datasets that are derived from publicly available data, but which are not straightforward to reproduce, e.g., FaceScrub in [25], Shakespeare in [22] and Reddit in [13, 24, 3].
+As a second example, consider meta-learning, a related learning paradigm proposed by [5] and [12] as a way to tackle the statistical challenges of federated networks. The paradigm is indeed a natural ﬁt for federated settings, as the heterogeneous devices can be interpreted as meta-learning tasks. However, popular meta-learning benchmarks such as Omniglot [15, 7, 33, 31] and miniImageNet [29, 7, 33, 31] focus on k-shot learning (i.e., all tasks have the same number of samples, each class has the same number of samples in each task, etc.) and thus fail to capture the real-world challenges that federated data would bring to meta-learning solutions. In fact, all of the previously mentioned datasets could thus be categorized as the ﬁrst type mentioned above (popular yet unrealistic for our purposes).
+As a ﬁnal example, consider multi-task learning (MTL). This paradigm is also amenable to federated settings [30] but, contrary to realistic federated networks, is usually explored in regimes with small numbers of tasks and samples, e.g., the popular Landmine Detection [38, 26, 36, 30], Computer Survey [2, 1, 14] and Inner London Education Authority School [26, 17, 1, 2, 14] datasets have at most 200 tasks each. We highlight that, while federated learning, meta-learning, and multi-task learning are the presented applications for LEAF, the framework in fact encompasses a wide range of potential learning settings, such as on-device learning or inference, transfer learning, life-long learning, and the development of personalized learning models.
+Our work aims to bridge the gap between artiﬁcial datasets that are popular and accessible for benchmarking, and those that realistically capture the characteristics of a federated scenario but that, so far, have been either proprietary or difﬁcult to process. Moreover, beyond establishing a suite of federated datasets, we propose a clear methodology for evaluating methods and reproducing results. To this end, we present LEAF, a modular benchmarking framework geared towards learning in massively distributed federated networks of remote devices.
+2 LEAF
+LEAF is an open-source benchmark for federated settings. 2 It consists of (1) a suite of open-source datasets, (2) an array of statistical and systems metrics, and (3) a set of reference implementations. As shown in Figure 1, LEAF’s modular design allows these three components to be easily incorporated into diverse experimental pipelines. We proceed to detail LEAF’s core components.
+
+Datasets
+
+Reference Implementations
+
+Metrics
+
+Figure 1: LEAF modules. The “Datasets” module preprocesses the data and transforms it into a standardized format, which can integrate into an arbitrary ML pipeline. LEAF’s “Reference Implementations” module is a growing repository of common methods used in the federated setting, with each implementation producing a log of various different statistical and systems metrics. Any log generated in an appropriate format can then be used to aggregate and analyze these metrics in various ways through LEAF’s “Metrics” module.
+2All code and documentation can be found at https://github.com/TalwalkarLab/leaf/.
+2
+
+Dataset
+FEMNIST Sent140
+Shakespeare CelebA Reddit
+
+Table 1: Statistics of datasets in LEAF. Number of devices Total samples Samples per device
+
+mean
+
+stdev
+
+3, 550
+
+805, 263
+
+226.83 88.94
+
+660, 120
+
+1, 600, 498
+
+2.42
+
+4.71
+
+1, 129
+
+4, 226, 158 3, 743.28 6, 212.26
+
+9, 343
+
+200, 288
+
+21.44
+
+7.63
+
+1, 660, 820
+
+56, 587, 343 34.07
+
+62.95
+
+Datasets: We have curated a suite of realistic federated datasets for LEAF. We focus on datasets where (1) the data has a natural keyed generation process (where each key refers to a particular device/user); (2) the data is generated from networks of thousands to millions of devices; and (3) the number of data points is skewed across devices. Currently, LEAF consists of six datasets:
+• Federated Extended MNIST (FEMNIST), which is built by partitioning the data in Extended MNIST [16, 6] based on the writer of the digit/character.
+• Sentiment140 [9], an automatically generated sentiment analysis dataset that annotates tweets based on the emoticons present in them. Each device is a different twitter user.
+• Shakespeare, a dataset built from The Complete Works of William Shakespeare [35, 22]. Here, each speaking role in each play is considered a different device.
+• CelebA, which partitions the Large-scale CelebFaces Attributes Dataset 3 [21] by the celebrity on the picture.
+• Reddit, where we preprocess comments posted on the social network on December 2017. • A Synthetic dataset, which modiﬁes the synthetic dataset presented in [20] to make it more
+challenging for current meta-learning methods. See Appendix A for details.
+We provide statistics on these datasets (except the Synthetic one, as these vary depending on the user’s settings) in Table 1. In LEAF, we provide all necessary pre-processing scripts for each dataset, as well as small/full versions for prototyping and ﬁnal testing. Moving forward, we plan to add datasets from different domains (e.g. audio, video) and to increase the range of machine learning tasks (e.g. text to speech, translation, compression, etc.).
+Metrics: Rigorous evaluation metrics are required to appropriately assess how a learning solution behaves in federated scenarios. Currently, LEAF establishes an initial set of metrics chosen speciﬁcally for this purpose. For example, we introduce metrics that better capture the entire distribution of performance across devices: performance at the 10th, 50th and 90th percentiles and performance stratiﬁed by natural hierarchies in the data (e.g. “play” in the case of the Shakespeare dataset or “subreddit” for Reddit). We also introduce metrics that account for the amount of computing resources needed from the edge devices in terms of number of FLOPS and number of bytes downloaded/uploaded. Finally, LEAF also recognizes the importance of specifying how the accuracy is weighted across devices, e.g., whether every device is equally important, or every data point equally important (implying that power users/devices get preferential treatment).
+Reference implementations: In order to facilitate reproducibility, LEAF also contains a set of reference implementations of algorithms geared towards federated scenarios. Currently, this set is limited to the federated learning paradigm, and in particular includes reference implementations of minibatch SGD, FedAvg [22] and Mocha [30]. Moving forward we aim to equip LEAF with implementations for additional methods and paradigms with the help of the broader research community.
+
+3The original CelebA data is hosted in http://mmlab.ie.cuhk.edu.hk/projects/CelebA.html 3
+
+Figure 2: Convergence behavior of FedAvg on a subsample of the Shakespeare dataset. We are able to achieve a per sample test accuracy comparable to the results obtained in [22]. We also qualitatively replicate the divergence in training loss that is observed for large numbers of local epochs (E).
+3 LEAF in action
+We now show a glimpse of LEAF in action. In particular, we highlight three of LEAF’s characteristics4:
+LEAF enables reproducible science: To demonstrate the reproducibility enabled via LEAF, we focus on qualitatively reproducing the results that [22] obtained on the Shakespeare dataset for a next character prediction task. In particular, it was noted that for this particular dataset, the FedAvg method surprisingly diverges as the number of local epochs increases. This is therefore a critical setting to understand before deploying methods such as FedAvg. Results are shown in Figure 2, where we indeed see similar divergence behavior in terms of the training loss as we increase the number of epochs.
+LEAF provides granular metrics: As illustrated in Figure 3, our proposed systems and statistical metrics are important to consider when serving multiple clients simultaneously. For statistical metrics, we show the effect of varying the minimum number of samples per user in Sentiment140 (which we denote as k). We see that, while median performance degrades only slightly with data-deﬁcient users (i.e., k = 3), the 25th percentile degrades dramatically. Meanwhile, for systems metrics, we run minibatch SGD and FedAvg for FEMNIST and calculate the systems budget needed to reach a per sample accuracy threshold of 0.75. We characterize the budget in terms of total number of FLOPS across all devices and total number of bytes uploaded to network. Our results demonstrate the improved systems proﬁle of FedAvg when it comes to the communication vs. local computation trade-off, though we note that in general methods may vary across these two dimensions.
+LEAF is modular: To demonstrate LEAF’s modularity, we incorporate its “Datasets” module into three new experimental pipelines: one that trains purely local models for each device (on CelebA and our Synthetic dataset), one that disregards the natural partition between devices, i.e., it mixes all the data (on Reddit), and one in which we use the popular meta-learning method Reptile [27] (on FEMNIST). Results for these experiments are presented in Table 2. These particular pipelines shed light on how different modeling approaches may be more or less appropriate for different federated datasets [10, 12].
+4 Conclusions
+We present LEAF, a modular framework for learning in federated settings, or ecosystems marked by massively distributed networks of devices. Learning paradigms applicable in such settings include federated learning, meta-learning, multi-task learning, and on-device learning.
+LEAF will allow researchers and practitioners in domains such as federated learning, meta-learning, and multi-task learning to reason about new proposed solutions under more realistic assumptions than
+4For experiment details, see Appendix B.
+4
+
+Figure 3: Statistical and Systems analyses for Sent140 and FEMNIST. For Sent140: k is the minimum number of samples per user. Orange lines represent the median device accuracy, green triangles represent the mean, boxes cover the 25th and 75th percentile, and whiskers cover the 10th to the 90th percentile. For FEMNIST: C is the number of clients selected per round, and E is the number of epochs each client trained locally for FedAvg. For minibatch SGD we report the percentage of data used per client.
+
+Table 2: Demonstration of LEAF’s modularity. We incorporate LEAF’s datasets into new experimental pipelines (beyond FedAvg) and report the resulting sample test accuracies.
+
+Dataset FedAvg (baseline)
+
+Additional Pipeline
+
+description
+
+accuracy
+
+CelebA Synthetic
+
+89.46% 71.89%
+
+Local Models
+
+65.29% 87.34%
+
+Reddit
+
+13.35%
+
+Global IID model 12.60%
+
+FEMNIST
+
+74.72%
+
+Reptile
+
+80.24%
+
+previous benchmarks. We intend to keep LEAF up to date with new datasets, metrics and open-source solutions in order to foster informed and grounded progress in this ﬁeld.
+Acknowledgements
+This work was supported in part by DARPA FA875017C0141, the National Science Foundation grants IIS1705121 and IIS1838017, an Okawa Grant, a Google Faculty Award, an Amazon Web Services Award, a JP Morgan A.I. Research Faculty Award, a Carnegie Bosch Institute Research Award, and the CONIX Research Center, one of six centers in JUMP, a Semiconductor Research Corporation (SRC) program sponsored by DARPA. Any opinions, ﬁndings and conclusions or recommendations expressed in this material are those of the author(s) and do not necessarily reﬂect the views of DARPA, the National Science Foundation, or any other funding agency.
+References
+[1] Arvind Agarwal, Samuel Gerber, and Hal Daume. Learning multiple tasks using manifold regularization. In Advances in neural information processing systems, 2010.
+[2] Andreas Argyriou, Theodoros Evgeniou, and Massimiliano Pontil. Convex multi-task feature learning. Machine Learning, 73(3):243–272, 2008.
+[3] Eugene Bagdasaryan, Andreas Veit, Yiqing Hua, Deborah Estrin, and Vitaly Shmatikov. How to backdoor federated learning. arXiv preprint arXiv:1807.00459, 2018.
+[4] Keith Bonawitz, Vladimir Ivanov, Ben Kreuter, Antonio Marcedone, H Brendan McMahan, Sarvar Patel, Daniel Ramage, Aaron Segal, and Karn Seth. Practical secure aggregation for privacy-preserving machine learning. In ACM SIGSAC Conference on Computer and Communications Security, 2017.
+5
+
+[5] Fei Chen, Zhenhua Dong, Zhenguo Li, and Xiuqiang He. Federated meta-learning for recommendation. arXiv preprint arXiv:1802.07876, 2018.
+[6] Gregory Cohen, Saeed Afshar, Jonathan Tapson, and André van Schaik. EMNIST: an extension of MNIST to handwritten letters. arXiv preprint arXiv:1702.05373, 2017.
+[7] Chelsea Finn, Pieter Abbeel, and Sergey Levine. Model-agnostic meta-learning for fast adaptation of deep networks. In International Conference on Machine Learning, 2017.
+[8] Robin C Geyer, Tassilo Klein, and Moin Nabi. Differentially private federated learning: A client level perspective. arXiv preprint arXiv:1712.07557, 2017.
+[9] Alec Go, Richa Bhayani, and Lei Huang. Twitter sentiment classiﬁcation using distant supervision. Project Report, Stanford, 2009.
+[10] Yihan Jiang, Jakub Konecˇny`, Keith Rush, and Sreeram Kannan. Improving federated learning personalization via model agnostic meta learning. arXiv preprint arXiv:1909.12488, 2019.
+[11] Michael Kamp, Linara Adilova, Joachim Sicking, Fabian Hüger, Peter Schlicht, Tim Wirtz, and Stefan Wrobel. Efﬁcient decentralized deep learning by dynamic model averaging. In Joint European Conference on Machine Learning and Knowledge Discovery in Databases, 2018.
+[12] Mikhail Khodak, Maria Florina-Balcan, and Ameet Talwalkar. Adaptive gradient-based metalearning methods. Advances in Neural Information Processing Systems, 2019.
+[13] Jakub Konecˇny`, H Brendan McMahan, Felix X Yu, Peter Richtárik, Ananda Theertha Suresh, and Dave Bacon. Federated learning: Strategies for improving communication efﬁciency. arXiv preprint arXiv:1610.05492, 2016.
+[14] Abhishek Kumar and Hal Daume III. Learning task grouping and overlap in multi-task learning. arXiv preprint arXiv:1206.6417, 2012.
+[15] Brenden Lake, Ruslan Salakhutdinov, Jason Gross, and Joshua Tenenbaum. One shot learning of simple visual concepts. In Annual Meeting of the Cognitive Science Society, 2011.
+[16] Yann LeCun. The MNIST database of handwritten digits. http: // yann. lecun. com/ exdb/ mnist/ , 1998.
+[17] Giwoong Lee, Eunho Yang, and Sung Hwang. Asymmetric multi-task learning based on task relatedness and loss. In International Conference on Machine Learning, 2016.
+[18] David Leroy, Alice Coucke, Thibaut Lavril, Thibault Gisselbrecht, and Joseph Dureau. Federated learning for keyword spotting. In IEEE International Conference on Acoustics, Speech and Signal Processing, 2019.
+[19] Tian Li, Anit Kumar Sahu, Ameet Talwalkar, and Virginia Smith. Federated learning: Challenges, methods, and future directions. arXiv preprint arXiv:1908.07873, 2019.
+[20] Tian Li, Maziar Sanjabi, and Virginia Smith. Fair resource allocation in federated learning. arXiv preprint arXiv:1905.10497, 2019.
+[21] Ziwei Liu, Ping Luo, Xiaogang Wang, and Xiaoou Tang. Deep learning face attributes in the wild. In International Conference on Computer Vision, 2015.
+[22] H Brendan McMahan, Eider Moore, Daniel Ramage, Seth Hampson, and Blaise Aguera y Arcas. Communication-efﬁcient learning of deep networks from decentralized data. In Artiﬁcial Intelligence and Statistics, 2017.
+[23] H Brendan McMahan and Daniel Ramage. Federated Learning: Collaborative Machine Learning without Centralized Training Data. googblogs.com, 2017.
+[24] H Brendan McMahan, Daniel Ramage, Kunal Talwar, and Li Zhang. Learning differentially private recurrent language models. In International Conference on Learning Representations, 2018.
+6
+
+[25] Luca Melis, Congzheng Song, Emiliano De Cristofaro, and Vitaly Shmatikov. Inference attacks against collaborative learning. arXiv preprint arXiv:1805.04049, 2018.
+[26] Keerthiram Murugesan and Jaime Carbonell. Multi-task multiple kernel relationship learning. In SIAM International Conference on Data Mining, 2017.
+[27] Alex Nichol, Joshua Achiam, and John Schulman. On ﬁrst-order meta-learning algorithms. arXiv preprint arXiv:1803.02999, 2018.
+[28] Vasyl Pihur, Aleksandra Korolova, Frederick Liu, Subhash Sankuratripati, Moti Yung, Dachuan Huang, and Ruogu Zeng. Differentially-private "draw and discard" machine learning. arXiv preprint arXiv:1807.04369, 2018.
+[29] Sachin Ravi and Hugo Larochelle. Optimization as a model for few-shot learning. https: // openreview. net/ pdf? id= rJY0-Kcll , 2016.
+[30] Virginia Smith, Chao-Kai Chiang, Maziar Sanjabi, and Ameet S Talwalkar. Federated multi-task learning. In Advances in Neural Information Processing Systems, 2017.
+[31] Jake Snell, Kevin Swersky, and Richard Zemel. Prototypical networks for few-shot learning. In Advances in Neural Information Processing Systems, 2017.
+[32] Gregor Ulm, Emil Gustavsson, and Mats Jirstrand. Functional federated learning in erlang (fﬂ-erl). In International Workshop on Functional and Constraint Logic Programming, 2018.
+[33] Oriol Vinyals, Charles Blundell, Tim Lillicrap, Daan Wierstra, et al. Matching networks for one shot learning. In Advances in Neural Information Processing Systems, 2016.
+[34] Shiqiang Wang, Tiffany Tuor, Theodoros Salonidis, Kin K Leung, Christian Makaya, Ting He, and Kevin Chan. Adaptive federated learning in resource constrained edge computing systems. IEEE Journal on Selected Areas in Communications, 2019.
+[35] William Shakespeare. The Complete Works of William Shakespeare. Publicly available at //www.gutenberg.org/ebooks/100.
+[36] Ya Xue, Xuejun Liao, Lawrence Carin, and Balaji Krishnapuram. Multi-task learning for classiﬁcation with dirichlet process priors. Journal of Machine Learning Research, 8(Jan):35– 63, 2007.
+[37] Qiang Yang, Yang Liu, Tianjian Chen, and Yongxin Tong. Federated machine learning: Concept and applications. ACM Transactions on Intelligent Systems and Technology, 2019.
+[38] Yi Zhang and Jeff G Schneider. Learning multiple tasks with a sparse matrix-normal penalty. In Advances in Neural Information Processing Systems, 2010.
+7
+
+A Synthetic Dataset
+
+Our synthetic dataset (introduced in Section 2) is inspired by the one presented in [20], but has possible additional heterogeneity designed to make current meta-learning methods (such as Reptile [27]) fail. The high-level goal is to create tasks whose true models are (1) task-dependant, and (2) clustered around more than just one center.
+
+To start, the user must input the desired number of devices T ≥ 1 and a vector (p1, . . . , pk) such that
+
+pj > 0, j ∈ 1, . . . , k and
+
+k j=1
+
+pj
+
+=
+
+1.
+
+As
+
+preparation
+
+to
+
+generate
+
+the
+
+tasks:
+
+1. Sample cluster means µj ∈ Rs, j ∈ 1, . . . , k. To do this, draw µj ∼ N (Bj, I), Bj ∼ N (0, I).
+2. Draw matrix Q ∈ Rd+1×s by sampling Q ∼ N (0, I). 3. Create diagonal matrix Σ such that Σi,i = i−1.2.
+
+Now, for each task t ∈ 1, . . . , T :
+
+1. Sample a cluster center µt according to the input probabilities (p1, . . . , pk). 2. Draw ut ∼ N (µt, I) and set wt = Qut, wt ∈ Rd+1. 3. Now, draw mt from a log-normal distribution with mean 3 and sigma 2. We then set the number
+of samples nt = min(mt + 5, 1000) (to put a lower and an upper bound on the number of samples
+per task).
+4. Sample vt ∼ N (Ct, I), Ct ∼ N (0, I). 5. Now, for i ∈ 1, . . . , nt, sample xit ∈ Rd by drawing xit ∼ N (vt, Σ). 6. Finally, set yti = arg max(sigmoid(wtxit + N (0, 0.1 · I))) after adding the necessary padding to
+xit to account for the intercept.
+
+B Experiment Details
+
+In this section, we provide details for the experiments presented in Section 3.
+Shakespeare convergence. For the experiment presented in Figure 2, we subsample 118 devices (around 5% of the total) in our Shakespeare data. Our model ﬁrst maps each character to an embedding of dimension 8 before passing it through an LSTM of two layers of 256 units each. The LSTM emits an output embedding, which is scored against all items of the vocabulary via dot product followed by a softmax. We use a sequence length of 80 for the LSTM. We evaluate using AccuracyTop1. We use a learning rate of 0.8 and 10 devices per round for all experiments.
+Statistical and systems analyses. For all the Sent140 experiments presented in Figure 3, we use a bag of words model with logistic regression, and a learning rate of 3 · 10−4. For the FEMNIST experiments in the same ﬁgure, we subsample 5% of the data, and use a model with two convolutional layers followed by pooling, and a ﬁnal dense layer with 2048 units. We use a learning rate of 4 · 10−3 for FedAvg and of 6 · 10−2 for minibatch SGD.
+Additional pipelines. For the experiments presented in Table 2 we use a split of 60% training, 20% validation and 20% test per user, and report results on the test set. The hyperparameters that vary per experiment are the following:
+• For the CelebA experiments, we use 10% of the total clients and the same model we described above for FEMNIST. For the local models, each device explored learning rates in [0.1, 0.01, 0.001, 0.0001]. The FedAvg model uses 10 clients per round for 100 rounds, training locally for one epoch with a batch size of 5, and a best learning rate of 0.001. Both results are averaged over 5 runs.
+• For the experiments with the Synthetic dataset, we use 1, 000 devices, only one cluster, 60 features and 5 classes. Our model is a perceptron with sigmoid activations. For the local models, each device explored learning rates in [10−3, 10−2, 10−1, 1, 10, 102, 103]. The FedAvg model used 10 clients per round for 100 rounds, trained locally for one epoch with a batch size of 5, and found a best learning rate of 0.1.
+• For the Reddit experiments, we use 819 devices and a model similar to the one we described for Shakespeare. The main differences are: the size of the embedding is now 200, and we build the vocabulary from the tokens in the training set with a ﬁxed length of 10, 000. We use a sequence length of 10, evaluate using AccuracyTop1 and consider all predictions of the unknown and
+
+8
+
+padding tokens as incorrect. For √the global iid model, we train for 3 epochs over all the devices’ data using a learning rate of 4 · 2. For FedAvg, we use 10 clients per round for 100 rounds, training locally for one epoch using a batch size of 5. We use a learning rate of 8. Both results are averaged over 5 runs. • For the FEMNIST experiments we use the same model as described before and run each algorithm for 1, 000 rounds, use 5 clients per round, a local learning rate of 10−3, a training mini-batch size of 10 for 5 mini-batches, and evaluate on an unseen set of test devices. Furthermore, for Reptile we use a linearly decaying meta-learning rate that goes from 2 to 0, and evaluate by ﬁne-tuning each test device for 50 mini-batches of size 5.
+9
+

@@ -1,15 +1,15 @@
 {
 	"translatorID": "8451431a-895f-4732-8339-79eb6756d2f9",
+	"translatorType": 4,
 	"label": "Civilization.ca",
 	"creator": "Adam Crymble",
 	"target": "^https?://collections\\.civilization\\.ca",
 	"minVersion": "1.0.0b4.r5",
-	"maxVersion": "",
+	"maxVersion": null,
 	"priority": 100,
 	"inRepository": true,
-	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2012-07-13 07:33:49"
+	"lastUpdated": "2022-01-03 23:35:00"
 }
 
 function detectWeb(doc, url) {
@@ -97,10 +97,7 @@ function scrape(doc, url) {
 	newItem.complete();
 }
 
-function doWeb(doc, url) {
-	
-	var articles = new Array();
-	
+function doWeb(doc, url) {	
 	if (detectWeb(doc, url) == "multiple") {
 		var items = new Object();
 	
@@ -112,15 +109,13 @@ function doWeb(doc, url) {
 				items[next_title.href] = next_title.textContent;
 			}
 		}
-		items = Zotero.selectItems(items);
-		for (var i in items) {
-			articles.push(i);
-		}
+		Zotero.selectItems(items, function (items) {
+			if (!items) return;
+			ZU.processDocuments(Object.keys(items), scrape);
+		});
 	} else {
-		articles = [url];
+		scrape(doc, url);
 	}
-	Zotero.Utilities.processDocuments(articles, scrape, function() {Zotero.done();});
-	Zotero.wait();
 }/** BEGIN TEST CASES **/
 var testCases = [
 	{

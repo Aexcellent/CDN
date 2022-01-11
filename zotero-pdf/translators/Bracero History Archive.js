@@ -1,15 +1,15 @@
 {
 	"translatorID": "f9373e49-e6ac-46f7-aafe-bb24a2fbc3f0",
+	"translatorType": 4,
 	"label": "Bracero History Archive",
 	"creator": "Adam Crymble",
 	"target": "^https?://braceroarchive\\.org",
 	"minVersion": "1.0.0b4.r5",
-	"maxVersion": "",
+	"maxVersion": null,
 	"priority": 100,
 	"inRepository": true,
-	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2012-01-30 22:52:20"
+	"lastUpdated": "2022-01-03 23:35:00"
 }
 
 function detectWeb(doc, url) {
@@ -146,7 +146,6 @@ function doWeb(doc, url) {
 		if (prefix == 'x') return namespace; else return null;
 	} : null;
 	
-	var articles = new Array();
 	var fullRecord = "view=full";
 	var extraChar = "?";
 	
@@ -159,16 +158,13 @@ function doWeb(doc, url) {
 		while (next_title = titles.iterateNext()) {
 			items[next_title.href + extraChar + fullRecord] = next_title.textContent;
 		}
-		items = Zotero.selectItems(items);
-		for (var i in items) {
-			articles.push(i);
-		}
+		Zotero.selectItems(items, function (items) {
+			if (!items) return;
+			ZU.processDocuments(Object.keys(items), scrape);
+		});
 	} else {
-		articles = [url];
+		scrape(doc, url);
 	}
-
-	Zotero.Utilities.processDocuments(articles, scrape, function() {Zotero.done();});
-	Zotero.wait();
 }/** BEGIN TEST CASES **/
 var testCases = [
 	{

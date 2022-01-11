@@ -1,15 +1,15 @@
 {
 	"translatorID": "6773a9af-5375-3224-d148-d32793884dec",
+	"translatorType": 4,
 	"label": "InfoTrac",
 	"creator": "Simon Kornblith",
 	"target": "^https?://[^/]+/itw/infomark/",
 	"minVersion": "1.0.0b3.r1",
-	"maxVersion": "",
+	"maxVersion": null,
 	"priority": 250,
 	"inRepository": true,
-	"translatorType": 4,
-	"browserSupport": "g",
-	"lastUpdated": "2015-06-10 10:51:29"
+	"browserSupport": "gcsibv",
+	"lastUpdated": "2022-01-03 23:35:00"
 }
 
 function detectWeb(doc, url) {
@@ -263,15 +263,17 @@ function doWeb(doc, url) {
 				i++;
 			}
 			
-			items = Zotero.selectItems(items);
-			
-			if (!items) {
-				return true;
-			}
-			
-			for (var i in items) {
-				extractCitation(uris[i], elmts[i], items[i]);
-			}
+			Zotero.selectItems(items, function (items) {
+				if (!items) {
+					return true;
+				}
+				
+				for (var i in items) {
+					extractCitation(uris[i], elmts[i], items[i]);
+				}
+			});
 		}	
 	}
-}
+}/** BEGIN TEST CASES **/
+var testCases = []
+/** END TEST CASES **/

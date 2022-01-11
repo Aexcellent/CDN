@@ -1,15 +1,15 @@
 {
 	"translatorID": "a571680e-6338-46c2-a740-3cd9eb80fc7f",
+	"translatorType": 4,
 	"label": "Beobachter",
 	"creator": "ibex",
 	"target": "^https?://((www\\.)?beobachter\\.ch/.)",
 	"minVersion": "2.1.9",
-	"maxVersion": "",
+	"maxVersion": null,
 	"priority": 100,
 	"inRepository": true,
-	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2016-09-07 21:24:35"
+	"lastUpdated": "2022-01-03 23:35:00"
 }
 
 /*
@@ -60,18 +60,13 @@ function doWeb(doc, url) {
 		if (!items || countObjectProperties(items) == 0) {
 			return true;
 		}
-		items = Z.selectItems(items);
-		if (!items) {
-			return true;
-		}
-
-		for (var i in items) {
-			urls.push(i);
-		}
+		items = Z.selectItems(items, function (items) {
+			if (!items) return;
+			ZU.processDocuments(Object.keys(items), scrape);
+		});
 	} else {
-		urls.push(doc.location.href);
+		scrape(doc);
 	}
-	ZU.processDocuments(urls, scrape);
 }
 
 /* Zotero API */

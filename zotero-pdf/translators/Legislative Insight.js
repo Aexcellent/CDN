@@ -1,15 +1,15 @@
 {
 	"translatorID": "2bedae3c-bab5-447f-b127-e9babc0e9cfe",
+	"translatorType": 4,
 	"label": "Legislative Insight",
 	"creator": "Kari Hemdal",
 	"target": "^https?://(preprod\\.)?li\\.proquest\\.com/legislativeinsight/LegHistMain\\.jsp",
 	"minVersion": "3.0",
-	"maxVersion": "",
+	"maxVersion": null,
 	"priority": 100,
 	"inRepository": true,
-	"translatorType": 4,
-	"browserSupport": "gcsb",
-	"lastUpdated": "2016-03-14 15:46:49"
+	"browserSupport": "gcsibv",
+	"lastUpdated": "2022-01-03 23:35:00"
 }
 
 /*
@@ -135,16 +135,17 @@ function doLDOC(doc, url, st, showTop) {
 			
 		if (count > 0)
 		{
-			items = Zotero.selectItems(items);
-			for (var i in items) 
-			{                         
-				var s = i.split("|");
-				var accNo = s[0];
-				var pubLaw = s[1];
-				var type = s[2];    
-				var typeText = s[3];            
-				process(accNo, pubLaw,type,typeText);
-			}
+			Zotero.selectItems(items, function (items) {
+				for (var i in items) 
+				{                         
+					var s = i.split("|");
+					var accNo = s[0];
+					var pubLaw = s[1];
+					var type = s[2];    
+					var typeText = s[3];            
+					process(accNo, pubLaw,type,typeText);
+				}
+			});
 		}   
 	
 	
@@ -400,3 +401,6 @@ function process(accNo, pubLaw, type, typeText)
 		 
 
 }
+/** BEGIN TEST CASES **/
+var testCases = []
+/** END TEST CASES **/

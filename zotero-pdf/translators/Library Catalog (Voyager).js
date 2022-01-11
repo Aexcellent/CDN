@@ -1,15 +1,15 @@
 {
 	"translatorID": "88915634-1af6-c134-0171-56fd198235ed",
+	"translatorType": 4,
 	"label": "Library Catalog (Voyager)",
 	"creator": "Simon Kornblith",
 	"target": "Pwebrecon\\.cgi",
 	"minVersion": "2.1.9",
-	"maxVersion": "",
+	"maxVersion": null,
 	"priority": 250,
 	"inRepository": true,
-	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2014-08-26 04:12:55"
+	"lastUpdated": "2022-01-03 23:35:00"
 }
 
 function detectWeb(doc, url) {
@@ -30,13 +30,14 @@ function detectWeb(doc, url) {
 	}
 }
 
-function doWeb(doc, url) {
-	var postString = '';
+function doWeb(doc, url, postString) {
+	if (postString === undefined) postString = '';
+
 	var form = ZU.xpath(doc, '//form[@name="frm"]');
 	var newUri = form[0].action;
 	var multiple = false;
 
-	if (ZU.xpath(form, '//*[@name="RC"]').length) {
+	if (!postString && ZU.xpath(form, '//*[@name="RC"]').length) {
 		multiple = true;
 
 		var availableItems = new Object(); // Technically, associative arrays are objects
@@ -90,15 +91,14 @@ function doWeb(doc, url) {
 			}
 		}
 
-		var items = Zotero.selectItems(availableItems);
-		if (!items) {
-			return true;
-		}
-
-		// add arguments for items we need to grab
-		for (var i in items) {
-			postString += "CHK=" + checkboxes[i] + "&";
-		}
+		Zotero.selectItems(availableItems, function (items) {
+			if (!items) return;
+			for (var i in items) {
+				postString += "CHK=" + checkboxes[i] + "&";
+			}
+			doWeb(doc, url, postString);
+		});
+		return;
 	}
 
 	var raw, unicode, latin1;

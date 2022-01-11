@@ -1,15 +1,15 @@
 {
 	"translatorID": "b56d756e-814e-4b46-bc58-d61dccc9f32f",
+	"translatorType": 4,
 	"label": "Nagoya University OPAC",
 	"creator": "Frank Bennett",
 	"target": "^https?://opac\\.nul\\.nagoya-u\\.ac\\.jp/webopac/(catdbl\\.do|ctlsrh\\.do)",
 	"minVersion": "2.0b7",
-	"maxVersion": "",
+	"maxVersion": null,
 	"priority": 100,
 	"inRepository": true,
-	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2012-07-13 07:33:49"
+	"lastUpdated": "2022-01-03 23:35:00"
 }
 
 // #######################
@@ -285,15 +285,18 @@ function doWeb(doc, url) {
 	var format = detectWeb(doc, url);
 	if (format == "multiple") {
 		var items = {};
-		for (var u in Zotero.selectItems( getBookItems(doc) )){
-			var m = u.match(/.*document\.catsrhform\.pkey\.value=\'([^\']+)\'.*/);
-			items[itemUrlBase+"?pkey="+m[1]+"&initFlg=_RESULT_SET_NOTBIB"] = true;
-		}
-		var urls = [];
-		for (var u in items){
-			urls.push(u);
-		}
-		ZU.processDocuments(u, scrapeAndParse);
+		Zotero.selectItems( getBookItems(doc), function (items) {
+			for (var u in items) {
+				var m = u.match(/.*document\.catsrhform\.pkey\.value=\'([^\']+)\'.*/);
+				items[itemUrlBase+"?pkey="+m[1]+"&initFlg=_RESULT_SET_NOTBIB"] = true;
+			}
+			
+			var urls = [];
+			for (var u in items){
+				urls.push(u);
+			}
+			ZU.processDocuments(u, scrapeAndParse);
+		});
 	} else if (format == "book"){
 		scrapeAndParse(doc, url);
 	}

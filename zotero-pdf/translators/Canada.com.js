@@ -1,15 +1,15 @@
 {
 	"translatorID": "4da40f07-904b-4472-93b6-9bea1fe7d4df",
+	"translatorType": 4,
 	"label": "Canada.com",
 	"creator": "Adam Crymble",
 	"target": "^https?://www\\.canada\\.com",
 	"minVersion": "1.0.0b4.r5",
-	"maxVersion": "",
+	"maxVersion": null,
 	"priority": 100,
 	"inRepository": true,
-	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2012-01-30 22:52:08"
+	"lastUpdated": "2022-01-03 23:35:00"
 }
 
 function detectWeb(doc, url) {
@@ -152,16 +152,15 @@ function doWeb(doc, url) {
 		
 		
 		
-		items = Zotero.selectItems(items);
-		for (var i in items) {
-			articles.push(i);
-		}
+		Zotero.selectItems(items, function (items) {
+			ZU.processDocuments(Object.keys(items), scrape);
+		});
 	} else {
-		articles = [url];
+		scrape(doc, url);
 	}
-	Zotero.Utilities.processDocuments(articles, scrape, function() {Zotero.done();});
-	Zotero.wait();
-}/** BEGIN TEST CASES **/
+}
+
+/** BEGIN TEST CASES **/
 var testCases = [
 	{
 		"type": "web",
