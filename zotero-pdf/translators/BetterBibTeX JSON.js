@@ -9,7 +9,7 @@
 	"configOptions": {
 		"async": true,
 		"getCollections": true,
-		"hash": "a95659188c4635c34f56fcf1950bfcdacb00c85bd65a91ef9d72383f72de9385"
+		"hash": "8c3463f71547c7066d293149b148e163de1b69b2dde3eddef78e6c9340300870"
 	},
 	"displayOptions": {
 		"exportNotes": true,
@@ -20,7 +20,7 @@
 	"browserSupport": "gcsv",
 	"priority": 49,
 	"inRepository": false,
-	"lastUpdated": "2022-01-01"
+	"lastUpdated": "2022-01-09"
 }
 
 ZOTERO_CONFIG = {"GUID":"zotero@chnm.gmu.edu","ID":"zotero","CLIENT_NAME":"Zotero","DOMAIN_NAME":"zotero.org","REPOSITORY_URL":"https://repo.zotero.org/repo/","BASE_URI":"http://zotero.org/","WWW_BASE_URL":"https://www.zotero.org/","PROXY_AUTH_URL":"https://zoteroproxycheck.s3.amazonaws.com/test","API_URL":"https://api.zotero.org/","STREAMING_URL":"wss://stream.zotero.org/","SERVICES_URL":"https://services.zotero.org/","API_VERSION":3,"CONNECTOR_MIN_VERSION":"5.0.39","PREF_BRANCH":"extensions.zotero.","BOOKMARKLET_ORIGIN":"https://www.zotero.org","BOOKMARKLET_URL":"https://www.zotero.org/bookmarklet/","START_URL":"https://www.zotero.org/start","QUICK_START_URL":"https://www.zotero.org/support/quick_start_guide","PDF_TOOLS_URL":"https://www.zotero.org/download/xpdf/","SUPPORT_URL":"https://www.zotero.org/support/","TROUBLESHOOTING_URL":"https://www.zotero.org/support/getting_help","FEEDBACK_URL":"https://forums.zotero.org/","CONNECTORS_URL":"https://www.zotero.org/download/connectors"}
@@ -431,7 +431,7 @@ var BetterBibTeXJSON__Translator__detectImport__doImport__doExport = (() => {
   var require_version = __commonJS({
     "gen/version.js"(exports, module) {
       init_globals();
-      module.exports = "6.1.3";
+      module.exports = "6.1.5";
     }
   });
 
@@ -2741,6 +2741,8 @@ ${indent}${this.formatError(e.error, "  ")}
       obj = obj.map(strip).filter((e) => e);
       return obj.length ? obj : void 0;
     }
+    if (obj === null)
+      return void 0;
     if (typeof obj === "object") {
       let keep = false;
       for (let [k, v] of Object.entries(obj)) {
@@ -2755,8 +2757,6 @@ ${indent}${this.formatError(e.error, "  ")}
       return keep ? obj : void 0;
     }
     if (typeof obj === "string" && !obj)
-      return void 0;
-    if (obj === null)
       return void 0;
     return obj;
   }
@@ -2895,8 +2895,8 @@ ${indent}${this.formatError(e.error, "  ")}
       if (!valid.type[source.itemType])
         throw new Error(`unexpected item type '${source.itemType}'`);
       const validFields = valid.field[source.itemType];
-      for (const field of Object.keys(source)) {
-        const valid2 = validFields[field];
+      for (const [field, value] of Object.entries(source)) {
+        const valid2 = !value || validFields[field];
         if (valid2)
           continue;
         const msg = `${valid2}: unexpected ${source.itemType}.${field} for ${Translator.isZotero ? "zotero" : "juris-m"} in ${JSON.stringify(source)} / ${JSON.stringify(validFields)}`;

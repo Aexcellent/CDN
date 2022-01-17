@@ -11,13 +11,13 @@
 	},
 	"configOptions": {
 		"getCollections": true,
-		"hash": "4d2c671489b04df663e72ce944eb2c32c48ff4008ed0e7cfbafdd90971a0a742"
+		"hash": "e2c5405ccf3d83d512d4f16eeec659556cafba46903e9f3ab664dc0a0ebb90a3"
 	},
 	"translatorType": 2,
 	"browserSupport": "gcsv",
 	"inRepository": false,
 	"priority": 100,
-	"lastUpdated": "2022-01-01"
+	"lastUpdated": "2022-01-09"
 }
 
 ZOTERO_CONFIG = {"GUID":"zotero@chnm.gmu.edu","ID":"zotero","CLIENT_NAME":"Zotero","DOMAIN_NAME":"zotero.org","REPOSITORY_URL":"https://repo.zotero.org/repo/","BASE_URI":"http://zotero.org/","WWW_BASE_URL":"https://www.zotero.org/","PROXY_AUTH_URL":"https://zoteroproxycheck.s3.amazonaws.com/test","API_URL":"https://api.zotero.org/","STREAMING_URL":"wss://stream.zotero.org/","SERVICES_URL":"https://services.zotero.org/","API_VERSION":3,"CONNECTOR_MIN_VERSION":"5.0.39","PREF_BRANCH":"extensions.zotero.","BOOKMARKLET_ORIGIN":"https://www.zotero.org","BOOKMARKLET_URL":"https://www.zotero.org/bookmarklet/","START_URL":"https://www.zotero.org/start","QUICK_START_URL":"https://www.zotero.org/support/quick_start_guide","PDF_TOOLS_URL":"https://www.zotero.org/download/xpdf/","SUPPORT_URL":"https://www.zotero.org/support/","TROUBLESHOOTING_URL":"https://www.zotero.org/support/getting_help","FEEDBACK_URL":"https://forums.zotero.org/","CONNECTORS_URL":"https://www.zotero.org/download/connectors"}
@@ -19281,7 +19281,7 @@ var BetterCSLJSON__Translator__doExport = (() => {
   // gen/items/csl-types.json
   var require_csl_types = __commonJS({
     "gen/items/csl-types.json"(exports, module) {
-      module.exports = ["book", "broadcast", "entry-encyclopedia", "review-book", "bill", "regulation", "entry-dictionary", "speech", "webpage", "musical_score", "gazette", "hearing", "paper-conference", "standard", "review", "treaty", "chapter", "video", "graphic", "thesis", "article", "post", "report", "dataset", "article-journal", "map", "song", "figure", "patent", "article-magazine", "legal_case", "classic", "legislation", "interview", "entry", "personal_communication", "manuscript", "motion_picture", "legal_commentary", "post-weblog", "article-newspaper", "pamphlet"];
+      module.exports = ["broadcast", "entry-dictionary", "interview", "standard", "post", "hearing", "entry-encyclopedia", "manuscript", "legal_case", "review-book", "paper-conference", "dataset", "entry", "legislation", "treaty", "figure", "classic", "post-weblog", "musical_score", "article-newspaper", "article", "patent", "chapter", "article-magazine", "graphic", "speech", "song", "gazette", "report", "motion_picture", "bill", "book", "pamphlet", "review", "regulation", "thesis", "video", "personal_communication", "legal_commentary", "webpage", "map", "article-journal"];
     }
   });
 
@@ -23265,7 +23265,7 @@ ${indent}${this.formatError(e.error, "  ")}
         for (const field of ef[mode] || ef[other]) {
           switch (ef.type) {
             case "name":
-              extraFields.creator[field] = extraFields.creator[key] || [];
+              extraFields.creator[field] = extraFields.creator[field] || [];
               extraFields.creator[field].push(value);
               break;
             case "text":
@@ -23373,7 +23373,6 @@ ${indent}${this.formatError(e.error, "  ")}
           csl[item.itemType === "presentation" ? "event-place" : "publisher-place"] = item.place;
         if (item.ISBN)
           csl.ISBN = item.ISBN;
-        delete csl.authority;
         if (item.itemType === "videoRecording" && csl.type === "video")
           csl.type = "motion_picture";
         if (csl.journalAbbreviation)

@@ -1,0 +1,588 @@
+1–12
+
+CSCR I, 2020
+
+arXiv:2009.06218v1 [cs.LG] 14 Sep 2020
+
+A Vertical Federated Learning Method for Interpretable Scorecard and Its Application in Credit Scoring
+
+Fanglan Zheng Erihe Kun Li Jiang Tian Xiaojia Xiang Everbright Technology CO. LTD, China
+
+ZHENGFANGLAN@EBCHINATECH.COM ERIHE@EBCHINATECH.COM
+LIKUN3@EBCHINATECH.COM TIANJIANG@EBCHINATECH.COM XIANGXIAOJIA@EBCHINATECH.COM
+
+Abstract
+With the success of big data and artiﬁcial intelligence in many ﬁelds, the applications of big data driven models are expected in ﬁnancial risk management especially credit scoring and rating. Under the premise of data privacy protection, we propose a projected gradient-based method in the vertical federated learning framework for the traditional scorecard, which is based on logistic regression with bounded constraints, namely FL-LRBC. The latter enables multiple agencies to jointly train an optimized scorecard model in a single training session. It leads to the formation of the model with positive coefﬁcients, while the time-consuming parameter-tuning process can be avoided. Moreover, the performance in terms of both AUC and the Kolmogorov-Smirnov (KS) statistics is significantly improved due to data enrichment using FL-LRBC. At present, FL-LRBC has already been applied to credit business in a China nation-wide ﬁnancial holdings group. Keywords: Scorecard, Logistic Regression with Bounded Constraints, Federated Learning, Financial Holdings Group
+1. Introduction
+The scorecard is a widely used assessment method in ﬁnancial industry (refer to Thomas (2009)), especially in risk management (refer to Anderson (2007)). The ﬁrst purpose of the scorecard is to assist banks in making their credit lending decisions. It is no longer only applied in is applied in assessing lending decisions, but also on-going credit risk management and collection strategies. Therefore, credit scoring is a tool to build a single aggregated risk indicator of a set of risk factors with a certain applicant. This tool should consist of a group of variables, statistically signiﬁcant to be predictive in distinguishing between goods and bads.
+Typically, the scorecard model based on logistic regression (LR) is the most commonly used statistical technique for binary classiﬁcation problem. It is widely used in banking industry and consuming ﬁnance due to its desirable features (e.g., interpretability and robustness). In order to further improve the prediction accuracy of the scorecard model, two major schemes have been proposed. One is to train complex models such as ensemble trees or neural networks, since they are capable of learning non-linear decision boundary. Due to the lack of interpretability, however, it is difﬁcult to apply to real credit assessment. The other is to enrich the data set in terms of sample size or characteristics. Also, it is challenged under the premise of Data Privacy Protection Act, since the transferring of private data is always involved.
+c F. Zheng, F. Erihe, K. Li, J. Tian & X. Xiang.
+
+ZHENG ERIHE LI TIAN XIANG
+
+Recently, federated learning (FL) has been proposed as a potential solution for data isolation at the cost of mass of training time, due to the relatively heavy encryption and a large number of communication rounds. FL is an emerging frontier ﬁeld studying privacy-preserving collaborative machine learning while leaving data instances at their providers locally. It enables different agencies to collaboratively train a shared machine learning model without transferring any data from one data provider to another. Refer to Yang et al. (2019b). In practice, to avoid variables’ multi-collinearity in training a scorecard model, it inevitably spends plenty of time in processing with parameter-tuning. It makes the model coefﬁcients greater than or equal to zero, so as to retain the interpretability and robustness of the scorecard. Accordingly, it is a big challenge to train an optimized model in the FL framework, due to the intolerable machine time cost.
+In order to address this problem, we propose a projected gradient-based method for LR with bounded constraints (FL-LRBC) in the FL framework (FATE, refer to WeBank (2018)). Based on FL-LRBC, an optimized scorecard can be obtained in a single training session. It not only prevents from time-consuming parameter-tuning, but also keeps model interpretable. We further evaluate the performance of our credit scorecard product on the large scale real-world data sets from a nationwide joint-stock commercial bank (BANK) and a Cloud Payment company (CLOUD PAYMENT), which belong to a China ﬁnancial holdings group (GROUP). Experimental results show that an average of test AUC of 72.6% is achieved, which is about 9% higher than that without FL-LRBC.
+The rest of this manuscript is organized as follows. In Sect. 2,the related work about LR with bounded constraint in the FL framework and its projected gradient-based method are discussed. Sect. 3 gives the details of experimental results in our FL-LRBC framework. Conclusions are presented in Sect. 4.
+
+2. LR with Bounded Constraint in the Vertical FL Framework
+This section consists of two parts. First, we introduce the LR-based scorecard and weight of evidence, respectively. Second, we propose a projected algorithm for bound-constrained LR optimization in the vertical FL framework.
+
+2.1. LR-based Scorecard Model and Weight of Evidence
+The traditional scorecard model is the use of LR to translate relevant data into numerical scores that guide credit decisions. LR uses maximum likelihood estimation process, which transforms the dependent variables into a log function and estimates the regression coefﬁcients in a way that it maximizes the log-likelihood. Mathematically, it equals to solve a non-constrained optimization problem, which is formulated as follows:
+
+1 min w∈Rn T
+
+T
+
+log(1 + exp(−yi(wTxi + b)),
+
+(1)
+
+b∈R
+
+i
+
+yielding an occurrence probability and log odds,
+
+1
+
+pi = 1 + e−(wTx+b)
+
+(2)
+
+log(odds) = log( pi ) = (wTx + b)
+
+(3)
+
+1 − pi
+
+2
+
+where w, xi and yi are coefﬁcient vector, i-th feature vector and its corresponding label, respectively. Here pi = p(yi = 1) and b are the probability of yi = 1 and the intercept.
+In the scorecard model, variables are seldom represented in their original form. They are usually segmented into grouping intervals, with the aims of creating bins for the model that maximize the correlation with these variables. Variable transformation through binning is an essential part of LR model, measured by weight of evidence (WOE). WOE impacts the predictive power of scorecard model, and is often used as a benchmark to screen variables. In the credit risk modeling, WOE converts the risk associated with a particular choice into a linear scale that is easier for the human mind to evaluate:
+
+WOEi
+
+=
+
+ln( Badi/ Goodi/
+
+Badi ) = ln( Goodi
+
+Badi/Goodi ) Badi/ Goodi
+
+(4)
+
+here, i is the i-th group/category or bin. The precondition is none-zero for all Badi and Goodi. A negative WOE is that the proportion of defaults is higher for that attribute than the overall proportion, indicating higher risk. Besides, WOE does not suffer from the outliers and treats the missing values as a special group.
+
+Continuous Categorical/Discrete
+
+Variables
+
+Variables
+
+Binning
+Weight of Evidence Encoder
+Feature Selection
+
+Logistic Regression
+
+No
+
+Yes
+
+Interactive Processing
+
+Scorecard
+
+Figure 1: The typical processing of a scorecard model building. .
+3
+
+ZHENG ERIHE LI TIAN XIANG
+
+For a WOE variable, it has a linear relationship with the logistic function, making it well suitable for representing its original form when using LR. In essence, WOE attempts to ﬁnd a monotonic relationship between the input and target variables, which is ”bad/good” account in scorecard and ”events/non-events” or ”1/0”(”1/-1”) in the general case. In short, WOE transformation helps to form a strict linear relationship with log odds. In order to ensure interpretability and robustness of LR, the elements of weight vector w = (w1, ..., wi, ..., wn) should be non-negative i.e.
+
+wi ≥ 0.
+
+(5)
+
+It is easily understood by taking variable xi in bin (or category) bj with WOEj > 0 as an example. That is, Badj/Goodj > Badj/ Goodj means higher bad rate than average level, which is consistent with higher odds. Otherwise, wixi for bj would imply the opposite effect with log odds, resulting in failure of model interpretability that lower log odds would coexist with higher bad rates.
+Due to the multi-collinearity, however, model coefﬁcients may not satisfy Eq.(5). Usually, variable selection techniques with variance inﬂation factors (VIF) or correlation matrix are used to overcome this problem as well as achieve an optimized model with wi ≥ 0. This processing runs under the supervision of the model builder or follows some rules in step-wise regression, which is referred as ”Interactive Processing” in Figure 1. According to our knowledge, the model builders in the risk management still follow this typical processing.
+
+2.2. A Projected Algorithm in the FL Framework for Bound-Constrained LR Optimization
+
+The vertical federated learning (VFL) framework for logistic regression was ﬁrst introduced in Aono et al. (2016); Hardy et al. (2017). It is based on Paillier (1999) encryption and implemented in the open-source project for secure computing framework to support the federated AI ecosystem WeBank (2018). In this framework, even a single training session becomes time expensive due to heavy encryption and communication for data privacy-protection. It leads to the fact that the typical parameter-tuning manner to avoid multi-collinearity is no longer feasible. From a mathematical perspective, it evolves from a non-constrained into bound-constrained optimization problem,
+
+1 min w∈Rn T
+
+T
+
+log(1 + exp(−yi(wTxi + b))
+
+b∈R
+
+i
+
+(6)
+
+s.t. wi ≥ 0
+
+whose solution is not available in the FL framework. Accordingly, we propose a projected gradientbased method as a solution.
+For a general bound-constrained optimization problem, optimal conditions are related to sign condition on multipliers in KKT conditions Nocedal and Wright (2006). Several algorithms based on the gradient-based projection method, such as L-BFGS-B Byrd et al. (1995), can be used to solve this bound-constrained optimization problem. In the following theorems, li = 0 and ui = +∞ in the scorecard model.
+
+Theorem 1 (Optimal Conditions for Bound Constraints) Let f (x) be continuously differentiable. If x∗ is the local minimizer of
+
+min f (x)
+x∈Rn
+s.t. l ≤ x ≤ u
+
+4
+
+then
+
+∂f ∂xi
+
+≥ 0, 
+= 0, x=x∗ ≤ 0,
+
+if x∗i = li if li < x∗i < ui .
+if x∗i = ui
+
+Use the ”projection” operator deﬁned as
+
+ 
+
+li,
+
+if xi ≤ li
+
+[P[l,u](x)]i = xi, if li < xi < ui
+
+ui, if xi ≥ ui
+
+and the following ﬁrst-order condition holds.
+
+Theorem 2 (First-Order Conditions for Bound Constraints) Let f (x) be continuously differentiable. If x∗ is local minimizer, then
+
+x∗ = P[l,u](x∗ − ∇f (x∗)).
+
+Figure 2: A Framework of LR with Bounded Constrains in the vertical FL Framework.
+
+Different from the common optimization methods, such as stochastic gradient descent (SGD) and stochastic quasi-newton (SQN) methods Yang et al. (2019a), we apply the ”projection” operator as Eq.7 shows in each updating step of wi to achieve a model with wi ≥ 0.
+
+wk+1 = P[0,+∞)(wk − ηgˆk)
+
+(7)
+
+where η and gˆk are learning rate and descent direction, respectively. Also, the initial value of wi should belong to Rn+. Here, the vertical federation learning is investigated. The original datasets
+are vertically partitioned and distributed on two honest-but-curious private Party A (the host data provider with only features XA ∈ RT ×nA) and Party B (the guest data provider with features
+
+5
+
+ZHENG ERIHE LI TIAN XIANG
+
+XB ∈ RT ×nB and labels y). Each party owns a disjoint subset of data features over a common sample IDs with X = (XA, XB). The homomorphic encryption schemes such as Paillier (1999)
+
+allow any party can encrypt their data with a public key, while the private key for decryption is
+
+owned by the third party, i.e., the coordinator. With additively homomorphic encryption we can
+
+compute the additive of two encrypted numbers as well as the product of an unencrypted number
+
+and an encrypted one, which can be denoted as [[u]] + [[v]] = [[u + v]], v[[u]] = [[vu]] by using
+
+[[·]] as the encryption operation. The loss and gradient at Party A&B are computed as follows.
+
+Let S ⊆ {1, ..., T } be the index set of the chosen mini-batch data instances. The corresponding
+
+loss and gradient are given on S. By denoting uA = {uA[i] = (wA)TxAi : i ∈ S}, u2A =
+
+{u2A[i] = ((wA)TxAi )2 : i ∈ S} for Party A (similarly uB and u2B for Party B) and d = {di =
+
+1 4
+
+(uA[i]
+
++
+
+uB [i])
+
+−
+
+1 2
+
+yi
+
+:
+
+i
+
+∈
+
+S },
+
+the
+
+encrypted
+
+loss
+
+and
+
+gradient
+
+can
+
+be
+
+computed
+
+by
+
+transmitting
+
+[[uA]] from Party A to Party B, and transmitting [[d]] from Party B to Party A following
+
+1
+
+1
+
+[[loss]] ≈ |S|
+
+[[log 2]] − 2 yi([[uA[i]]] + [[uB[i]]])
+
+i∈S
+
+(8)
+
++
+
+1 8
+
+([[u2A[i]]]
+
++
+
+2uB [i][[uA [i]]]
+
++
+
+[[u2B [i]]])
+
+[[g]] =. ([[gA]], [[gB]]) ≈ 1 |S |
+
+[[di]]xi
+
+i∈S
+
+(9)
+
+1 =
+|S |
+
+[[di
+
+]]xAi ,
+
+1 |S
+
+|
+
+[[di]]xBi
+
+i∈S
+
+i∈S
+
+here
+
+1
+
+1
+
+[[di]] = 4 ([[uA]] + [[uB]]) + [[− 2 yi]].
+
+Algorithm 1 A Framework of LR with Bound-Constraints in the Vertical FL Framework.
+Input: w0A,w0B Parameter: η Output: wA,wB
+1: Project w0A and w0B to RnA + and RnB +,. 2: while two steps difference condition (loss or coefﬁcients) and max iteration number condition
+do
+3: Choose a mini-batch S
+4: Party A&B: Compute [[loss]], [[g]] as Eq.(8)(9) 5: Coordinator: Compute gA, gB and loss with private key and determine the stop condition.
+6: Party A&B: Update each one’s own model wA ← P[0,+∞)(wA − ηgA) wB ← P[0,+∞)(wB − ηgB)
+7: end while 8: return wA,wB
+
+6
+
+More details about iterative ﬂow of FL-LRBC can be seen in Figure.2 and Algorithm.1. In fact, the key point is the updating step (refer to Eq.(7)). It also can be applied to other gradient descent (GD) optimization algorithms and the quasi-newton method.
+
+3. Experimental Results
+This section is organized with three parts. First, we introduce the data sets that are used in our FL-LRBC framework. Second, we show the performance measures in the scorecard model. Finally, we demonstrate the results of our experiments.
+
+3.1. Data Set Description
+For risk management in the retail credit business scenario, variable names of the relevant data in ﬁnance agencies won’t be disclosed.
+With the usage of FL-LRBC, BANK trains a scorecard model with CLOUD PAYMENT collaboratively, which has China’s convenience payment data. There are 4,000,000 observations in the data set in all. Note that the target variable is coded as 1 and 0 to indicate default (according to a default deﬁnition chosen by ) and non-default, respectively.
+There are 464,454 defaults (events) and 3,535,546 non-defaults in the data set and no indeterminant is deﬁned. The total data set consists of 9 and 5 variables with information value (IV) more than a threshold 0.02 from the above two agencies, respectively. It can be seen from Table 1. The purpose of this is to ﬁlter out variables with strong predictive power that are input for training model.
+
+variable var0 var1 var2 var3 var4 var5 var6 var7 var8 var9 var10 var11 var12 var13
+
+data type ﬂoat ﬂoat char ﬂoat char ﬂoat ﬂoat ﬂoat ﬂoat ﬂoat char ﬂoat char char
+
+missing rate (%) 49.3 52.5 0.0 0.0 0.0 16.4 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0
+
+IV 0.320 0.314 0.312 0.215 0.211 0.154 0.108 0.07 0.055 0.055 0.052 0.047 0.046 0.042
+
+Table 1: Variables with IV more than 0.02 are sorted in the descending order.
+
+Compared with the simple joint training, FL-LRBC maintains their models in both BANK and CLOUD PAYMENT without any data transferring, locally.
+
+7
+
+ZHENG ERIHE LI TIAN XIANG
+
+3.2. Model Performance Measures
+
+Once a scorecard model completes, its practicality is often evaluated in terms of its predictive and discrimination ability. A complete description of predictive accuracy is given by the Receiver Operating Characteristic (ROC) curve. A model with high accuracy will have high sensitivity and speciﬁcity simultaneously, leading to an ROC curve which goes close to the top left corner of the plot. The area under the ROC curve, AUC, as one of the two main performance metrics, provides a measure of the model’s predictive ability between those observations that experience the outcome of interest versus those who do not. This is called a summary measure of the accuracy of a quantitative diagnostic test. AUC is also referred to as the C statistic.
+Kolmogorov-Smirnov (KS) statistic, the other performance metrics, is commonly used in measuring discrimination power of scorecard systems. Also, KS curve is mostly used as a data-visualization tool to illustrate the model’s effectiveness. The cumulative distributions of default and non-default are plotted against the score (output from the model, transformed, can also be seen as the different covariate patterns, ranked in a way). Geometrically, the maximum distance is then calculated between these two distribution curves, which is deﬁned as
+
+DKS = max |cp1 − cp0|
+
+(10)
+
+where cp1 and cp0 are the cumulative percentage for defaults and non-defaults, separately. Here || indicates taking the absolute value and max is taken of all the differences over all possible scores. The larger DKS, the stronger the models discrimination power.
+
+3.3. Results and Discussions
+As for continuous variables, discretion can be accomplished via binning. The style of binning is always inspired by scorecard construction methods. For categorical variables, no binning is needed and the histogram estimator can be used directly. Then, the original variables are transformed into WOE variables (var woe).
+
+variable intercept var0 woe var1 woe var3 woe var4 woe var6 woe var8 woe var9 woe var10 woe var13 woe
+
+coefﬁcient -2.85 1.99 0.58 0.91 0.95 1.21 0.83 0.36 0.19 1.17
+
+Table 2: Summary of the scorecard in our FL-LRBC framework.
+
+To minimize the impact of over-ﬁtting, we split the data set into 70% training and 30% testing parts. Using our FL-LRBC framework, the scorecard model is achieved in a single training session. Ina ll, We spend about 30 hours to obtain this optimized scorecard. Otherwise, time cost would be more than hundreds of machine hours, due to iterative feature-selecting and parameter-tuning.
+
+8
+
+7UXH3RVLWLYH5DWH
+
+52&&XUYH 
+
+
+
+.6&XUYH
+
+
+
+NV
+
+.6BPD[ 
+
+
+
+
+
+RIWRWDO*RRG%DG
+
+
+
+
+ 
+
+$8& 
+
+
+
+
+
+
+
+
+
+
+
+)DOVH3RVLWLYH5DWH
+
+52&&XUYH 
+
+
+
+
+
+
+
+
+
+
+
+      
+RISRSXODWLRQ
+
+.6&XUYH
+
+
+
+NV
+
+.6BPD[ 
+
+
+
+
+
+
+
+RIWRWDO*RRG%DG
+
+
+ 
+
+$8& 
+
+
+
+
+
+
+
+
+
+
+
+)DOVH3RVLWLYH5DWH
+
+
+      
+RISRSXODWLRQ
+
+Figure 3: ROC and KS curves for both training and testing parts using FL-LRBC.
+
+7UXH3RVLWLYH5DWH
+
+9
+
+ZHENG ERIHE LI TIAN XIANG
+
+The summary results of the scorecard model are shown in Table 2. As expected, multiple input variables of positive sign are var0 woe, var1 woe, var3 woe, var4 woe, var6 woe, var8 woe, var9 woe, var10 woe and var13 woe , respectively. Their coefﬁcient values range from 0.19 to 1.99.
+
+7UXH3RVLWLYH5DWH
+
+52&&XUYH 
+
+
+
+
+
+
+
+
+ 
+
+$8& 
+
+
+
+
+
+
+
+
+
+
+
+)DOVH3RVLWLYH5DWH
+
+52&&XUYH 
+
+
+
+
+
+
+
+
+ 
+
+$8& 
+
+
+
+
+
+
+
+
+
+
+
+)DOVH3RVLWLYH5DWH
+
+RIWRWDO*RRG%DG
+
+RIWRWDO*RRG%DG
+
+.6&XUYH
+
+
+
+NV
+
+.6BPD[ 
+
+
+
+
+
+
+
+
+
+      
+RISRSXODWLRQ
+
+.6&XUYH
+
+
+
+NV
+
+.6BPD[ 
+
+
+
+
+
+
+
+
+
+      
+RISRSXODWLRQ
+
+7UXH3RVLWLYH5DWH
+
+Figure 4: ROC and KS curves for both training and testing parts using only BANK data.
+Among these variables, six of them come from BANK, which are characterized as identity traits, consumption grade, gross proﬁts, behavioral preferences, channel activity. The rest three variables from CLOUD PAYMENT represent personal payment of apartment utilities (including electricity, water, gas and property charges) and mobile communication costs.
+According to Figure 3 and Figure 4, it is obvious that the performance in terms of AUC and KS statistics is remarkably improved due to data enrichment. Compared to the central banks scorecard using only BANK data, AUC of the FL-LRBC model has an increase of more than 10%, reaching 0.76. The other metrics, KS statistic of 0.41 also has an evident improvement with raise by 60%.
+
+10
+
+Furthermore, cooperation between two agencies in GROUP enriches the data set in terms of input features, leading that FL-LRBC based scorcard trends to be more stable and robust. As a result, with the usage of the FL-LRBC, default and non-default will be classiﬁed more effectively due to scorecard improvement.
+Next, we will cooperate with more agencies such as security companies, insurance companies, trust companies, and E-commerce platforms in multiple business scenarios with the help of our FL-LRBC framework.
+4. Conclusion
+In this manuscript, a projected gradient-based method in the FL framework for LR with bounded constraints (FL-LRBC) is proposed. Without the disclosure risk of data, an optimized interpretable scorecard, still based on the data from different data providers, can be obtained in a single training session. It not only avoids time-consuming feature-selecting and retraining process, but also ensures interpretability and robustness of the model. Compared with that without the data enrichment using the FL-LRBC, both AUC and KS statistics in evaluating model performance are highly improved.
+Acknowledgements
+The authors gratefully acknowledge the colleagues from BANK and CLOUD PAYMENT in GROUP for our valuable discussions on business understanding and inspirations for the application design. The computing was executed on our Group’s Data Haven (EDH), so we would like to express the deepest gratitude to the substantial help from EDH.
+References
+Raymond Anderson. The Credit Scoring Toolkit: Theory and Practice for Retail Credit Risk Management and Decision Automation. Number 9780199226405 in OUP Catalogue. Oxford University Press, 2007. ISBN ARRAY(0x3c10ae48). URL https://ideas.repec.org/b/oxp/obooks/ 9780199226405.html.
+Yoshinori Aono, Takuya Hayashi, Le Trieu Phong, and Lihua Wang. Scalable and secure logistic regression via homomorphic encryption. Conference on data and application security and privacy, pages 142–144, 2016.
+Richard H Byrd, Peihuang Lu, Jorge Nocedal, and Ciyou Zhu. A limited memory algorithm for bound constrained optimization. SIAM Journal on Scientiﬁc Computing, 16(5):1190–1208, 1995.
+Stephen James Hardy, Wilko Henecka, Hamish Iveylaw, Richard Nock, Giorgio Patrini, Guillaume Smith, and Brian Thorne. Private federated learning on vertically partitioned data via entity resolution and additively homomorphic encryption. arXiv: Learning, 2017.
+Jorge Nocedal and Stephen J. Wright. Numerical Optimization: Springer Series in Operations Research and Financial Engineering. Springer, 2006. ISBN 9780387303031.
+Pascal Paillier. Public-key cryptosystems based on composite degree residuosity classes. In Jacques Stern, editor, Advances in Cryptology — EUROCRYPT ’99, pages 223–238, Berlin, Heidelberg, 1999. Springer Berlin Heidelberg. ISBN 978-3-540-48910-8.
+11
+
+ZHENG ERIHE LI TIAN XIANG Lyn C Thomas. Consumer credit models : pricing, proﬁt, and portfolios. OUP Catalogue, 2009. WeBank. Fate: An industrial grade federated learning framework. https://fate.fedai.org,2018, 2018. Kai Yang, Tao Fan, Tianjian Chen, Yuanming Shi, and Qiang Yang. A quasi-newton method based
+vertical federated learning framework for logistic regression. arXiv: Learning, 2019a. Qiang Yang, Yang Liu, Tianjian Chen, and Yongxin Tong. Federated machine learning: Concept
+and applications. ACM Trans. Intell. Syst. Technol., 10(2), January 2019b. ISSN 2157-6904. doi: 10.1145/3298981. URL https://doi.org/10.1145/3298981.
+12
+

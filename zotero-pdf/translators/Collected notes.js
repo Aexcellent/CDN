@@ -14,10 +14,10 @@
 	"inRepository": false,
 	"configOptions": {
 		"getCollections": true,
-		"hash": "052b5b38e3c441f9837f2e9e42d92659dd0272e64f451e6c4f744a214559b258"
+		"hash": "9eaf33b97c73fdd4f859edd2edd4dcf59ca08cf4b51e6fb158a67419a50e722a"
 	},
 	"priority": 100,
-	"lastUpdated": "2022-01-01"
+	"lastUpdated": "2022-01-09"
 }
 
 ZOTERO_CONFIG = {"GUID":"zotero@chnm.gmu.edu","ID":"zotero","CLIENT_NAME":"Zotero","DOMAIN_NAME":"zotero.org","REPOSITORY_URL":"https://repo.zotero.org/repo/","BASE_URI":"http://zotero.org/","WWW_BASE_URL":"https://www.zotero.org/","PROXY_AUTH_URL":"https://zoteroproxycheck.s3.amazonaws.com/test","API_URL":"https://api.zotero.org/","STREAMING_URL":"wss://stream.zotero.org/","SERVICES_URL":"https://services.zotero.org/","API_VERSION":3,"CONNECTOR_MIN_VERSION":"5.0.39","PREF_BRANCH":"extensions.zotero.","BOOKMARKLET_ORIGIN":"https://www.zotero.org","BOOKMARKLET_URL":"https://www.zotero.org/bookmarklet/","START_URL":"https://www.zotero.org/start","QUICK_START_URL":"https://www.zotero.org/support/quick_start_guide","PDF_TOOLS_URL":"https://www.zotero.org/download/xpdf/","SUPPORT_URL":"https://www.zotero.org/support/","TROUBLESHOOTING_URL":"https://www.zotero.org/support/getting_help","FEEDBACK_URL":"https://forums.zotero.org/","CONNECTORS_URL":"https://www.zotero.org/download/connectors"}
@@ -38431,7 +38431,7 @@ ${indent}${this.formatError(e.error, "  ")}
         for (const field of ef[mode] || ef[other]) {
           switch (ef.type) {
             case "name":
-              extraFields.creator[field] = extraFields.creator[key] || [];
+              extraFields.creator[field] = extraFields.creator[field] || [];
               extraFields.creator[field].push(value);
               break;
             case "text":

@@ -9,7 +9,7 @@
 	"priority": 100,
 	"inRepository": true,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2021-09-19 22:05:00"
+	"lastUpdated": "2022-01-14 12:05:00"
 }
 
 /**
@@ -137,7 +137,7 @@ function scrape(doc, url) {
 	}
 
 	item.attachments.push({
-		url: item.url,
+		url: url,
 		title: 'Snapshot',
 		mimeType: 'text/html',
 		snapshot: true

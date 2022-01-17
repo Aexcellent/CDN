@@ -13,9 +13,9 @@
 	},
 	"inRepository": false,
 	"configOptions": {
-		"hash": "f60c04f1f9f338a38d3c55cfe45a123e7c1b8d023f5378f12b2cad196b9c1891"
+		"hash": "9b7efe768023eaad75730c39169384eee59778abf15ae0545437035790bf99e8"
 	},
-	"lastUpdated": "2022-01-01"
+	"lastUpdated": "2022-01-09"
 }
 
 ZOTERO_CONFIG = {"GUID":"zotero@chnm.gmu.edu","ID":"zotero","CLIENT_NAME":"Zotero","DOMAIN_NAME":"zotero.org","REPOSITORY_URL":"https://repo.zotero.org/repo/","BASE_URI":"http://zotero.org/","WWW_BASE_URL":"https://www.zotero.org/","PROXY_AUTH_URL":"https://zoteroproxycheck.s3.amazonaws.com/test","API_URL":"https://api.zotero.org/","STREAMING_URL":"wss://stream.zotero.org/","SERVICES_URL":"https://services.zotero.org/","API_VERSION":3,"CONNECTOR_MIN_VERSION":"5.0.39","PREF_BRANCH":"extensions.zotero.","BOOKMARKLET_ORIGIN":"https://www.zotero.org","BOOKMARKLET_URL":"https://www.zotero.org/bookmarklet/","START_URL":"https://www.zotero.org/start","QUICK_START_URL":"https://www.zotero.org/support/quick_start_guide","PDF_TOOLS_URL":"https://www.zotero.org/download/xpdf/","SUPPORT_URL":"https://www.zotero.org/support/","TROUBLESHOOTING_URL":"https://www.zotero.org/support/getting_help","FEEDBACK_URL":"https://forums.zotero.org/","CONNECTORS_URL":"https://www.zotero.org/download/connectors"}
@@ -5842,9 +5842,9 @@ var BetterBibTeXCitationKeyQuickCopy__Translator__doExport = (() => {
     }
   });
 
-  // node_modules/unicode2latex/tables/ascii.json
+  // node_modules/@retorquere/bibtex-parser/node_modules/unicode2latex/tables/ascii.json
   var require_ascii = __commonJS({
-    "node_modules/unicode2latex/tables/ascii.json"(exports, module) {
+    "node_modules/@retorquere/bibtex-parser/node_modules/unicode2latex/tables/ascii.json"(exports, module) {
       module.exports = {
         "#": { math: "\\#", text: "\\#" },
         $: { math: "\\$", text: "\\$" },
@@ -9650,9 +9650,9 @@ var BetterBibTeXCitationKeyQuickCopy__Translator__doExport = (() => {
     }
   });
 
-  // node_modules/unicode2latex/tables/ascii-bibtex-creator.json
+  // node_modules/@retorquere/bibtex-parser/node_modules/unicode2latex/tables/ascii-bibtex-creator.json
   var require_ascii_bibtex_creator = __commonJS({
-    "node_modules/unicode2latex/tables/ascii-bibtex-creator.json"(exports, module) {
+    "node_modules/@retorquere/bibtex-parser/node_modules/unicode2latex/tables/ascii-bibtex-creator.json"(exports, module) {
       module.exports = {
         "#": { math: "\\#", text: "\\#" },
         $: { math: "\\$", text: "\\$" },
@@ -13458,9 +13458,9 @@ var BetterBibTeXCitationKeyQuickCopy__Translator__doExport = (() => {
     }
   });
 
-  // node_modules/unicode2latex/tables/unicode.json
+  // node_modules/@retorquere/bibtex-parser/node_modules/unicode2latex/tables/unicode.json
   var require_unicode = __commonJS({
-    "node_modules/unicode2latex/tables/unicode.json"(exports, module) {
+    "node_modules/@retorquere/bibtex-parser/node_modules/unicode2latex/tables/unicode.json"(exports, module) {
       module.exports = {
         "#": { math: "\\#", text: "\\#" },
         $: { math: "\\$", text: "\\$" },
@@ -13494,9 +13494,9 @@ var BetterBibTeXCitationKeyQuickCopy__Translator__doExport = (() => {
     }
   });
 
-  // node_modules/unicode2latex/tables/latex.json
+  // node_modules/@retorquere/bibtex-parser/node_modules/unicode2latex/tables/latex.json
   var require_latex = __commonJS({
-    "node_modules/unicode2latex/tables/latex.json"(exports, module) {
+    "node_modules/@retorquere/bibtex-parser/node_modules/unicode2latex/tables/latex.json"(exports, module) {
       module.exports = {
         "\\#": "#",
         "\\$": "$",
@@ -16908,9 +16908,9 @@ var BetterBibTeXCitationKeyQuickCopy__Translator__doExport = (() => {
     }
   });
 
-  // node_modules/unicode2latex/tables/diacritics.json
+  // node_modules/@retorquere/bibtex-parser/node_modules/unicode2latex/tables/diacritics.json
   var require_diacritics = __commonJS({
-    "node_modules/unicode2latex/tables/diacritics.json"(exports, module) {
+    "node_modules/@retorquere/bibtex-parser/node_modules/unicode2latex/tables/diacritics.json"(exports, module) {
       module.exports = {
         commands: [
           "acute",
@@ -17278,9 +17278,9 @@ var BetterBibTeXCitationKeyQuickCopy__Translator__doExport = (() => {
     }
   });
 
-  // node_modules/unicode2latex/index.js
+  // node_modules/@retorquere/bibtex-parser/node_modules/unicode2latex/index.js
   var require_unicode2latex = __commonJS({
-    "node_modules/unicode2latex/index.js"(exports, module) {
+    "node_modules/@retorquere/bibtex-parser/node_modules/unicode2latex/index.js"(exports, module) {
       init_globals();
       module.exports = {
         ascii: require_ascii(),
@@ -41867,7 +41867,7 @@ ${indent}${this.formatError(e.error, "  ")}
         for (const field of ef[mode] || ef[other]) {
           switch (ef.type) {
             case "name":
-              extraFields.creator[field] = extraFields.creator[key] || [];
+              extraFields.creator[field] = extraFields.creator[field] || [];
               extraFields.creator[field].push(value);
               break;
             case "text":
@@ -41928,9 +41928,13 @@ ${indent}${this.formatError(e.error, "  ")}
       if (!this.postfix && Translator.BetterTeX)
         this.postfix = new Postfix(Translator.preferences.qualityReport);
       for (const item of Translator.references) {
-        if (!item.citationKey) {
-          throw new Error(`No citation key in ${JSON.stringify(item)}`);
+        Object.assign(item, get(item.extra, "zotero"));
+        if (typeof item.itemID !== "number") {
+          item.citationKey = item.extraFields.citationKey;
+          item.$cacheable = false;
         }
+        if (!item.citationKey)
+          throw new Error(`No citation key in ${JSON.stringify(item)}`);
         this.citekeys[item.citationKey] = (this.citekeys[item.citationKey] || 0) + 1;
         this.jabref.citekeys.set(item.itemID, item.citationKey);
         const cached = item.$cacheable && Translator.BetterTeX ? Zotero.BetterBibTeX.cacheFetch(item.itemID, Translator.options, Translator.preferences) : null;
@@ -41941,7 +41945,6 @@ ${indent}${this.formatError(e.error, "  ")}
           continue;
         }
         simplifyForExport(item);
-        Object.assign(item, get(item.extra, "zotero"));
         const prefix = Translator.BetterBibLaTeX ? "biblatex." : "bibtex.";
         for (const [name, field] of Object.entries(item.extraFields.tex).sort((a, b) => b[0].localeCompare(a[0]))) {
           for (const type2 of [prefix, "tex."]) {
