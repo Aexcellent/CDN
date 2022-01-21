@@ -9,7 +9,7 @@
 	"configOptions": {
 		"async": true,
 		"getCollections": true,
-		"hash": "8c3463f71547c7066d293149b148e163de1b69b2dde3eddef78e6c9340300870"
+		"hash": "77c8458d4a56fda9fde27b65b91f5e906a5a81ec46e59356c346a15f912c1a62"
 	},
 	"displayOptions": {
 		"exportNotes": true,
@@ -20,7 +20,7 @@
 	"browserSupport": "gcsv",
 	"priority": 49,
 	"inRepository": false,
-	"lastUpdated": "2022-01-09"
+	"lastUpdated": "2022-01-19"
 }
 
 ZOTERO_CONFIG = {"GUID":"zotero@chnm.gmu.edu","ID":"zotero","CLIENT_NAME":"Zotero","DOMAIN_NAME":"zotero.org","REPOSITORY_URL":"https://repo.zotero.org/repo/","BASE_URI":"http://zotero.org/","WWW_BASE_URL":"https://www.zotero.org/","PROXY_AUTH_URL":"https://zoteroproxycheck.s3.amazonaws.com/test","API_URL":"https://api.zotero.org/","STREAMING_URL":"wss://stream.zotero.org/","SERVICES_URL":"https://services.zotero.org/","API_VERSION":3,"CONNECTOR_MIN_VERSION":"5.0.39","PREF_BRANCH":"extensions.zotero.","BOOKMARKLET_ORIGIN":"https://www.zotero.org","BOOKMARKLET_URL":"https://www.zotero.org/bookmarklet/","START_URL":"https://www.zotero.org/start","QUICK_START_URL":"https://www.zotero.org/support/quick_start_guide","PDF_TOOLS_URL":"https://www.zotero.org/download/xpdf/","SUPPORT_URL":"https://www.zotero.org/support/","TROUBLESHOOTING_URL":"https://www.zotero.org/support/getting_help","FEEDBACK_URL":"https://forums.zotero.org/","CONNECTORS_URL":"https://www.zotero.org/download/connectors"}
@@ -431,7 +431,7 @@ var BetterBibTeXJSON__Translator__detectImport__doImport__doExport = (() => {
   var require_version = __commonJS({
     "gen/version.js"(exports, module) {
       init_globals();
-      module.exports = "6.1.5";
+      module.exports = "6.1.7";
     }
   });
 
@@ -657,9 +657,23 @@ var BetterBibTeXJSON__Translator__detectImport__doImport__doExport = (() => {
   var schema = {
     autoExport: {
       preferences: ["asciiBibLaTeX", "asciiBibTeX", "biblatexExtendedNameFormat", "bibtexParticleNoOp", "bibtexURL", "DOIandURL"],
-      displayOptions: ["useJournalAbbreviation", "exportNotes"]
+      displayOptions: ["exportNotes", "useJournalAbbreviation"]
     },
     translator: {
+      "Better CSL YAML": {
+        autoexport: true,
+        cached: true,
+        preferences: [],
+        displayOptions: [],
+        types: {}
+      },
+      "Better CSL JSON": {
+        autoexport: true,
+        cached: true,
+        preferences: [],
+        displayOptions: [],
+        types: {}
+      },
       "BetterBibTeX JSON": {
         autoexport: true,
         cached: false,
@@ -682,13 +696,6 @@ var BetterBibTeXJSON__Translator__detectImport__doImport__doExport = (() => {
           useJournalAbbreviation: { type: "boolean" }
         }
       },
-      "Better CSL YAML": {
-        autoexport: true,
-        cached: true,
-        preferences: [],
-        displayOptions: [],
-        types: {}
-      },
       "Better BibTeX": {
         autoexport: true,
         cached: true,
@@ -702,13 +709,6 @@ var BetterBibTeXJSON__Translator__detectImport__doImport__doExport = (() => {
           exportNotes: { type: "boolean" },
           useJournalAbbreviation: { type: "boolean" }
         }
-      },
-      "Better CSL JSON": {
-        autoexport: true,
-        cached: true,
-        preferences: [],
-        displayOptions: [],
-        types: {}
       }
     }
   };
@@ -2787,7 +2787,7 @@ ${indent}${this.formatError(e.error, "  ")}
         for (const att of item.attachments) {
           att.contentType = att.contentType || att.mimeType;
           delete att.mimeType;
-          for (const prop of ["localPath", "itemID", "charset", "dateAdded", "parentItem", "dateModified", "version", "relations", "id"]) {
+          for (const prop of ["select", "localPath", "itemID", "charset", "dateAdded", "parentItem", "dateModified", "version", "relations", "id"]) {
             delete att[prop];
           }
         }
@@ -2911,7 +2911,7 @@ ${indent}${this.formatError(e.error, "  ")}
       const item = new Zotero.Item();
       Object.assign(item, source);
       if (item.extra)
-        item.extra = `BBT${item.extra}`;
+        item.extra = `\x1BBBT\x1B${item.extra}`;
       for (const att of item.attachments || []) {
         if (att.url)
           delete att.path;

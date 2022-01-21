@@ -11,13 +11,13 @@
 	},
 	"configOptions": {
 		"getCollections": true,
-		"hash": "f528fefc5a48981c88e31e8683d3654dceef4075207a2fce254bb3f96ffdf172"
+		"hash": "e43d2f68b5555f377a9fa206d28e2d6ecd159038391a085bccc229494fcc00f2"
 	},
 	"translatorType": 3,
 	"browserSupport": "gcsv",
 	"priority": 800,
 	"inRepository": false,
-	"lastUpdated": "2022-01-09"
+	"lastUpdated": "2022-01-19"
 }
 
 ZOTERO_CONFIG = {"GUID":"zotero@chnm.gmu.edu","ID":"zotero","CLIENT_NAME":"Zotero","DOMAIN_NAME":"zotero.org","REPOSITORY_URL":"https://repo.zotero.org/repo/","BASE_URI":"http://zotero.org/","WWW_BASE_URL":"https://www.zotero.org/","PROXY_AUTH_URL":"https://zoteroproxycheck.s3.amazonaws.com/test","API_URL":"https://api.zotero.org/","STREAMING_URL":"wss://stream.zotero.org/","SERVICES_URL":"https://services.zotero.org/","API_VERSION":3,"CONNECTOR_MIN_VERSION":"5.0.39","PREF_BRANCH":"extensions.zotero.","BOOKMARKLET_ORIGIN":"https://www.zotero.org","BOOKMARKLET_URL":"https://www.zotero.org/bookmarklet/","START_URL":"https://www.zotero.org/start","QUICK_START_URL":"https://www.zotero.org/support/quick_start_guide","PDF_TOOLS_URL":"https://www.zotero.org/download/xpdf/","SUPPORT_URL":"https://www.zotero.org/support/","TROUBLESHOOTING_URL":"https://www.zotero.org/support/getting_help","FEEDBACK_URL":"https://forums.zotero.org/","CONNECTORS_URL":"https://www.zotero.org/download/connectors"}
@@ -19281,7 +19281,7 @@ var BetterCSLYAML__Translator__detectImport__doImport__doExport = (() => {
   // gen/items/csl-types.json
   var require_csl_types = __commonJS({
     "gen/items/csl-types.json"(exports, module) {
-      module.exports = ["broadcast", "entry-dictionary", "interview", "standard", "post", "hearing", "entry-encyclopedia", "manuscript", "legal_case", "review-book", "paper-conference", "dataset", "entry", "legislation", "treaty", "figure", "classic", "post-weblog", "musical_score", "article-newspaper", "article", "patent", "chapter", "article-magazine", "graphic", "speech", "song", "gazette", "report", "motion_picture", "bill", "book", "pamphlet", "review", "regulation", "thesis", "video", "personal_communication", "legal_commentary", "webpage", "map", "article-journal"];
+      module.exports = ["hearing", "speech", "review-book", "chapter", "article-journal", "review", "video", "entry-encyclopedia", "book", "manuscript", "gazette", "song", "pamphlet", "webpage", "personal_communication", "bill", "map", "interview", "report", "treaty", "article", "entry", "thesis", "regulation", "motion_picture", "legal_commentary", "patent", "post", "broadcast", "article-newspaper", "classic", "dataset", "paper-conference", "article-magazine", "entry-dictionary", "post-weblog", "legal_case", "standard", "figure", "legislation", "musical_score", "graphic"];
     }
   });
 
@@ -20344,7 +20344,7 @@ var BetterCSLYAML__Translator__detectImport__doImport__doExport = (() => {
         return -1;
       }
       function simpleEscapeSequence(c) {
-        return c === 48 ? "\0" : c === 97 ? "\x07" : c === 98 ? "\b" : c === 116 ? "	" : c === 9 ? "	" : c === 110 ? "\n" : c === 118 ? "\v" : c === 102 ? "\f" : c === 114 ? "\r" : c === 101 ? "" : c === 32 ? " " : c === 34 ? '"' : c === 47 ? "/" : c === 92 ? "\\" : c === 78 ? "\x85" : c === 95 ? "\xA0" : c === 76 ? "\u2028" : c === 80 ? "\u2029" : "";
+        return c === 48 ? "\0" : c === 97 ? "\x07" : c === 98 ? "\b" : c === 116 ? "	" : c === 9 ? "	" : c === 110 ? "\n" : c === 118 ? "\v" : c === 102 ? "\f" : c === 114 ? "\r" : c === 101 ? "\x1B" : c === 32 ? " " : c === 34 ? '"' : c === 47 ? "/" : c === 92 ? "\\" : c === 78 ? "\x85" : c === 95 ? "\xA0" : c === 76 ? "\u2028" : c === 80 ? "\u2029" : "";
       }
       function charFromCodepoint(c) {
         if (c <= 65535) {
@@ -22328,9 +22328,23 @@ var BetterCSLYAML__Translator__detectImport__doImport__doExport = (() => {
   var schema = {
     autoExport: {
       preferences: ["asciiBibLaTeX", "asciiBibTeX", "biblatexExtendedNameFormat", "bibtexParticleNoOp", "bibtexURL", "DOIandURL"],
-      displayOptions: ["useJournalAbbreviation", "exportNotes"]
+      displayOptions: ["exportNotes", "useJournalAbbreviation"]
     },
     translator: {
+      "Better CSL YAML": {
+        autoexport: true,
+        cached: true,
+        preferences: [],
+        displayOptions: [],
+        types: {}
+      },
+      "Better CSL JSON": {
+        autoexport: true,
+        cached: true,
+        preferences: [],
+        displayOptions: [],
+        types: {}
+      },
       "BetterBibTeX JSON": {
         autoexport: true,
         cached: false,
@@ -22353,13 +22367,6 @@ var BetterCSLYAML__Translator__detectImport__doImport__doExport = (() => {
           useJournalAbbreviation: { type: "boolean" }
         }
       },
-      "Better CSL YAML": {
-        autoexport: true,
-        cached: true,
-        preferences: [],
-        displayOptions: [],
-        types: {}
-      },
       "Better BibTeX": {
         autoexport: true,
         cached: true,
@@ -22373,13 +22380,6 @@ var BetterCSLYAML__Translator__detectImport__doImport__doExport = (() => {
           exportNotes: { type: "boolean" },
           useJournalAbbreviation: { type: "boolean" }
         }
-      },
-      "Better CSL JSON": {
-        autoexport: true,
-        cached: true,
-        preferences: [],
-        displayOptions: [],
-        types: {}
       }
     }
   };

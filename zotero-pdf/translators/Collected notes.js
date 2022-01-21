@@ -14,10 +14,10 @@
 	"inRepository": false,
 	"configOptions": {
 		"getCollections": true,
-		"hash": "9eaf33b97c73fdd4f859edd2edd4dcf59ca08cf4b51e6fb158a67419a50e722a"
+		"hash": "563b0bb68926cf99071dc3fabc04d66d6eb34166ef247ccb4885c5d0b851d03b"
 	},
 	"priority": 100,
-	"lastUpdated": "2022-01-09"
+	"lastUpdated": "2022-01-19"
 }
 
 ZOTERO_CONFIG = {"GUID":"zotero@chnm.gmu.edu","ID":"zotero","CLIENT_NAME":"Zotero","DOMAIN_NAME":"zotero.org","REPOSITORY_URL":"https://repo.zotero.org/repo/","BASE_URI":"http://zotero.org/","WWW_BASE_URL":"https://www.zotero.org/","PROXY_AUTH_URL":"https://zoteroproxycheck.s3.amazonaws.com/test","API_URL":"https://api.zotero.org/","STREAMING_URL":"wss://stream.zotero.org/","SERVICES_URL":"https://services.zotero.org/","API_VERSION":3,"CONNECTOR_MIN_VERSION":"5.0.39","PREF_BRANCH":"extensions.zotero.","BOOKMARKLET_ORIGIN":"https://www.zotero.org","BOOKMARKLET_URL":"https://www.zotero.org/bookmarklet/","START_URL":"https://www.zotero.org/start","QUICK_START_URL":"https://www.zotero.org/support/quick_start_guide","PDF_TOOLS_URL":"https://www.zotero.org/download/xpdf/","SUPPORT_URL":"https://www.zotero.org/support/","TROUBLESHOOTING_URL":"https://www.zotero.org/support/getting_help","FEEDBACK_URL":"https://forums.zotero.org/","CONNECTORS_URL":"https://www.zotero.org/download/connectors"}
@@ -34825,9 +34825,23 @@ var Collectednotes__Translator__doExport = (() => {
   var schema = {
     autoExport: {
       preferences: ["asciiBibLaTeX", "asciiBibTeX", "biblatexExtendedNameFormat", "bibtexParticleNoOp", "bibtexURL", "DOIandURL"],
-      displayOptions: ["useJournalAbbreviation", "exportNotes"]
+      displayOptions: ["exportNotes", "useJournalAbbreviation"]
     },
     translator: {
+      "Better CSL YAML": {
+        autoexport: true,
+        cached: true,
+        preferences: [],
+        displayOptions: [],
+        types: {}
+      },
+      "Better CSL JSON": {
+        autoexport: true,
+        cached: true,
+        preferences: [],
+        displayOptions: [],
+        types: {}
+      },
       "BetterBibTeX JSON": {
         autoexport: true,
         cached: false,
@@ -34850,13 +34864,6 @@ var Collectednotes__Translator__doExport = (() => {
           useJournalAbbreviation: { type: "boolean" }
         }
       },
-      "Better CSL YAML": {
-        autoexport: true,
-        cached: true,
-        preferences: [],
-        displayOptions: [],
-        types: {}
-      },
       "Better BibTeX": {
         autoexport: true,
         cached: true,
@@ -34870,13 +34877,6 @@ var Collectednotes__Translator__doExport = (() => {
           exportNotes: { type: "boolean" },
           useJournalAbbreviation: { type: "boolean" }
         }
-      },
-      "Better CSL JSON": {
-        autoexport: true,
-        cached: true,
-        preferences: [],
-        displayOptions: [],
-        types: {}
       }
     }
   };

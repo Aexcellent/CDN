@@ -11,13 +11,13 @@
 	},
 	"configOptions": {
 		"getCollections": true,
-		"hash": "e2c5405ccf3d83d512d4f16eeec659556cafba46903e9f3ab664dc0a0ebb90a3"
+		"hash": "5854e6e6470f2e5ad3b20365a74e419fa888d545fa7329ca4f1cfbb162606d43"
 	},
 	"translatorType": 2,
 	"browserSupport": "gcsv",
 	"inRepository": false,
 	"priority": 100,
-	"lastUpdated": "2022-01-09"
+	"lastUpdated": "2022-01-19"
 }
 
 ZOTERO_CONFIG = {"GUID":"zotero@chnm.gmu.edu","ID":"zotero","CLIENT_NAME":"Zotero","DOMAIN_NAME":"zotero.org","REPOSITORY_URL":"https://repo.zotero.org/repo/","BASE_URI":"http://zotero.org/","WWW_BASE_URL":"https://www.zotero.org/","PROXY_AUTH_URL":"https://zoteroproxycheck.s3.amazonaws.com/test","API_URL":"https://api.zotero.org/","STREAMING_URL":"wss://stream.zotero.org/","SERVICES_URL":"https://services.zotero.org/","API_VERSION":3,"CONNECTOR_MIN_VERSION":"5.0.39","PREF_BRANCH":"extensions.zotero.","BOOKMARKLET_ORIGIN":"https://www.zotero.org","BOOKMARKLET_URL":"https://www.zotero.org/bookmarklet/","START_URL":"https://www.zotero.org/start","QUICK_START_URL":"https://www.zotero.org/support/quick_start_guide","PDF_TOOLS_URL":"https://www.zotero.org/download/xpdf/","SUPPORT_URL":"https://www.zotero.org/support/","TROUBLESHOOTING_URL":"https://www.zotero.org/support/getting_help","FEEDBACK_URL":"https://forums.zotero.org/","CONNECTORS_URL":"https://www.zotero.org/download/connectors"}
@@ -19281,7 +19281,7 @@ var BetterCSLJSON__Translator__doExport = (() => {
   // gen/items/csl-types.json
   var require_csl_types = __commonJS({
     "gen/items/csl-types.json"(exports, module) {
-      module.exports = ["broadcast", "entry-dictionary", "interview", "standard", "post", "hearing", "entry-encyclopedia", "manuscript", "legal_case", "review-book", "paper-conference", "dataset", "entry", "legislation", "treaty", "figure", "classic", "post-weblog", "musical_score", "article-newspaper", "article", "patent", "chapter", "article-magazine", "graphic", "speech", "song", "gazette", "report", "motion_picture", "bill", "book", "pamphlet", "review", "regulation", "thesis", "video", "personal_communication", "legal_commentary", "webpage", "map", "article-journal"];
+      module.exports = ["hearing", "speech", "review-book", "chapter", "article-journal", "review", "video", "entry-encyclopedia", "book", "manuscript", "gazette", "song", "pamphlet", "webpage", "personal_communication", "bill", "map", "interview", "report", "treaty", "article", "entry", "thesis", "regulation", "motion_picture", "legal_commentary", "patent", "post", "broadcast", "article-newspaper", "classic", "dataset", "paper-conference", "article-magazine", "entry-dictionary", "post-weblog", "legal_case", "standard", "figure", "legislation", "musical_score", "graphic"];
     }
   });
 
@@ -19505,9 +19505,23 @@ var BetterCSLJSON__Translator__doExport = (() => {
   var schema = {
     autoExport: {
       preferences: ["asciiBibLaTeX", "asciiBibTeX", "biblatexExtendedNameFormat", "bibtexParticleNoOp", "bibtexURL", "DOIandURL"],
-      displayOptions: ["useJournalAbbreviation", "exportNotes"]
+      displayOptions: ["exportNotes", "useJournalAbbreviation"]
     },
     translator: {
+      "Better CSL YAML": {
+        autoexport: true,
+        cached: true,
+        preferences: [],
+        displayOptions: [],
+        types: {}
+      },
+      "Better CSL JSON": {
+        autoexport: true,
+        cached: true,
+        preferences: [],
+        displayOptions: [],
+        types: {}
+      },
       "BetterBibTeX JSON": {
         autoexport: true,
         cached: false,
@@ -19530,13 +19544,6 @@ var BetterCSLJSON__Translator__doExport = (() => {
           useJournalAbbreviation: { type: "boolean" }
         }
       },
-      "Better CSL YAML": {
-        autoexport: true,
-        cached: true,
-        preferences: [],
-        displayOptions: [],
-        types: {}
-      },
       "Better BibTeX": {
         autoexport: true,
         cached: true,
@@ -19550,13 +19557,6 @@ var BetterCSLJSON__Translator__doExport = (() => {
           exportNotes: { type: "boolean" },
           useJournalAbbreviation: { type: "boolean" }
         }
-      },
-      "Better CSL JSON": {
-        autoexport: true,
-        cached: true,
-        preferences: [],
-        displayOptions: [],
-        types: {}
       }
     }
   };
