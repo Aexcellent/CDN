@@ -9,7 +9,7 @@
 	"configOptions": {
 		"async": true,
 		"getCollections": true,
-		"hash": "77c8458d4a56fda9fde27b65b91f5e906a5a81ec46e59356c346a15f912c1a62"
+		"hash": "382785d9185eb80858450eaf263aaf445de621048c1bca2611ee24e8ed975118"
 	},
 	"displayOptions": {
 		"exportNotes": true,
@@ -20,7 +20,7 @@
 	"browserSupport": "gcsv",
 	"priority": 49,
 	"inRepository": false,
-	"lastUpdated": "2022-01-19"
+	"lastUpdated": "2022-01-23"
 }
 
 ZOTERO_CONFIG = {"GUID":"zotero@chnm.gmu.edu","ID":"zotero","CLIENT_NAME":"Zotero","DOMAIN_NAME":"zotero.org","REPOSITORY_URL":"https://repo.zotero.org/repo/","BASE_URI":"http://zotero.org/","WWW_BASE_URL":"https://www.zotero.org/","PROXY_AUTH_URL":"https://zoteroproxycheck.s3.amazonaws.com/test","API_URL":"https://api.zotero.org/","STREAMING_URL":"wss://stream.zotero.org/","SERVICES_URL":"https://services.zotero.org/","API_VERSION":3,"CONNECTOR_MIN_VERSION":"5.0.39","PREF_BRANCH":"extensions.zotero.","BOOKMARKLET_ORIGIN":"https://www.zotero.org","BOOKMARKLET_URL":"https://www.zotero.org/bookmarklet/","START_URL":"https://www.zotero.org/start","QUICK_START_URL":"https://www.zotero.org/support/quick_start_guide","PDF_TOOLS_URL":"https://www.zotero.org/download/xpdf/","SUPPORT_URL":"https://www.zotero.org/support/","TROUBLESHOOTING_URL":"https://www.zotero.org/support/getting_help","FEEDBACK_URL":"https://forums.zotero.org/","CONNECTORS_URL":"https://www.zotero.org/download/connectors"}
@@ -431,7 +431,7 @@ var BetterBibTeXJSON__Translator__detectImport__doImport__doExport = (() => {
   var require_version = __commonJS({
     "gen/version.js"(exports, module) {
       init_globals();
-      module.exports = "6.1.7";
+      module.exports = "6.1.10";
     }
   });
 
@@ -657,7 +657,7 @@ var BetterBibTeXJSON__Translator__detectImport__doImport__doExport = (() => {
   var schema = {
     autoExport: {
       preferences: ["asciiBibLaTeX", "asciiBibTeX", "biblatexExtendedNameFormat", "bibtexParticleNoOp", "bibtexURL", "DOIandURL"],
-      displayOptions: ["exportNotes", "useJournalAbbreviation"]
+      displayOptions: ["useJournalAbbreviation", "exportNotes"]
     },
     translator: {
       "Better CSL YAML": {
@@ -924,7 +924,6 @@ ${indent}${this.formatError(e.error, "  ")}
       this[this.header.label.replace(/[^a-z]/ig, "")] = true;
       this.BetterTeX = this.BetterBibTeX || this.BetterBibLaTeX;
       this.BetterCSL = this.BetterCSLJSON || this.BetterCSLYAML;
-      this.preferences = defaults;
       this.options = this.header.displayOptions || {};
       const collator = new Intl.Collator("en");
       this.stringCompare = collator.compare.bind(collator);
@@ -973,17 +972,12 @@ ${indent}${this.formatError(e.error, "  ")}
         if ((_a = this.export.dir) == null ? void 0 : _a.endsWith(this.paths.sep))
           this.export.dir = this.export.dir.slice(0, -1);
       }
-      for (const pref of Object.keys(this.preferences)) {
-        let value;
-        try {
-          value = Zotero.getOption(`preference_${pref}`);
-        } catch (err) {
-          value = void 0;
-        }
-        if (typeof value === "undefined")
-          value = Zotero.getHiddenPref(`better-bibtex.${pref}`);
-        this.preferences[pref] = value;
-      }
+      this.preferences = Object.entries(defaults).reduce((acc, [pref, dflt]) => {
+        var _a2, _b2;
+        acc[pref] = (_b2 = (_a2 = this.getPreferenceOverride(pref)) != null ? _a2 : Zotero.getHiddenPref(`better-bibtex.${pref}`)) != null ? _b2 : dflt;
+        return acc;
+      }, {});
+      log.debug("prefs: @load", this.preferences);
       this.skipFields = this.preferences.skipFields.toLowerCase().split(",").map((field) => this.typefield(field)).filter((s) => s);
       this.skipField = this.skipFields.reduce((acc, field) => {
         acc[field] = true;
@@ -1044,6 +1038,13 @@ ${indent}${this.formatError(e.error, "  ")}
         });
       }
       this.initialized = true;
+    }
+    getPreferenceOverride(pref) {
+      try {
+        return Zotero.getOption(`preference_${pref}`);
+      } catch (err) {
+        return void 0;
+      }
     }
     registerCollection(collection, parent) {
       const key2 = (collection.primary ? collection.primary : collection).key;

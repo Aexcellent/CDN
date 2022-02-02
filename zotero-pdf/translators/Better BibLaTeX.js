@@ -9,7 +9,7 @@
 	"maxVersion": "",
 	"configOptions": {
 		"getCollections": true,
-		"hash": "dde895f8d679c6bbab143548d522c51923ca7744fc13d4691fde86f1595d9371"
+		"hash": "2786323948fca5fc715fe49fdbc3a8e38382ba3a55fdafbfcf8091aabbc9c347"
 	},
 	"displayOptions": {
 		"exportNotes": false,
@@ -19,7 +19,7 @@
 	},
 	"priority": 50,
 	"inRepository": false,
-	"lastUpdated": "2022-01-19"
+	"lastUpdated": "2022-01-23"
 }
 
 ZOTERO_CONFIG = {"GUID":"zotero@chnm.gmu.edu","ID":"zotero","CLIENT_NAME":"Zotero","DOMAIN_NAME":"zotero.org","REPOSITORY_URL":"https://repo.zotero.org/repo/","BASE_URI":"http://zotero.org/","WWW_BASE_URL":"https://www.zotero.org/","PROXY_AUTH_URL":"https://zoteroproxycheck.s3.amazonaws.com/test","API_URL":"https://api.zotero.org/","STREAMING_URL":"wss://stream.zotero.org/","SERVICES_URL":"https://services.zotero.org/","API_VERSION":3,"CONNECTOR_MIN_VERSION":"5.0.39","PREF_BRANCH":"extensions.zotero.","BOOKMARKLET_ORIGIN":"https://www.zotero.org","BOOKMARKLET_URL":"https://www.zotero.org/bookmarklet/","START_URL":"https://www.zotero.org/start","QUICK_START_URL":"https://www.zotero.org/support/quick_start_guide","PDF_TOOLS_URL":"https://www.zotero.org/download/xpdf/","SUPPORT_URL":"https://www.zotero.org/support/","TROUBLESHOOTING_URL":"https://www.zotero.org/support/getting_help","FEEDBACK_URL":"https://forums.zotero.org/","CONNECTORS_URL":"https://www.zotero.org/download/connectors"}
@@ -56838,7 +56838,7 @@ ${this.chunk.trim()}`;
   var schema = {
     autoExport: {
       preferences: ["asciiBibLaTeX", "asciiBibTeX", "biblatexExtendedNameFormat", "bibtexParticleNoOp", "bibtexURL", "DOIandURL"],
-      displayOptions: ["exportNotes", "useJournalAbbreviation"]
+      displayOptions: ["useJournalAbbreviation", "exportNotes"]
     },
     translator: {
       "Better CSL YAML": {
@@ -57105,7 +57105,6 @@ ${indent}${this.formatError(e.error, "  ")}
       this[this.header.label.replace(/[^a-z]/ig, "")] = true;
       this.BetterTeX = this.BetterBibTeX || this.BetterBibLaTeX;
       this.BetterCSL = this.BetterCSLJSON || this.BetterCSLYAML;
-      this.preferences = defaults;
       this.options = this.header.displayOptions || {};
       const collator = new Intl.Collator("en");
       this.stringCompare = collator.compare.bind(collator);
@@ -57154,17 +57153,12 @@ ${indent}${this.formatError(e.error, "  ")}
         if ((_a = this.export.dir) == null ? void 0 : _a.endsWith(this.paths.sep))
           this.export.dir = this.export.dir.slice(0, -1);
       }
-      for (const pref of Object.keys(this.preferences)) {
-        let value;
-        try {
-          value = Zotero.getOption(`preference_${pref}`);
-        } catch (err) {
-          value = void 0;
-        }
-        if (typeof value === "undefined")
-          value = Zotero.getHiddenPref(`better-bibtex.${pref}`);
-        this.preferences[pref] = value;
-      }
+      this.preferences = Object.entries(defaults).reduce((acc, [pref, dflt]) => {
+        var _a2, _b2;
+        acc[pref] = (_b2 = (_a2 = this.getPreferenceOverride(pref)) != null ? _a2 : Zotero.getHiddenPref(`better-bibtex.${pref}`)) != null ? _b2 : dflt;
+        return acc;
+      }, {});
+      log.debug("prefs: @load", this.preferences);
       this.skipFields = this.preferences.skipFields.toLowerCase().split(",").map((field) => this.typefield(field)).filter((s) => s);
       this.skipField = this.skipFields.reduce((acc, field) => {
         acc[field] = true;
@@ -57225,6 +57219,13 @@ ${indent}${this.formatError(e.error, "  ")}
         });
       }
       this.initialized = true;
+    }
+    getPreferenceOverride(pref) {
+      try {
+        return Zotero.getOption(`preference_${pref}`);
+      } catch (err) {
+        return void 0;
+      }
     }
     registerCollection(collection, parent) {
       const key = (collection.primary ? collection.primary : collection).key;

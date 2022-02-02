@@ -11,13 +11,13 @@
 	},
 	"configOptions": {
 		"getCollections": true,
-		"hash": "e43d2f68b5555f377a9fa206d28e2d6ecd159038391a085bccc229494fcc00f2"
+		"hash": "1837c172fff042c1be10314f18d12a3400d6945cd0cc41ba52560381c1088a6f"
 	},
 	"translatorType": 3,
 	"browserSupport": "gcsv",
 	"priority": 800,
 	"inRepository": false,
-	"lastUpdated": "2022-01-19"
+	"lastUpdated": "2022-01-23"
 }
 
 ZOTERO_CONFIG = {"GUID":"zotero@chnm.gmu.edu","ID":"zotero","CLIENT_NAME":"Zotero","DOMAIN_NAME":"zotero.org","REPOSITORY_URL":"https://repo.zotero.org/repo/","BASE_URI":"http://zotero.org/","WWW_BASE_URL":"https://www.zotero.org/","PROXY_AUTH_URL":"https://zoteroproxycheck.s3.amazonaws.com/test","API_URL":"https://api.zotero.org/","STREAMING_URL":"wss://stream.zotero.org/","SERVICES_URL":"https://services.zotero.org/","API_VERSION":3,"CONNECTOR_MIN_VERSION":"5.0.39","PREF_BRANCH":"extensions.zotero.","BOOKMARKLET_ORIGIN":"https://www.zotero.org","BOOKMARKLET_URL":"https://www.zotero.org/bookmarklet/","START_URL":"https://www.zotero.org/start","QUICK_START_URL":"https://www.zotero.org/support/quick_start_guide","PDF_TOOLS_URL":"https://www.zotero.org/download/xpdf/","SUPPORT_URL":"https://www.zotero.org/support/","TROUBLESHOOTING_URL":"https://www.zotero.org/support/getting_help","FEEDBACK_URL":"https://forums.zotero.org/","CONNECTORS_URL":"https://www.zotero.org/download/connectors"}
@@ -19281,7 +19281,7 @@ var BetterCSLYAML__Translator__detectImport__doImport__doExport = (() => {
   // gen/items/csl-types.json
   var require_csl_types = __commonJS({
     "gen/items/csl-types.json"(exports, module) {
-      module.exports = ["hearing", "speech", "review-book", "chapter", "article-journal", "review", "video", "entry-encyclopedia", "book", "manuscript", "gazette", "song", "pamphlet", "webpage", "personal_communication", "bill", "map", "interview", "report", "treaty", "article", "entry", "thesis", "regulation", "motion_picture", "legal_commentary", "patent", "post", "broadcast", "article-newspaper", "classic", "dataset", "paper-conference", "article-magazine", "entry-dictionary", "post-weblog", "legal_case", "standard", "figure", "legislation", "musical_score", "graphic"];
+      module.exports = ["article-journal", "bill", "graphic", "pamphlet", "legislation", "entry-encyclopedia", "report", "book", "webpage", "dataset", "interview", "article", "regulation", "standard", "video", "hearing", "speech", "post", "paper-conference", "review", "entry-dictionary", "broadcast", "patent", "personal_communication", "gazette", "map", "musical_score", "review-book", "post-weblog", "legal_commentary", "chapter", "treaty", "figure", "legal_case", "entry", "article-newspaper", "manuscript", "song", "classic", "motion_picture", "article-magazine", "thesis"];
     }
   });
 
@@ -22328,7 +22328,7 @@ var BetterCSLYAML__Translator__detectImport__doImport__doExport = (() => {
   var schema = {
     autoExport: {
       preferences: ["asciiBibLaTeX", "asciiBibTeX", "biblatexExtendedNameFormat", "bibtexParticleNoOp", "bibtexURL", "DOIandURL"],
-      displayOptions: ["exportNotes", "useJournalAbbreviation"]
+      displayOptions: ["useJournalAbbreviation", "exportNotes"]
     },
     translator: {
       "Better CSL YAML": {
@@ -22595,7 +22595,6 @@ ${indent}${this.formatError(e.error, "  ")}
       this[this.header.label.replace(/[^a-z]/ig, "")] = true;
       this.BetterTeX = this.BetterBibTeX || this.BetterBibLaTeX;
       this.BetterCSL = this.BetterCSLJSON || this.BetterCSLYAML;
-      this.preferences = defaults;
       this.options = this.header.displayOptions || {};
       const collator = new Intl.Collator("en");
       this.stringCompare = collator.compare.bind(collator);
@@ -22644,17 +22643,12 @@ ${indent}${this.formatError(e.error, "  ")}
         if ((_a = this.export.dir) == null ? void 0 : _a.endsWith(this.paths.sep))
           this.export.dir = this.export.dir.slice(0, -1);
       }
-      for (const pref of Object.keys(this.preferences)) {
-        let value;
-        try {
-          value = Zotero.getOption(`preference_${pref}`);
-        } catch (err) {
-          value = void 0;
-        }
-        if (typeof value === "undefined")
-          value = Zotero.getHiddenPref(`better-bibtex.${pref}`);
-        this.preferences[pref] = value;
-      }
+      this.preferences = Object.entries(defaults).reduce((acc, [pref, dflt]) => {
+        var _a2, _b2;
+        acc[pref] = (_b2 = (_a2 = this.getPreferenceOverride(pref)) != null ? _a2 : Zotero.getHiddenPref(`better-bibtex.${pref}`)) != null ? _b2 : dflt;
+        return acc;
+      }, {});
+      log.debug("prefs: @load", this.preferences);
       this.skipFields = this.preferences.skipFields.toLowerCase().split(",").map((field) => this.typefield(field)).filter((s) => s);
       this.skipField = this.skipFields.reduce((acc, field) => {
         acc[field] = true;
@@ -22715,6 +22709,13 @@ ${indent}${this.formatError(e.error, "  ")}
         });
       }
       this.initialized = true;
+    }
+    getPreferenceOverride(pref) {
+      try {
+        return Zotero.getOption(`preference_${pref}`);
+      } catch (err) {
+        return void 0;
+      }
     }
     registerCollection(collection, parent) {
       const key = (collection.primary ? collection.primary : collection).key;
