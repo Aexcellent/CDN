@@ -1,0 +1,1125 @@
+Generalizing the SPDZ Compiler For Other Protocols∗
+
+Toshinori Araki†
+
+Assi Barak‡ Jun Furukawa§ Marcel Keller¶
+
+Kazuma Ohara†
+
+Hikaru Tsuchida†
+
+October 2, 2018
+
+Yehuda Lindell‡
+
+Abstract
+Protocols for secure multiparty computation (MPC) enable a set of mutually distrusting parties to compute an arbitrary function of their inputs while preserving basic security properties like privacy and correctness. The study of MPC was initiated in the 1980s where it was shown that any function can be securely computed, thus demonstrating the power of this notion. However, these proofs of feasibility were theoretical in nature and it is only recently that MPC protocols started to become eﬃcient enough for use in practice. Today, we have protocols that can carry out large and complex computations in very reasonable time (and can even be very fast, depending on the computation and the setting). Despite this amazing progress, there is still a major obstacle to the adoption and use of MPC due to the huge expertise needed to design a speciﬁc MPC execution. In particular, the function to be computed needs to be represented as an appropriate Boolean or arithmetic circuit, and this requires very speciﬁc expertise. In order to overcome this, there has been considerable work on compilation of code to (typically) Boolean circuits. One work in this direction takes a diﬀerent approach, and this is the SPDZ compiler (not to be confused with the SPDZ protocol) that takes high-level Python code and provides an MPC run-time environment for securely executing that code. The SPDZ compiler can deal with arithmetic and non-arithmetic operations and is extremely powerful. However, until now, the SPDZ compiler could only be used for the speciﬁc SPDZ family of protocols, making its general applicability and usefulness very limited.
+In this paper, we extend the SPDZ compiler so that it can work with general underlying protocols. Our SPDZ extensions were made in mind to enable the use of SPDZ for arbitrary protocols and to make it easy for others to integrate existing and new protocols. We integrated three diﬀerent types of protocols, an honest-majority protocol for computing arithmetic circuits over a ﬁeld (for any number of parties), a three-party honest majority protocol for computing arithmetic circuits over the ring of integers Z2n , and the multiparty BMR protocol for computing Boolean circuits. We show that a single high-level SPDZ-Python program can be executed using all of these underlying protocols (as well as the original SPDZ protocol), thereby making SPDZ a true general run-time MPC environment.
+∗An extended abstract of this work appeared at ACM CCS 2018. †NEC, t-araki@ek.jp.nec.com, k-ohara@ax.jp.nec.com, h-tsuchida@bk.jp.nec.com ‡Dept. of Computer Science, Bar-Ilan University, Israel. assaf.barak@biu.ac.il,lindell@biu.ac.il. Supported by the European Research Council under the ERC consolidators grant agreement n. 615172 (HIPS), by the BIU Center for Research in Applied Cryptography and Cyber Security in conjunction with the Israel National Cyber Directorate in the Prime Minister’s Oﬃce, and by the Alter Family Foundation. §NEC Israel Research Center, jun.furukawa@necam.com ¶Data61, mks.keller@gmail.com
+1
+
+In order to be able to handle both arithmetic and non-arithmetic operations, the SPDZ compiler relies on conversions from ﬁeld elements to bits and back. However, these conversions do not apply to ring elements (in particular, they require element division), and we therefore introduce new bit decomposition and recomposition protocols for the ring over integers with replicated secret sharing. These conversions are of independent interest and utilize the structure of Z2n (which is much more amenable to bit decomposition than prime-order ﬁelds), and are thus much more eﬃcient than all previous methods.
+We demonstrate our compiler extensions by running a complex SQL query and a decision tree evaluation over all protocols.
+1 Introduction
+Background. Secure multiparty computation (MPC) protocols provide the capability of computing over private data without revealing it. In today’s privacy crisis, MPC can serve as a core tool for utilizing data without compromising the security and privacy of an individual’s sensitive information. In recent years there has been immense progress in the eﬃciency of MPC protocols, and today we can securely compute large Boolean and arithmetic circuits representing real computations of interest. However, most MPC protocols require the description of a Boolean and/or arithmetic circuit in order to run. This is a signiﬁcant obstacle in the deployment of MPC, since circuits for real problems of interest can be very large and very hard to construct. In order to deal with this, there has been quite a lot of work on compiling high-level programs to circuits; see [15, 29, 8, 9] for just a few examples. However, many of these works are limited in the size of the circuit that they can generate, and most of them do not deal with the general problem of combined arithmetic and non-arithmetic (Boolean) computations. In addition, the paradigm of working with static circuits is problematic for huge computations, due to the size of the circuit that must be dealt with (this issue has been considered in [29] and elsewhere, but can still be an issue).
+The SPDZ protocol and compiler. In contrast to the above, the series of works called “SPDZ” took a very diﬀerent approach. SPDZ is the name of a speciﬁc protocol for honest-minority multiparty computation [14]. However, beyond improvements to the protocol itself, follow-up work on SPDZ included the implementation of an extremely powerful MPC run-time environment/compiler that is integrated into the SPDZ low-level protocol [13, 21, 7]. From here on we diﬀerentiate between the SPDZ protocol which is a way of executing secure MPC over arithmetic circuits, and the SPDZ compiler that is a general run-time environment that takes code written in a high-level Python-type language, and executes it in MPC over the SPDZ protocol. We stress that SPDZ does not generate a circuit and hand it down to the low-level protocol. Rather, it behaves more like an interpreter, dynamically calling the lower-level protocol to carry out low-level operations.
+A key property of the SPDZ compiler is that it separates the basic operations provided by MPC protocols (binary or arithmetic circuits) from a protocol (or program) using those operations as building blocks. While the basic operations mostly consist of simple arithmetic over some ring (more precisely, a ﬁeld in case of SPDZ), combining them to achieve higher-level operations, like integer or ﬁxed-point division, is a more complex matter. However, integrating such higher-level operations into the core MPC engine is not a good strategy because the reduction to basic operations is likely very similar even for diﬀerent underlying protocols. The SPDZ compiler provides a tool to write more complex building blocks, which then can be used in arbitrary MPC applications without being concerned about the details of those blocks nor the underlying protocol. A concrete example of
+2
+
+the ease in which complex secure computations can be speciﬁed appears in Figure 1. This program describes the task of selecting an element from an array, where both the array values and the array index are private (and thus shared). Given that the size of the array is also a variable, this is very diﬃcult to specify in a circuit. This highlights another huge advantage of this paradigm. The SPDZ system facilitates modular programming techniques, enabling the software engineer to program functions that can be reused in many programs. (Note that a simpler linear program could be written for the same task, but this method is more eﬃcient. Observe the richness of the language, enabling recursion, if-then-else branching, and so on.)
+Figure 1: SPDZ Python code for oblivious selection from an array. In Appendix A we demonstrate the ease with which the SPDZ language can be used, by documenting the timeline from the speciﬁcation of a complex SQL query to implement at 8:45am, to the pseudocode prepared by the researchers at 11:16am, to a working version of the SQL program inside SPDZ at 2:49pm, all on the same day. We stress that this was the ﬁrst time a program of this type was constructed in our lab, and so this accurately reﬂects the time to develop (of course, after gaining general experience with the SPDZ compiler).
+Extending the SPDZ compiler. Prior to our work, the SPDZ compiler was closely integrated with the SPDZ low-level protocol, preventing its more broad use. The primary aim of this work is to extend the SPDZ compiler so that other protocols can be integrated into the system with ease. This involved making changes to the SPDZ compiler at diﬀerent levels, as is described in Section 3. In order to demonstrate the strength of this paradigm, we integrated three diﬀerent protocols of completely diﬀerent types. Speciﬁcally, we integrated the honest-majority multiparty protocol of [24] for arithmetic circuits over a ﬁeld, the three-party honest-majority protocol of [4, 3] for arithmetic circuits over the ring Z2n for any n, and the BMR protocol [6, 25] for constant-round multiparty computation for Boolean circuits. The integration of the former protocol required the fewest number of changes, since it works over any ﬁeld just like the original SPDZ, whereas the other protocols required more changes. For example, the SPDZ compiler already comes with highlevel algorithms for ﬁxed-point and ﬂoating point operations, integer division and more. All of
+3
+
+these are reusable as-is for any other protocol based on ﬁelds. However, for protocols over the ring Z2n, diﬀerent high-level algorithms needed to be developed. We have done this, and thus other protocols over rings can utilize the relevant high-level algorithms.
+We stress that the focus of our extensions were not to integrate these speciﬁc protocols, but to modify the SPDZ system in order to facilitate easy integration of other protocols by others. We believe that this is a signiﬁcant contribution, and will constitute a step forward to enabling the widespread use of MPC.
+Bit decomposition and recomposition. The advantage of working over arithmetic circuits (in contrast to Boolean circuits) is striking for computations that require a lot of arithmetic, as is typical for computing statistics. In these cases, addition is for free, and multiplication of large values comes at a cost of a single operation. However, most real-world programs consist of a combination of arithmetic and non-arithmetic computations, and thus need a mix of arithmetic and Boolean low-level operations. In order to facilitate this, it is necessary to have bit decomposition and recomposition operations, to convert a shared ﬁeld/ring element to a series of shares of its bit representation and back. This facilitates all types of computation, by moving between the ﬁeld/ring representation and bit representation, depending on the computation. For example, consider an SQL query which outputs the average age of homeowners with debt above the national average, separately for each state. This requires computing the national debt average (arithmetic), comparing the debt of each homeowner with the national average (Boolean) and computing the average age of those whose debt is greater (mostly arithmetic for computing the sum, and one division for obtaining the average). Note that the last average requires division since the number of homeowner above the average is not something revealed by the output, and division is computed using the Goldschmidt method which requires a mix of arithmetic and bit operations, including conversions.
+As we discuss below in Section 2, the SPDZ compiler includes high-level algorithms for many complex operations, and as such includes bit decomposition and recomposition. In some cases, the operations rely on division in the ﬁeld and so cannot be extended to rings. In order to facilitate working with rings, we therefore develop novel protocols for bit decomposition and ring recomposition between Z2n and Z2 that are based on replicated secret sharing and therefore compatible with [4, 3]. Since Z2n preserves the structure of the individual bits much more than Zp for a prime p, it is possible to achieve much faster decomposition and recomposition than in the ﬁeld case. Thus, in programs that require a lot of conversions, ring-based protocols can way outperform ﬁeldbased protocols. However, ﬁeld-based protocols are typically more eﬃcient for the basic arithmetic (e.g., compare the ring version of [3] to [24]). Thus, diﬀerent low-level protocols have diﬀerent performance for diﬀerent programs. Stated diﬀerently, there is no “best” protocol, even considering a speciﬁc number of parties and security level, since it also depends on the actual operations carried out (this is also true regarding deep vs shallow circuits, and constant versus non-constant round protocols). This gives further justiﬁcation to have a uniﬁed SPDZ system that can work with many low-level protocols of diﬀerent types, so that a program can be written once and tested over diﬀerent protocols in order to choose the best one.
+Our protocols for bit decomposition and ring recomposition are described in Section 4.
+Implementation and experiments. In Section 5, we present the results of experiments we ran on programs for evaluating unbalanced decision trees (this is more complex than balanced decision
+4
+
+trees due to the need for the evaluation to be completely oblivious) and for evaluating complex SQL queries. Although the focus of our work is not eﬃciency, we report on running times and comparisons in order to provide support for the fact that this SPDZ extension is indeed very useful and meaningful.
+Our implementation is open-source and available for anyone interested in utilizing it.
+2 The SPDZ Protocol and Compiler
+2.1 Overview
+SPDZ is the name given to a multiparty secure computation protocol by Damg˚ard et al. [14, 13] that works for any n parties. It provides active (malicious) security against any t ≤ n corrupted parties, and it works in the preprocessing model, that is, the computation is split into a dataindependent (“oﬄine”) and a data-dependent (“online”) phase. The main idea of SPDZ is to use relatively expensive somewhat homomorphic encryption in the oﬄine phase while the online phase purely relies on cheaper modular arithmetic primitives. This also allows for an optimistic approach to the distributed decryption used in the oﬄine phase: Instead of proving correct behavior using zero-knowledge proofs, the parties check the decrypted value for correctness and abort in case of an error. Nevertheless, there is no leakage of secret data because no secret data has yet been used.
+The main link between the two phases is a technique due to Beaver [5], which reduces the multiplication of secret values to a linear operation on secret values using a precomputed multiplication of random values and revealing of masked secret-shared values. Using a linear secret sharing scheme makes this technique straightforward to use. Additive secret sharing is trivially linear, and it provides the desired security against any number of t ≤ n corrupted parties. On the top of additive secret sharing, SPDZ also uses an information-theoretic tag (the product of the secret value and a global secret value), which is additively secret-shared as well, thus preserving the linear property.
+Keller et al. [21] have created software to run the online phase of any computation, optimizing the number of communication rounds. The software receives a description of the computation in a high-level Python-like language, which is then compiled into a concise byte-code that is executed by the SPDZ virtual machine (which includes the actual SPDZ MPC protocol); see Figure 2. The design of the virtual machine follows the design principles of processors by providing instructions such as arithmetic over secret-shared or public values (and a mix between them), and branching on public values. The inclusion of branching means that one can implement concepts common in programming languages such as loops, if-else statements, and functions. While the conditions for loop and if statements can only depend on public values,1 this provides an obvious beneﬁt in reducing the representation of a computation and the cost of the optimization described below. In particular, it is possible to loop over a large set of inputs without representing the whole circuit in memory. We call this software layer the SPDZ compiler, in order to distinguish it from the SPDZ protocol. We remark that although the SPDZ compiler was developed with the SPDZ protocol speciﬁcally in mind, its good design enabled us to extend it to other protocols and make it a general MPC tool.
+1This is an inherent requirement for “plain” multiparty computation. There are solutions that overcome this [18], but they come with a considerable overhead.
+5
+
+Figure 2: High-level SPDZ compiler architecture.
+2.2 Circuit Optimizations
+The core optimization of the software makes use of the fact that, using Beaver’s technique, the only operation that involves communication is the revealing of secret values. This means that the compiler can merge all operations in a single communication round into a single opening operation, eﬀectively reducing the communication to the minimum number rounds for a given circuit description. In addition, the software splits the communication into two instructions to mark the sending and the receiving of information, and optimizes by placing independent computations in-between the send-and-receive, providing the ability to use the time that is required to wait for information from the other parties. As such, all opening operations are framed between start and stop instructions, and independent instructions that can be processed in parallel to the communication are placed between them. For example, startopen denotes the beginning of a series of instructions to open (reveal) shares, and stopopen denotes the end of the series.
+In order to achieve the above eﬀect of grouping all communication messages per round, the SPDZ compiler represents the computation as a directed acyclic graph where every instruction is represented as a node, and nodes are connected if one instruction uses another’s output as input. The vertices are assigned weight one if the source instructions start a communication operation and zero otherwise. The communication round of any instruction is then the longest path from any source with respect to the vertex weights. It is straight-forward to compute this by traversing the instructions in order and assigning the maximum value of all input vertices to each instruction.
+It is important to note that merging all instructions that can be run in parallel needs to be done carefully. In particular, it does not suﬃce to merge the open instructions that are independent of each other, but also any operations that the open depends on. This is solved by computing the topological order of the changed graph, and by adding vertices between instructions with side eﬀects, in order to maintain the order between them. This results in a trade-oﬀ because adding more vertices in order to preserve the order can lead to more communication rounds.
+The optimization described in this subsection (of reducing the number of communication rounds) is only possible on a straight-line computation without any branching. We therefore perform this optimization separately on each part of the computation of maximal size. These components are called basic blocks in the compiler literature.
+2.3 Higher-Level Algorithms
+In terms of arithmetic operations, the virtual machine provides algebraic computations on secret values provided by the MPC protocol (addition and multiplication) and general ﬁeld arithmetic on public values (such as addition, subtraction, multiplication, and division). This clearly does not suﬃce for a general, easy to use programming interface. Therefore, in addition to the Beaver’s
+6
+
+Figure 3: Representing a program as a directed acyclic graph.
+technique for secret-value multiplication described above, the compiler comes with a library that provides non-algebraic operations on secret values such as comparison (equals, less-than, etc.), and arithmetic for both ﬂoating- and ﬁxed-point numbers. This library is based on a body of literature [11, 10, 2] that uses techniques such as statistical masking to implement such operations without having to rely solely on ﬁeld-arithmetic circuits.2
+The following bit decomposition of a secret-sharing of 0 ≤ x < 2m for some m illustrates the nature of these protocols. Assume that [x] is a secret-sharing of a x in a ﬁeld F such that 2m+k < |F|, with k being the statistical security parameter. Let r be a random value such that 0 ≤ r < 2m+k, consisting of bits ri for i = 0, . . . , m + k − 1, and let [r0], ..., [rm+k−1], [r] be their secret sharings, all over the ﬁeld F. (It is possible to generate these shares by sampling [r0], ..., [rm+k−1] in the oﬄine phase, as discussed in [13], and then computing [r] = [ri] · 2i locally.) Similarly, we can compute [z] = [x + r] from [r] and [x] locally. Observe that z statistically hides x because the statistical distance between the distributions of z and of r is negligible in k. Therefore, we can reveal z and decompose it into bits z0, ..., zm+k−1. Finally, the shares of the bits of x, ([x0], ..., [xm−1]), can be computed from (z0, ..., zm+k−1) and ([r0], ..., [rm+k−1]) via a secure computation of a Boolean circuit.
+The compiler also provides the same arithmetic interface when using the SPDZ protocol with a ﬁnite ﬁeld of characteristic two, allowing the execution of the same computation on diﬀerent underlying protocols. We used this as a stepping stone for the extension using garbled circuits
+2Arithmetic circuits are essentially polynomials, and a naive implementation of an operation like the comparison of numbers in a large ﬁeld is very expensive.
+7
+
+below because of the similarity between them. Implementing these algorithms at this level rather than within the virtual machine below has
+the advantage that all optimizations in the compiler are automatically applied to any MPC VM. We stress that these algorithms are part of the SPDZ compiler layer.
+3 Making SPDZ a General Compiler
+In order to generalize the SPDZ compiler to work for other protocols, modiﬁcations needed to be made at multiple levels. Our aim when designing these changes was to make them as general as possible, so that other protocols can also utilize them. We incorporated three very diﬀerent protocols in order to demonstrate the generality of the result:
+1. Honest-majority MPC over ﬁelds: We incorporated the recent protocol of [24] that computes arithmetic circuits over any ﬁnite ﬁeld, assuming an honest majority. This protocol has a direct multiplication operation, and does not work via triples like the SPDZ protocol. (The protocol does use triples in order to prevent cheating, but not in a separate oﬄine manner.) The speciﬁc protocol incorporated works over Zp with Mersenne primes p = 261 − 1 or p = 2127 − 1.
+2. Honest-majority MPC over rings: We incorporated the three-party protocol of [4, 3] that computes arithmetic circuits over any ring including the ring Zn of integers for any n ≥ 1. The fact that this protocol operates over a ring and not a ﬁeld means that it is not possible to divide values; this requires changing the way many operations are treated, as will be described below.
+3. Honest minority MPC for Boolean circuits: We incorporated a protocol for computing any Boolean circuit using the BMR paradigm [6]. Our starting point for this purpose was the software of [23] that was developed for a diﬀerent purpose; we therefore made the modiﬁcations needed for our purpose.
+We discuss these diﬀerent protocols in more detail below. In this section, we describe the changes that we made to the SPDZ compiler in order to enable other protocols to be incorporated in it, with speciﬁc examples from the above.
+3.1 Modiﬁcations to the SPDZ Compiler
+Infrastructure modiﬁcations at the compiler level. The main diﬃculty in adapting the SPDZ compiler to other protocols lies in the fact that many protocols do not use the Beaver technique, and so do not reduce secret value multiplications to the opening of masked values only. Such protocols include secret-value multiplications as an atomic operation of the protocol, and thus working via startopen and stopopen only would signiﬁcantly reduce the protocol’s performance.3 We therefore generalized the communication pattern of the compiler to allow general communication and arbitrary pairs of start/stop instructions for communication, rather than speciﬁcally supporting only start/stop of share openings. Our speciﬁc protocols have atomic multiplication operations that involve communication, and so we speciﬁcally added e_startmult and e_stopmult (which are start and stop of multiplication operations, where the e-preﬁx denotes an extension), but our generalization allows adding any other type of communication as well.
+3We stress that the only communication in the SPDZ protocol is in the opening of shared values, and all other operations – including multiplication – are reduced to local computation and opening.
+8
+
+Since the multiplication within the protocols that we added involves communication, it is desirable to merge as many multiplications as possible with the reveal (or open) operations in the SPDZ compiler. The fork of the SPDZ compiler used by Keller and Yanay for their BMR implementation [22, 23] provides functionality to merge several kinds of instructions separately (AND and XOR in their case). We used this for multiplication and open instructions, resulting in circuit descriptions that minimize the number of multiplication and open rounds separately. This is not optimal because it does not provide full parallelization of the communication incurred by multiplication and open operations that could be carried out in parallel. However, we argue that this is suﬃcient because in protocols that support atomic multiplication, opening is typically only necessary at the end of a computation that involves many rounds of multiplications.
+Algorithm modiﬁcations at the compiler level. The modular construction of the compiler and the algorithm library allows us to re-use many higher-level protocols mentioned in the previous section. These algorithms are represented in the compiler as expansions of an operation. For example, multiplication of shared values in the SPDZ protocol is a procedure that utilizes a multiplication triple, and carries out a series of additions, subtractions and openings in order to obtain the shared product. This algorithm is replaced by a single startmult and stopmult using our new instructions for low-level MPC protocols that have an atomic multiplication operation. See Figure 4 for code comparison.
+Figure 4: Multiplication in the original SPDZ compiler vs using new instruction extension.
+For the case of our honest-majority ﬁeld-based protocol, this is the only change that we needed to make to the compiler. This is because all of the original SPDZ compiler algorithms (e.g., for ﬂoating and ﬁxed-point operations, integer division, bit decomposition, etc.) work for any ﬁeldbased MPC, and thus also here. However, when ﬁeld division is not available, as in the example of the ring-based protocol, diﬀerent high-level algorithms needed to be provided. A very important example of this relates to bit decomposition and recomposition for ring-based protocols, which is an operation needed for many higher-level arithmetic operations including non-algebraic operations like comparison. We present a new highly-eﬃcient method for bit decomposition and recomposition over Z2n in Section 4, and this was incorporated on the algorithm level. In addition, new algorithms were added for ﬁxed-point multiplication and division, integer division, comparison, equals, and more.
+9
+
+We stress that once the infrastructure modiﬁcations were made, all of these changes are algorithmic only, meaning that they rewrite the expand operation that converts a high-level algorithm into a series of low-level supported operations (like multiplication in Figure 4).
+Modiﬁcations to bytecode. The bytecode that is generated by the compiler includes the lowlevel instructions and opcodes supported by the MPC protocol itself. As such, some changes were needed to add new instructions and opcodes supported by the other MPC protocols. Thus, a direct multiplication opcode needed to be added (for both the ﬁeld and ring protocols), as well as some additional commands for the bit decomposition and recomposition needed for the ring protocol (e.g., the local decomposition steps described in Sections 4.3 and 4.4). Finally, a new verify command was added since the honest-majority ﬁeld and ring protocols do not use SPDZ MACs and verify correctness in a diﬀerent way. The bytecode also includes a lot of instructions needed for jumping, branching, merging threads and so on. Fortunately, all of this can be reused as is, without any changes.
+Modiﬁcations to the virtual machine. On the level of the virtual machine, we have modiﬁed the SPDZ compiler software to call the relevant function of an external library for every instruction that involves secret-shared values. This comes down to roughly twenty instructions. We have done this in a way that facilitates plugging in other backend libraries, which allows us to easily run the same program using diﬀerent protocols. This is in line with our goal of enabling the same highlevel interface to be used to program for completely diﬀerent MPC schemes. For the ﬁeld case, the changes here were relatively small. The multiplication was changed, but so was scalar addition since in the SPDZ protocol each party carries out the same operation locally, whereas diﬀerent parties act diﬀerently for scalar addition in the replicated secret-sharing protocol version of [24]. In addition, triple generation is not carried out oﬄine but done on demand, and the MAC was disabled at the VM level (i.e., an extension was added to optionally disable the MAC so that the VM is compatible both with protocols that use and do not use MACs). Finally, the original SPDZ protocol relies on Montgomery multiplication [26]. While this is eﬃcient for general moduli, in some cases like when using Mersenne primes, more eﬃcient modular multiplication can be achieved directly. The ﬁeld protocol implementation of [24] utilizes Mersenne primes, and this was therefore also integrated into the VM interface.
+For the ring protocol, there were more changes required since the division of clear elements is not supported in a ring, and since more instructions are needed at the basic protocol level (for decomposition and recomposition, as described above). In addition, the input procedure was changed since the secret sharing is diﬀerent. We stress that these are not just at the protocol level since the VM uses special registers for local operations (to improve performance) and so these need to be modiﬁed.
+We remark that the compiler, bytecode, and VM needed to be very signiﬁcantly modiﬁed for the Boolean circuit (BMR) protocol, and thus a separate branch was created. This is understandable since the protocol is of a completely diﬀerent nature. Nevertheless, the key property that it all runs under the same MPC program high-level language is achieved, and thus to the “MPC user” writing MPC programs, this is not noticeable.
+10
+
+Explanation of Figure 5. In Figure 5 we present a diagram illustrating the diﬀerent extensions to the SPDZ compiler, for all three protocols incorporated. On the left, the original SPDZ architecture is presented. Then, the ﬁeld-based protocol of [24] is presented, with relatively minor changes (mainly adding the multiplication extension); of course, the MPC protocol at the lower level is replaced as well. Next, the ring-based protocol is presented, and it includes more modiﬁcations, including support for diﬀerent types of shares and numbers, as well as more modiﬁcations to the compiler and below. There are also some additions to the language itself, since adding explicit instructions like inject (which maps a bit into a ring element) improves the quality of the compiler. Finally, the architecture for the BMR protocol is added; as stated above, this requires major changes throughout, except for the programmer interface and language which remain the same.
+Figure 5: The extensions applied to the SPDZ compiler of [13].
+3.2 Incorporating BMR Circuits
+In this section, we provide additional details about the incorporation of the BMR Boolean circuit protocol into SPDZ. Since the original SPDZ protocol is based on secret sharing and arithmetic circuits, the changes required to incorporate a garbled-circuit based protocol were the most significant.
+In order to evaluate our programs in a garbled circuit setting, we have made use of the recently published software implementing oblivious RAM [22, 23] in the SPDZ-BMR protocol [25]. The latter denotes the combination of BMR, which is a method of generating a garbled circuit using any MPC scheme, with the SPDZ protocol [14] as the concrete scheme. While there are recent protocols achieving similar goals [31, 17], we would argue that the BMR software is the most powerful one publicly available to date, and that it still gives a reasonable indication of the performance of garbled circuits with active security.
+The software follows the same paradigm as SPDZ in that it implements a virtual machine that executes bytecode consisting of instructions for arithmetic, branching, input/output, etc. The main
+11
+
+diﬀerence is that arithmetic here means XOR and AND. Furthermore, while the smallest units at the virtual machine level are secret-shared and public values in a ﬁeld for SPDZ, here they are vectors of secret-shared bit and public values. This leads to more concise circuit descriptions. Furthermore, the compiler merges several types of instructions to further vectorize instructions, which may reduce the number of communications rounds (e.g., for inputs), enable the use of several processor cores, and facilitate pipelining of AES-NI instructions when evaluating as many AND gates in parallel as possible.
+The primary goal of the software of [22, 23] is the evaluation of ORAM. Hence we needed to extend it in various aspects, most notably the following:
+Private inputs: This feature was omitted from [22, 23] who wished only to evaluate the performance of computation. In our context however, private inputs play a major role. This change mostly aﬀected the virtual machine of the BMR implementation.
+Arithmetic: While the software of [22, 23] contains provisions for integer arithmetic in ﬁelds of characteristic two (and thus for binary circuits) and for ﬁxed-point calculations in arithmetic circuits, we had to combine and supplement this for our purposes. In particular, it turned out that the translation of ﬁxed-point division from arithmetic to binary circuits is non-trivial because keeping exact track of bit lengths is vital in the latter. Since the virtual machine only deals with binary circuits by design, this change was exclusively on the compiler side.
+The software is incomplete in the sense that it only implements the evaluation phase securely, while the use of the SPDZ protocol in the garbling part is simulated using a separate program. Nevertheless, the evaluation timings are accurate because the garbled circuit is read from solidstate disks. Furthermore, the uniform nature of the circuit generation as well as the oﬄine phase of SPDZ (called function-dependent phase in this context) allowed us to micro-benchmark the two phases. For the latter, this has been done in various previous works [20, 13].
+
+4 Protocols for Rings with Replicated Secret Sharing
+
+As we have discussed above, the SPDZ compiler provides high-level algorithms for operations from
+
+numerical comparisons to ﬁxed and ﬂoating point computations. These algorithms require the ca-
+
+pability to decompose a basic element into its bit representation and back. Since the SPDZ protocol
+
+works over ﬁelds, it already contains these methods for ﬁeld elements. However, it does not sup-
+
+port bit decomposition and recomposition for ring elements. Since this is crucial for running SPDZ
+
+programs over ring-based MPC, in this section we describe a new method for bit decomposition
+
+and recomposition for the ring-based protocol of [4, 3]. We stress that our method works for any
+
+3-party protocol based on replicated secret sharing as is the case for [4, 3], but it does not work for
+
+any ring-based protocol in general. We follow this strategy in order to achieve highly eﬃcient bit
+
+decomposition and recomposition; since these operations are crucial and ubiquitous in advanced
+
+computations, making the operation as eﬃcient as possible is extremely important.
+
+Before beginning, we explain why bit decomposition and recomposition can be made much more
+
+eﬃcient in the ring Z2n. Consider the case of additive shares where the parties hold values si such
+
+that
+
+n i=1
+
+si
+
+= s,
+
+where
+
+s
+
+is
+
+the
+
+secret.
+
+If
+
+the
+
+addition
+
+is
+
+in
+
+a
+
+ﬁeld
+
+like
+
+Zp,
+
+then
+
+the
+
+values
+
+of
+
+all
+
+bits depend on all other bits. In particular, the value of the least signiﬁcant bit depends also on
+
+the most signiﬁcant bits; consider computing 16 + 8 mod 17. The three least signiﬁcant bits of 16
+
+12
+
+and 8 are zero, but the result is 7, which is 111 in binary. This is not the case in GF [2n] and bit decomposition is actually trivial in this ﬁeld. However, since we typically use arithmetic circuits to embed numerical computations, we need integer addition and multiplication to be preserved in the ﬁeld or ring. For this reason, the ring Z2n has many advantages. First, it allows for very eﬃcient local operations. Second, the sum of additive shares has the property that each bit of the result depends only on the corresponding bit in each share, and the carry from the previous share. We will use this in an inherent way in order to obtain more eﬃcient bit decomposition and recomposition protocols.
+4.1 The Challenge and Our Approach
+Eﬃcient bit decomposition and ring composition are essential primitives for eﬃcient MPC, since many real-world programs require both arithmetic computations, as well as comparison and other operations that require bit representation. However, such conversions are diﬃcult to carry out, especially in the presence of malicious adversaries. This is due to the fact that malicious parties can change the values that they hold, and a secure protocol has to prevent such behavior. We overcome this by constructing protocols that are comprised of only standard ring-MPC operations (over shares of ring elements), standard bit-MPC operations (over shares of bits), and local transformations from valid ring-shares to valid bit-shares (and vice versa) that are carried out independently by each party. Since this is the case, the security is easily reduced to the security of the ring and bit protocols which have been proven.
+Our bit-decomposition and ring-composition conversion protocols are constructed speciﬁcally for replicated secret sharing and between the ring Z2n (for any n) and Z2. Although this is a very speciﬁc scenario, it enables very high throughput secure computation of any functionality (in the setting of three parties, with at most one corrupted). In particular, the recent protocols of [4] and [3] can be used. These protocols achieve high throughput by requiring very low communication: in the protocol of [4] for semi-honest adversaries, each party sends a single bit (resp., ring element) per AND gate (resp., multiplication gate) when computing an arbitrary Boolean circuit (resp., arithmetic circuit over Z2n). Furthermore, the protocol of [3] achieves security in the presence of malicious adversaries in this setting at the cost of just 7 times that of [4] (i.e., 7 bits/ring elements per AND/multiplication gate).
+Our method utilizes local computations and native multiplications and additions in Boolean and ring protocols. As such, if the underlying Boolean and ring protocols are secure for malicious adversaries, then the result is bit decomposition and recomposition that is secure for malicious adversaries. Likewise, if the underlying protocols are secure for semi-honest adversaries then so is the result.
+4.2 Replicated Secret Sharing
+Let P1, P2, P3 be the participating parties. We consider the ring Z2n of n-bit integer operations (modulo 2n). A highly eﬃcient 3-party protocol for working over Z2n with security in the presence of semi-honest adversaries was presented in [4]. The protocol of [4] for the Boolean case was extended to deal with malicious adversaries in [16, 3]. However, the exact same methods work to achieve security for malicious adversaries for the case of Z2n as well. These protocols use replicated secret sharing, deﬁned as follows.
+13
+
+Let x ∈ Z2n be an element. In order to generate a three-party sharing of x, ﬁrst choose random x1, x2 ∈ Z2n and deﬁne x3 = x − x1 − x2 mod 2n (all operations are modulo 2n and we will therefore omit this from hereon). Observe that x = x1 + x2 + x3 and thus these are additive shares. The replicated secret sharing is such that each Pi receives the pair (xi, xi−1). (We will write i − 1 and i + 1 in a free manner, and the intention is that the value wraps around between 1, 2, 3.) We denote
+a replicated secret sharing of x ∈ Z2n by [x]n. In [4, Section 2.3], it is shown that addition gates can be computed locally, and multiplication gates can be computed semi-honestly with each party
+sending just a single ring element to one other party. Using the methods of [16, 3], multiplication
+gates can be computed with malicious security with each party sending just 7 ring elements to one
+other party.
+
+4.3 Bit Decomposition
+Ring operations are extremely eﬃcient for computing sums and products. However, in many cases, it is necessary to also carry out other operations, like comparison, ﬂoating point, and so on. In such cases, it is necessary to ﬁrst convert the shares in the ring to shares of bits. For example, we can eﬃciently compute comparison (e.g., less-than) using a Boolean circuit, but we ﬁrst need to hold the value in Boolean representation. This operation is called bit decomposition. Recall that a sharing of x ∈ Z2n is denoted by [x]n (and thus a sharing of a bit a is denoted by [a]1). Writing x = xn · · · x1 (as its bitwise representation with x1 being the least signiﬁcant bit), the bit decomposition operation is a protocol for converting a sharing [x]n of a single ring element x ∈ Z2n into n shares [x1]1, . . . , [xn]1 of its bit representation. We stress that it is not possible for each party to just locally decompose its shares into bits, because the addition of single bits results in a carry. To be concrete, assume that x = 11012 = 1310 ∈ Z24 (where subscript of 2 denotes binary, and a subscript of 10 denotes decimal representation). Then, an additive sharing of x could be x1 = 10112 = 1110, x2 = 10012 = 910 and x3 = 10012 = 910. If we look separately at each bit of x1, x2, x3, then we would obtain a sharing of 10112 = 1110 = x (this is computed by taking the XOR x1, x2, x3).
+
+Step 1 – local decomposition: In this step, the parties locally compute shares of the individual bits of their shares. Let the sharing [x]n be with values (x1, x3), (x2, x1) and (x3, x2). The parties begin by generating shares of their shares x1, x2, x3. This is a local operation deﬁned by the following table:
+
+Original shares of x: New sharing of x1: New sharing of x2: New sharing of x3:
+
+P1 (x1, x3) (x1, 0)
+(0, 0) (0, x3)
+
+P2 (x2, x1) (0, x1) (x2, 0)
+(0, 0)
+
+P3 (x3, x2)
+(0, 0) (0, x2) (x3, 0)
+
+Observe that each party can locally compute its sharing of the shares, without any interac-
+tion. In addition, each sharing is correct. The above local decomposition is actually carried out separately for each bit of the shares. Denote by xji the jth bit of xi where 1 represents the least-signiﬁcant bit; i.e., xi = (xni , xni −1, . . . , x1i ) ∈ (Z2)n. Then, the jth bit of share x1 is locally converted into the sharing (xj1, 0), (0, xj1), (0, 0), the jth bit of share x2 is locally converted into the sharing (0, 0), (xj2, 0), (0, xj2), and the jth bit of share x3 is locally converted into the
+
+14
+
+sharing (0, xj3), (0, 0), (xj3, 0). Observe that these are already shares of bits, and are thus actually [xj1]1, [xj2]1, [xj3]1. At this point, the parties all hold shares of the bit representation of the shares. This is not a bitwise sharing of x, but just of x1, x2, x3. In order to convert these to a bitwise sharing of x, we need to add the shares. However, this addition must take into account the carry, and thus local share addition will not suﬃce.
+Step 2 – add with carry: Our aim is to compute the bit representation of x = x1 +x2 +x3 using the bitwise shares . Since this addition is modulo 2n, we need to compute the carry. In the least signiﬁcant bit, the required bit is just [x1]1 = [x11]1 + [x12]1 + [x13]1 mod 2 (i.e., using local addition of shares). However, we also need to compute the carry, which involves checking if there are at least two ones. This can be computed via the function majority(a, b, c) = a · b ⊕ b · c ⊕ c · a which requires 3 multiplications. Since this needs to be computed many times during the bit decomposition, it is important to reduce the number of multiplications. Fortunately, it is possible to compute majority with just a single multiplication by
+majority(a, b, c) = (a ⊕ c ⊕ 1) · (b ⊕ c) ⊕ b.
+In order to see that this is correct, observe that
+(a ⊕ c ⊕ 1) · (b ⊕ c) ⊕ b = a · (b ⊕ c) ⊕ c · (b ⊕ c) ⊕ (b ⊕ c) ⊕ b = a · b ⊕ a · c ⊕ b · c ⊕ c · c ⊕ b ⊕ c ⊕ b = a · b ⊕ a · c ⊕ b · c.
+Having computed the carry, it is now possible to compute the next bit, which is the sum of [x21]1, [x22]1, [x23]1 and the carry from the previous bit. However, observe that since there are now four bits to be added, the carry can actually be two bits. This in turn means that ﬁve bits actually need to be added in order to compute the actual bit and to compute its two carries. Denote by cj and dj the carries computed from the jth bit. Then, we claim that the bit and its carries can be computed as follows. Compute [αj]1 = [xj1]1 ⊕ [xj2]1 ⊕ [xj3]1, [βj]1 = majority xj1, xj2, xj3 and [γj]1 = majority (αj, cj−1, dj−2). Then, compute
+[xj]1 = [αj]1 ⊕ [cj−1]1 ⊕ [dj−2]1, [cj]1 = [βj]1 ⊕ [γj]1, and [dj]1 = [βj]1 · [γj]1.
+(Note that we initialize c0 = d0 = d−1 = 0 for computing x1, x2.) In order to see why this computation is correct, observe the following:
+1. It is clear that xj is correct as it is the sum (modulo 2) of the three bits in the jth place, plus the two relevant carry bits from previous places (speciﬁcally, cj−1 and dj−2).
+2. The two carry bits are deﬁned to be (dj, cj) = (βj · γj, βj ⊕ γj). These may equal 00, 01 or 10 in binary (there cannot be a carry of 11 since the maximum sum of 5 bits is 5 which is 101 in binary, resulting in the carry 11).
+This is best understood by looking at the table below. We write the result in the last three columns in the order of dj, cj, xj since this is actually the three-bit binary representation of the sum of 5 bits. Since the computation is symmetric between the values of xj1, xj2, xj3 and between cj−1, dj−2 (meaning that it only matters how many ones there are, but nothing else), it suﬃces to look only at the number of ones for the x values and the number of ones for c, d.
+15
+
+xj1 xj2 xj3 cj−1 dj−2
+
+000 0
+
+0
+
+100 0
+
+0
+
+110 0
+
+0
+
+111 0
+
+0
+
+000 1
+
+0
+
+100 1
+
+0
+
+110 1
+
+0
+
+111 1
+
+0
+
+000 1
+
+1
+
+100 1
+
+1
+
+110 1
+
+1
+
+111 1
+
+1
+
+αj βj γj 0 00 1 00 0 10 1 10
+0 00 1 01 0 10 1 11
+0 01 1 01 0 11 1 11
+
+dj cj xj 000 001 010 011
+001 010 011 100
+010 011 100 101
+
+Observe that the last three columns equal the binary count of the number of ones in the
+ﬁrst 5 columns (from 0 to 5), as required. Since the cost of computing majority is just a single
+multiplication, this means that the overall cost of the bit decomposition is three multiplications per
+bit (two majority computations and one multiplication for computing dj). We now show how to improve this to two multiplications per bit instead of three. The idea
+here is to not explicitly compute the two carry bits cj, dj, and instead to leave them implicit in the αj, βj, γj values. Speciﬁcally, we will show that βj + αj (with the sum over the integers) actually equals the sum of the carry.5
+The actual computation is as follows. As above, compute [αj]1 = [xj1]1 ⊕[xj2]1 ⊕[xj3]1 and [βj]1 = majority xj1, xj2, xj3 . However, diﬀerently to above, compute [γj]1 = majority (αj, βj−1, γj−1). Finally, compute [xj]1 = [αj]1 ⊕ [βj−1]1 ⊕ [γj−1]1.
+
+Proof of correctness. We prove that this is correct by induction. The inductive claim is that
+for every j, the bit xj is the correct jth bit of the sum, and the value βj + γj ∈ {0, 1, 2} with the sum computed over the integers, is the carry from the sum xj1 + xj2 + xj3 + βj−1 + γj−1. For j = 1, this is trivially the case, since β0 = γ0 = 0 and so the bit x1 = α1 = x11 ⊕ x12 ⊕ x13, and the carry is just majority(x11, x12, x13). Assume now that this holds for j − 1, and we prove for j. We prove the
+correctness of this inductive step via a truth table (as above, the computation is symmetric and so it only matter how many ones there are amongst xj1, xj2, xj3, and the value of βj−1 + γj−1).
+
+16
+
+xj1 xj2 xj3 000 100 110 111
+000 100 110 111
+000 100 110 111
+
+βj−1 0 0 0 0
+1 1 1 1
+1 1 1 1
+
+γj−1 0 0 0 0
+0 0 0 0
+1 1 1 1
+
+αj βj γj 0 00 1 00 0 10 1 10
+0 00 1 01 0 10 1 11
+0 01 1 01 0 11 1 11
+
+xj Carry βj + γj
+
+0
+
+0
+
+1
+
+0
+
+0
+
+1
+
+1
+
+1
+
+1
+
+0
+
+0
+
+1
+
+1
+
+1
+
+0
+
+2
+
+0
+
+1
+
+1
+
+1
+
+0
+
+2
+
+1
+
+2
+
+In order to see that this is correct, observe that xj1 + xj2 + xj3 + βj−1 + γj−1 should equal xj + 2 · (βj + γj), with all addition over the integers (note that the carry is multiplied by 2 since it is moved to the next bit). By observation, one can verify that this indeed holds for each row. We therefore conclude that the above method correctly computes the sum [x1]1, . . . , [xn]1 requiring only two multiplications per bit.
+
+4.4 Bit Recomposition
+
+In this section, we show how to compute [x]n from [x1]1, . . . , [xn]n, where x = xn · · · x1 (or stated
+
+diﬀerently, where x =
+
+n j=1
+
+2j−1
+
+· xj).
+
+At
+
+ﬁrst
+
+sight,
+
+it
+
+may
+
+seem
+
+that
+
+it
+
+is
+
+possible
+
+for
+
+each
+
+party
+
+to simply locally compute [x]n =
+
+n j=1
+
+2j−1
+
+·
+
+[xj ]1 ,
+
+requiring
+
+only
+
+local
+
+scalar
+
+multiplications
+
+and
+
+additions. However, this does not work since the shares [xj]1 are of bits and not of ring elements,
+
+and due to carries one cannot relate to each bit separately and naively embed the bits into ring
+
+elements.
+
+We use a similar method to that of bit decomposition, but in reverse order. As in decomposition,
+
+there are two steps: local decomposition of the bit shares into three diﬀerent shares, and then adding
+
+with carry. The diﬀerence here is that we need to cancel out the carry, rather than compute it as
+
+in decomposition. In order to see why, assume that we wish to compose two bit sharings into a
+
+single sharing in Z22. Let x = 2 be the value to be composed, and so the parties hold shares of 0 (for the least signiﬁcant bit) and of 1. Assume now that the sharing of 0 is deﬁned by x11 = 1, x12 = 1, and x13 = 0 (and so x11 ⊕ x12 ⊕ x13 = 0). Then, the sum in the ring of these three shares is
+actually 2. Thus, this value of 2 in the ﬁrst bit needs to be cancelled out in the second bit. This
+
+is achieved by subtracting 1 (or XORing 1) from the second bit. To make this more clear, denote
+
+by bit(xj) the jth shared bit (as a bit), and by carry(xj) the integer carry of the integer-sum of the bit-shares of xj. For example, if xj1 = 1, xj2 = 1 and xj3 = 0 then bit(xj) = 0 and carry(xj) = 1 (the
+carry equals 1 and not 2, since we consider it as a carry and so it is moved to the left by one bit; stated diﬀerently, xj1 + xj2 + xj3 = bit(xj) + 2 · carry(xj) where addition here is over the integers).
+Our protocol for bit recomposition works by having the parties in the jth step compute shares in
+
+the ring of the value xj = bit(xj) + 2 · carry(xj) − carry(xj−1). Finally, they all locally compute
+
+[x]n =
+
+n j=1
+
+2j−1
+
+·
+
+[xj ]n .
+
+This
+
+is
+
+correct
+
+since
+
+17
+
+n
+
+n
+
+2j−1 · [xj]n = 2j−1 · bit(xj) + 2 · carry(xj) − carry(xj−1)
+
+j=1
+
+j=1
+
+n
+
+n
+
+n
+
+=
+
+2j−1 · bit(xj) + 2j−1 · 2 · carry(xj) − 2j−1 · carry(xj−1)
+
+j=1
+
+j=1
+
+j=1
+
+n
+
+n
+
+n−1
+
+=
+
+2j−1 · bit(xj) + 2j · carry(xj) − 2j · carry(xj)
+
+j=1
+
+j=1
+
+j=0
+
+= [x]n + 2n · carry(xn) − carry(x0) = [x]n
+
+where the third equality is by simply changing the range of the index j in the third term (from
+
+1, . . . , n to 0, . . . , n − 1), and the last equality is due to the fact that in the ring Z2n the carry to the (n + 1)th place is just ignored (and that carry(x0) = 0).
+
+We now describe the algorithm. Let [x1]1, . . . , [xn]1 be the input bitwise shares; the output
+
+should be [x]n =
+
+n j=1
+
+2j−1
+
+·
+
+xj
+
+.
+
+Step 1 – local decomposition: In this step, the parties locally compute shares of the individual bits of their shares, for each j. Speciﬁcally, as above, let the sharing [xj]1 be with values (xj1, xj3), (xj2, xj1) and (xj3, xj2). The parties generate shares of their shares as follows, via local computation
+only:
+
+Original shares of xj: New sharing of xj1: New sharing of xj2: New sharing of xj3:
+
+P1 (xj1, xj3) (xj1, 0)
+(0, 0)
+(0, xj3)
+
+P2 (xj2, xj1) (0, xj1) (xj2, 0)
+(0, 0)
+
+P3 (xj3, xj2)
+(0, 0)
+(0, xj2) (xj3, 0)
+
+At this point, the parties hold [xj1]1, [xj2]1, [xj3]1 for j = 1, . . . , n.
+
+Step 2 – add while removing carry: For j = 1, . . . , n, the parties compute the shares [αj]1 =
+
+[xj1]1
+
+⊕
+
+[xj2]1
+
+⊕
+
+[xj3]1,
+
+[βj]1 = majority xj1, xj2, xj3 and [γj]1 = majority (αj, βj−1, γj−1), where β0 = γ0 = 0. (Recall
+
+that each majority computation requires one bit-wise multiplication.) Then, the jth bit of the
+
+result is mapped to a share [xj]n of a ring element by computing
+
+[vj]1 = [αj]1 ⊕ [βj−1]1 ⊕ [γj−1]1
+
+(1)
+
+and projecting the result into the ring. That is, if a party holds a pair of bits (0, 1) for its share of
+
+[vj]1, then it deﬁnes [xj]n to simply be (0, 1) in the ring Z2n (i.e., the integers 0 and 1). Finally,
+
+the parties use local computation to obtain [x]n =
+
+n j=1
+
+2j−1
+
+·
+
+[xj ]n .
+
+We stress that one should not confuse [vj]1 and [xj]n; they are both shares of the same value in some sense, but actually deﬁne very diﬀerent values. To clarify this, observe that if v1j = v2j = 1 and v3j = 0, then (vj1, vj2, vj3) constitute a bit sharing of [vj]1 = 0. However, after projecting this into the ring, we have that it deﬁnes a ring-sharing of [xj]n = 2 (because v1j + v2j + v3j = 0 mod 2 but v1j + v2j + v3j = 2 mod 2n).
+
+18
+
+Correctness: Correctness of the recomposition procedure is proven in a similar way to the decomposition.
+
+4.5 Reducing the Round Complexity
+It is possible to use known methods for adding in log n rounds, in order to reduce the round complexity of the bit decomposition. However, these come at a cost of much higher AND complexity. Instead, we utilize speciﬁc properties of our bit decomposition method in order to reduce the number of rounds, while only mildly raising the number of ANDs. Our method is basically a variation of a carry-select adder [1], modiﬁed to be suited for bit decomposition. Observe that since the computation is essentially the same for bit decomposition and recomposition (regarding the computation of αj, βj, γj), the same method here works for recomposition as well.
+Recall that bit decomposition works by computing [αj]1 = [xj1]1 ⊕ [xj2]1 ⊕ [xj3]1, [βj]1 = majority xj1, xj2, xj3 , and [γj]1 = majority (αj, βj−1, γj−1). The ﬁnal shares are obtained by XORing these values and so does not add any additional rounds of communication. Observe that the αj and βj shares can all be computed in parallel in a single round. However, the γj values must be computed sequentially, since γj depends on γj−1. In order to explain the basic idea behind our tradeoﬀ between computation and rounds, we show concretely how to reduce the number of rounds to approximately one half and one quarter, and then explain the general tradeoﬀ:
+
+Reducing to n/2 + 2 rounds. As described above, all of the αj, βj values can be computed in the ﬁrst round, at the cost of exactly n AND gates. Next, the parties compute the following:
+1. γ1, . . . , γn/2 at the cost of n/2 rounds and n/2 AND gates,
+2. γn/2+1, . . . , γn under the assumption that γn/2 = 0, at the cost of n/2 rounds and n/2 AND gates, and
+3. γn/2+1, . . . , γn under the assumption that γn/2 = 1, at the cost of n/2 rounds and n/2 AND gates.
+Observe that all three computations above can be carried out in parallel, and thus this requires n/2 rounds overall. Next, the parties use a MUX to compute which γn/2+1, . . . , γn values to take; this is possible since γn/2 is already known at this point. This MUX uses a single AND gate per bit, coming to a total of n/2 AND gates, and a single round. The overall cost is 3n AND gates and n/2 + 2 rounds. Concretely for 32 bit values, this results in 96 AND gates and 17 rounds (instead of 64 AND gates and 32 rounds).
+
+Reducing to n/4 + 4 rounds. This time we divide the γj values to be computed into 4 parts, as follows. In the ﬁrst round, all αj, βj values are computed. Then:
+
+1. γ1, . . . , γn/4 are computed at the cost of n/4 rounds and n/4 AND gates,
+
+2.
+
+In
+
+parallel
+
+to
+
+the
+
+above,
+
+γ
+
+i·n 4
+
++1
+
+,
+
+.
+
+.
+
+.
+
+,
+
+γ (i+1)·n
+4
+
+for i = 1, 2, 3 are computed all in parallel, each under
+
+the assumption that γ i·n = 0 and that γ i·n = 1, at the cost of n/4 rounds and n/4 AND gates
+
+4
+
+4
+
+each (overall 6 such computations).
+
+19
+
+When
+
+all
+
+of
+
+the
+
+above
+
+are
+
+completed,
+
+the
+
+parties
+
+compute
+
+sequentially
+
+the
+
+MUX
+
+over
+
+γ
+
+i·n 4
+
++1
+
+,
+
+.
+
+.
+
+.
+
+,
+
+γ (i+1)·n
+4
+
+given γ i·n for i = 1, 2, 3 (each at a cost of n/4 AND gates and 1 round). The overall cost is 3.5n
+
+4
+
+AND gates and n/4 + 4 rounds. Concretely for 32 bit values, this results in 112 AND gates and 12
+
+rounds (instead of 64 AND gates and 32 rounds).
+
+The general case. The above method can be used to divide the γj values into blocks. In this case, the number of rounds is n to compute the γ values, and − 1 to compute the sequential
+
+MUXes. Using a similar computation to above, we have that the overall number of rounds is n + ,
+
+and the when n
+
+number of AND gates is n = , which holds when
+
++ (3 =
+
+−2)n
+√
+
+.
+
+With
+
+this
+
+n and√results
+
+meth√od, in 2 n
+
+the number rounds. In
+
+of rounds this case,
+
+is minimized the number
+
+of AND gates to be computed equals 4n − 2 n. Importantly, this method provides a tradeoﬀ
+
+between the number of rounds and the number of AND gates, since less blocks means less MUX
+
+computations. See Table 1 for a comparison on the number of rounds and AND gates, minimizing
+
+the number of rounds and minimizing the number of AND gates, when using our method. (Note
+
+that the minimum number of AND gates is always obtained by taking = 1; i.e., by using the
+
+original method above.) These values are computed using the general equations above.
+
+Size n
+16 32 64 128
+
+Minimal ANDs ANDs Rounds
+
+32
+
+16
+
+64
+
+32
+
+128
+
+64
+
+256
+
+128
+
+Minimal Rounds ANDs Rounds
+
+4 56
+
+8
+
+4 112
+
+12
+
+8 240
+
+16
+
+10 487
+
+23
+
+Table 1: Diﬀerent parameters and their cost
+
+Somewhat surprisingly, it is possible to do even better by using a variable-length carry-adder approach. The idea behind this is that it is possible to start computing the MUXes for the ﬁrst blocks while still computing the γ values for the later blocks. To see why this is possible, consider the concrete example of n = 16 and = 4. When dividing into equal-size blocks of length 4, the overall number of rounds is 8 (1 round for computing αj, βj and 7 for the rest). For this concrete case, we could divide the input into ﬁve blocks of sizes 2,2,3,4,5, respectively. Observe that the MUX needed using the result of the ﬁrst block to choose between the two results of the second block can be computed in parallel to the last γ value on the third block. Likewise, the next MUX can be computed in parallel to the last γ value of the fourth block, and so on. In this way, there are no wasted rounds, and the overall number of rounds is reduced from 7 to 6. Although this is a modest improvement, for larger values of n, it is more signiﬁcant. For example, we need 18 rounds for bit decomposition of 128-bit values, in contrast to 23 rounds with ﬁxed-length blocks (see Table 1). We wrote a script to ﬁnd the optimal division into blocks for this method, for various values of n; the results appear in Table 2.
+Observe that the number of ANDs required for this method is greater than in Table 1, thus further contributing to the aforementioned tradeoﬀ. We stress that this tradeoﬀ is signiﬁcant since diﬀerent parameters may provide better performance on slow, medium and fast networks.
+
+20
+
+Size n 16 32 64
+128
+
+ANDs 63
+128 255 519
+
+Rounds 7 10 13 18
+
+Block Sizes 5, 4, 3, 2, 2
+8, 7, 6, 5, 4, 2 11, 10, 9, 8, 7, 6, 5, 4, 4 16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 2
+
+Table 2: Optimal block-size and costs for the variable-length approach (computation is from rightto-left)
+
+Bit decomposition using conditional sum adders. We conclude with a diﬀerent approach that is based on a conditional sum adder. This variant takes a divide-and-conquer approach to computing the blocks. That is, it splits the n-bit input into two blocks of n/2 bits, uses a conditional sum adder to compute the sum of the lower block with carry 0 and the sum of the higher block with carries 0 and 1, and then uses MUX gates to select the correct outputs for the higher block. At the bottom level, a pair of bits is simply added using a full adder. This tree-based approach leads to a logarithmic number of rounds at an overall cost of O(n log n) AND gates, since there are a linear number of MUX gates at every level. The concrete costs for this method are presented in Table 3. As can be seen, the number of rounds is signiﬁcantly reduced, but at the cost of a notable increase in the number of ANDs. In slow networks with fast computing devices, this approach can be preferable.
+
+Size n 16 32 64
+128
+
+ANDs 121 280 631 1398
+
+Rounds 6 7 8 9
+
+Table 3: Costs for the conditional-sum adder approach
+
+4.6 Security
+Let v be a value. We say that type(v) = Z2n if v ∈ Z2n and we say that type(v) = Z2 if v ∈ {0, 1}. We will relate to the addition, scalar multiplication and multiplication of values below. In all cases, these operations are only possible for values of the same type.
+In Fmpc, we deﬁne a general MPC functionality that enables carrying out standard operations on shared values: addition, scalar multiplication and multiplication (beyond sharing input and getting output). However, in contrast to the usual deﬁnition, we deﬁne Fmpc to carry out these operations on both shares of bits and shares of ring elements. In addition, the functionality enables the decomposition of a ring element in Z2n to n shares of bits, and the recomposition of n shares of bits to a ring element. This provides a much more general functionality since computations can be carried out both using arithmetic circuits and Boolean circuits.
+
+Observe that add and scalarmult in Fmpc are operations that depend only on the honest parties. This is due to the fact that they involve local operations only, and thus the adversary cannot interfere in their computation. The standard Fmpc functionality fulﬁlled by secret-sharing based protocols is the same as Functionality 4.1, with the exception that all operations of one type only
+
+21
+
+FUNCTIONALITY 4.1 (The Mixed MPC Functionality Fmpc)
+Fmpc runs with parties P1, . . . , Pm and the ring Z2n , as follows:
+• Upon receiving (input, id, i, v) from party Pi where v ∈ Z2n or v ∈ {0, 1} and id has not been used before, Fmpc sends (input, id, i) to all parties and locally stores (id, v).
+• Upon receiving (add, id1, id2, id3) from all honest parties, if there exist v1, v2 such that (id1, v1) and (id2, v2) have been stored and type(v1) = type(v2), and id3 has not been used before, then Fmpc locally stores (id3, v1 + v2).
+• Upon receiving (scalarmult, id1, id2, c) from all honest parties, if there exists a v such that (id1, v) has been stored and type(c) = type(v), and id2 has not been used before, then Fmpc locally stores (id2, c · v).
+• Upon receiving (mult, id1, id2, id3) from all parties, if there exist v1, v2 such that (id1, v1) and (id2, v2) have been stored and type(v1) = type(v2), and id3 has not been used before, then Fmpc locally stores (id3, v1 · v2).
+• Upon receiving (decompose, id, id1, . . . , idn) from all parties, if there exists a v such that (id, v) has been stored and type(v) = Z2n , and id1, . . . , idn have not been used before, then Fmpc locally stores (idi, vi) for i = 1, . . . , n, where v = v1, . . . , vn.
+• Upon receiving (recompose, id1, . . . , idn, id) from all parties, if there exist v1, . . . , vn such that (idi, vi) has been stored and type(vi) = Z2 for all i = 1, . . . , n, and id has not been used before, then Fmpc locally stores (id, v), where v = v1, . . . , vn.
+• Upon receiving (output, id, i) from all parties, if there exists a v such that (id, v) has been stored then Fmpc sends (output, id, v) to party Pi.
+and there are not decompose or recompose operations. We denote the standard Fmpc functionality that works over the ring R by FmRpc (and so denote FmZ2pc for bits and FmZ2pnc for the ring Z2n.
+Security of bit decomposition and recomposition. The fact that our protocols are secure follow immediately from the fact that they are comprised solely of the following elements:
+• Local transformation operations from valid bit shares to valid ring shares and vice versa,
+• Bit-MPC add and multiply operations over bit shares, and
+• Ring-MPC add and multiply operations over ring shares.
+Since the MPC operations use secure protocols and work on valid shares of the appropriate type, these operations are securely carried out. Furthermore, since the local transformations require no communication, an adversary cannot cheat. Thus, the combination of the bit and ring protocols, along with the bit decomposition and recomposition protocols presented above, constitute a protocol that securely computes the mixed MPC functionality Fmpc.
+In order for the above to work, we need the bit and ring protocols to have the property that the original simulator (that did not consider bit-decompositon) also successfully simulate the protocol in the presence of the bit-decomposition protocols. It is straightforward to see that the simulation of the new protocol is exactly the same as before except for outputs that depend on a share of some value. This happens when local bit decomposition converts a share into a secret shared value. This simulation is not trivial since the above MPC functionality does not keep shares as its internal
+22
+
+state. Nevertheless, fortunately, this exception does not happen in our functionality since full bitdecomposition does not reveal any value that depends on a share. By being deliberate in this point, we are able to simulate the functionality as before.
+
+4.7 Theoretical Eﬃciency
+The complexity of our MPC conversions of shares between that of Z2n and that of Zn2 are given in Table 4. These numbers refer to the three-party protocol of [3] that is secure in the presence of malicious adversaries. The most optimized version of that protocol requires each party to send just 7 bits per AND gate, meaning an overall cost of 21 bits per AND gate for all parties. In Table 4 we provide the communication cost and number of rounds for our protocol, with diﬀerent tradeoﬀs between computation and round complexity:
+
+Version Basic conversion (n = 32) Variable-length adder (n = 32) Conditional-sum adder (n = 32) Basic conversion (n = 128) Variable-length adder (n = 128) Conditional-sum adder (n = 128)
+
+Total comm. bits 1,344 2,688 5,880 5,376
+10,899 29,358
+
+Rounds 32 10 7 128 18 9
+
+Table 4: Complexity of decomposition and recomposition
+
+We now compare our protocol to the previous best protocols. We stress that previous protocols work generically for any ring, and as such are more general. However, this shows that much can be gained by focusing on rings of speciﬁc interest, especially the ring of integers which is of interest in many real-world computations. In Table 5, we present the cost of our protocols versus those of [12], [27] and [30], when applied to the ring Z232. In all cases, we consider the concrete cost when using the low-communication three-party protocol of [3] that requires only 7-bits of communication per party per AND gate. The results show the striking improvement our method makes over previous protocols, for the speciﬁc case of the ring Z2n, and when using replicated secret sharing. For our protocol, we present the costs for the 32-round version, with minimum AND complexity.
+
+Protocol Bit-Decomposition
+Ring-Composition
+
+Method [12] +[3] [27] +[3] Ours+[3] [30] +[3] Ours+[3]
+
+Total comm. bits 723,912 408,072 1,302 340, 704 1,302
+
+Rounds 38 25 32 62 32
+
+Table 5: Comparison of Complexity of 32-bit Integer Conversions for Secure 3-Party Computation
+
+We remark that a direct conversion of the SPDZ bit decomposition method to the case of rings would yield the complexity of [12]+[3] in Table 5. Thus, our special-purpose conversion protocols are signiﬁcant with respect to the eﬃciency of the result.
+
+23
+
+5 Experimental Evaluation
+In order to evaluate our toolchain and protocol, we have implemented various computations, ranging from a simple mean and variance computations, to a more involved computations of inference via a non-balanced decision tree and the private processing of an SQL query. The SQL query is quite a complex computation and is derived from the following query for a typical survey:
+SELECT count(*), avg(credit limit) FROM Census WHERE State==Utah GROUP BY Age, Sex HAVING count(*) > 100;
+This query computes the average credit limit of every age-group and sex (i.e., average credit limit of 30 year old females, average credit limit of 30 year old males, and so on), outputting only results for sets that have at least 100 data items in the set. This last requirement is necessary to preserve privacy and to ensure that there are no results based on very few individuals. For all ﬁelds that have a small range such as state, age, and sex we input the data in a bit-wise unary encoding (a list of bits of which only one is 1), which simpliﬁes the selection operation in secure computation.
+The decision tree private inference example uses the decision tree built from real data published for a paper on credit decisions [28]. The concrete decision tree in our computation has 1256 leaves at depths from 4 to 30. Since multiparty computation reveals the amount of computation (i.e., how many gates are computed), we have to always execute 30 decisions in order to hide the path traversed in the evaluation. This is achieved using dummy data if a leaf is reached before the last step. Furthermore, traversal of the tree makes use of oblivious selection from the current depth of the tree represented as an array (this selection is of the node to be used in the current level of the decision tree), in order to not reveal anything about the path of computation in the tree.
+Whenever non-integer computation is required, we use ﬁxed-point computation as implemented in the SPDZ compiler [7]. This is justiﬁed because the mean over a set of numbers in a limited range will also be in this range and thus not require the larger range of ﬂoating-point numbers. The bit decomposition and recomposition used for the SQL query is the SPDZ compiler method for SPDZ and MHMZp, and is our new method from Section 4. The times given are for the basic conversion (see Table 4) which minimizes the amount of communication at the expense of a higher number of rounds. (We also implemented the other versions, but they were slower in our tests since we ran the experiments on a very low-latency network.)
+We ran our experiments on AWS with three parties in a single region, using m5.12xlarge instances providing 10 Gbps network communication. The only exception is for the BMR protocol, where we used i3.2xlarge instances due to the increased amount of storage needed to store the garbled circuit.
+Figures 6–8 show the online times for mean, variance, and our SQL query for various numbers of inputs, and Table 6 shows the results of decision tree computation. MHM Zp refers to the malicous honest-majority protocol over Zp of [24], while SHM Z2n/Z2 refers to the semi-honest honest-majority protocol of [4] over the ring of integers Z2n for any n ≥ 1. Note that the diﬀerent protocols operate in diﬀerent security models: SPDZ and BMR provide security in the presence of any t ≤ n malicious corruptions, MHM Zp provides security in the presence of a malicious minority, and SHM Z2n/Z2 provides security in the presence of semi-honest adversaries with an honest minority. This explains the expensive oﬄine phase for SPDZ and BMR because more expensive operations such as somewhat homomorphic encryption are used there. To time the oﬄine phase of SPDZ, the newer “Low Gear” protocol [20] has been used on r4.8xlarge instances
+24
+
+due to the larger memory requirement of homomorphic encryption, while the MASCOT protocol [19] has been used for BMR. (The SPDZ oﬄine was also computed using a large number of threads, in contrast to a single thread for MHM/SHM.)
+We stress that we present these results to demonstrate the new capability of writing a single complex program and running it on four completely diﬀerent low-level protocols, and not in order to compare eﬃciency. Indeed, we are continuing our work to improve the eﬃciency of the SPDZ-compiled lower-level protocols (e.g., adding vectorization, more parallelism and speciﬁc optimizations). Nevertheless, it is interesting to observe that the SHM Z2n method is approximately 50 times faster than the MHM Zp method for the SQL processing (Figure 8). Although there is a diﬀerence between semi-honest and malicious, the cost of MHM Z2n is only 7-times slower than SHM Z2n [3]. The rest of the diﬀerence is due to the faster bit decomposition and recomposition for the ring-based protocol versus the ﬁeld-based protocol.
+
+Security level:
+Online: time:
+
+Resources SPDZ MHM Zp SHM Z2n BMR
+
+Malicious Malicious Semi-honest Malicious
+
+t≤n
+
+t < n/2
+
+t < n/2
+
+t≤n
+
+1 core
+
+0.3005
+
+3.0416
+
+0.4641
+
+0.5353
+
+# rounds:
+
+783
+
+584
+
+2746
+
+28
+
+Oﬄine: time:
+
+48 cores
+
+5.2204
+
+Not required
+
+Not required
+
+1041.8
+
+Table 6: Decision tree computation (seconds).
+
+Time (s)
+
+107
+
+SPDZ (online)
+
+105
+
+SPDZ (total)
+
+MHM Zp (online)
+
+103
+
+MHM Zp (total) SHM Z2n /Z2
+
+BMR (online)
+
+101
+
+BMR (total)
+
+10−1
+
+10−3
+
+101
+
+102
+
+103
+
+Figure 6: Mean computation (X-axis=num. inputs).
+
+25
+
+107
+
+SPDZ (online)
+
+105
+
+SPDZ (total)
+
+MHM Zp (online)
+
+103
+
+MHM Zp (total) SHM Z2n /Z2
+
+BMR (online)
+
+101
+
+BMR (total)
+
+Time (s)
+
+10−1
+
+10−3
+
+101
+
+102
+
+103
+
+Figure 7: Variance computation (X-axis=num. inputs).
+
+107
+
+SPDZ (online)
+
+SPDZ (total)
+
+105
+
+MHM Zp (online)
+
+MHM Zp (total)
+
+103
+
+SHM Z2n /Z2 BMR (online)
+
+BMR (total)
+
+101
+
+Time (s)
+
+10−1
+
+101
+
+102
+
+103
+
+Figure 8: US Census SQL query (X-axis=num. inputs).
+
+Batch vectorization. We have implemented batch vectorization for the Ring-based protocol at the VM level. This works by deﬁning the level of vectorization desired, and then the same singleexecution code written at the compiler level is run on vectors of the speciﬁed length. For example, deﬁning vectorization of level 64 for the decision tree inference problem means that inference is run on 64 inputs at the same time. This works by representing each element as a vector of 64, and running the MPC in parallel for each.
+We ran these batch executions on the same problems as above; these results appear in Table 7. Observe that the “non-batch” and “Batch × 1” both run a single execution, but there is a ﬁxed overhead in the VM for running the batched experiments. Comparing these two columns, one can see that this overhead is quite high; we are working on reducing it. Beyond this, observe that the cost of batching many executions together is very minor. Thus, a single decision tree inference (without batching) takes approximately 0.5 seconds whereas 64 in parallel takes just under 6 seconds, or an
+26
+
+average of under 0.1 second. We believe that by reducing the ﬁxed overhead, we will obtain that parallelism is essentially for free. This is of great importance in many real-world use cases where the same computation is carried out many times. For example, census statistics like the SQL query in our example would be computed for every state, and so could be vectorized.
+
+Mean (10 inputs) Mean (100 inputs) Mean (1000 inputs) Variance (10 inputs) Variance (100 inputs) Variance (1000 inputs) SQL (10 inputs) SQL (100 inputs) SQL (1000 inputs) Decision tree
+
+Non-batch 0.031 0.033 0.060 0.039 0.053 0.175 0.779 1.122 6.039 0.464
+
+Batch × 1 0.139 0.145 0.178 0.362 0.428 2.501 10.233 10.766 17.755 2.949
+
+Batch × 8 0.138 0.145 0.184 0.371 0.688 2.318 10.335 11.029 15.216 3.276
+
+Batch × 32 0.136 0.142 0.176 0.391 0.677 2.348 10.997 11.754 31.154 4.399
+
+Batch × 64 0.149 0.153 0.171 0.381 0.687 2.461 11.285 13.606 36.471 5.945
+
+Table 7: Running times for batch vectorization in seconds. Batch × N means running N executions in parallel (i.e., with vectors of length N ).
+
+Open source. Our code is open source and available for free use. Our fork of SPDZ-2, including our extensions and hooks to them and changes to the compiler to support adding instructions and so on, can be found at https://github.com/cryptobiu/SPDZ-2. Furthermore, the extension required for plugging in the multiparty honest-majority protocol of [24] can be found at https: //github.com/cryptobiu/SPDZ-2-Extension-MpcHonestMajority.
+6 Future Work
+This paper describes the ﬁrst steps towards making the SPDZ compiler a general-purpose tool that can enable the use of MPC by software developers without MPC expertise. In order to complete this task, more work is needed in the following areas:
+• Eﬃciency: The current run-time requires additional optimizations to achieve running-time that is comparable to that of a native protocol that works directly with a circuit and is optimized for latency or throughput. It is unreasonable to assume that a general compiler will achieve the same level of eﬃciency as a tailored optimized version of a protocol. Nevertheless, the usability gains are signiﬁcant enough so that a reasonable penalty (of say, 15%) is justiﬁed. An important goal is thus to achieve eﬃciency of this level, and we are currently working on this.
+• Protocol generality: As we have argued, there is no single MPC protocol that is best for every task. On the contrary, we now understand that many diﬀerent protocols of diﬀerent types are needed for diﬀerent settings. The best protocol depends on the eﬃciency goal (low latency or high throughput), the network setting (LAN or WAN), the function being computed (arithmetic or Boolean or mixed, and if mixed how many transitions are needed), and so on. In order to achieve this goal, more protocols need to be incorporated into the SPDZ compiler framework.
+
+27
+
+In addition to the above, we believe that an additional method should be added that outputs a circuit (arithmetic, Boolean or mixed) generated from the Python code. This deviates from the SPDZ run-time paradigm and requires running the protocol with a speciﬁc circuit, but it enables the use of the compiler in the more traditional circuit-compiler methodology that also has advantages. In particular, it can be used for protocols that have not been incorporated into the SPDZ run-time, and for optimized code that works speciﬁcally with a static circuit.
+• Compiler generality: The SPDZ compiler is already very general and provides support for a rich high-level language. However, as more real use cases are discovered, it will need to be further enriched. This work is already being done independently on the original SPDZ compiler and we hope that these works will be merged, for the beneﬁt of the general community.
+References
+[1] Carry-Select Adder, Wikipedia, March 2018. https://en.wikipedia.org/wiki/ Carry-select_adder
+[2] Mehrdad Aliasgari, Marina Blanton, Yihua Zhang, and Aaron Steele. Secure Computation on Floating Point Numbers. In NDSS 2013, 2013.
+[3] T. Araki, A. Barak, J. Furukawa, T. Lichter, Y. Lindell, A. Nof, K. Ohara, A. Watzman and O. Weinstein. Optimized Honest-Majority MPC for Malicious Adversaries - Breaking the 1 Billion-Gate Per Second Barrier. In the 38th IEEE Symposium on Security and Privacy, pages 843–862, 2017.
+[4] T. Araki, J. Furukawa, Y. Lindell, A. Nof and K. Ohara. High-Throughput Semi-Honest Secure Three-Party Computation with an Honest Majority. In the 23rd ACM CCS, pages 805–817, 2016.
+[5] Donald Beaver. Eﬃcient Multiparty Protocols Using Circuit Randomization. In CRYPTO’91, Springer (LNCS 576), pages 420–432, 1992.
+[6] D. Beaver, S. Micali, and P. Rogaway. The Round Complexity of Secure Protocols. In the 22nd STOC, pages 503–513, 1990.
+[7] Bristol Cryptography Group. SPDZ software. https://www.cs.bris.ac.uk/Research/ CryptographySecurity/SPDZ/, 2016.
+[8] Niklas Buscher, Andreas Holzer, Alina Weber and Stefan Katzenbeisser. Compiling Low Depth Circuits for Practical Secure Computation. In ESORICS 2016, pages 80–98, 2016.
+[9] Niklas Buscher and Stefan Katzenbeisser. Compilation for Secure Multi-party Computation. Springer Briefs in Computer Science, Springer 2017.
+[10] Octavian Catrina and Sebastiaan de Hoogh. Secure Multiparty Linear Programming Using Fixed-Point Arithmetic. In ESORICS 2010, Springer (LNCS 6345), pages 134–150, 2010.
+[11] Octavian Catrina and Amitabh Saxena. Secure Computation With Fixed-Point Numbers. In FC 2010, Springer (LNCS 6052), pages 35–50, 2010.
+28
+
+[12] I. Damg˚ard, M. Fitzi, E. Kiltz, J.B. Nielsen, and T. Toft. Unconditionally Secure ConstantRounds Multi-party Computation for Equality, Comparison, Bits and Exponentiation. In the 3rd Theory of Cryptography Conference (TCC), Springer (LNCS 3876), pages 285-304, 2006.
+[13] I. Damg˚ard, M. Keller, E. Larraia, V. Pastro, P. Scholl and N.P. Smart. Practical Covertly Secure MPC for Dishonest Majority - or: Breaking the SPDZ Limits. In 18th ESORICS, pages 1–18, 2013.
+[14] I. Damg˚ard, V. Pastro, N.P. Smart and S. Zakarias. Multiparty Computation from Somewhat Homomorphic Encryption. In CRYPTO 2012, pages 643–662, 2012.
+[15] M. Franz, A. Holzer, S. Katzenbeisser, C. Schallhart and H. Veith. CBMC-GC: An ANSI C Compiler for Secure Two-Party Computations. In CC 2014, pages 244–249, 2014.
+[16] J. Furukawa, Y. Lindell, A. Nof and O. Weinstein. High-Throughput Secure Three-Party Computation for Malicious Adversaries and an Honest Majority In EUROCRYPT 2017, Springer (LNCS 10211), pages 225–255, 2017.
+[17] Carmit Hazay, Peter Scholl, and Eduardo Soria-Vazquez. Low Cost Constant Round MPC Combining BMR and Oblivious Transfer. In ASIACRYPT 2017 Springer (LNCS 10624), pages 598–628, 2017.
+[18] Marcel Keller. The Oblivious Machine - Or: How to Put the C Into MPC. Cryptology ePrint Archive, Report 2015/467, 2015. http://eprint.iacr.org/2015/467.
+[19] Marcel Keller, Emmanuela Orsini, and Peter Scholl. MASCOT: Faster malicious arithmetic secure computation with oblivious transfer. In Edgar R. Weippl, Stefan Katzenbeisser, Christopher Kruegel, Andrew C. Myers, and Shai Halevi, editors, ACM CCS 16, pages 830– 842. ACM Press, October 2016.
+[20] Marcel Keller, Valerio Pastro, and Dragos Rotaru. Overdrive: Making SPDZ great again. In EUROCRYPT 2018, Springer (LNCS 10822), pages 158–189, 2018.
+[21] Marcel Keller, Peter Scholl, and Nigel P. Smart. An Architecture for Practical Actively Secure MPC With Dishonest Majority. In ACM CCS 2013, pages 549–560, 2013.
+[22] Marcel Keller and Avishay Yanai. Eﬃcient Maliciously Secure Multiparty Computation for RAM. In EUROCRYPT 2018, Springer (LNCS 10822), pages 91–124, 2018.
+[23] Marcel Keller and Avishay Yanay. ORAM in SPDZ-BMR, 2018. https://github.com/ mkskeller/SPDZ-BMR-ORAM.
+[24] Y. Lindell and A. Nof. A Framework for Constructing Fast MPC over Arithmetic Circuits with Malicious Adversaries and an Honest-Majority. In the 24th ACM CCS, pages 259–276, 2017.
+[25] Yehuda Lindell, Benny Pinkas, Nigel P. Smart, and Avishay Yanai. Eﬃcient Constant Round Multi-Party Computation Combining BMR and SPDZ. In CRYPTO 2015, Springer (LNCS 9216), pages 319–338, 2015.
+29
+
+[26] Peter L. Montgomery. Modular Multiplication Without Trial Division. Mathematics of Computation, 44:519–521, 1985.
+[27] T. Nishide and K. Ohta. Multiparty Computation for Interval, Equality, and Comparison Without Bit-Decomposition Protocol. In the 10th PKC, Springer (LNCS 4450), pages 343– 360, 2007.
+[28] Vivek Kumar Singh, Burcin Bozkaya, Alex Pentland, Money Walks: Implicit Mobility Behavior and Financial Well-Being, PLoS ONE 10(8): e0136628. https://doi.org/10.1371/ journal.pone.0136628
+[29] Ebrahim M. Songhori, Siam U. Hussain, Ahmad-Reza Sadeghi, Thomas Schneider, Farinaz Koushanfar. TinyGarble: Highly Compressed and Scalable Sequential Garbled Circuits. IEEE Symposium on Security and Privacy 2015, pages 411–428, 2015.
+[30] T. Toft. Constant-Rounds, Almost-Linear Bit-Decomposition of Secret Shared Values. In CT-RSA 2009, Springer (LNCS 5473), pages 357–371, 2009.
+[31] Xiao Wang, Samuel Ranellucci, and Jonathan Katz. Authenticated Garbling and Eﬃcient Maliciously Secure Two-Party Computation. In ACM CCS 17, pages 21–37, 2017.
+30
+
+A From SQL to Pseudocode to SPDZ
+On Thursday April 12, at 8:45am, the minutes of our morning meeting deﬁned an MPC experiment involving a complex SQL query. The experiment was deﬁned according to the table and query appearing in Figure 9. We stress that although the researchers in our lab had already gained some experience in “SPDZ programming”, these involved programming a decision tree and genetic computation and so were in completely diﬀerent domains.
+Figure 9: The SQL experiment deﬁnition (8:45am). At 11:16am on the same day, the researchers sent an email specifying the pseudocode for processing the query; see Figure 10. The pseudocode was written based on an understanding of MPC costs and thus how to optimize (e.g., by storing discrete values in bit vectors that are 0 in all places except for the place representing the value – i.e., age can represented by a vector of length 120 and a person of age 40 will have the 40th bit equal 1 and all else equal 0).
+31
+
+Figure 10: The SQL experiment pseudocode (11:16am). Finally, at 2:49pm on the same day, the researchers delivered a working program in SPDZ to compute the SQL query; see Figure 11. This anecdote demonstrates the power of the SPDZ compiler and system, and is why we choose to extend this system speciﬁcally.
+32
+
+Figure 11: Working SQL code in SPDZ (4:49pm). 33
+

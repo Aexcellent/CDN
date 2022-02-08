@@ -9,7 +9,7 @@
 	"configOptions": {
 		"async": true,
 		"getCollections": true,
-		"hash": "382785d9185eb80858450eaf263aaf445de621048c1bca2611ee24e8ed975118"
+		"hash": "916a843456f23fbabe93aa695805ca01f8bf78136b49a7460d6cf0bfea39f91b"
 	},
 	"displayOptions": {
 		"exportNotes": true,
@@ -20,7 +20,7 @@
 	"browserSupport": "gcsv",
 	"priority": 49,
 	"inRepository": false,
-	"lastUpdated": "2022-01-23"
+	"lastUpdated": "2022-02-05"
 }
 
 ZOTERO_CONFIG = {"GUID":"zotero@chnm.gmu.edu","ID":"zotero","CLIENT_NAME":"Zotero","DOMAIN_NAME":"zotero.org","REPOSITORY_URL":"https://repo.zotero.org/repo/","BASE_URI":"http://zotero.org/","WWW_BASE_URL":"https://www.zotero.org/","PROXY_AUTH_URL":"https://zoteroproxycheck.s3.amazonaws.com/test","API_URL":"https://api.zotero.org/","STREAMING_URL":"wss://stream.zotero.org/","SERVICES_URL":"https://services.zotero.org/","API_VERSION":3,"CONNECTOR_MIN_VERSION":"5.0.39","PREF_BRANCH":"extensions.zotero.","BOOKMARKLET_ORIGIN":"https://www.zotero.org","BOOKMARKLET_URL":"https://www.zotero.org/bookmarklet/","START_URL":"https://www.zotero.org/start","QUICK_START_URL":"https://www.zotero.org/support/quick_start_guide","PDF_TOOLS_URL":"https://www.zotero.org/download/xpdf/","SUPPORT_URL":"https://www.zotero.org/support/","TROUBLESHOOTING_URL":"https://www.zotero.org/support/getting_help","FEEDBACK_URL":"https://forums.zotero.org/","CONNECTORS_URL":"https://www.zotero.org/download/connectors"}
@@ -33,10 +33,17 @@ var BetterBibTeXJSON__Translator__detectImport__doImport__doExport = (() => {
   var __getProtoOf = Object.getPrototypeOf;
   var __hasOwnProp = Object.prototype.hasOwnProperty;
   var __markAsModule = (target) => __defProp(target, "__esModule", { value: true });
+  var __require = /* @__PURE__ */ ((x) => typeof require !== "undefined" ? require : typeof Proxy !== "undefined" ? new Proxy(x, {
+    get: (a, b) => (typeof require !== "undefined" ? require : a)[b]
+  }) : x)(function(x) {
+    if (typeof require !== "undefined")
+      return require.apply(this, arguments);
+    throw new Error('Dynamic require of "' + x + '" is not supported');
+  });
   var __esm = (fn, res) => function __init() {
     return fn && (res = (0, fn[__getOwnPropNames(fn)[0]])(fn = 0)), res;
   };
-  var __commonJS = (cb, mod) => function __require() {
+  var __commonJS = (cb, mod) => function __require2() {
     return mod || (0, cb[__getOwnPropNames(cb)[0]])((mod = { exports: {} }).exports, mod), mod.exports;
   };
   var __export = (target, all) => {
@@ -431,7 +438,7 @@ var BetterBibTeXJSON__Translator__detectImport__doImport__doExport = (() => {
   var require_version = __commonJS({
     "gen/version.js"(exports, module) {
       init_globals();
-      module.exports = "6.1.10";
+      module.exports = "6.2.2";
     }
   });
 
@@ -660,28 +667,12 @@ var BetterBibTeXJSON__Translator__detectImport__doImport__doExport = (() => {
       displayOptions: ["useJournalAbbreviation", "exportNotes"]
     },
     translator: {
-      "Better CSL YAML": {
-        autoexport: true,
-        cached: true,
-        preferences: [],
-        displayOptions: [],
-        types: {}
-      },
       "Better CSL JSON": {
         autoexport: true,
         cached: true,
         preferences: [],
         displayOptions: [],
         types: {}
-      },
-      "BetterBibTeX JSON": {
-        autoexport: true,
-        cached: false,
-        preferences: [],
-        displayOptions: ["exportNotes"],
-        types: {
-          exportNotes: { type: "boolean" }
-        }
       },
       "Better BibLaTeX": {
         autoexport: true,
@@ -696,6 +687,13 @@ var BetterBibTeXJSON__Translator__detectImport__doImport__doExport = (() => {
           useJournalAbbreviation: { type: "boolean" }
         }
       },
+      "Better CSL YAML": {
+        autoexport: true,
+        cached: true,
+        preferences: [],
+        displayOptions: [],
+        types: {}
+      },
       "Better BibTeX": {
         autoexport: true,
         cached: true,
@@ -708,6 +706,15 @@ var BetterBibTeXJSON__Translator__detectImport__doImport__doExport = (() => {
           DOIandURL: { enum: ["both", "doi", "url"] },
           exportNotes: { type: "boolean" },
           useJournalAbbreviation: { type: "boolean" }
+        }
+      },
+      "BetterBibTeX JSON": {
+        autoexport: true,
+        cached: false,
+        preferences: [],
+        displayOptions: ["exportNotes"],
+        types: {
+          exportNotes: { type: "boolean" }
         }
       }
     }
@@ -735,15 +742,21 @@ var BetterBibTeXJSON__Translator__detectImport__doImport__doExport = (() => {
 
   // content/environment.ts
   init_globals();
-  var worker = typeof WorkerGlobalScope !== "undefined" && typeof importScripts === "function" && navigator instanceof WorkerNavigator;
+  var environment = {
+    node: typeof process === "object" && typeof __require === "function" && typeof importScripts !== "function",
+    worker: typeof importScripts === "function",
+    zotero: typeof Components !== "undefined",
+    name: ""
+  };
+  environment.name = Object.entries(environment).map(([name, on]) => on ? name : "").filter((name) => name).join("/");
 
   // content/logger.ts
-  var inTranslator = worker || typeof ZOTERO_TRANSLATOR_INFO !== "undefined";
+  var inTranslator = environment.worker || typeof ZOTERO_TRANSLATOR_INFO !== "undefined";
   var Logger = class {
     constructor() {
       this.verbose = false;
     }
-    format({ error = false, worker: worker2 = "", translator = "" }, msg) {
+    format({ error = false, worker = "", translator = "" }, msg) {
       let diff = null;
       const now = Date.now();
       if (this.timestamp)
@@ -768,16 +781,16 @@ var BetterBibTeXJSON__Translator__detectImport__doImport__doExport = (() => {
         }
         msg = output;
       }
-      if (worker) {
-        worker2 = worker2 || workerContext.worker;
+      if (environment.worker) {
+        worker = worker || workerContext.worker;
         translator = translator || workerContext.translator;
       } else {
-        if (worker2)
-          worker2 = `${worker2} (but inWorker is false?)`;
+        if (worker)
+          worker = `${worker} (but environment is ${environment.name})`;
         if (!translator && inTranslator)
           translator = ZOTERO_TRANSLATOR_INFO.label;
       }
-      const prefix = ["better-bibtex", translator, error && "error", worker2 && `(worker ${worker2})`].filter((p) => p).join(" ");
+      const prefix = ["better-bibtex", translator, error && "error", worker && `(worker ${worker})`].filter((p) => p).join(" ");
       return `{${prefix}} +${diff} ${asciify(msg)}`;
     }
     formatError(e, indent = "") {
@@ -802,7 +815,7 @@ ${indent}${this.formatError(e.error, "  ")}
     get enabled() {
       if (!inTranslator)
         return Zotero.Debug.enabled;
-      if (!worker)
+      if (!environment.worker)
         return true;
       return !workerContext || workerContext.debugEnabled;
     }
@@ -813,9 +826,9 @@ ${indent}${this.formatError(e.error, "  ")}
     error(...msg) {
       Zotero.debug(this.format({ error: true }, msg));
     }
-    status({ error = false, worker: worker2 = "", translator = "" }, ...msg) {
+    status({ error = false, worker = "", translator = "" }, ...msg) {
       if (error || this.enabled)
-        Zotero.debug(this.format({ error, worker: worker2, translator }, msg));
+        Zotero.debug(this.format({ error, worker, translator }, msg));
     }
   };
   var log = new Logger();
@@ -885,7 +898,7 @@ ${indent}${this.formatError(e.error, "  ")}
       });
       this.ping = new Pinger({
         total: this.list.length,
-        callback: (pct) => worker ? Zotero.BetterBibTeX.setProgress(pct) : null
+        callback: (pct) => environment.worker ? Zotero.BetterBibTeX.setProgress(pct) : null
       });
     }
     *items() {

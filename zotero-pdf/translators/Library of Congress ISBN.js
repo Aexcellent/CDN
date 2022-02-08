@@ -9,7 +9,7 @@
 	"priority": 97,
 	"inRepository": true,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2021-08-02 16:45:00"
+	"lastUpdated": "2022-02-07 18:40:00"
 }
 
 function detectSearch(item) {

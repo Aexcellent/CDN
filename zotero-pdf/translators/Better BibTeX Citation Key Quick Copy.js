@@ -13,9 +13,9 @@
 	},
 	"inRepository": false,
 	"configOptions": {
-		"hash": "9567a6a48d50788a3d74b917819ea06e6bb4e7d075046d1ee5ed6338c1dbb388"
+		"hash": "fcf2ffabf1311128eefa04655f0fc9243e3ee889acff297a53a846597bff6290"
 	},
-	"lastUpdated": "2022-01-23"
+	"lastUpdated": "2022-02-05"
 }
 
 ZOTERO_CONFIG = {"GUID":"zotero@chnm.gmu.edu","ID":"zotero","CLIENT_NAME":"Zotero","DOMAIN_NAME":"zotero.org","REPOSITORY_URL":"https://repo.zotero.org/repo/","BASE_URI":"http://zotero.org/","WWW_BASE_URL":"https://www.zotero.org/","PROXY_AUTH_URL":"https://zoteroproxycheck.s3.amazonaws.com/test","API_URL":"https://api.zotero.org/","STREAMING_URL":"wss://stream.zotero.org/","SERVICES_URL":"https://services.zotero.org/","API_VERSION":3,"CONNECTOR_MIN_VERSION":"5.0.39","PREF_BRANCH":"extensions.zotero.","BOOKMARKLET_ORIGIN":"https://www.zotero.org","BOOKMARKLET_URL":"https://www.zotero.org/bookmarklet/","START_URL":"https://www.zotero.org/start","QUICK_START_URL":"https://www.zotero.org/support/quick_start_guide","PDF_TOOLS_URL":"https://www.zotero.org/download/xpdf/","SUPPORT_URL":"https://www.zotero.org/support/","TROUBLESHOOTING_URL":"https://www.zotero.org/support/getting_help","FEEDBACK_URL":"https://forums.zotero.org/","CONNECTORS_URL":"https://www.zotero.org/download/connectors"}
@@ -28,10 +28,17 @@ var BetterBibTeXCitationKeyQuickCopy__Translator__doExport = (() => {
   var __getProtoOf = Object.getPrototypeOf;
   var __hasOwnProp = Object.prototype.hasOwnProperty;
   var __markAsModule = (target) => __defProp(target, "__esModule", { value: true });
+  var __require = /* @__PURE__ */ ((x) => typeof require !== "undefined" ? require : typeof Proxy !== "undefined" ? new Proxy(x, {
+    get: (a, b) => (typeof require !== "undefined" ? require : a)[b]
+  }) : x)(function(x) {
+    if (typeof require !== "undefined")
+      return require.apply(this, arguments);
+    throw new Error('Dynamic require of "' + x + '" is not supported');
+  });
   var __esm = (fn, res) => function __init() {
     return fn && (res = (0, fn[__getOwnPropNames(fn)[0]])(fn = 0)), res;
   };
-  var __commonJS = (cb, mod) => function __require() {
+  var __commonJS = (cb, mod) => function __require2() {
     return mod || (0, cb[__getOwnPropNames(cb)[0]])((mod = { exports: {} }).exports, mod), mod.exports;
   };
   var __export = (target, all) => {
@@ -38009,28 +38016,12 @@ ${this.chunk.trim()}`;
       displayOptions: ["useJournalAbbreviation", "exportNotes"]
     },
     translator: {
-      "Better CSL YAML": {
-        autoexport: true,
-        cached: true,
-        preferences: [],
-        displayOptions: [],
-        types: {}
-      },
       "Better CSL JSON": {
         autoexport: true,
         cached: true,
         preferences: [],
         displayOptions: [],
         types: {}
-      },
-      "BetterBibTeX JSON": {
-        autoexport: true,
-        cached: false,
-        preferences: [],
-        displayOptions: ["exportNotes"],
-        types: {
-          exportNotes: { type: "boolean" }
-        }
       },
       "Better BibLaTeX": {
         autoexport: true,
@@ -38045,6 +38036,13 @@ ${this.chunk.trim()}`;
           useJournalAbbreviation: { type: "boolean" }
         }
       },
+      "Better CSL YAML": {
+        autoexport: true,
+        cached: true,
+        preferences: [],
+        displayOptions: [],
+        types: {}
+      },
       "Better BibTeX": {
         autoexport: true,
         cached: true,
@@ -38057,6 +38055,15 @@ ${this.chunk.trim()}`;
           DOIandURL: { enum: ["both", "doi", "url"] },
           exportNotes: { type: "boolean" },
           useJournalAbbreviation: { type: "boolean" }
+        }
+      },
+      "BetterBibTeX JSON": {
+        autoexport: true,
+        cached: false,
+        preferences: [],
+        displayOptions: ["exportNotes"],
+        types: {
+          exportNotes: { type: "boolean" }
         }
       }
     }
@@ -38084,15 +38091,21 @@ ${this.chunk.trim()}`;
 
   // content/environment.ts
   init_globals();
-  var worker = typeof WorkerGlobalScope !== "undefined" && typeof importScripts === "function" && navigator instanceof WorkerNavigator;
+  var environment = {
+    node: typeof process === "object" && typeof __require === "function" && typeof importScripts !== "function",
+    worker: typeof importScripts === "function",
+    zotero: typeof Components !== "undefined",
+    name: ""
+  };
+  environment.name = Object.entries(environment).map(([name, on]) => on ? name : "").filter((name) => name).join("/");
 
   // content/logger.ts
-  var inTranslator = worker || typeof ZOTERO_TRANSLATOR_INFO !== "undefined";
+  var inTranslator = environment.worker || typeof ZOTERO_TRANSLATOR_INFO !== "undefined";
   var Logger = class {
     constructor() {
       this.verbose = false;
     }
-    format({ error = false, worker: worker2 = "", translator: translator2 = "" }, msg) {
+    format({ error = false, worker = "", translator: translator2 = "" }, msg) {
       let diff = null;
       const now = Date.now();
       if (this.timestamp)
@@ -38117,16 +38130,16 @@ ${this.chunk.trim()}`;
         }
         msg = output;
       }
-      if (worker) {
-        worker2 = worker2 || workerContext.worker;
+      if (environment.worker) {
+        worker = worker || workerContext.worker;
         translator2 = translator2 || workerContext.translator;
       } else {
-        if (worker2)
-          worker2 = `${worker2} (but inWorker is false?)`;
+        if (worker)
+          worker = `${worker} (but environment is ${environment.name})`;
         if (!translator2 && inTranslator)
           translator2 = ZOTERO_TRANSLATOR_INFO.label;
       }
-      const prefix = ["better-bibtex", translator2, error && "error", worker2 && `(worker ${worker2})`].filter((p) => p).join(" ");
+      const prefix = ["better-bibtex", translator2, error && "error", worker && `(worker ${worker})`].filter((p) => p).join(" ");
       return `{${prefix}} +${diff} ${asciify(msg)}`;
     }
     formatError(e, indent = "") {
@@ -38151,7 +38164,7 @@ ${indent}${this.formatError(e.error, "  ")}
     get enabled() {
       if (!inTranslator)
         return Zotero.Debug.enabled;
-      if (!worker)
+      if (!environment.worker)
         return true;
       return !workerContext || workerContext.debugEnabled;
     }
@@ -38162,9 +38175,9 @@ ${indent}${this.formatError(e.error, "  ")}
     error(...msg) {
       Zotero.debug(this.format({ error: true }, msg));
     }
-    status({ error = false, worker: worker2 = "", translator: translator2 = "" }, ...msg) {
+    status({ error = false, worker = "", translator: translator2 = "" }, ...msg) {
       if (error || this.enabled)
-        Zotero.debug(this.format({ error, worker: worker2, translator: translator2 }, msg));
+        Zotero.debug(this.format({ error, worker, translator: translator2 }, msg));
     }
   };
   var log = new Logger();
@@ -38234,7 +38247,7 @@ ${indent}${this.formatError(e.error, "  ")}
       });
       this.ping = new Pinger({
         total: this.list.length,
-        callback: (pct) => worker ? Zotero.BetterBibTeX.setProgress(pct) : null
+        callback: (pct) => environment.worker ? Zotero.BetterBibTeX.setProgress(pct) : null
       });
     }
     *items() {
@@ -42552,6 +42565,11 @@ ${indent}${this.formatError(e.error, "  ")}
       if (!items.length)
         return "";
       Zotero.write(`cite:${items.map((item) => item.citationKey).join(", ")}`);
+    },
+    orgRef3(items) {
+      if (!items.length)
+        return "";
+      Zotero.write(`cite:&${items.map((item) => item.citationKey).join(";&")}`);
     },
     orgmode(items) {
       switch (Translator.preferences.quickCopyOrgMode) {

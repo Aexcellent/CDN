@@ -1,0 +1,2786 @@
+Practical Covertly Secure MPC for Dishonest Majority – or: Breaking the SPDZ Limits
+Ivan Damga˚rd1, Marcel Keller2, Enrique Larraia2, Valerio Pastro1, Peter Scholl2, and Nigel P. Smart2 1 Department of Computer Science, Aarhus University 2 Department of Computer Science, University of Bristol
+Abstract. SPDZ (pronounced “Speedz”) is the nickname of the MPC protocol of Damga˚rd et al. from Crypto 2012. SPDZ provided various efﬁciency innovations on both the theoretical and practical sides compared to previous work in the preprocessing model. In this paper we both resolve a number of open problems with SPDZ; and present several theoretical and practical improvements to the protocol. In detail, we start by designing and implementing a covertly secure key generation protocol for obtaining a BGV public key and a shared associated secret key. In prior work this was assumed to be provided by a given setup functionality. Protocols for generating such shared BGV secret keys are likely to be of wider applicability than to the SPDZ protocol alone. We then construct both a covertly and actively secure preprocessing phase, both of which compare favourably with previous work in terms of efﬁciency and provable security. We also build a new online phase, which solves a major problem of the SPDZ protocol: namely prior to this work preprocessed data could be used for only one function evaluation and then had to be recomputed from scratch for the next evaluation, while our online phase can support reactive functionalities. This improvement comes mainly from the fact that our construction does not require players to reveal the MAC keys to check correctness of MAC’d values. Since our focus is also on practical instantiations, our implementation ofﬂoads as much computation as possible into the preprocessing phase, thus resulting in a faster online phase. Moreover, a better analysis of the parameters of the underlying cryptoscheme and a more speciﬁc choice of the ﬁeld where computation is performed allow us to obtain a better optimized implementation. Improvements are also due to the fact that our construction is in the random oracle model, and the practical implementation is multi-threaded.
+This article is based on an earlier article: ESORICS 2013, pp 1–18, Springer LNCS 8134, 2013, http://dx.doi.org/10.1007/9783-642-40203-6 1.
+
+1 Introduction
+For many decades multi-party computation (MPC) had been a predominantly theoretic endeavour in cryptography, but in recent years interest has arisen on the practical side. This has resulted in various implementation improvements and such protocols are becoming more applicable to practical situations. A key part in this transformation from theory to practice is in adapting theoretical protocols and applying implementation techniques so as to signiﬁcantly improve performance, whilst not sacriﬁcing the level of security required by real world applications. This paper follows this modern, more practical, trend.
+Early applied work on MPC focused on the case of protocols secure against passive adversaries, both in the case of two-party protocols based on Yao circuits [19] and that of many-party protocols, based on secret sharing techniques [5, 10, 25]. Only in recent years work has shifted to achieve active security [17, 18, 24], which appears to come at vastly increased cost when dealing with more than two players. On the other hand, in the real applications active security may be more stringent than one would actually require. In [2, 3] Aumann and Lindell introduced the notion of covert security; in this security model an adversary who deviates from the protocol is detected with high (but not necessarily overwhelming) probability, say 90%, which still translates into an incentive on the adversary to behave in an honest manner. In contrast active security achieves the same effect, but the adversary can only succeed with cheating with negligible probability. There is a strong case to be made, see [2, 3], that covert security is a “good enough” security level for practical application; thus in this work we focus on covert security, but we also provide solutions with active security.
+As our starting point we take the protocol of [14] (dubbed SPDZ, and pronounced Speedz). In [14] this protocol is secure against active static adversaries in the standard model, is actively secure, and tolerates corruption of n − 1 of the n parties. The SPDZ protocol follows the preprocessing model: in an ofﬂine phase some shared randomness is generated, but neither the function to be computed nor the inputs need be known; in an online phase the actual secure computation is performed. One of the main advantages of the SPDZ protocol is that the performance of the online phase scales linearly with the number of players, and the basic operations are almost as cheap as those used in the passively secure protocols based on Shamir secret sharing. Thus, it offers the possibility of being both more ﬂexible and secure than Shamir based protocols, while still maintaining low computational cost.
+In [12] the authors present an implementation report on an adaption of the SPDZ protocol in the random oracle model, and show performance ﬁgures for both the ofﬂine and online phases for both an actively secure variant and a covertly secure variant. The implementation is over a ﬁnite ﬁeld of characteristic two, since the focus is on providing a benchmark for evaluation of the AES circuit (a common benchmark application in MPC [24, 11]).
+Our Contributions: In this work we present a number of contributions which extend even further the ability the SPDZ protocol to deal with the type of application one is likely to see in practice. All our theorems are proved in the UC model, and in most cases, the protocols make use of some predeﬁned ideal functionalities. We give protocols implementing most of these functionalities, the only exception being the functionality that provides access to a random oracle. This is implemented using a hash functions, and so the actual protocol is only secure in the Random Oracle Model. We back up these improvements with an implementation which we report on.
+Our contributions come in two ﬂavours. In the ﬁrst ﬂavour we present a number of improvements and extensions to the basic underlying SPDZ protocol. These protocol improvements are supported with associated security models and proofs. Our second ﬂavour of improvements are at the implementation layer, and they bring in standard techniques from applied cryptography to bear onto MPC.
+In more detail our protocol enhancements, in what are the descending order of importance, are as follows:
+1. In the online phase of the original SPDZ protocol the parties are required to reveal their shares of a global MAC key in order to verify that the computation has been performed correctly. This is a major problem in practical applications since it means that secret-shared data we did not reveal cannot be re-used in later applications. Our protocol adopts a method to accomplish the same task, without needing to open the underlying MAC key. This means we can now go on computing on any secret-shared data we have, so we can support general reactive computation rather than just secure function evaluation. A further advantage of this technique is that some of the veriﬁcation we need (the so-called “sacriﬁcing” step) can be moved into the ofﬂine phase, providing additional performance improvements in the online phase.
+1
+
+2. In the original SPDZ protocol [12, 14] the authors assume a “magic” key generation phase for the production of the distributed Somewhat Homomorphic Encryption (SHE) scheme public/private keys required by the ofﬂine phase. The authors claim this can be accomplished using standard generic MPC techniques, which are of course expensive. In this work we present a key generation protocol for the BGV [6] SHE scheme, which is secure against covert adversaries. In addition we generate a “full” BGV key which supports the modulus switching and key switching used in [16]. This new sub-protocol may be of independent interest in other applications which require distributed decryption in an SHE/FHE scheme.
+3. In [12] the modiﬁcation to covert security was essentially ad-hoc, and resulted in a very weak form of covert security. In addition no security proofs or model were given to justify the claimed security. In this work we present a completely different approach to achieving covert security, we provide an extensive security model and provide full proofs for the modiﬁed ofﬂine phase (and the key generation protocol mentioned above).
+4. We introduce a new approach to obtain full active security in the ofﬂine phase. In [14] active security was obtained via the use of specially designed ZKPoKs. In this work we present a different technique, based on a method used in [21]. This method has running time similar to the ZKPoK approach utilized in [14], but it allows us to give much stronger guarantees on the ciphertexts produced by corrupt players: the gap between the size of “noise” honest players put into ciphertexts and what we can force corrupt players to use was exponential in the security parameter in [14], and is essentially linear in our solution. This allows us to choose smaller parameters for the underlying cryptosystem and so makes other parts of the protocol more efﬁcient.
+It is important to understand that by combining these contributions in different ways, we can obtain two different general MPC protocols: First, since our new online phase still has full active security, it can be combined with our new approach to active security in the ofﬂine phase. This results in a protocol that is “syntactically similar” to the one from [14]: it has full active security assuming access to a functionality for key generation. However, it has enhanced functionality and performance, compared to [14], in that it can securely compute reactive functionalities. Second, we can combine our covertly secure protocols for key generation and the ofﬂine phase with the online phase to get a protocol that has covert security throughout and does not assume that key generation is given for free.
+Our covert solutions all make use of the same technique to move from passive to covert security, while avoiding the computational cost of performing zero-knowledge proofs. In [12] covert security is obtained by only checking a fraction of the resulting proofs, which results in a weak notion of covert security (the probability of a cheater being detected cannot be made too large). In this work we adopt a different approach, akin to the cut-and-choose paradigm. We require parties to commit to random seeds for a number of runs of a given sub-protocol, then all the runs are executed in parallel, ﬁnally all bar one of the runs are “opened” by the players revealing their random seeds. If all opened runs are shown to have been performed correctly then the players assume that the single un-opened run is also correctly executed.
+Note that since these checks take place in the ofﬂine phase where the inputs are not yet available, we obtain the strongest ﬂavour of covert security deﬁned in [2], where the adversary learns nothing new if he decides to try to cheat and is caught.
+A pleasing side-effect of the replacement of zero-knowledge proofs with our custom mechanism to obtain covert security is that the ofﬂine phase can be run in much smaller “batches”. In [12, 14] the need to amortize the cost of the expensive zero-knowledge proofs meant that the players on each iteration of the ofﬂine protocol executed a large computation, which produced a large number of multiplication triples [4] (in the millions). With our new technique we no longer need to amortize executions as much, and so short runs of the ofﬂine phase can be executed if so desired; producing only a few thousand triples per run.
+Our second ﬂavour of improvements at the implementation layer are more mundane; being mainly of an implementation nature.
+1. We focus on the more practical application scenario of developing MPC where the base arithmetic domain is a ﬁnite ﬁeld of characteristic p > 2. The reader should think p ≈ 232, 264, 2128 and the type of operations envisaged in [8, 9] etc. For such applications we can ofﬂoad a lot of computation into the SPDZ ofﬂine phase, and we present the necessary modiﬁcations to do so.
+2. Parameters for the underlying BGV scheme are chosen using the analysis used in [16] rather than the approach used in [14]. In addition we pick speciﬁc parameters which enable us to optimize for our application to SPDZ with the choices of p above.
+2
+
+3. We assume the random oracle model throughout, this allows us to simplify a number of the sub-procedures in [14]; especially, related to aspects of the protocol which require commitments.
+4. The underlying modular arithmetic is implemented using Montgomery arithmetic [20], this is contrasted to earlier work which used standard libraries, such as NTL, to provide such operations.
+5. The removal of the need to use libraries such as NTL means the entire protocol can be implemented in a multithreaded manner; thus it can make use of the multiple cores on modern microprocessors.
+This extended abstract presents the main ideas behind our improvements and details of our implementation. For a full description including details of the associated sub-procedures, security models and associated full security proofs please see the full version of this paper at [13].
+2 SPDZ Overview
+We now present the main components of the SPDZ protocol; in this section unless otherwise speciﬁed we are simply recapping on prior work. Throughout the paper we assume the computation to be performed by n players over a ﬁxed ﬁnite ﬁeld Fp of characteristic p. The high level idea of the online phase is to compute a function represented as a circuit, where privacy is obtained by additively secret sharing the inputs and outputs of each gate, and correctness is guaranteed by adding additive secret sharings of MACs on the inputs and outputs of each gate. In more detail, each player Pi has a uniform share αi ∈ Fp of a secret value α = α1 + · · · + αn, thought of as a ﬁxed MAC key. We say that a data item a ∈ Fp is · -shared if Pi holds a tuple (ai, γ(a)i), where ai is an additive secret sharing of a, i.e. a = a1 + · · · + an, and γ(a)i is an additive secret sharing of γ(a) := α · a, i.e. γ(a) = γ(a)1 + · · · + γ(a)n.
+For the readers familiar with [14], this is a simpler MAC deﬁnition. In particular we have dropped δa from the MAC deﬁnition; this value was only used to add or subtract public data to or from shares. In our case δa becomes superﬂuous, since there is a straightforward way of computing a MAC of a public value a by deﬁning γ(a)i ← a · αi.
+During the protocol various values which are · -shared are “partially opened”, i.e. the associated values ai are revealed, but not the associated shares of the MAC. Note that linear operations (addition and scalar multiplication) can be performed on the · -sharings with no interaction required. Computing multiplications, however, is not straightforward, as we describe below.
+The goal of the ofﬂine phase is to produce a set of “multiplication triples”, which allow players to compute products. These are a list of sets of three · -sharings { a , b , c } such that c = a · b. In this paper we extend the ofﬂine phase to also produce “square pairs” i.e. a list of pairs of · -sharings { a , b } such that b = a2, and “shared bits” i.e. a list of single shares a such that a ∈ {0, 1}.
+In the online phase these lists are consumed as MPC operations are performed. In particular to multiply two · sharings x and y we take a multiplication triple { a , b , c } and partially open x − a to obtain and y − b to obtain δ. The sharing of z = x · y is computed from z ← c + · b + δ · a + · δ.
+The reason for us introducing square pairs is that squaring a value can then be computed more efﬁciently as follows: To square the sharing x we take a square pair { a , b } and partially open x − a to obtain . We then compute the sharing of z = x2 from z ← b + 2 · · x − 2. Finally, the “shared bits” are useful in computing high level operation such as comparison, bit-decomposition, ﬁxed and ﬂoating point operations as in [1, 8, 9].
+The ofﬂine phase produces the triples in the following way. We make use of a Somewhat Homomorphic Encryption (SHE) scheme, which encrypts messages in Fp, supports distributed decryption, and allows computation of circuits of multiplicative depth one on encrypted data. To generate a multiplication triple each player Pi generates encryptions of random values ai and bi (their shares of a and b). Using the multiplicative property of the SHE scheme an encryption of c = (a1 + · · · + an) · (b1 + · · · + bn) is produced. The players then use the distributed decryption protocol to obtain sharings of c. The shares of the MACs on a, b and c needed to complete the · -sharing are produced in much the same manner. Similar operations are performed to produce square pairs and shared bits. Clearly the above (vague) outline needs to be ﬂeshed out to ensure the required covert security level. Moreover, in practice we generate many triples/pairs/shared-bits at once using the SIMD nature of the BGV SHE scheme.
+3
+
+3 BGV
+We now present an overview of the BGV scheme as required by our ofﬂine phase. This is only sketched, the reader is referred to [6, 15, 16] for more details; our goal is to present enough detail to explain the key generation protocol later.
+
+3.1 Preliminaries
+
+Underlying Algebra: We ﬁx the ring Rq = (Z/qZ)[X]/Φm(X) for some cyclotomic polynomial Φm(X), where m is an parameter to be determined later (see Appendix G). Note that q may not necessarily be prime. Let R =
+
+Z[X]/Φm(X), and φ(m) denote the degree of R over Z, i.e. Euler’s φ function. The message space of our scheme
+
+will be Rp for a prime p of approximately 32, 64 or 128-bits in length, whilst ciphertexts will lie in either Rq20 or Rq21 , for one of two moduli q0 and q1. We select R = Z[X]/(Xm/2 + 1) for m a power of two, and p = 1 (mod m). By
+
+picking
+
+m
+
+and
+
+p
+
+this
+
+way
+
+we
+
+have
+
+that
+
+the
+
+message
+
+space
+
+Rp
+
+offers
+
+m/2-fold
+
+SIMD
+
+parallelism,
+
+i.e.
+
+Rp
+
+∼=
+
+m/2
+Fp
+
+.
+
+In
+
+addition this also implies that the ring constant cm from [14, 16] is equal to one.
+
+We wish to generate a public key for a leveled BGV scheme for which n players each hold a share, which is itself
+
+a “standard” BGV secret key. As we are working with circuits of multiplicative depth at most one we only need two
+
+levels in the moduli chain q0 = p0 and q1 = p0 · p1. The modulus p1 will also play the role of P in [16] for the SwitchKey operation. The value p1 must be chosen so that p1 ≡ 1 (mod p), with the value of p0 set to ensure valid
+
+distributed decryption.
+
+Random Values: Each player is assumed to have a secure entropy source. In practice we take this to be /dev/urandom, which is a non-blocking entropy source found on Unix like operating systems. This is not a “true” entropy source, being non-blocking, but provides a practical balance between entropy production and performance for our purposes. In what follows we model this source via a procedure s ← Seed(), which generates a new seed from this source of entropy. Calling this function sets the players global variable cnt to zero. Then every time a player generates a new random value in a protocol this is constructed by calling PRFs(cnt), for some pseudo-random function PRF, and then incrementing cnt. In practice we use AES under the key s with message cnt to implement PRF.
+The point of this method for generating random values is that the said values can then be veriﬁed to have been generated honestly by revealing s in the future and recomputing all the randomness used by a player, and verifying his output is consistent with this value of s.
+From the basic PRF we deﬁne the following “induced” pseudo-random number generators, which generate elements according to the following distributions but seeded by the seed s:
+
+– HWT s(h, n): This generates a vector of length n with elements chosen at random from {−1, 0, 1} subject to the condition that the number of non-zero elements is equal to h.
+– ZOs(0.5, n): This generates a vector of length n with elements chosen from {−1, 0, 1} such that the probability of coefﬁcient is p−1 = 1/4, p0 = 1/2 and p1 = 1/4.
+– DGs(σ2, n): This generates a vector of length n with elements chosen according to the discrete Gaussian distribution with variance σ2.
+– RCs(0.5, σ2, n): This generates a triple of elements (v, e0, e1) where v is sampled from ZOs(0.5, n) and e0 and e1 are sampled from DGs(σ2, n).
+– Us(q, n): This generates a vector of length n with elements generated uniformly modulo q.
+If any random values are used which do not depend on a seed then these should be assumed to be drawn using a secure entropy source (again in practice assumed to be /dev/urandom). If we pull from one of the above distributions where we do not care about the speciﬁc seed being used then we will drop the subscript s from the notation.
+
+Broadcast: When broadcasting data we assume two different models. In the online phase during partial opening we utilize the method described in [14]; in that players send their data to a nominated player who then broadcasts the reconstructed value back to the remaining players. For other applications of broadcast we assume each party broadcasts their values to all other parties directly. In all instances players maintain a running hash of all values sent and received in a broadcast (with a suitable modiﬁcation for the variant used for partial opening). At the end of a protocol run these
+
+4
+
+running hashes are compared in a pair-wise fashion. This ﬁnal comparison ensures that in the case of at least two honest parties the adversary must have been consistent in what was sent to the honest parties.
+Commitments: In Figure 2 we present an ideal functionality FCOMMIT for commitment which will be used in all of our protocols. Our protocols will be UC secure, this is possible despite the fact that we allow dishonest majority because we assume a random oracle is available; in particular we model a hash function H1 as a random oracle and deﬁne a commitment scheme to implement the functionality FCOMMIT as follows: The commit function Commit(m) generates a random value r and computes c ← H1(m r). It returns the pair (c, o) where o is the opening information m r. When the commitment c is opened the committer outputs the value o and the receiver runs Open(c, o) which checks whether c = H1(o) and if the check passes it returns m. See Appendix A for details.
+3.2 Key Generation
+The key generation algorithm generates a public/private key pair such that the public key is given by pk = (a, b), where a is generated from U (q1, φ(m)) (i.e. a is uniform in Rq1 ), and b = a · s + p · where is a “small” error term, and s is the secret key such that s = s1 + · · · + sn, where player Pi holds the share si. Recall since m is a power of 2 we have φ(m) = m/2.
+The public key is also augmented to an extended public key epk by addition of a “quasi-encryption” of the message −p1 · s2, i.e. epk contains a pair enc = (bs,s2 , as,s2 ) such that bs,s2 = as,s2 · s + p · s,s2 − p1 · s2, where as,s2 ← U (q1, φ(m)) and s,s2 is a “small” error term. The precise distributions of all these values will be determined when we discuss the exact key generation protocol we use.
+3.3 Encryption and Decryption
+Encpk(m): To encrypt an element m ∈ Rp, using the modulus q1, we choose one “small polynomial” (with 0, ±1 coefﬁcients) and two Gaussian polynomials (with variance σ2), via (v, e0, e1) ← RCs(0.5, σ2, φ(m)). Then we set c0 = b · v + p · e0 + m, c1 = a · v + p · e1, and set the initial ciphertext as c = (c0, c1, 1).
+SwitchModulus((c0, c1), ): The operation SwitchModulus(c) takes the ciphertext c = ((c0, c1), ) deﬁned modulo q and produces a ciphertext c = ((c0, c1), − 1) deﬁned modulo q −1, such that [c0 − s · c1]q ≡ [c0 − s · c1]q −1 (mod p). This is done by setting ci = Scale(ci, q , q −1) where Scale is the function deﬁned in [16]; note we need the more complex function of Appendix E of the full version of [16] if working in dCRT representation as we need to ﬁx the scaling modulo p as opposed to modulo two which was done in the main body of [16]. As we are only working with two levels this function can only be called when = 1.
+Decs(c): Note, that this operation is never actually performed, since no-one knows the shared secret key s, but presenting it will be instructive: Decryption of a ciphertext (c0, c1, ) at level is performed by setting m = [c0 − s · c1]q , then converting m to coefﬁcient representation and outputting m mod p.
+DistDecsi (c): We actually decrypt using a simpliﬁcation of the distributed decryption procedure described in [14], since our ﬁnal ciphertexts consist of only two elements as opposed to three in [14]. For input ciphertext (c0, c1, ), player P1 computes v1 = c0 − si · c1 and each other player Pi computes vi = −si · c1. Each party Pi then sets ti = vi + p · ri for some random element ri ∈ R with inﬁnity norm bounded by 2sec · B/(n · p), for some statistical security parameter sec, and the values ti are broadcast; the precise value B being determined in Appendix G. Then the message is recovered as t1 + · · · + tn (mod p).
+3.4 Operations on Encrypted Data
+Homomorphic addition follows trivially from the methods of [6, 16]. So the main remaining task is to deal with multiplication. We ﬁrst deﬁne a SwitchKey operation.
+5
+
+SwitchKey(d0, d1, d2): This procedure takes as input an extended ciphertext c = (d0, d1, d2) deﬁned modulo q1; this is a ciphertext which is decrypted via the equation
+[d0 − s · d1 − s2 · d2]q1 .
+The SwitchKey operation also takes the key-switching data enc = (bs,s2 , as,s2 ) above and produces a standard two element ciphertext which encrypts the same message but modulo q0.
+– c0 ← p1 · d0 + bs,s2 · d2 (mod q1), c1 ← p1 · d1 + as,s2 · d2 (mod q1). – c0 ← Scale(c0, q1, q0), c1 ← Scale(c1, q1, q0). – Output ((c0 , c1 ), 0).
+Notice we have the following equality modulo q1:
+c0 − s · c1 = (p1 · d0) + d2 · bs,s2 − s · (p · d1) − d2 · as,s2 = p1 · (d0 − s · d1 − s2d2) − p · d2 · s,s2 ,
+The requirement on p1 ≡ 1 (mod p) is from the above equation as we want this to produce the same value as d0 − s · d1 − s2d2 mod q1 on reduction modulo p.
+Mult(c, c ): We only need to execute multiplication on two ciphertexts at level one, thus c = ((c0, c1), 1) and c = ((c0, c1), 1). The output will be a ciphertext c at level zero, obtained via the following steps:
+– c ← SwitchModulus(c), c ← SwitchModulus(c ). – (d0, d1, d2) ← (c0 · c0, c1 · c0 + c0 · c1, −c1 · c1). – c ← SwitchKey(d0, d1, d2).
+4 Protocols Associated to the SHE Scheme
+In this section we present two sub-protocols associated with the SHE scheme; namely our distributed key generation and a protocol for proving that a committed ciphertext is well formed.
+4.1 Distributed Key Generation Protocol For BGV
+To make the paper easier to follow we present the precise protocols, ideal functionalities, simulators and security proofs in Appendix B. Here we present a high level overview.
+As remarked in the introduction, the authors of [14] assumed a “magic” set up which produces not only a distributed sharing of the main BGV secret key, but also a distributed sharing of the square of the secret key. That was assumed to be done via some other unspeciﬁed MPC protocol. The effect of requiring a sharing of the square of the secret key was that they did not need to perform KeySwitching, but ciphertexts were 50% bigger than one would otherwise expect. Here we take a very different approach: we augment the public key with the keyswitching data from [16] and provide an explicit covertly secure key generation protocol.
+Our protocol will be covertly secure in the sense that the probability that an adversary can deviate without being detected will be bounded by 1/c, for a positive integer c. Our basic idea behind achieving covert security is as follows: Each player runs c instances of the basic protocol, each with different random seeds, then at the end of the main protocol all bar a random one basic protocol runs are opened, along with the respective random seeds. All parties then check that the opened runs were performed honestly and, if any party ﬁnds an inconsistency, the protocol aborts. If no problem is detected, the parties assume that the single unopened run is correct. Thus intuitively the adversary can cheat with probability at most 1/c.
+We start by discussing the generation of the main public key pkj in execution j where j ∈ {1, . . . , c}. To start with the players generate a uniformly random value aj ∈ Rq1 . They then each execute the standard BGV key generation
+6
+
+procedure, except that this is done with respect to the global element aj. Player i chooses a low-weight secret key and then generates an LWE instance relative to that secret key. Following [16], we choose
+si,j ← HWT s(h, φ(m)) and i,j ← DGs(σ2, φ(m)).
+Then the player sets the secret key as si,j and their “local” public key as (aj, bi,j) where bi,j = [aj · si,j + p · i,j]q1 . Note, by a hybrid argument, obtaining n ring-LWE instances for n different secret keys but the same value of aj is
+secure assuming obtaining one ring-LWE instance is secure. In the LWE literature this is called “amortization”. Also note in what follows that a key modulo q1 can be also treated as a key modulo q0 since q0 divides q1 and si,j has coefﬁcients in {−1, 0, 1}.
+The global public and private key are then set to be pkj = (aj, bj) and sj = s1,j + · · · + sn,j, where bj = [b1,j + · · · + bn,j]q1 . This is essentially another BGV key pair, since if we set j = 1,j + · · · + n,j then we have
+n
+bj = (aj · si,j + p · i,j ) = aj · sj + p · j ,
+i=1
+but generated with different distributions for sj and j compared to the individual key pairs above. We next augment the above basic key generation to enable the construction of the KeySwitching data. Given a
+public key pkj and a share of the secret key si,j our method for producing the extended public key is to produce in turn (see Figure 3 for the details on how we create these elements in our protocol).
+– enci,j ← Encpkj (−p1 · si,j ) – encj ← enc1,j + · · · + encn,j. – zeroi,j ← Encpkj (0) – enci,j ← (si,j · encj ) + zeroi,j ∈ Rq21 . – encj ← enc1,j + · · · + encn,j. – epkj ← (pkj, encj).
+Note, that enci,j is not a valid encryption of −p1 · si,j, since −p1 · si,j does not lie in the message space of the encryption scheme. However, because of the dependence on the secret key shares here, we need to assume a form of circular security; the precise assumption needed is stated in Appendix B. The encryption of zero, zeroi,j, is added on by each player to re-randomize the ciphertext, preventing an adversary from recovering si,j from enci,j/encj. We call the resulting epkj the extended public key. In [16] the keyswitching data encj is computed directly from s2j ; however, we need to use the above round-about way since s2j is not available to the parties.
+Finally we open all bar one of the c executions and check they have been executed correctly. If all checks pass then the ﬁnal extended public key epk is output and the players keep hold of their associated secret key share si. See Figure 3 for full details of the protocol.
+Theorem 1. In the FCOMMIT-hybrid model, the protocol ΠKEYGEN implements FKEYGEN with computational security against any static adversary corrupting at most n − 1 parties.
+Recall that FCOMMIT is a standard functionality for commitment. FKEYGEN simply generates a key pair with a distribution matching what we sketched above, and then sends the values ai, bi, enci, enci for every i to all parties and shares of the secret key to the honest players. Like most functionalities in the following, it allows the adversary to try to cheat and will allow this with a certain probability 1/c. This is how we model covert security.
+The BGV cryptosystem resulting from FKEYGEN is proven semantically secure by the following theorem.
+Theorem 2. If the functionality FKEYGEN is used to produce a public key epk and secret keys si for i = 0, . . . , n − 1 then the resulting cryptosystem is semantically secure based on the hardness of RLWEq1,σ2,h and the circular security assumption in Appendix B.
+7
+
+4.2 EncCommit
+We use a sub-protocol ΠENCCOMMIT to replace the ΠZKPoPK protocol from [14]. In this section we consider a covertly secure variant rather than active security; this means that players controlled by a malicious adversary succeed in deviating from the protocol with a probability bounded by 1/c. In our experiments we pick c = 5, 10 and 20. In Appendix F we present an actively secure variant of this protocol.
+Our new sub-protocol assumes that players have agreed on the key material for the encryption scheme, i.e. ΠENCCOMMIT runs in the FKEYGEN-hybrid model. The protocol ensures that a party outputs a validly created ciphertext containing an encryption of some pseudo-random message m, where the message m is drawn from a distribution satisfying condition cond. This is done by committing to seeds and using the cut-and-choose technique, similarly to the key generation protocol. The condition cond in our application could either be uniformly pseudo-randomly generated from Rp, or uniformly pseudo-randomly generated from Fp (i.e. a “diagonal” element in the SIMD representation).
+The protocol ΠENCCOMMIT and ideal functionality it implements are presented in Appendix C, along with the proof of the following theorem.
+Theorem 3. In the (FCOMMIT, FKEYGEN)-hybrid model, the protocol ΠENCCOMMIT implements FSHE with computational security against any static adversary corrupting at most n − 1 parties.
+FSHE offers the same functionality as FKEYGEN but can in addition generate correctly formed ciphertexts where the plaintext satisﬁes a condition cond as explained above, and where the plaintext is known to a particular player (even if he is corrupt). Of course, if we use the actively secure version of ΠENCCOMMIT from Appendix F, we would get a version of FSHE where the adversary is not allowed to attempt cheating.
+5 The Ofﬂine Phase
+The ofﬂine phase produces pre-processed data for the online phase (where the secure computation is performed). To ensure security against active adversaries the MAC values of any partially opened value need to be veriﬁed. We suggest a new method for this that overcomes some limitations of the corresponding method from [14]. Since it will be used both in the ofﬂine and the online phase, we explain it here, before discussing the ofﬂine phase.
+5.1 MAC Checking
+We assume some value a has been · -shared and partially opened, which means that players have revealed shares of the a but not of the associated MAC value γ, this is still additively shared. Since there is no guarantee that the a are correct, we need to check it holds that γ = αa where α is the global MAC key that is also additively shared. In [14], this was done by having players commit to the shares of the MAC. then open α and check everything in the clear. But this means that other shared values become useless because the MAC key is now public, and the adversary could manipulate them as he desires.
+So we want to avoid opening α, and observe that since a is public, the value γ − αa is a linear function of shared values γ, α, so players can compute shares in this value locally and we can then check if it is 0 without revealing information on α. As in [14], we can optimize the cost of this by checking many MACs in one go: we take a random linear combination of a and γ-values and check only the results of this. The full protocol is given in Figure 10; it is not intended to implement any functionality – it is just a procedure that can be called in both the ofﬂine and online phases. MACCheck has the following important properties.
+Lemma 1. The protocol MACCheck is correct, i.e. it accepts if all the values aj and the corresponding MACs are correctly computed. Moreover, it is sound, i.e. it rejects except with probability 2/p in case at least one value or MAC is not correctly computed.
+The proof of Lemma 1 is given in Appendix D.3.
+8
+
+5.2 Ofﬂine Protocol
+The ofﬂine phase itself runs two distinct sub-phases, each of which we now describe. To start with we assume a BGV key has been distributed according to the key generation procedure described earlier, as well as the shares of a secret MAC key and an encryption cα of the MAC key as above. We assume that the output of the ofﬂine phase will be a total of at least nI input tuples, nm multiplication triples, ns squaring tuples and nb shared bits.
+In the ﬁrst sub-phase, which we call the tuple-production sub-phase, we over-produce the various multiplication and squaring tuples, plus the shared bits. These are then “sacriﬁced” in the tuple-checking phase so as to create at least nm multiplication triples, ns squaring tuples and nb shared bits. In particular in the tuple-production phase we produce (at least) 2 · nm multiplication tuples, 2 · ns + nb squaring tuples, and nb shared bits. Tuple-production is performed by following the protocol in Figure 13 and Figure 14. The tuple production protocol can be run repeatedly, alongside the tuple-checking sub-phase and the online phase.
+The second sub-phase of the ofﬂine phase is to check whether the resulting material from the prior phase has been produced correctly. This check is needed, because the distributed decryption procedure needed to produce the tuples and the MACs could allow the adversary to induce errors. We solve this problem via a sacriﬁcing technique, as in [14], however, we also need to adapt it to the case of squaring tuples and bit-sharings. Moreover, this sacriﬁcing is performed in the ofﬂine phase as opposed to the online phase (as in [14]); and the resulting partially opened values are checked in the ofﬂine phase (again as opposed to the online phase). This is made possible by our protocol MACCheck which allows to verify the MACs are correct without revealing the MAC key α. The tuple-checking protocol is presented in Figure 15.
+We show that the resulting protocol ΠPREP, given in Figure 12, securely implements the functionality FPREP, which models the ofﬂine phase. The functionality FPREP outputs some desired number of multiplication triples, squaring tuples and shared bits. In Appendix D we present a proof of the following theorem.
+Theorem 4. In the (FSHE, FCOMMIT)-hybrid model, the protocol ΠPREP implements FPREP with computational security against any static adversary corrupting at most n − 1 parties if p is exponential in the security parameter.
+The security ﬂavour of ΠPREP follows the security of EncCommit, i.e. if one uses the covert (resp. active) version of EncCommit, one gets covert (resp. active) security for ΠPREP.
+6 Online Phase
+We design a protocol ΠONLINE which performs the secure computation of the desired function, decomposed as a circuit over Fp. Our online protocol makes use of the preprocessed data coming from FPREP in order to input, add, multiply or square values. Our protocol is similar to the one described in [14]; however, it brings a series of improvements, in the sense that we could push the “sacriﬁcing” to the preprocessing phase, we have specialised procedure for squaring etc, and we make use of a different MAC-checking method in the output phase. Our method for checking the MACs is simply the MACCheck protocol on all partially opened values; note that such a method has a lower soundness error than the method proposed in [14], since the linear combination of partially opened values is truly random in our case, while it has lower entropy in [14].
+The following theorem, whose proof is given in Appendix E, shows that the protocol ΠONLINE, given in Figure 20, securely implements the functionality FONLINE, which models the online phase.
+Theorem 5. In the FPREP-hybrid model, the protocol ΠONLINE implements FONLINE with computational security against any static adversary corrupting at most n − 1 parties if p is exponential in the security parameter.
+The astute reader will be wondering where our shared bits produced in the ofﬂine phase are used. These will be used in “higher level” versions of the online phase (i.e. versions which do not just evaluate an arithmetic circuit) which implement the types of operations presented in [8, 9].
+9
+
+7 Experimental Results
+7.1 KeyGen and Ofﬂine Protocols
+To present performance numbers for our key generation and new variant of the ofﬂine phase for SPDZ we ﬁrst need to deﬁne secure parameter sizes for the underlying BGV scheme (and in particular how it is used in our protocols). This is done in Appendix G, by utilizing the method of Appendices A.4, A.5 and B of [16], for various choices of n (the number of players) and p (the ﬁeld size).
+We then implemented the preceding protocols in C++ on top of the MPIR library for multi-precision arithmetic. Modular arithmetic was implemented with bespoke code using Montgomery arithmetic [20] and calls to the underlying mpn_ functions in MPIR. The ofﬂine phase was implemented in a multi-threaded manner, with four cores producing initial multiplication triples, square pairs, shared bits and input preparation mask values. Then two cores performed the sacriﬁcing for the multiplication triples, square pairs and shared bits.
+In Table 1 we present execution times (in wall time measured in seconds) for key generation and for an ofﬂine phase which produces 100000 each of the multiplication tuples, square pairs, shared bits and 1000 input sharings. We also present the average time to produce a multiplication triple for an ofﬂine phase running on one core and producing 100000 multiplication triples only. The run-times are given for various values of n, p and c, and all timings were obtained on 2.80 GHz Intel Core i7 machines with 4 GB RAM, with machines running on a local network.
+
+n p≈ c
+2 232 5 2 232 10 2 232 20
+2 264 5 2 264 10 2 264 20
+2 2128 5 2 2128 10 2 2128 20
+
+Run Times Time per KeyGen Ofﬂine Triple (sec)
+2.4 156 0.00140 5.1 277 0.00256 10.4 512 0.00483 5.9 202 0.00194 12.5 377 0.00333 25.6 682 0.00634 16.2 307 0.00271 33.6 561 0.00489 74.5 1114 0.00937
+
+n p≈ c
+3 232 5 3 232 10 3 232 20
+3 264 5 3 264 10 3 264 20
+3 2128 5 3 2128 10 3 2128 20
+
+Run Times Time per KeyGen Ofﬂine Triple(sec)
+3.0 292 0.00204 6.4 413 0.00380 13.3 790 0.00731 7.7 292 0.00267 16.3 568 0.00497 33.7 1108 0.01004 21.0 462 0.00402 44.4 889 0.00759 99.4 2030 0.01487
+
+Table 1. Execution Times For Key Gen and Ofﬂine Phase (Covert Security)
+
+We compare the results to that obtained in [12], since no other protocol can provide malicious/covert security for t < n corrupted parties. In the case of covert security the authors of [12] report ﬁgures of 0.002 seconds per (unchecked) 64-bit multiplication triple for both two and three players; however the probability of cheating being detected was lower bounded by 1/2 for two players, and 1/4 for three players; as opposed to our probabilities of 4/5, 9/10 and 19/20. Since the triples in [12] were unchecked we need to scale their run-times by a factor of two; to obtain 0.004 seconds per multiplication triple. Thus for covert security we see that our protocol for checked tuples are superior both in terms error probabilities, for a comparable run-time.
+When using our active security variant we aimed for a cheating probability of 2−40; so as to be able to compare with prior run times obtained in [12], which used the method from [14]. Again we performed two experiments one where four cores produced 100000 multiplication triples, squaring pairs and shared bits, plus 1000 input sharings; and one experiment where one core produced just 100000 multiplication triples (so as to produce the average cost for a triple). The results are in Table 2.
+By way of comparison for a prime of 64 bits the authors of [12] report on an implementation which takes 0.006 seconds to produce an (un-checked) multiplication triple for the case of two parties and equivalent active security; and 0.008 per second for the case of three parties and active security. As we produce checked triples, the cost per triple for the results in [12] need to be (at least) doubled; to produce a total of 0.012 and 0.016 seconds respectively.
+Thus, in this test, our new active protocol has running time about twice that of the previous active protocol from [14] based on ZKPoKs. From the analysis of the protocols, we do expect that the new method will be faster, but only if we produce the output in large enough batches. Due to memory constraints we were so far unable to do this, but we can extrapolate from these results: In the test we generated 12 ciphertexts in one go, and if we were able to increase
+10
+
+p≈
+232 264 2128
+
+n=2 Ofﬂine Time per Triple 2366 0.01955 3751 0.02749 6302 0.04252
+
+n=3 Ofﬂine Time per Triple 3668 0.02868 5495 0.04107 10063 0.06317
+
+Table 2. Execution Times For Ofﬂine Phase (Active Security)
+
+this by a factor of about 10, then we would get results better than those of [14, 12], all other things being equal. More information can be found in Appendix F.
+7.2 Online
+For the new online phase we have developed a purpose-built bytecode interpreter, which reads and executes pregenerated sequences of instructions in a multi-threaded manner. Our runtime supports parallelism on two different levels: independent rounds of communication can be merged together to reduce network overhead, and multiple threads can be executed at once to allow for optimal usage of modern multi-core processors.
+Each bytecode instruction is either some local computation (e.g. addition of secret shared values) or an ‘open’ instruction, which initiates the protocol to reveal a shared value. The data from independent open instructions can be merged together to save on communication costs. Each player may run up to four different bytecode ﬁles in parallel in distinct threads, with each such thread having access to some shared memory resource. The advantage of this approach is that bytecode ﬁles can be pre-compiled and optimized, and then quickly loaded at runtime – the online phase runtime is itself oblivious to the nature of the programs being run.
+In Table 3 we present timings (again in elapsed wall time for a player) for multiplying two secret shared values. Results are given for three different varieties of multiplication, reﬂecting the possibilities available: purely sequential multiplications; parallel multiplications with communication merged into one round (50 per round); and parallel multiplications running in 4 independent threads (50 per round, per thread). The experiments were carried out on the same machines as the ofﬂine phase, running over a local network with a ping of around 0.27ms. For comparison, the original implementation of the online phase in [14] gave an amortized time of 20000 multiplications per second over a 64-bit prime ﬁeld, with three players.
+
+n p≈
+2 232 2 264 2 2128
+3 232 3 264 3 2128
+
+Multiplications/sec
+
+Sequential
+
+50 in Parallel
+
+Single Thread Single Thread Four Threads
+
+7500
+
+134000
+
+398000
+
+7500
+
+130000
+
+395000
+
+7500
+
+120000
+
+358000
+
+4700
+
+100000
+
+292000
+
+4700
+
+98000
+
+287000
+
+4600
+
+90000
+
+260000
+
+Table 3. Online Times
+
+8 Acknowledgements
+The ﬁrst and fourth author acknowledge partial support from the Danish National Research Foundation and The National Science Foundation of China (under the grant 61061130540) for the Sino-Danish Center for the Theory of Interactive Computation, and from the CFEM research center (supported by the Danish Strategic Research Council). The second, third, ﬁfth and sixth authors were supported by EPSRC via grant COED–EP/I03126X. The sixth author was also supported by the European Commission via an ERC Advanced Grant ERC-2010-AdG-267188-CRIPTO,
+11
+
+the Defense Advanced Research Projects Agency and the Air Force Research Laboratory under agreement number FA8750-11-2-00793, and by a Royal Society Wolfson Merit Award.
+References
+1. M. Aliasgari, M. Blanton, Y. Zhang, and A. Steele. Secure computation on ﬂoating point numbers. In Network and Distributed System Security Symposium – NDSS 2013. Internet Society, 2013.
+2. Y. Aumann and Y. Lindell. Security against covert adversaries: Efﬁcient protocols for realistic adversaries. In Theory of Cryptography – TCC 2007, volume 4392 of LNCS, pages 137–156. Springer, 2007.
+3. Y. Aumann and Y. Lindell. Security against covert adversaries: Efﬁcient protocols for realistic adversaries. J. Cryptology, 23(2):281–343, 2010.
+4. D. Beaver. Efﬁcient multiparty protocols using circuit randomization. In CRYPTO, volume 576 of LNCS, pages 420–432. Springer, 1991.
+5. D. Bogdanov, S. Laur, and J. Willemson. Sharemind: A framework for fast privacy-preserving computations. In European Symposium on Research in Computer Security – ESORICS 2008, volume 5283 of LNCS, pages 192–206. Springer, 2008.
+6. Z. Brakerski, C. Gentry, and V. Vaikuntanathan. (leveled) fully homomorphic encryption without bootstrapping. In ITCS, pages 309–325. ACM, 2012.
+7. Z. Brakerski and V. Vaikuntanathan. Fully homomorphic encryption from Ring-LWE and security for key dependent messages. In CRYPTO, volume 6841 of LNCS, pages 505–524. Springer, 2011.
+8. O. Catrina and A. Saxena. Secure computation with ﬁxed-point numbers. In Financial Cryptography – FC 2010, volume 6052 of LNCS, pages 35–50. Springer, 2010.
+9. I. Damga˚rd, M. Fitzi, E. Kiltz, J. B. Nielsen, and T. Toft. Unconditionally secure constant-rounds multi-party computation for equality, comparison, bits and exponentiation. In Theory of Cryptography – TCC 2006, volume 3876 of LNCS, pages 285–304. Springer, 2006.
+10. I. Damga˚rd, M. Geisler, M. Krøigaard, and J. B. Nielsen. Asynchronous multiparty computation: Theory and implementation. In Public Key Cryptography – PKC 2009, volume 5443 of LNCS, pages 160–179. Springer, 2009.
+11. I. Damga˚rd and M. Keller. Secure multiparty AES. In Financial Cryptography, volume 6052 of LNCS, pages 367–374. Springer, 2010.
+12. I. Damga˚rd, M. Keller, E. Larraia, C. Miles, and N. P. Smart. Implementing aes via an actively/covertly secure dishonestmajority mpc protocol. In SCN, volume 7485 of LNCS, pages 241–263. Springer, 2012.
+13. I. Damga˚rd, M. Keller, E. Larraia, V. Pastro, P. Scholl, and N. P. Smart. Practical covertly secure MPC for dishonest majority – or: Breaking the SPDZ limits, 2012.
+14. I. Damga˚rd, V. Pastro, N. P. Smart, and S. Zakarias. Multiparty computation from somewhat homomorphic encryption. In Advances in Cryptology – CRYPTO 2012, volume 7417 of LNCS, pages 643–662. Springer, 2012.
+15. C. Gentry, S. Halevi, and N. P. Smart. Fully homomorphic encryption with polylog overhead. In Advances in Cryptology – EUROCRYPT 2012, volume 7237 of LNCS, pages 465–482. Springer, 2012.
+16. C. Gentry, S. Halevi, and N. P. Smart. Homomorphic evaluation of the AES circuit. In Advances in Cryptology – CRYPTO 2012, volume 7417 of LNCS, pages 850–867. Springer, 2012.
+17. B. Kreuter, A. Shelat, and C.-H. Shen. Towards billion-gate secure computation with malicious adversaries. In USENIX Security Symposium – 2012, pages 285–300, 2012.
+18. Y. Lindell, B. Pinkas, and N. P. Smart. Implementing two-party computation efﬁciently with security against malicious adversaries. In Security and Cryptography for Networks – SCN 2008, volume 5229 of LNCS, pages 2–20. Springer, 2008.
+19. D. Malkhi, N. Nisan, B. Pinkas, and Y. Sella. Fairplay - Secure two-party computation system. In USENIX Security Symposium – 2004, pages 287–302, 2004.
+20. P. L. Montgomery. Modular multiplication without trial division. Math. Comp., 44:519–521, 1985. 21. J. B. Nielsen, P. S. Nordholt, C. Orlandi, and S. S. Burra. A new approach to practical active-secure two-party computation. In
+Advances in Cryptology – CRYPTO 2012, volume 7417 of LNCS, pages 681–700. Springer, 2012. 22. J. B. Nielsen and C. Orlandi. LEGO for two-party secure computation. In TCC, volume 5444 of LNCS, pages 368–386.
+Springer, 2009. 23. C. Peikert, V. Vaikuntanathan, and B. Waters. A framework for efﬁcient and composable oblivious transfer. Advances in
+Cryptology–CRYPTO 2008, pages 554–571, 2008.
+3 The US Government is authorized to reproduce and distribute reprints for Government purposes notwithstanding any copyright notation hereon. The views and conclusions contained herein are those of the authors and should not be interpreted as necessarily representing the ofﬁcial policies or endorsements, either expressed or implied, of DARPA, AFRL, or the U.S. Government.
+12
+
+24. B. Pinkas, T. Schneider, N. P. Smart, and S. C. Williams. Secure two-party computation is practical. In Advances in Cryptology – ASIACRYPT 2009, volume 5912 of LNCS, pages 250–267. Springer, 2009.
+25. SIMAP Project. SIMAP: Secure information management and processing. http://alexandra.dk/uk/Projects/ Pages/SIMAP.aspx.
+13
+
+A Commitments in the Random Oracle Model
+A.1 Protocol and Functionality
+The Protocol ΠCOMMIT
+Commit: 1. In order to commit to v, Pi sets o ← v||r, where r is chosen uniformly in a determined domain, and queries the Random Oracle H to get c ← H(o). 2. Pi then broadcasts (c, i, τv), where τv represents a handle for the commitment.
+Open: 1. In order to open a commitment (c, i, τv), where c = H(v||r), player Pi broadcasts (o = v||r, i, τv). 2. All players call H on o and check whether H(o) = c. Players accept if and only if this check passes.
+Fig. 1. The Protocol for Commitments.
+The Ideal Functionality FCOMMIT
+Commit: On input (Commit, v, i, τv) by Pi or the adversary on his behalf (if Pi is corrupt), where v is either in a speciﬁc domain or ⊥, it stores (v, i, τv) on a list and outputs (i, τv) to all players and adversary.
+Open: On input (Open, i, τv) by Pi or the adversary on his behalf (if Pi is corrupt), the ideal functionality outputs (v, i, τv) to all players and adversary. If (NoOpen, i, τv) is given by the adversary, and Pi is corrupt, the functionality outputs (⊥, i, τv) to all players. Fig. 2. The Ideal Functionality for Commitments
+A.2 UC Security
+Lemma 2. In the random oracle model, the protocol ΠCOMMIT implements FCOMMIT with computational security against any static, active adversary corrupting at most n − 1 parties.
+Proof. We here sketch a simulator such that the environment cannot distinguish if it is playing with the real protocol or the functionality composed with the simulator. Note that the simulator replies to queries to the random oracle H made by the adversary.
+To simulate a Commit call, if the committer Pi is honest, the simulator selects a random value c and gives (c, i, τv) to the adversary. Note that (i, τv) is given to the simulator by FCOMMIT hereafter receiving (Commit, v, i, τv) from Pi. Whereas if the committer is corrupt, then it either queries H to get c, or it does not query it. Therefore, on receiving (c∗, i, τv) from the adversary, the simulator has v (if H was queried) so it sets v∗ ← v. If H was not queried, the simulator sets dummy input v∗ and the internal ﬂag Aborti,τv to true. It then sends (Commit, v∗, i, τv) to FCOMMIT.
+An Open call is simulated as follows. If the committer is honest, the simulator gets (v, i, τv) when Pi inputs (Open, i, τv) to FCOMMIT. The simulator selects random r and sets o ← v||r. It can now hand (o, i, τv) to the adversary. If the random oracle is queried on o, the simulator sends c as response. If the committer is corrupt, the simulator gets (i, τv) from the adversary, it checks whether Aborti,τv is true, if so it sends (NoOpen, i, τv) to FCOMMIT. Otherwise, the simulator sends (Open, i, τi) to FCOMMIT.
+The adversary will notice that queries to H are simulated only if o has been queried before resulting in different c, but as r is random this happens only with negligible probability (assuming that the size of the output domain of H is large enough). Also, in a simulated run, if the adversary does not query H when committing will result in abort. The
+14
+
+probability that in a real run players do not abort, is equivalent to the the probability that adversary correctly guesses the output of H, which happens with negligible probability.
+
+B Key Generation : Protocol, Functionalities and Security Proof
+B.1 Protocol
+
+The protocol ΠKEYGEN
+
+Initialize: 1. Every player Pi samples a uniform ei ← {1, . . . , c} and asks FCOMMIT to broadcast the handle τie ← Commit(ei)
+for a commitment to ei. 2. Every player Pi samples a seed si,j and asks FCOMMIT to broadcast τis,j ← Commit(si,j ).
+3. Every player Pi computes and broadcasts ai,j ← Usi,j (q1, φ(m)). Stage 1:
+
+4. All the players compute aj ← a1,j + · · · + an,j . 5. Every player Pi computes si,j ← HWT si,j (h, φ(m)) and i,j ← DGsi,j (σ2, φ(m)),
+and broadcasts bi,j ← [aj · si,j + p · i,j ]q1 .
+Stage 2:
+
+6. All the players compute bj ← b1,j + · · · + bn,j and set pkj ← (aj , bj ).. 7. Every player Pi computes and broadcasts enci,j ← Encpkj (−p1 · si,j , RCsi,j (0.5, σ2, φ(m))). Stage 3:
+
+8. All the players compute encj ← enc1,j + · · · + encn,j. 9. Every player Pi computes zeroi,j ← Encpkj (0, RCsi,j (0.5, σ2, φ(m))). 10. Every player Pi computes and broadcasts enci,j ← (si,j · encj) + zeroi,j.
+Output:
+
+11. All the players compute encj ← enc1,j + · · · + encn,j and set epkj ← (pkj, encj). 12. Every player Pi calls FCOMMIT with Open(τie). If any opening failed, the players output the numbers of the respective
+
+players, and the protocol aborts.
+
+13.
+
+All
+
+players
+
+compute
+
+the
+
+challenge
+
+chall
+
+←
+
+1
+
++
+
+``Pn
+i=1
+
+ei´
+
+mod
+
+c´.
+
+14. Every player Pi calls FCOMMIT with Open(τis,j) for j = chall. If any opening failed, the players output the numbers
+
+of the respective players, and the protocol aborts.
+
+15. All players obtain the values committed, compute all the derived values and check that they are correct.
+
+16. If any of the checks fail, the players output the numbers of the respective players, and the protocol aborts. Otherwise,
+
+every player Pi sets
+
+– si ← si,chall,
+
+– pk ← (achall, bchall), epk ← (pk, encchall).
+
+Fig. 3. The protocol for key generation.
+
+15
+
+B.2 Functionality
+The ideal functionality FKEYGEN
+Generation: 1. The functionality waits for seeds {si}i∈A from the adversary, and samples a seed si for every honest player Pi. 2. It computes ai ← Usi (q1, φ(m)) for all i. 3. It computes si ← HWT si (h, φ(m)), i ← DGsi (σ2, φ(m)) and bi ← [a · si + p · i]q1 for all i. 4. It computes b ← b1 + · · · + bn. 5. It computes enci ← Encpk(−p1 · si, RCsi (0.5, σ2, φ(m))) for every Pi. 6. It computes enc ← enc1 + · · · + encn. 7. It computes zeroi ← Encpk(0, RCsi (0.5, σ2, φ(m))) for every Pi, and enci ← (si · enc ) + zeroi for all players Pi. 8. It leaks ai, bi, enci, enci for all i to the adversary and waits for either Proceed, Cheat, or Abort.
+Proceed: The functionality sends si, pk = (a, b), epk = (pk, enc) to Pi, for all i. Cheat: On input Cheat, with probability 1 − 1/c the functionality leaks NoSuccess and goes to “Abort”; otherwise:
+1. It leaks the seeds of the honest parties and sends Success to the adversary. 2. It repeats the following loop:
+– It waits for the adversary to input values a∗i , (resp. (s∗i , b∗i ), enci∗, enc∗i ) for i ∈ A. – It overwrites ai, (resp. (si, bi), enci, enci) for i ∈ A. – It recomputes a (resp. b, enc , enc) accordingly. 3. It waits for Proceed or Abort. Abort: 1. The functionality leaks the seeds of the honest parties if it never did so. 2. It then waits for a set S ⊆ A, sends it to the honest players, and aborts.
+Fig. 4. The ideal functionality for key generation.
+B.3 Proof of Theorem 1
+Proof. We build a simulator SKEYGEN to work on top of the ideal functionality FKEYGEN, such that the environment cannot distinguish whether it is playing with the protocol ΠKEYGEN and FCOMMIT, or the simulator and FKEYGEN. The simulator is given in Figure 6.
+We now proceed with the analysis of the simulation. Let A denote the set of players controlled by the adversary. In steps 1 and 2 the simulator sends random handles to the adversary, as it would happen in the real protocol. In steps 3–11 the simulation is perfect for all the threads where the simulator knows the seeds of the honest players, since those are generated as in the protocol. In case of no cheat nor abort the simulation is also perfect for the thread where the simulator does not know the seeds of the honest players, since the simulator forwards honest values provided by the functionality. In case of cheating at the thread pointed by chall, the simulator gets the seeds also for the remaining thread and will replace the honestly precomputed intermediate values ai,chall, si,chall, bi,chall, enci,chall, enci,chall with the ones compatible with the deviation of the adversary – the honest values computed after a cheat reﬂect the adversarial behaviour of the real protocol, so a simulated run is again indistinguishable from a real run of the protocol.
+Steps 12, 14 are statistically indistinguishable from a protocol run, since the simulator plays also the role of FCOMMIT .
+Step 15 needs more work: we need to ensure that the success probability in a simulated run is the same as the one in a real run of the protocol. If the adversary does not deviate, the protocol succeeds. The same applies for a simulated run, since the simulator goes through “Pass” at every stage. More in detail, the simulator sampled and computed all the values at the threads not pointed by the challenge as in a honest run of the protocol, while values at the thread pointed by the challenge are correctly evaluated and sent to the honest players by FKEYGEN. In case the adversary cheats only on one thread, in a real execution of the protocol the adversary succeeds in the protocol with probability 1/c; the same holds in a simulated run, since the simulator goes through Cheat in CheatSwitch once and the functionality leaks
+16
+
+Success, which happens with the same probability, and later the simulator will not abort. If the adversary deviates on more than one branch (considering all stages), both the real protocol and the simulation will abort at step 15.
+Finally, if the protocol aborts due to failure at opening commitments, both the functionality and the players output the numbers of corrupted players who failed to open their commitments. If the protocol aborts at step 15, the output is the numbers of players who deviated in threads other than chall in both the functionality and the protocol.
+The procedure CheatSwitch Pass: Checks passed for all threads or there was a successful cheat in earlier stages and checks now passed for at least all
+threads except for the one pointed by chall. – The simulator continues.
+Cheat: There was no cheat in previous stages and all checks now passed except for the ones pointed by a unique thread j. – The simulator adds (j, Pi) to a list L, for all players Pi making the check not pass. – The simulator sends Cheat to FKEYGEN, and gets and stores every honest seeds si,chall. – If the functionality sends NoSuccess: • If j = chall, it resamples a different chall ← {1, . . . , c} \ {chall}. It continues the simulation according to the protocol. – If the functionality sends Success: the simulator sets chall = j and continues according to the protocol.
+Abort: In more than one thread checks did not pass (counting also checks in previous stages). – The simulator adds (j, Pi) to a list L, for all branches j and players Pi making the check not pass. – The simulator sends Abort to FKEYGEN and it continues the rest of the simulation according to the protocol. Fig. 5. The cheat switch.
+17
+
+The simulator SKEYGEN
+
+Initialize: – In Step 1 the simulator obtains ei by every corrupt Pi, and broadcasts τie as FCOMMIT would do. It samples chall uniformly in {1, . . . , c}, and it broadcasts a handle τie for every honest Pi.
+– In Step 2 the simulator sees the random values si,j for i ∈ A.
+
+It inputs {si,chall}i∈A to FKEYGEN, therefore obtaining a full transcript of the thread corresponding to chall. For the threads j = chall, for honest Pi, the simulator samples si,j honestly and broadcasts a handle τis,j for every honest Pi for every thread.
+
+– In Step 3, the simulator computes ai,j honestly for i ∈/ A and j = chall, while it deﬁnes ai,chall for i ∈/ A as the
+
+values ai obtained from the transcript given by FKEYGEN.
+
+It then broadcasts ai,j for honest Pi and waits for broadcasts ai,j by the corrupt players, and it checks ai,j =
+
+Usi,j (q, φ(m)) for all dishonest Pi. For this check the simulator enters CheatSwitch. If there was a successful cheat on the thread pointed by chall, the simulator inputs ai,chall to FKEYGEN for i ∈ A.
+
+Stage 1:
+
+– In Step 4 the simulator acts as in the protocol.
+
+– In Step 5 for all the honest seeds that are known by the simulator, the simulator computes bi,j honestly for i ∈/ A.
+
+If the simulator does not know the seeds si,chall for honest Pi, it deﬁnes bi,chall for i ∈/ A as the values bi obtained
+
+from the transcript given by FKEYGEN.
+
+It then broadcasts bi,j for honest Pi and waits for broadcasts bi,j by the corrupt players. It then checks bi,j = [achall · HWT si,chall (h, φ(m)) + p · RCsi,chall (σ2, φ(m))]q1 for all dishonest Pi. For this check the simulator enters CheatSwitch. If there was a successful cheat on the thread pointed by chall, the simulator inputs (si,chall, bi,chall to
+
+FKEYGEN for i ∈ A.
+
+Stage 2:
+
+– In Step 6 the simulator acts as in the protocol.
+
+– In Step 7 for all the honest seeds that are known by the simulator, the simulator computes enci,j honestly for i ∈/ A. If the simulator does not know the seeds si,chall for honest Pi, it deﬁnes enci,chall for i ∈/ A as the values enci obtained from the transcript given by FKEYGEN.
+
+It then broadcasts enci,j for honest Pi and waits for broadcasts enci,j by the corrupt players. It then checks enci,j = Encpk(−p1 · si,j, RCsi,j (0.5, σ2, φ(m))) for all dishonest Pi. For this check the simulator enters CheatSwitch. If
+there was a successful cheat on the thread pointed by chall, the simulator inputs enci,chall to FKEYGEN for i ∈ A.
+Stage 3:
+
+– In Step 8, 9 the simulator acts as in the protocol.
+
+– In Step 10 for all the honest seeds that are known by the simulator, the simulator computes enci,j honestly for i ∈/ A.
+
+If the simulator does not know the seeds si,chall for honest Pi, it deﬁnes enci,chall for i ∈/ A as the values enci obtained
+
+from the transcript given by FKEYGEN.
+
+It then broadcasts enci,j for honest Pi and waits for broadcasts enci,j by the corrupt players. It then checks enci,j =
+
+(si,j · enci,j) + zeroi,j for all dishonest Pi. For this check the simulator enters CheatSwitch. If there was a successful cheat on the thread pointed by chall, the simulator inputs enci,chall to FKEYGEN for i ∈ A.
+
+Output:
+
+– Step 11 is performed according to the protocol.
+
+–
+
+The
+
+simulator
+
+samples
+
+ei
+
+for
+
+i
+
+∈/
+
+A
+
+uniformly
+
+such
+
+that
+
+1
+
++
+
+``Pn
+i=1
+
+ei´
+
+mod
+
+c´
+
+=
+
+chall.
+
+– Step 12 is performed according to the protocol, but the simulator opens τie revealing the values ei for all honest Pi,
+
+and if the check fails the simulator sends Abort to FKEYGEN and inputs the set of all players failing in opening.
+
+– Step 13 is performed according to the protocol.
+
+– Step 14 is performed according to the protocol, and if the check fails the simulator sends Abort to FKEYGEN and
+
+inputs the set of all players failing in opening.
+
+– Step 15 is performed according to the protocol, and the simulator deﬁnes
+
+S = {i ∈ A | (j, Pi) ∈ L; j ∈ {1, . . . , c}; j = chall} ,
+
+i.e. the set of corrupt players who cheated at any thread different from chall. • If S = ∅ (i.e. cheats at a thread which is going to be opened), the simulator sends Abort to FKEYGEN and inputs S. • If S = ∅ (i.e. successful or no cheats), the simulator sends Proceed to FKEYGEN.
+– Step 16 is performed according to the protocol.
+
+Fig. 6. The simulator for the key generation functionality.
+
+18
+
+B.4 Semantic security of FKEYGEN
+Here we prove the semantic security of the cryptosystem resulting from an execution of FKEYGEN, based on the ringLWE problem and a form of KDM security for quadratic functions. The ring-LWE assumption we use takes an extra parameter h, as our scheme chooses binary, low hamming weight, secret keys for better efﬁciency and parameter sizes, but note that the results here also apply to secrets drawn from other distributions.
+
+Deﬁnition 1 (Decisional Ring Learning With Errors assumption). The single sample decisional ring-LWE assump-
+
+tion RLWEq,σ2,h states that
+
+c
+(a, a · s + e) ≈ (a, u)
+
+where s ← HWT (h, φ(m)), e ← DG(σ2, φ(m)) and a, u are uniform over Rq.
+
+The KDM security assumption, below, can be viewed as a distributed extension to the usual key switching assumption for FHE schemes. In this case we need ‘encryptions’ of quadratic functions of additive shares of the secret key to remain secure. Note that whilst it is easy to show KDM security for linear functions of the secret [7], it is not known how to extend this to the functions required here without increasing the length of ciphertexts.
+
+n−1
+Deﬁnition 2 (KDM security assumption). If si ← HWT (h), s = si and f is any degree 2 polynomial then
+i=0
+c
+(a, a · s + p · e + f (s0, . . . , sn−1)) ≈ (a, a · s + p · e)
+where a, u ← U(q, φ(m)), e ← DG(σ2, φ(m)).
+
+The following lemma states that distinguishing any number of ‘amortized’ ring-LWE samples with different, independent, secret keys but common ﬁrst component a, from uniform is as hard as distinguishing just one ring-LWE sample from uniform. It was proven for the (standard) LWE setting with n = 3 in [23]; here we need a version with ring-LWE for any n.
+
+Lemma 3 (Adapted from [23, Lemma 7.6]). Suppose a, ui ← U (q, φ(m)), si ← HWT (h, φ(m)) and ei ← DG(σ2, φ(m)) for i = 0, . . . , n − 1, n ∈ N. Then
+c
+{(a, a · si + ei)}i ≈ {(a, ui)}i
+
+under the single sample ring-LWE assumption RLWEq,σ2,h.
+Proof. Suppose an adversary A can distinguish between the above distributions with non-negligible probability. We construct an adversary B that solves the RLWE problem. Given a challenge (a, b) from the RLWE oracle, B sets b0 = b and bi = a · si + ei for i = 1, . . . , n − 1, where ei ← DG(σ2, φ(m)), si ← HWT (h, φ(m)). B sends all pairs (a, bi) to A and returns the output of A in response to the challenge.
+Since the values (a, bi) for i = 1, . . . , n − 1 are all valid amortized ring-LWE samples, the only difference between the view of A and that of a real set of inputs is b0, and so the advantage of B in solving RLWEq,σ2,h is exactly that of A in solving the amortized ring-LWE problem with n samples.
+
+Theorem 6 (restatement of Theorem 2). If the functionality FKEYGEN is used to produce a public key epk and secret keys si for i = 0, . . . , n − 1 then the resulting cryptosystem is semantically secure based on the hardness of RLWEq1,σ2,h and the KDM security assumption.
+Proof. Suppose there is an adversary A that can interact with FKEYGEN and distinguish the public key (pk, epk) from uniform. We construct an algorithm B that distinguishes amortized ring-LWE samples from uniform. By Lemma 3 this is at least as hard as breaking single sample ring-LWE. If the public key is pseudorandom then semantic security of encryption easily follows, as ciphertexts are just ring-LWE samples. Note that we only consider a non-cheating adversary – if A cheats then it can trivially break the scheme with non-negligible probability 1/c.
+
+19
+
+The challenger gives B the values ac, bc,0, . . . , bc,n−1. B must now simulate an execution of FKEYGEN with A to determine whether the challenge is uniform or of the form (ac, ac · si + ei) for si ← HWT (h, φ(m)) and ei ← DG(σ2, φ(m)).
+To start with we receive the adversary’s seeds si for every corrupt player i ∈ A. We must then simulate the values ai, bi, enci, enci (for all i) that are leaked to the adversary in FKEYGEN. For corrupt players we simply compute these values according to FKEYGEN using the adversary’s seeds. Next we have to simulate the honest players’ values, which we do using the challenge ac, bc,0, . . . , bc,n−1. First we scale the challenge by p, so that it takes the form (ac, ac · si + p · ei) if they are genuine RLWE samples. Since p is coprime to q this still has the same distribution as the original challenge.
+Now B calculates uniform consistent shares ac,i, for every honest player Pi, of ac, and sends A the pairs ac,i, bc,i. If the challenge values are amortized ring-LWE samples, then these are consistent with the pairs (ai, bi) computed by FKEYGEN, since ai is uniform and bi = ai · si + ei.
+Next, B must provide A with simulations of players’ contributions to the key-switching data enci, enci for all honest players Pi. For both of these sets of values, B simply re-randomizes the pair (ac, bc) and sends this to A. This can be done by, for example, computing an encryption of zero under the public key (ac, bc) (where bc = i bc,i). Notice that enci is just an encryption of −p1 · si under the public key (a, b), and so by the KDM security assumption is (perfectly) indistinguishable from a re-randomized version of (a, b). For enci, recall that FKEYGEN computes enci = si·enc +zeroi. Now writing zeroi = (a · vi + p · e0,i, b · vi + p · e1,i) and enc = (a · v + p · e0, b · v + p · e1 − p1 · s), we see that
+enci = (a · v · si + a · vi + p · (e0 · si + e0,i), b · v · si + b · vi + p · (e1 · si + e1,i) − p1 · s · si)
+
+= a · (v · si + vi) +p · (e0 · si + e0,i), a · (v · si + vi) ·s + p · (e1 · si + e1,i + e) −p1 · s · si
+
+ai
+
+e0,i
+
+ai
+
+e1,i
+
+= ai + p · e0,i, ai · s + p · e1,i − p1 · s · si .
+
+Notice that the ﬁrst component of enci corresponds to the second half of a ring-LWE sample (a, a·(v ·si +vi)+p·e0,i) with secret v · si + vi. The second component of enci corresponds to a ring-LWE sample with secret s and ﬁrst half ai, with an added quadratic function of the key −p1 · s · si. By the KDM security assumption, this is indistinguishable from a genuine ring-LWE sample, so enci can also be perfectly simulated by re-randomizing (ac, bc).
+To ﬁnish the simulated execution of FKEYGEN, B sends A shares of the secret key for all Pi where i ∈ A (i.e. all dishonest players), by sampling randomness using the seeds that were provided to B at the beginning. B then
+waits for A to give an answer and returns this in response to the challenger. Notice that throughout the simulation, all
+values passed to A were ring-LWE samples derived from the challenge (ac, b0,c, . . . , bn−1,c). We showed that if the challenge is an amortized ring-LWE sample then A’s input is indistinguishable from the output of FKEYGEN, whereas if the challenge is uniform then so is A’s input. Therefore if A is successful in distinguishing the resulting public key
+from uniform then A must have solved the ring-LWE challenge.
+
+20
+
+C EncCommit: Protocol, Functionalities and Security Proofs
+C.1 Protocol
+
+Protocol ΠENCCOMMIT
+
+Usage: The speciﬁc distribution of the message is deﬁned by the input parameter cond. The output is a single message mi
+
+private to each player, and a public ciphertext ci from player i. The protocol runs in two phases; a commitment phase and
+
+an opening phase.
+
+KeyGen: The players execute ΠKEYGEN to obtain si, pk, and epk.
+
+Commitment Phase:
+
+1. Every player Pi samples a uniform ei ← {1, . . . , c}, and queries Commit(ei) to F , COMMIT which broadcasts a handle τie.
+2. For j = 1, . . . , c (a) Every player Pi samples a seed si,j and queries Commit(si,j ) to F , COMMIT which broadcasts a handle τis,j .
+(b) Every player Pi generates mi,j according to cond using PRFsi,j . (c) Every player Pi computes and broadcasts ci,j ← Encpk(mi,j) using PRFsi,j to generate the randomness. 3. Every player Pi calls FCOMMIT with Open(τie). All players get ei. If any opening failed, the players output the
+
+numbers of the respective players, and the protocol aborts.
+
+4.
+
+All
+
+players
+
+compute
+
+chall
+
+←
+
+1
+
++
+
+``Pn
+i=1
+
+ei´
+
+mod
+
+c´.
+
+Opening Phase:
+
+5. Every player Pi calls FCOMMIT with Open(τis,j) for all j = chall so that all players obtain the value si,j for j = chall.
+
+If any opening fails, the players output the numbers of the respective players, and the protocol aborts.
+
+6. For all j = chall and all i ≤ n, the players check whether ci ,j was generated correctly using si ,j. If not, they
+
+output the numbers of the respective players i , and the protocol aborts.
+
+7. Otherwise, every player Pi stores {ci ,chall}i ≤n and mi,chall.
+
+Fig. 7. Protocol that allows ciphertext to be used as commitments for plaintexts
+
+C.2 Functionalities
+C.3 Proof of Theorem 3
+Proof. We construct a simulator SSHE (see Figure 9) working on top of FSHE such that the environment can not distinguish whether it is playing with the real protocol ΠENCCOMMIT and FKEYGEN or with FSHE and SSHE. The simulator is given in Figure 9.
+Calls to FKEYGEN are simulated as in SKEYGEN. We now focus on the commitment phase. Let A be the set of indices of corrupted players. The simulator starts assuming that the adversary will behave honestly. It samples a uniform j0 ← {1, . . . , c} and seeds {si,j}i∈/A,j=j0 . If the adversary does not deviate, then round j0 will remain unopened, otherwise the simulator will have to adjust this. We can simulate each round j as follows. First, the simulator gets corrupted seeds si,j for i ∈ A when the adversary commits to them in step 2a. It gives in return random handles τis,j on behalf of each honest player Pi. If j = j0, the simulator engages with the adversary in a normal run of steps 2b to 2c using seeds si,j for honest player Pi. Since the simulator knows the corrupt seeds of the current round j, it can check whether the adversary behaved honestly. If the adversary did not, then the simulator stores index j in the cheating list. If j = j0, the simulator checks again whether the adversary computed the right encryptions {ci}i∈A. If it did not, the simulator stores j0 in the cheating list. Then the simulator calls EncCommit to FSHE on seeds {si,j0 }i∈A and gets back {ci}i∈/A, which are the values computed by the functionality. It then sets ci,j0 ← ci and pass them onto the adversary in step 2c. Once the last round is ﬁnished, the simulator checks the cheating list. There are three possibilities:
+21
+
+The ideal functionality FSHE
+Usage: The functionality is split into a one-run stage which computes the key material and a stage which can be accessed several times and is targeted to replace the zero-knowledge protocols in [14].
+KeyGen: On input KeyGen the functionality acts as a copy of FKEYGEN. Notice that all the variables used during this call are available for later use.
+EncCommit: On input EncCommit the functionality does the following. Initialize: Denote by A the set of indices of corrupt players. On input Start by all players, sample, at random, seeds {si}i∈/A and wait for corrupted seeds {si}i∈A from the adversary. Computation: 1. It sets mi ← PRFsi subject to condition cond. 2. It sets ci = Encpk(mi, RCsi (0.5, σ2, φ(m))) for each player Pi. 3. It gives {ci}i∈/A to the adversary, and waits for signal Deliver, Cheat or Abort. Delivery: The functionality sends mi, {cj}j≤n to player Pi. Cheat: The functionality gives {si}i∈/A to the adversary, then it decides to do either of the following things: – With probability 1/c it sends Success to the adversary, it waits for {mi, ci}i∈A, and outputs mi, {cj}i≤n to player Pi. – Otherwise sends NoSuccess to the adversary, and goes to abort. Abort: The functionality waits for the adversary to input S ⊆ A, and outputs S to all players.
+Fig. 8. The ideal functionality for key generation and Π . ENCCOMMIT
+
+– The list is empty. In other words, the adversary behaved honestly. The simulator sets chall ← j0, and sends Deliver to the functionality if all commitments are successfully opened. The output of FSHE and what the adversary has already seen seen will be consistent since FSHE was called in round j0 with the right seeds {si,j0 }i∈A.
+– The list contains only one index j1. In this case the simulator sends Cheat and gets in return seeds {si}i∈/A used by the functionality. It sets si,j0 ← si for each honest player Pi. It then waits for the answer. • If the functionality returns Success, the simulator has to make the adversary believe that round j1 will remain unopened. It sets chall ← j1. If all commitments are successfully opened, it sends {mi,j1 , ci,j1 }i∈A to the functionality in order to make consistent players’ outputs and what the adversary has already seen.
+• If it returns NoSuccess, the simulator has to make the adversary believe that round j1 will be opened. Therefore it samples chall ← {1, . . . , c} \ {j1}.
+– The list contains at least two indices j1, j2. In this case the real protocol would result in abort, so the simulator sends Abort to the functionality and sets chall ← j0.
+
+Later the simulator generates the value ei for each honest player such that 1 + ((
+
+n i=1
+
+ei)
+
+mod
+
+c)
+
+=
+
+chall.
+
+This
+
+ensures that once the challenge is computed, it will point to a round in the same fashion as the protocol would do.
+
+Moreover, opening τie to (any) ei is does not give clues to the adversary if it is playing in a real run of the protocol or
+
+in a simulated one.
+
+In the opening phase, the simulator gives {ei}i∈/A and honest share {si,j}i∈/A,j=chall to the adversary, and if it there was a cheating with no success, then it also sends Abort on behalf of each honest player.
+
+It is clear, from the construction of FSHE, that all the messages generated by the simulator are indistinguishable from a real run of the protocol. The simulator does the same computations, except in round j0 where the computation
+
+is done by the functionality, and the values are then passed onto the simulator, which forwards them to the adversary.
+
+Finally, if the protocol aborts due to failure at opening commitments, both the functionality and the players output
+
+the numbers of corrupted players who failed to open their commitments. If the protocol aborts at step 6, the output is
+
+the numbers of players who deviated in threads other than chall in both the functionality and the protocol.
+
+22
+
+The simulator SSHE
+
+KeyGen: SSHE acts as SKEYGEN, but SSHE calls FSHE on query KeyGen, when SKEYGEN would have called FKEYGEN.
+
+Commitment Phase:
+
+– The simulator chooses random j0 ← {1, . . . , c} and seeds {si,j }i∈/A,j=j0 . – Acting as the FCOMMIT functionality, in response to query in step 1 and 2a, for j = 1, . . . , c the simulator samples
+si,j according to the protocol for i ∈/ A and returns random handles {τie}i≤n, {τis,j }i≤n.
+– For j = 1, . . . , c, the simulator does the following:
+
+• If j = j0, it performs steps 2b and 2c according to protocol using honest seeds si,j for each i ∈/ A.
+
+• If j = j0, it calls FSHE on query EncCommit on corrupted seeds {si,j0 }i∈A and gets back honest encryptions
+{ci}i∈/A. It then sets ci,j0 ← ci for each i ∈/ A. – In step 2c, the simulator receives encryptions c∗i,j for each i ∈ A and j ∈ {1, . . . , c}. It generates mi,j subject to
+cond, and ci,j ← Encpk(mi,j), and checks if ci,j = c∗i,j. If the equality does not hold, it stores j in a (cheating) list.
+– The simulator reads the cheating list. There are three possibilities:
+
+• The list is empty. The simulator sets chall ← j0.
+
+• The list contains only one index j1. The simulator sends Cheat to FSHE and gets {si}i∈/A back. It then sets
+
+si,j0 ← si for each i ∈/ A. ∗ If the functionality returns Success, the simulator sets chall ← j1.
+
+∗ If the functionality returns NoSuccess, the simulator samples chall ← {1, . . . , c} \ {j1}.
+
+• The list contains at least two indices. The simulator sends Abort to FSHE, gets {si}i∈/A and sets si,j0 ← si for
+
+each i ∈/ A, and chall ← j0.
+
+–
+
+For
+
+all
+
+honest
+
+Pi
+
+the
+
+simulator
+
+sets
+
+ei
+
+uniformly
+
+in
+
+1,
+
+.
+
+.
+
+.
+
+,
+
+c
+
+with
+
+the
+
+constraint
+
+1
+
++
+
+``Pn
+i=1
+
+ei´
+
+mod
+
+c´
+
+=
+
+chall.
+
+– In step 3, the simulator opens the handle τie to the freshly deﬁned value ei, for all honest Pi. If the adversary fails
+
+to open some of the commitments of corrupted players, the simulator sends Abort and the numbers of the respective
+
+players to FSHE, and it stops.
+
+– Step 4 is performed according to the protocol.
+
+Opening Phase:
+
+– In step 5, the simulator opens the handle τis,j to si,j for all honest players i ∈/ A and j = chall. If the adversary fails to open some of the commitments of corrupted players, the simulator sends Abort and the numbers of the respective
+
+players to FSHE, and it stops.
+
+– If the cheating list is empty, the simulator sends Deliver to FSHE. – If the functionality returned Success earlier, the simulator inputs {mi,chall, c∗i,chall}i∈A to the functionality.
+– If the functionality returned NoSuccess, or if the cheating list has at least two indices, the simulator inputs to the functionality the number of players i ∈ A whose c∗i,j were computed incorrectly for some j = chall.
+
+Fig. 9. The simulator for FSHE
+
+23
+
+D Ofﬂine Phase : Protocol, Functionalities and Simulators
+D.1 Protocols
+
+Protocol MACCheck
+
+Usage: Each player has input αi and (γ(aj)i) for j = 1, . . . , t. All players have a public set of opened values {a1, . . . , at};
+
+the protocol either succeeds or outputs failure if an inconsistent MAC value is found.
+
+MACCheck({a1, . . . , at}):
+1. Every player Pi samples a seed si and asks FCOMMIT to broadcast τis ← Commit(si). 2. Every player Pi calls FCOMMIT with Open(τis) and all players obtain sj for all j.
+
+3. Set s ← s1 ⊕ · · · ⊕ sn.
+
+4. Players sample a random vector r = Us(p, t); note all players obtain the same vector as they have agreed on the seed
+
+s.
+
+5.
+
+Each
+
+player
+
+computes
+
+the
+
+public
+
+value
+
+a
+
+←
+
+Pt
+j=1
+
+rj
+
+·
+
+aj .
+
+6.
+
+Player
+
+i
+
+computes
+
+γi
+
+←
+
+Pt
+j=1
+
+rj
+
+·
+
+γ(aj )i,
+
+and
+
+σi
+
+←
+
+γi
+
+−
+
+αi
+
+·
+
+a.
+
+7. Player i asks FCOMMIT to broadcast τiσ ← Commit(σi).
+
+8. Every player calls FCOMMIT with Open(τiσ), and all players obtain σj for all j.
+
+9. If σ1 + · · · + σn = 0, the players output ∅ and abort.
+
+Fig. 10. Method To Check MACs On Partially Opened Values
+
+Protocol Reshare
+
+Usage: Input is cm, where cm = Encpk(m) is a public ciphertext and a parameter enc, where enc = NewCiphertext or
+
+enc = NoNewCiphertext. Output is a share mi of m to each player Pi; and if enc = NewCiphertext, a ciphertext
+
+cm. The idea is that cm could be a product of two ciphertexts, which Reshare converts to a “fresh” ciphertext cm. Since
+
+Reshare uses distributed decryption (that may return an incorrect result), it is not guaranteed that cm and cm contain the
+
+same
+
+value,
+
+but
+
+it
+
+is
+
+guaranteed
+
+that
+
+P
+i
+
+mi
+
+is
+
+the
+
+value
+
+contained
+
+in
+
+cm.
+
+Reshare(cm, enc) :
+
+1. The players run FSHE on query EncCommit(Rp) so that player i obtains plaintext fi and all players obtain cfi , an encryption of fi.
+
+2. The players compute cf ← cf1 + · · · + cfn , and cm+f ← cm + cf . We deﬁne f = f1 + · · · + fn, although no party can compute f .
+
+3. The players invoke Protocol DistDec to decrypt cm+f and thereby obtain m + f .
+
+4. P1 sets m1 ← m + f − f1, and each player Pi (i = 1) sets mi ← −fi.
+
+5. If enc = NewCiphertext, all players set cm ← Encpk(m + f ) − cf1 − · · · − cfn , where a default value for the randomness is used when computing Encpk(m + f ).
+
+Fig. 11. The Protocol For Additively Secret Sharing A Plaintext m ∈ Rp On Input A Ciphertext cm = Encpk(m).
+
+24
+
+Protocol ΠPREP Usage: Note that DataGeneration can be run in four distinct threads, and DataCheck in two threads with one thread exe-
+cuting the Square and Shared bit checking at the same time. Each thread executes its own check for correct broadcasting using Section 3.1. Initialize: This produces the keys for encryption and MACs. On input (Start, p) from all the players:
+1. The players call FSHE on query KeyGen so player i obtains (si, pk, enc). 2. The players call FSHE on query EncCommit(Fp) so player j obtains a share αj of the MAC key, and all players get
+ci, and encryption of αi, for 1 ≤ i ≤ n. 3. All players set cα ← c1 + · · · + cn. Data Generation: On input (DataGen, nI , nm, ns, nb), the players execute the following subprocedures of DataGen from Figure 13 and Figure 14: 1. InputProduction(nI ) 2. Triples(nm) 3. Squares(ns) 4. Bits(nb) Data Check: On input DataCheck, the players do the following: 1. Generate two random values tm, tsb running the steps below twice:
+(a) Every player Pi samples random ti ← Fp and asks FCOMMIT to broadcast τit ← Commit(ti). (b) Every player Pi calls FCOMMIT with Open(τit) and all players obtain tj for 1 ≤ j ≤ n. (c) Every player sets t ← t1 + · · · + tn. If t = 0, then repeat the previous steps. 2. Execute DataCheck(tm, tsb). Finalize: For the set of partially opened values run protocol MACCheck from Figure 10. Abort: If FSHE outputs a set S of corrupted players at any time, all players output S, and the protocol aborts.
+Fig. 12. The Preprocessing Phase
+25
+
+Procedure DataGen
+Input Production: This produces at least nI · n shared values ri,j for 1 ≤ i ≤ nI and 1 ≤ j ≤ n such that player j holds the actual value ri,j and all other players hold a sharing of this value only. 1. For j ∈ {1, . . . , n} and k ∈ {1, . . . , 2 · nI /m }. (a) Player j generates r ∈ Rp. (b) Player j computes c ← Encpk(r) and broadcasts the ciphertext to all players. (c) The parties execute Reshare(c, NoNewCiphertext) so that player i obtains the share ri of r (d) All parties compute cγ(r) ← cr · cα. (e) The parties execute Reshare(cγ(r), NoNewCiphertext). to obtain shares γ(r)i. (f) Player i decomposes the plaintext elements ri and γ(r)i into their m/2 slot values via the FFT and locally stores the resulting data. (g) Player j does the same with r to obtain the values r(k−1)·m/2+i,j for i = 1, . . . , m/2.
+Triples: This produces at least 2 · nm · -shared values (aj, bj, cj) such that cj = aj · bj. 1. For k ∈ {1, . . . , 4 · nm/m }. (a) The players run FSHE on query EncCommit(Rp) so that player i obtains plaintext ai and all players obtain cai an encryption of ai. (b) The players compute ca ← ca1 + · · · + can We deﬁne a = a1 + · · · + an, although no party can compute a. (c) The players run FSHE on query EncCommit(Rp) so that player i obtains plaintext bi and all players obtain cbi an encryption of bi. (d) The players compute cb ← cb1 + · · · + cbn We deﬁne b = b1 + · · · + bn, although no party can compute b. (e) All parties compute ca·b ← ca · cb. (f) The parties execute Reshare(ca·b, NewCiphertext) so that player i obtains the share ci and all players obtain a ciphertext cc encrypting the plaintext c = c1 + · · · + cn. (g) All parties compute cγ(a) ← ca · cα, cγ(b) ← cb · cα and cγ(c) ← cc · cα. (h) The parties execute Reshare(cγ(a), NoNewCiphertext), Reshare(cγ(b), NoNewCiphertext) and Reshare(cγ(c), NoNewCiphertext) to obtain shares γ(a)i, γ(b)i and γ(c)i. (i) Player i decomposes the various plaintext elements into their m/2 slot values via the FFT and locally stores the resulting m/2 multiplication triples.
+Fig. 13. Production Of Tuples and Shared Bits
+26
+
+Procedure DataGen
+Squares: This produces at least (2 · ns + nb) · -shared values (aj, bj) such that bj = aj · aj. 1. For k ∈ {1, . . . , 2 · (2 · ns + nb)/m }. (a) The players run FSHE on query EncCommit(Rp) so that player i obtains plaintext ai and all players obtain cai an encryption of ai. (b) The players compute ca ← ca1 + · · · + can We deﬁne a = a1 + · · · + an, although no party can compute a. (c) All parties compute ca2 ← ca · ca. (d) The parties execute Reshare(ca2 , NewCiphertext) so that player i obtains the share bi and all players obtain a ciphertext cb encrypting the plaintext b = b1 + · · · + bn. (e) All parties compute cγ(a) ← ca · cα and cγ(b) ← cb · cα. (f) The parties execute Reshare(cγ(a), NoNewCiphertext) and Reshare(cγ(b), NoNewCiphertext) to obtain shares γ(a)i and γ(b)i. (g) Player i decomposes the various plaintext elements into their m/2 slot values via the FFT and locally stores the resulting m/2 squaring tuples.
+Bits: This produces at least nb · -shared values bj such that bj ∈ {0, 1}. 1. For k ∈ {1, . . . , 2 · nb/m + 1}.a (a) The players run FSHE on query EncCommit(Rp) so that player i obtains plaintext ai and all players obtain cai an encryption of ai. (b) The players compute ca ← ca1 + · · · + can We deﬁne a = a1 + · · · + an, although no party can compute a. (c) All parties compute ca2 ← ca · ca. (d) The players invoke protocol DistDec to decrypt ca2 and thereby obtain s = a2. (e) If any slot position in s is equal to zero then set it to one. . (f) A ﬁxed square root t of s is taken, say the one for which each slot position is odd when represented in [1, . . . , p). (g) Compute cv ← t−1 · ca, this is an encryption of v = t−1 · a, which is a message for which each slot position contains {−1, 1}, bar the one which we replaced in step (1e). (h) All parties compute cγ(v) ← cv · cα. (i) The parties execute Reshare(cv, NoNewCiphertext) and Reshare(cγ(v), NoNewCiphertext) to obtain shares vi and γ(v)i. (j) Player i decomposes the various plaintext elements into their slot values via the FFT, bar the ones replaced in step (1e) to obtain vj for j = 1, . . . , B where B ≈ m · (p − 1)/(2 · p). (k) Set bj ← (1/2) · ( vj + 1) and output bj .
+a Notice that in the production of shared bits the number of rounds is one more than one would expect at ﬁrst glance: this is because some entry of the input vector may be equal to zero, making such entry unusable for the procedure. This event happens with probability 1/p, so the expected number of bits produced per iteration is m · (p − 1)/(2 · p), rather than m/2 (if no entry were zero). Therefore, in order to produce at least nb elements, we add an extra round to the procedure.
+Fig. 14. Production Of Tuples and Shared Bits (continued)
+27
+
+Procedure DataCheck Usage: Note that all players have previously agreed on two common random values tm, tsb. Checking Multiplication Triples: This produces at least nm checked · -shared values (aj, bj, cj) such that cj = aj · bj.
+1. For k ∈ {1, . . . , nm}. (a) Take two unused multiplication tuples ( a , b , c ), ( f , g , h ) from the list determined earlier. (b) Partially open tm · a − f to obtain ρ and b − g to obtain σ. (c) Evaluate tm · c − h − σ · f − ρ · g − σ · ρ and partially open the result to obtain τ . (d) If τ = 0 then output ∅ and abort. (e) Output ( a , b , c ) as a valid multiplication triple.
+Checking Squaring Tuples: This produces at least ns checked · -shared values (aj, bj) such that bj = a2j . 1. For k ∈ {1, . . . , ns}. (a) Take two unused squaring tuples ( a , b ), ( f , h ) from the list determined earlier. (b) Partially open tsb · a − f to obtain ρ. (c) Evaluate t2sb · b − h − ρ · (tsb · a + f ) and partially open the result to obtain τ . (d) If τ = 0 then output ∅ and abort. (e) Output ( a , b ) as a valid squaring tuple.
+Checking Shared Bits: This produces at least nb checked · -shared values bj such that bj ∈ {0, 1}. 1. For k ∈ {1, . . . , nb}. (a) Take an unused squaring tuples ( f , h ) and an unused bit sharing a from the lists determined earlier. (b) Partially open tsb · a − f to obtain ρ. (c) Evaluate t2sb · a − h − ρ · (tsb · a + f ) and partially open the result to obtain τ . (d) If τ = 0 then output ∅ and abort. (e) Output a as a valid bit sharing. Fig. 15. Check The Output Of The Data Production Procedure
+28
+
+D.2 Functionalities
+
+The functionality FPREP
+
+Let A be the set of indices of corrupted players. Symbols in bold denote vectors in (Fp)k. Arithmetic is componentwise.
+
+Initialize: On input (Start, p) from honest players and adversary, the functionality sets the internal ﬂag BreakDown to false
+
+and then it does the following:
+
+1. For each corrupted player i ∈ A, the functionality accepts shares αi from the adversary, and it samples at random
+
+αi for each i ∈/ A. Then the functionality sets α ← α1 + · · · + αn. 2. The functionality waits for signal Abort, Proceed or Cheat from the adversary.
+
+3. If received Proceed, the functionality outputs αi to player i.
+
+4. Otherwise, and if the functionality did not abort in Cheat, it outputs adversary’s contribution ∆i to player i. Computation: On input DataGen from all honest players and adversary, and only if the functionality received Proceed (or
+
+BreakDown is true) it executes the data generation procedures speciﬁed in Figure 17.
+
+Macro Angle(v1, . . . , vn, ∆γ, k) The above will be run by the functionality at several points to create representations · .
+
+1. It gets {γi}i∈A from the adversary.
+
+2. Let v = v1 + · · · + vn, set γ(v) ← α · v + ∆γ .
+
+3.
+
+Sample
+
+at
+
+random
+
+γi(v)
+
+←
+
+(Fp)k
+
+for
+
+i
+
+∈/
+
+A,
+
+subject
+
+to
+
+γ(v)
+
+=
+
+Pn
+i
+
+γ(v)i.
+
+4. Return (γ(v)1, . . . , γ(v)n).
+
+Cheat: The functionality chooses to do either one of the following:
+
+– It sends, with probability 1/c, Success to the adversary and sets the internal ﬂag BreakDown to true.
+
+– Otherwise it sends NoSuccess to the adversary and players, and goes to “Abort”.
+
+Abort: The functionality waits for S ⊆ A from the adversary and then outputs S to all players.
+
+Fig. 16. MAC Generation and Covert Procedures to Generate Auxiliar Data
+
+29
+
+The functionality FPREP (continued)
+
+Let A be the set of indices of corrupted players. Symbols in bold denote vectors in (Fp)k. Arithmetic is componentwise.
+
+Input Production: On input DataType = (InputPrep, nI ),
+
+1. The functionality choose random values I = {r(i) ∈ (Fp)nI | i ∈/ A}.
+
+2. It accepts from the adversary corrupted values {r(i) ∈ (Fp)nI | i ∈ A}, corrupted shares {r(ki) ∈ (Fp)nI | k ∈
+
+A, i ≤ n}, and offset for data and MACs {∆(ri), ∆(γi) ∈ (Fp)nI | i ≤ n}. Then it does the following:
+
+(a)
+
+Sample honest shares {r(ki) | k ∈/ A, i ≤ n} subject to r(i) + ∆(ri)
+
+=
+
+Pn
+k=1
+
+r(ki) .
+
+(b) Run macro Angle(r1(i), . . . , rn(i), ∆(γi), nI ), for i ≤ n.
+
+(c) Output {r(i), (ri(j), γi(r(j)))j≤n} to player i, or if BreakDown is true, output adversary’s contribution ∆i to
+
+player i.
+
+Multiplication Triples: On input DataType = (Triples, nm), 1. Choose 2 · nm honest shares I = {(ai, bi) ∈ (Fp)2·nm | i ∈/ A}. 2. It accepts corrupted shares {(ai, bi, ci) ∈ (Fp)3·nm | i ∈ A} and MAC offsets {(∆(γa), ∆(γb), ∆γ(c)) ∈ (Fp)3·nm }
+
+from the adversary. It performs the following:
+
+(a) Set c ← (a1 + · · · + an) · (b1 + · · · + bn).
+
+(b)
+
+Compute
+
+a
+
+set
+
+of
+
+honest
+
+shares
+
+{ci
+
+|
+
+i
+
+∈/
+
+A}
+
+subject
+
+to
+
+c
+
+=
+
+Pn
+i=1
+
+ci.
+
+(c) Run the macros Angle(a1, . . . , an, ∆(γa), nm), Angle(b1, . . . , bn, ∆(γb), nm), Angle(c1, . . . , cn, ∆γ(c), nm).
+
+(d) Output {(ai, γi(a)), (bi, γi(b)), (ci, γi(c))} to player i, or if BreakDown is true, output adversary’s contribu-
+
+tion ∆i to player i.
+
+Squaring Tuples: On input DataType = (Squares, ns), 1. Choose N = ns honest shares I = {ai ∈ (Fp)ns | i ∈/ A}. 2. It accepts corrupted shares {(ai, si) ∈ (Fp)2·ns | i ∈ A} and MAC offsets {(∆(γa), ∆γ(s)) ∈ (Fp)2·ns } from the
+
+adversary. It does the following:
+
+(a) Set s ← (a1 + · · · + an) · (a1 + · · · + an).
+
+(b)
+
+Compute
+
+a
+
+a
+
+set
+
+of
+
+honest
+
+shares
+
+{si
+
+|
+
+i
+
+∈/
+
+A}
+
+subject
+
+to
+
+s
+
+=
+
+Pn
+i=1
+
+si.
+
+(c) Run the macro Angle(a1, . . . , an, ∆(γa), ns) and Angle(s1, . . . , sn, ∆(γs), ns).
+
+(d) Output {(ai, γi(a)), (si, γi(s))} to player i, or if BreakDown is true, output adversary’s contribution ∆i to
+
+player i.
+
+Shared Bits: On input DataType = (Bits, nb),
+
+1. It gets shares {bi ∈ (Fp)nb | i ∈ A} and MAC offsets {∆(γb) ∈ (Fp)nb } from the adversary.
+
+(a)
+
+Uniformly
+
+sample
+
+nb
+
+honest
+
+shares
+
+I
+
+=
+
+{bi
+
+∈
+
+(Fp)nb
+
+|
+
+i
+
+∈/
+
+A}
+
+subject
+
+to
+
+the
+
+condition
+
+P
+i
+
+bi
+
+∈
+
+{0,
+
+1}nb .
+
+(b) Run the macro Angle(b1, . . . , bn, ∆(γb), nb).
+
+(c) Output (bi, γi(b)) to player i, or if BreakDown is true, output adversary’s contribution ∆i to player i.
+
+Fig. 17. Operations to Generate Auxiliar Data for the Online Phase
+
+30
+
+D.3 Proof of Lemma 1
+
+Proof. We here inspect the correctness and the soundness error of the MACCheck protocol. In order to understand the
+probability of an adversary being able to cheat, we design the following security game.
+
+1. The challenger generates the secret key α ← α1 + · · · + αn and MACs γ(aj)i ← α · aj and sends messages
+
+a1, . . . , at to the adversary.
+
+2. The adversary sends back messages a1, . . . , at. 3. The challenger generates random values r1, . . . , rt ← Fp and sends them to the adversary.
+
+4. The adversary provides an error ∆.
+
+5. Set a ←
+
+t j=0
+
+rj aj ,
+
+γi
+
+←
+
+t j=0
+
+rj γ(aj )i,
+
+and
+
+σi
+
+←
+
+γi−αi·a.
+
+Now,
+
+the
+
+challenger
+
+checks
+
+that
+
+σ1+·
+
+·
+
+·+σn
+
+=
+
+∆
+
+The adversary wins the game if there is an i for which ai = ai and the ﬁnal check goes through. The second step in the game where the adversary sends the ai’s models the fact that corrupted players can choose to lie about their shares of values opened during the protocol execution. ∆ models the fact that the adversary is allowed
+
+to introduce errors on the macs. Now, let us look at the probability of winning the game if the ri’s are randomly chosen. If the check goes through,
+we have that the following equalities hold:
+
+n
+
+n
+
+∆ = σi = (γi − αi · a)
+
+i=1
+
+i=1
+
+
+
+n
+
+t
+
+
+t
+
+=  rj · γ(aj)i − αi · rj · aj
+
+i=1 j=1
+
+j=1
+
+
+
+
+
+n
+
+t
+
+=  rj · γ(aj)i − αi · rj · aj 
+
+i=1 j=1
+
+t
+
+n
+
+=
+
+rj ·
+
+γ(aj )i − αi · aj
+
+j=1
+
+i=1
+
+t
+
+= rj · α · aj − α · aj
+j=1
+
+t
+
+= α · rj · aj − aj
+j=1
+
+So, the following equality holds:
+
+t
+
+α · rj(aj − aj) = ∆.
+
+(1)
+
+j=0
+
+First we consider the case where
+
+t j=0
+
+rj (aj
+
+−
+
+aj )
+
+=
+
+0,
+
+so
+
+α
+
+=
+
+∆/
+
+t j=0
+
+rj (aj
+
+−
+
+aj ).
+
+This
+
+implies
+
+that
+
+being
+
+able
+
+to pass the check is equivalent to guessing α. However, since the adversary has no information about α, this happens
+
+with probability only 1/|Fp|. So what is left is to argue that
+
+t j=0
+
+rj
+
+(aj
+
+− aj)
+
+=
+
+0
+
+also
+
+happens
+
+with
+
+very
+
+low
+
+probability. This can be seen as follows. We deﬁne µj := (aj − aj) and µ := (µ1, . . . , µt), r := (r1, . . . , rt). Now
+
+fµ(r) := r · µ =
+
+t j=0
+
+rj µj
+
+deﬁnes
+
+a
+
+linear
+
+mapping,
+
+which
+
+is
+
+not
+
+the
+
+0-mapping
+
+since
+
+at
+
+least
+
+one
+
+µj
+
+=
+
+0.
+
+From
+
+linear algebra we then have the rank-nullity theorem telling us that dim(ker(fµ)) = t − 1. Also since r is random
+
+and the adversary does not know r when choosing the ai’s, the probability of r ∈ ker(fµ) is |Fpt−1|/|Ftp| = 1/|Fp|.
+
+Summing up, the total probability of winning the game is at most 2/|Fp|.
+
+For correctness we use the fact that Equation 1 holds with probability one if aj = aj and ∆ = 0 (honest prover).
+
+31
+
+D.4 Proof of Theorem 4
+Proof. We construct a simulator SPREP (given in Figure 18 and Figure 19) such that no polynomial-time environment can distinguish, with signiﬁcant probability, a view obtained running ΠPREP from a view obtained running SPREP FPREP. The environment’s view is the collection of all intermediate messages that corrupted players send and receive, plus the inputs and outputs of all players.
+In a nutshell, the simulator will run a copy of ΠPREP with the adversary, acting on behalf of honest players. Keys for the underlying cryptosystem and MACs are generated by simulating queries KeyGen and EncCommit to FSHE respectively. Note that due to the distributed decryption, data for the (online) input preparation stage might be incorrectly secret shared, and all type of data might be incorrectly MAC’d. Since the simulator knows α and s, it can compute offsets on the secret sharing and MACs and pass them to FPREP.
+Before we discuss indistinguishability we explain how the cheat mechanism is handled in the simulation. In the execution of ΠPREP, the environment may send Cheat either in the initial query KeyGen or in any later query EncCommit to FSHE. Thus, the success probability depends on the number of cheat attempts. The simulator ensures two things: 1) Whenever the environment sends the ﬁrst Cheat to what it thinks is FSHE, the call is forwarded to FPREP, which decides whether or not it is successful. 2) Assuming this cheat was successful, the simulator recreates the success probability that a real interaction would have. This is needed as otherwise the environment would distinguish. The inner procedure SEncCommit is designed for this purpose.
+We now turn to show indistinguishability. We point out that there is mainly one difference between a simulated run and a real execution of ΠPREP: In a simulated run, honest shares used in the interaction are randomly sampled by the simulator. These shares correspond to the MAC key, and shares of generated data together with the shares of their MACs. At the end of the day, FPREP will output data using its own honest shares of α, and its own honest shares of data and MACs.
+We can split the view of the environment in four chunks. Namely, messages interchanged either in DataGen, in DataCheck, or in MACCheck, and players’ output of FPREP. Clearly, indistinguishability of simulated and real views of DataGen chunk comes from the semantic property of the underlying cryptosystem. For the DataCheck chunk, note that all opened values are a combination of output data and sacriﬁced data. The latter does not form part of the ﬁnal output, and therefore by no means the environment can reconstruct the set of opened values using its view, as it does not know honest shares of the sacriﬁced data. In other words, openings are randomized via sacriﬁcings from the environment’s point of view, so the best it can do is to guess sacriﬁced honest shares, which happens with probability 1/|Fp| for each share’s guessing. For the MACCheck chunk, we refer to the fact that the soundness error of MACCheck is 2/p, as shown in Lemma 1. Both probabilities are negligible if p is exponential in the security parameter. Lastly, we also have consistency between the output of FPREP and what the environment sees in corrupted transcripts. This is due to the fact that the offsets (those quantities denoted by ∆) are simply the difference between deviated and correctly computed data, and therefore independent of what data refers to.
+If the protocol aborts in DataCheck or MACCheck, the players output ∅, and so does FPREP on instruction of the simulator. This corresponds to the fact that those protocols do not reveal the identity of any corrupted party.
+It remains to show what happens in case Cheat or Abort is sent by the environment. If the cheat did not go through, players’ output is a single message S for a set S of corrupted players in both real and simulated interaction. On the other hand, if the cheat did go through, the functionality FPREP breaks down, and the simulator can decide what MAC key is used and what data is outputted to every player, so it just gives to FPREP what it has been generated during the interaction. If the environment sends Abort and a set S of corrupted players, this is simply passed to FPREP, which forwards it to the players.
+32
+
+The simulator SPREP
+Initialize: – The simulator ﬁrst sends (Start, p) to FPREP and then interacts with the adversary acting as FSHE on query KeyGen to generate the encryption public key (pk, enc) and a complete set of shares {s1, . . . , sn} of the secret key. If the adversary sends Cheat to FSHE, the simulator forwards it to FPREP. If the cheat passed through, the simulator sets the ﬂag BreakDown to true, otherwise it is set to false. – The generation of the MAC key α is done as in the protocol, but calling to SEncCommit(Fp) instead to FSHE on query EncCommit. The simulator stores α ← α1 + · · · + αn for later use. – Lastly, it gives αi to FPREP for i ∈ A if BreakDown is false, and i ≤ n otherwise. – If the simulation FSHE aborts on KeyGen or and EncCommit, go to “Abort”.
+Command = DataGen: On input (nI , nm, ns, nb) from honest players and adversary, the simulator sets TInput ← SimDataGen(InputPrep, nI ) TT riples ← SimDataGen(Triples, nm) TSquares ← SimDataGen(Squares, ns) TBits ← SimDataGen(Bits, nb),
+where SimDataGen is speciﬁed in Figure 19. These calls also return a decision bit. If it is set to Abort, the simulator goes to “Abort”. Command = DataCheck:
+– Step 1 is executed as in the protocol but calling to SEncCommit(Rp). The simulator goes to “Abort” if SEncCommit says so.
+– The simulator performs steps (a)-(d) of subprocedures Triples, Squares, Bits of DataCheck. In each iteration k, it gets to know the value σk. If any of these values are non-zero, the simulator sends Abort and ∅ to FPREP. Otherwise, the algebraic relation among generated data is correct with probability 1 − 1/p.
+Finalize: At this point, the functionality is waiting for instruction Proceed or Abort, or otherwise, a complete break down occurred, and the functionality is waiting for command DataGen and output values from the adversary. 1. The simulator engages with the adversary in a normal run of MACCheck on behalf of each honest player i. Note that to generate honest σi the simulator uses shares αi. If σ1 + · · · + σn = 0, send Abort and ∅ to FPREP. 2. Otherwise send Success to the adversary, and send to FPREP the following: – If BreakDown is false, send TInput, TT riples, TSquares, TBits. – If BreakDown is true, send all the data (corresponding to honest and corrupted players) generated in the execution of SimDataGen.
+Abort: If the simulated FSHE aborts outputting a set S of corrupted players, input Abort and S to FPREP. Fig. 18. The Simulator SPREP For The Preprocessing Phase
+33
+
+The simulator SPREP
+
+SimDataGen(DataType): This procedure gets ready the data to be inputted to FPREP.
+
+DataType = InputPrep :
+
+– The simulator engages in a normal run of steps (a)-(g) calling to SReshare instead of Reshare. If, at any point,
+
+some of the calls returned Abort, the simulator sets Decision ← Abort and TInput ← ∅.
+
+– Otherwise all the rounds were successful. The simulator sets Decision ← Continue. Note that in step (c) (after
+
+unpacking all the rounds), the simulator gets players’ shares and MAC shares {rˆk(i), γk(i) ∈ (Fp)2·nI | i, k ≤
+
+n}.
+
+Then
+
+ˆr(i)
+
+=
+
+Pn
+k
+
+ˆr(ki)
+
+is
+
+the
+
+(presumably)
+
+input
+
+of
+
+player
+
+i.
+
+The
+
+simulator
+
+has
+
+the
+
+secret
+
+key,
+
+so
+
+it
+
+can
+
+get
+
+the real input r(i) from the broadcast ciphertexts (if Pi is corrupted) or from what he generated (if Pi is honest).
+
+It
+
+computes
+
+offsets
+
+∆r(i)
+
+←
+
+ˆr(i)
+
+−
+
+r(i)
+
+and
+
+∆(γi)
+
+←
+
+Pn
+k
+
+γk(i)
+
+−
+
+α
+
+·
+
+r(i)
+
+There are two possibilities:
+
+• Flag BreakDown is set to false. This means no cheat has occurred, so the simulator prepares corrupt inputs,
+
+corrupt shares and MAC shares, and offsets. That is, it sets TInput ← {r(k), ˆr(ki), ∆(ri), ∆(γi), γk(i) | k ∈ A, i ≤ n}
+
+• Flag BreakDown is set to true. Then there was at least one successful cheat, and the functionality is waiting
+
+for adversary’s contributions. The simulator sets TInput to be the output of each player.
+
+DataType = Triples, Squares, Bits: The simulator engages in a normal run of the subprocedure speciﬁed by DataType,
+
+but calling to SEncCommit(Rp) and SReshare(cm) instead of FENCCOMMIT and Reshare(cm). If any of the above
+
+macros returned Abort the simulator sets Decision ← Abort and TDataT ype ← ∅. In any other case the simulator
+
+sets Decision ← Continue, handles the BreakDown ﬂag as above, and does:
+
+Triples: Set TT riples ← {(ai, bi, ci, γ(a)i, γ(b)i, γ(c)i, ∆(γa), ∆(γb), ∆(γc)) ∈ (Fp)9·(2·nm) | i ≤ n}. The shares
+
+are unpacked in step (i): corrupt shares are given by the adversary, and honest shares are sampled uniformly.
+
+MAC shares are produced after executing SReshare to simulate step (h), and the offsets are computed as ex-
+
+plained earlier.
+
+Squares: Set TSquares ← {(ai, bi, γ(a)i, γ(b)i, ∆(γa), ∆(γb)) ∈ (Fp)6·(2·ns+nb) | i ≤ n} Shares, MAC shares
+
+and offsets are obtained as explained above.
+
+Bits: Set TBits ← {(bi, γi, ∆(γb)) ∈ (Fp)3·(2·nb) |i ≤ n}. A number nb ≥ nb of binary shares and MACs has been computed, The exact amount nb is round-dependent and it is expected to be approximately (nb + m/2) · (p − 1)/p.
+
+Return (Decision, TDataT ype).
+
+Macro SEncCommit(cond) This macro is intended to simulate a call to FSHE on query EncCommit.
+
+– The simulator receives corrupted seeds si from the adversary, when it thinks is interacting with FSHE, and computes
+
+mi and cmi for i ∈ A which are given to the adversary. Then the simulator generates uniformly mi and ci = Encpk(mi) for i ∈/ A, and gives ci to the adversary. It waits for response Proceed, Cheat or Abort.
+
+– If the adversary gives Proceed, the simulator sets Decision ← Continue, and if the adversary gives Abort, set
+
+Decision ← Abort and also send Abort to FPREP. – If the adversary gives (Cheat, {m∗i , c∗i }i∈A), set mi ← m∗i , ci ← c∗i for i ∈ A, and do the following:
+1. Check if ﬂag BreakDown is false, if so, send Cheat to FPREP. Then set BreakDown to true. There are two
+
+possibilities:
+
+(a) The functionality returns Success: set Decision ← Continue.
+
+(b) The functionality returns NoSuccess: set Decision ← Abort.
+
+2. If BreakDown is set to true, with probability 1/c set Decision ← Continue, or otherwise Decision ← Abort.
+
+– Return (Decision, m1, . . . , mn, c1, . . . , cn).
+
+Macro SReshare(cm)
+
+–
+
+Set (f1, . . . , fn, c1, . . . , cn) ← SEncCommit(Rp) and f
+
+←
+
+P
+i
+
+fi.
+
+Set
+
+Decision
+
+←
+
+Abort
+
+if
+
+SEncCommit
+
+says
+
+so.
+
+– Otherwise, set Decision ← Continue and run steps 2-5 of Reshare. Note that in step 3 the simulator might get an
+
+invalid value (m + f )∗. Set m1 ← (m + f )∗ − f1 and mi ← −fi.
+
+– Return shares (Decision, m1, . . . , mn).
+
+Fig. 19. Internal Procedures Of The Simulator SPREP
+
+34
+
+E Online Phase : Protocol, Functionalities and Simulators
+E.1 Protocols Protocol ΠONLINE
+Initialize: The parties call FPREP to get the shares αi of the MAC key, a number of multiplication triples ( a , b , c ), squares ( a , b ), bits b , and mask values (ri, ri ) as needed for the circuit being evaluated. If FPREP aborts outputting a set S of corrupted players, the players output S and abort. Then the operations speciﬁed below are performed according to the circuit.
+Input: To share his input xi, Player i takes an available mask value (ri, ri ) and does the following: 1. Broadcast ← xi − ri. 2. The players compute xi ← ri + .
+Add: On input ( x , y ), the players locally compute x + y ← x + y . Multiply: On input ( x , y ), the players do the following:
+1. Take one multiplication triple ( a , b , c ) and open x − a , y − b to get , ρ respectively. 2. Locally each player sets z ← c + · b + ρ · a + · ρ Square: On input x the players do the following: 1. Take a square pair ( a , b ) and partially open x − a so all players get . 2. All players locally compute z ← b + 2 · · x − 2. Output: This procedure is entered once the players have ﬁnished the circuit evaluation, but still the ﬁnal output y has not been opened. 1. The players call the MACCheck protocol on input all opened values so far. If it fails, they output ∅ and abort.
+∅ represents the fact to the corrupted players remain undetected in this case. 2. The players open y and call MACCheck on input y to verify its MAC. If the check fails, they output ∅ and abort,
+otherwise they accept y as a valid output. Fig. 20. Operations for Secure Function Evaluation
+35
+
+E.2 Functionalities Functionality FONLINE
+Initialize: On input (init, p, k) from all parties, the functionality stores (domain, p, k) and waits for an input from the environment. Depending on this, the functionality does the following: Proceed It sets BreakDown to false and continues. Cheat With probability 1/c, it sets BreakDown to true, outputs Success to the environment and continues. Otherwise it outputs NoSuccess and proceeds as in Abort. Abort It waits for the environment to input a set S of corrupted players, outputs it to the players, and aborts.
+Input: On input (input, Pi, varid , x) from Pi and (input, Pi, varid , ?) from all other parties, with varid a fresh identiﬁer, the functionality stores (varid , x). If BreakDown is true, it also outputs x to the environment.
+Add: On command (add , varid 1, varid 2, varid 3) from all parties (if varid 1, varid 2 are present in memory and varid 3 is not), the functionality retrieves (varid 1, x), (varid 2, y) and stores (varid 3, x + y).
+Multiply: On input (multiply, varid 1, varid 2, varid 3) from all parties (if varid 1, varid 2 are present in memory and varid 3 is not), the functionality retrieves (varid 1, x), (varid 2, y) and stores (varid 3, x · y).
+Square: On input (square, varid 1, varid 2) from all parties (if varid 1 is present in memory and varid 2 is not), the functionality retrieves (varid 1, x), and stores (varid 2, x2).
+Output: On input (output, varid ) from all honest parties (if varid is present in memory), the functionality retrieves (varid , y) and outputs it to the environment. – If BreakDown is false, the functionality waits for an input from the environment. If this input is Deliver then y is output to all players. Otherwise ∅ is output to all players. – If BreakDown is true, the functionality waits for y∗ from the environment and outputs it to all players. Fig. 21. The ideal functionality for MPC
+36
+
+E.3 Proof of Theorem 5
+Proof. We construct a simulator SONLINE to work on top of the ideal functionality FONLINE, such that the adversary cannot
+distinguish whether it is playing with the protocol ΠONLINE and FPREP, or the simulator and FONLINE. See Appendix E for the complete description of the simulator.
+We now proceed with the analysis of the simulation, by ﬁrst arguing that all the steps before the output are perfectly simulated and ﬁnally we show that the simulated output is statistically close to the one in the protocol.
+During initialization, the simulator merely acts as FPREP with the difference that the decision about the success of a cheating attempt is made by FONLINE. If the cheating was successful, FONLINE will output all honest inputs, and the simulator can determine all outputs. Therefore, the simulation will precisely agree with the protocol. For the rest of the proof, we will assume that there was no cheating attempt.
+In the input stage the values broadcast by the honest players are uniform in the protocol as well as in the simulation. Addition does not involve communication, while multiplication and squaring involve partial openings: in the protocol a partial opening reveals uniform values, and the same happens also in a simulated run. Moreover, MACs carry the same distribution in both the protocol and the simulation.
+In the output stage of both the real and simulated run if the output y is delivered, the environment sees y and the honest players’ shares, which are uniform and compatible with y and its MAC. Moreover, in a simulated run the output y is a correct evaluation of the function on the inputs provided by the players in the input phase. In order to conclude, we need to make sure that the same applies to the real protocol with overwhelming probability. As shown in Lemma 1, the adversary was able to cheat in one MACCheck call with probability 2/p. Thus, the overall cheating probability is negligible since p is assumed to be exponential in the security parameter. This concludes the proof.
+Simulator SONLINE
+Initialize: The simulation of the initialization procedure is performed running a local copy of FPREP. Notice that all the data given to the adversary is know by the simulator. If the environment inputs Proceed, Cheat, or Abort to the copy of FPREP, the simulator does so to FONLINE and forwards the output of FONLINE to the environment. If the output is Success, the simulator sets BreakDown to true and uses the environment’s inputs as preprocessed data. If FONLINE outputs NoSuccess of the input was Abort, the simulator waits for input S from the environment, forwards it to F , ONLINE and aborts.
+Input: – If BreakDown is false, honest input is performed according to the protocol, with a dummy input, for example zero. – If BreakDown is true, FONLINE outputs the inputs of honest players, which then can be used in the simulation.
+For inputs given by a corrupt player Pi, the simulator waits for Pi to broadcast the (possibly incorrect) value , computes xi ← ri + and uses xi as input to F . ONLINE Add/Multiply/Square: These procedures are performed according to the protocol. The simulator also calls the respective procedure to F . ONLINE Output: FONLINE outputs y to the simulator.
+– If BreakDown is false, the simulator now has to provide the honest players’ shares of such a value; it already computed an output value y , using the dummy inputs for the honest players, so it can select a random honest player and modify its share adding y − y and modify the MAC adding α(y − y ), which is possible for the simulator, since it knows α. After that, the simulator is ready to open y according to the protocol. If y passes the check, the simulator sends Deliver to F . ONLINE
+– If BreakDown is true, the simulator inputs the result of the simulation to F . ONLINE
+Fig. 22. Simulator for the Online phase
+37
+
+F Active Security
+
+The following is a sketch of a method for an actively secure version of Π . ENCCOMMIT More speciﬁcally, we assume players have access to an ideal functionality FKAEYGEN which generates the key material as FKEYGEN, but it models active
+security rather than covert security. More concretely, this just means that there is no “cheat option” that the adversary
+
+can
+
+choose.
+
+The
+
+purpose
+
+of
+
+this
+
+section
+
+is
+
+therefore
+
+to
+
+describe
+
+a
+
+protocol
+
+ΠA
+ENCCOMMIT
+
+which
+
+securely
+
+implements
+
+an ideal functionality FSAHE in the FKAEYGEN-hybrid model, where FSAHE behaves as FSHE, but, again, models active
+
+security.
+
+The protocol is inspired by the protocol from [22] where a particularly efﬁcient variant of the cut-and-choose
+
+approach was developed.
+
+Let Pi be the player who is to produce ciphertexts to be veriﬁed by the other players. The protocol is parametrized
+
+by two natural numbers T, b where b divides T . We will set t = T /b. The protocol will produce as output t ciphertexts
+
+c0, . . . , ct−1.
+
+Each such ciphertext is generated according to the algorithm described earlier, and is therefore created from the
+
+public key and four polynomials m, v, e0 and e1. To make the notation easier to deal with below, we rename these as
+
+f1, f2, f3, f4. We can then observe that there exist ρl, for l = 1, . . . , 4 such that fl ∞ ≤ ρl except with negligible probability. Concretely, we can use ρ1 = p/2, ρ2 = 1 and ρ3 = ρ4 = ρ where ρ can be determined by a tail-bound on
+
+the gaussian distribution used for generating f3, f4.
+
+The player Pi will also create a set of random reference ciphertexts d0, . . . , d2T −1 that are used to verify that c0, . . . , ct−1 are well-formed and that Pi knows what they contain. Each dj is created from 4 polynomials g1, . . . , g4
+
+in the same way as above, but the polynomials are created with a different distribution. Namely, they are random
+
+subject to gi ∞ ≤ 4 · δ · ρi · T · φ(m), where δ > 1 is some constant. The protocol now proceeds as follows:
+
+1. Below Pi is given some number of attempts to prove that his ciphertexts are correctly formed. The protocol is parametrized by a number M which is the maximal number of allowed attempts. We start by setting a counter v = 1.
+2. Pi broadcasts the ciphertexts c0, . . . , ct−1 and the reference ciphertexts d0, . . . , d2T −1 containing plaintexts. These ciphertexts should be generated from seeds s0, . . . , s2T −1 that are ﬁrst sent through the random oracle and the output is used to generate the plaintext and randomness for the encryptions.
+3. A random index subset of size T is chosen, and Pi must broadcast si for i ∈ T . Players check that each opened si indeed induces the ciphertext di, and abort if this is not the case.
+4. A random permutation π on T items is generated and the unopened ciphertexts are permuted according to π. We renumber the permuted ciphertexts and call them d0, . . . , dT −1.
+5. Now, for each ci, the subset of ciphertexts {dbi+j| j = 0, . . . , b − 1} is used to demonstrate that ci is correctly formed. This is called the block of ciphertexts assigned to ci. We do as follows:
+(a) For each i, j do the following: let f1, . . . , f4 and g1, . . . , g4 be the polynomials used to form ci, respectively dbi+j. Deﬁne zl = fl + gl, for l = 1, . . . , 4.
+(b) Player Pi checks that zl ∞ ≤ 4 · δ · ρl · T · φ(m) − ρl. If this is the case, he broadcasts zl, for l = 1, . . . , 4. Otherwise he broadcasts ⊥.
+(c) In the former case players check that zl ∞ is in range for l = 1, . . . , 4 and that the zl’s induce the ciphertext ci + dbi+j .
+(d) At the end, players verify that for each ci, Pi has correctly opened ci + dbi+j for all ciphertexts in the block assigned to ci.
+(e) If all checks go through, output c0, . . . , ct−1 and exit. Else, if v < M , increment v and go to step 2. Finally, if v = M , the prover has failed to convince us M times, so abort the protocol.
+
+It is possible to adapt the protocol for proving that the plaintexts in ci satisfy certain special properties. For instance, assume we want to ensure that the plaintext polynomial f1 is a constant polynomial, i.e., only the degree-0 coefﬁcient is non-zero. We do this by generating the reference ciphertexts such that for each di, the polynomial g1 is also a constant polynomial. When opening we check that the plaintext polynomial is always constant. The proof of security
+is trivially adapted to this case.
+
+38
+
+Some intuition for why this works: after half the reference ciphertexts are opened, we know that except with
+
+exponentially small probability almost all the unopened ciphertexts are well formed. A simulator will be able to
+
+extract randomness and plaintext for all the well formed ones. When we split the unopened dj’s randomly in blocks of b ciphertexts, it is therefore very unlikely that some block contains only bad ciphertexts. It can be shown that the probability that this happens is at most t1−b · (e · ln(2))−b [22].
+
+Assume Pi is corrupt: Now, if he survives one iteration of the test, and no block was completely bad, it follows that for every ci, he has opened opened at least one ci + dbi+j where dbi+j was well formed. The simulator can therefore extract a way to open ci since ci = (ci + dbi+j) − dbi+j. It will be able to compute polynomials fl for ci with fl ∞ ≤ 8 · δ · ρl · T · φ(m). Therefore, if some ci is not of this form, the prover can survive one iteration of the test with probability at most t1−b · (e · ln(2))−b. To survive the entire protocol, the prover needs to win in at least one of the M iterations, and this happens with probability at most M · t1−b · (e · ln(2))−b, by the union bound.
+
+Assume Pi is honest: Then when he decides whether to open a given ciphertext, the probability that a single
+
+coefﬁcient
+
+is
+
+in
+
+range
+
+is
+
+1 4·δ·φ(m)·T
+
+.
+
+There
+
+are
+
+4
+
+·
+
+φ(m)
+
+coefﬁcients
+
+in
+
+a
+
+single
+
+ciphertext
+
+and
+
+up
+
+to
+
+T
+
+ciphertexts
+
+to
+
+open, so by a union bound, Pi will not need to send ⊥ at all, except with probability 1/δ. The probability that an
+
+honest prover fails to complete the protocol is hence (1/δ)M . We therefore see that the completeness error vanishes
+
+exponentially with increasing M , and in the soundness probability, we only loose log M bits of security.
+
+It is easy to see that for each opening done by an honest prover, the polynomials zl will have coefﬁcients that are
+
+uniformly distributed in the expected range, so the protocol can be simulated.
+
+Finally, note that in a normal run of the protocol, only 1 iteration is required, except with probability 1/δ. So in
+
+practice, what counts for the efﬁciency is the time we spend on one iteration.
+
+In our experiments we implemented the above protocol with the following parameter choices δ = 256, M = 5, t = 12 and b = 16. This guaranteed a cheating probability of 2−40, as well as the probability of an honest prover failing of 2−40. In addition the choice of t = 12 was to ensure that each run of the protocol created enough ciphertexts
+to be run in two executions of the main loop of the multiplication triple production protocol. By increasing t and
+decreasing b one can improve the amortized complexity of the protocol while keeping the error probabilities the same.
+This comes at the cost of increased memory usage, primarily because decreasing b to, e.g, b/2 means that t needs to be replaced by essentially t2. On our test machines t = 12 seemed to provide the best compromise.
+
+G Parameters of the BGV Scheme
+In this appendix we present an analysis of the parameters needed by the BGV to ensure that the distributed decryption procedure can decrypt the ciphertexts produced in the ofﬂine phase and that the scheme is “secure”. Unlike in [14], which presents the analysis in terms of a worst case analysis, we use the expected case analysis used in [16].
+
+G.1 Expected Values of Norms
+
+Given an element a ∈ R (represented as a polynomial) we deﬁne a p to be the standard p-norm of the coefﬁcient
+
+vector (usually for p = 1, 2 or ∞). We also deﬁne
+
+a
+
+can p
+
+to
+
+be
+
+the
+
+p-norm
+
+of
+
+the
+
+same
+
+element
+
+when
+
+mapped
+
+into
+
+the
+
+canonical embedding i.e.
+
+a
+
+can p
+
+=
+
+κ(a) p
+
+where κ(a) : R −→ Cφ(m) is the canonical embedding. The key two relationships are that
+
+a ∞ ≤ cm ·
+
+a
+
+can ∞
+
+and
+
+a
+
+can ∞
+
+≤
+
+a 1,
+
+for some constant cm depending on m. Since in our protocol we select m to be a power of two then we have cm = 1. We also deﬁne the canonical embedding norm reduced modulo q of an element a ∈ R as the smallest canonical
+embedding norm of any a which is congruent to a modulo q. We denote it as
+
+|a|cqan = min{
+
+a
+
+can ∞
+
+:
+
+a
+
+∈ R,
+
+a
+
+≡a
+
+(mod q) }.
+
+39
+
+We sometimes also denote the polynomial where the minimum is obtained by [a]cqan, and call it the canonical reduction of a modulo q.
+Following [16][Appendix A.5] we examine the variances of the different distributions utilized in our protocol. Let ζm denote any complex primitive m-th root of unity. Sampling a ∈ R from HWT (h, φ(m)) and looking at a(ζm) produces a random variable with variance h, when sampled from ZO(0.5, φ(m)) we obtain variance φ(m)/2, when sampled from DG(σ2, φ(m)) we obtain variance σ2 · φ(m)√and when sampled from U(q, φ(m)) we obtain variance q2 · φ(m)/12. By the law of large numbers we can use 6 · V , where V is the above variance, as a high probability bound on the size of a(ζm), and this provides a bound on the canonical embedding norm of a.
+√ If√we take a product of √two, three, or four such elements with variances V1, V2, . . . , V4 we use 16 · V1 · V2, 9.6 · V1 · V2 · V3 and 7.3 · V1 · V2 · V3 · V4 as the resulting bounds since
+erfc(4)2 ≈ erfc(3.1)3 ≈ erfc(2.7)4 ≈ 2−50.
+
+G.2 Key Generation
+
+We ﬁrst need to establish the rough distributions (i.e. variances) of the resulting keys arising from our key generation procedure. For our purposes we are only interested in the variance of the associated distributions in the canonical embedding, in which case we obtain
+Var(κ(sj)) = n · Var(κ(si,j)) = n · h, Var(κ(aj)) = q12 · φ(m)/12, Var(κ( j)) = n · Var(κ( i,j)) = n · σ2 · φ(m).
+
+We will also need to analyze the distributions of the randomness needed to produce encj. Here we assume that all parties follow the protocol and we are only interested in the output ﬁnal extended public key, thus we write (dropping the j to avoid overloading the reader)
+enc = (bs,s2 , as,s2 )
+
+where
+
+bs,s2 = as,s2 · s + p · es,s2 − p1 · s2.
+
+We can also write
+
+enci = (b · vi + p · e0,i − p1 · si, a · vi + p · e1,i) zeroi = (b · vi + p · e0,i, a · vi + p · e1,i)
+
+where (vi, e0,i, e1,i) ← RCs(0.5, σ2, φ(m)) and (vi, e0,i, e1,i) ← RCs(0.5, σ2, φ(m)). We therefore have
+
+
+
+n
+
+n
+
+
+n
+
+as,s2 = si ·  a · vj + p · e1,j  + (a · vi + p · e1,i),
+
+i=1
+
+j=1
+
+i=1
+
+40
+
+and
+
+
+
+n
+
+n
+
+
+n
+
+bs,s2 = si ·  b · vj + p · e0,j − p1 · sj  + (b · vi + p · e0,i)
+
+i=1
+
+j=1
+
+i=1
+
+
+
+
+
+
+
+
+
+n
+
+n
+
+n
+
+n
+
+= as,s2 · s − s · si ·  a · vj + p · e1,j  + si ·  b · vj + p · e0,j − p1 · sj 
+
+i=1
+
+j=1
+
+i=1
+
+j=1
+
+n
+
+n
+
++ (a · s + p · ) · vi + p · e0,i − s · (a · vi + p · e1,i)
+
+i=1
+
+i=1
+
+
+
+
+
+n
+
+n
+
+= as,s2 · s +  b · vj · si + p · e0,j · si − p1 · si · sj − s · si · a · vj − s · si · p · e1,j 
+
+i=1 j=1
+
+n
+
++p·
+
+· vi + e0,i − e1,i · s
+
+i=1
+
+
+
+n
+
+n
+
+= as,s2 · s + p ·  ( · vj · si + e0,j · si − s · si · e1,j ) +
+
+i=1 j=1
+
+ · vi + e0,i − e1,i · s − p1 · s2
+
+= as,s2 · s + p · es,s2 − p1 · s2
+
+where
+
+
+
+
+
+n
+
+n
+
+es,s2 =  ( · vj · si + e0,j · si − s · si · e1,j ) + · vi + e0,i − e1,i · s .
+
+(2)
+
+i=1 j=1
+
+Thus the values enc are indeed genuine “quasi-encryptions” of −p1 ·s2 with respect to the secret key s and the modulus q1. Equation 2 will be used later to establish the properties of the output of the SwitchKey procedure.
+
+G.3 BGV Procedures
+
+We can now turn to each of the procedures in turn of the two level BGV scheme we are using and estimate the output noise term. For a ciphertext c = (c0, c1, ) we deﬁne the “noise” to be an upper bound on the value
+
+c0 − s · c1
+
+can ∞
+
+.
+
+Encpk(m): Given a fresh ciphertext (c0, c1, 1), we calculate a bound (with high probability) on the output noise by
+
+c0 − s · c1 ∞ ≤ = =
+≤
+
+c0 − s · c1
+
+can ∞
+
+((a · s + p ·
+
+) · v + p · e0 + m − (a · v + p · e1) · s
+
+can ∞
+
+m+p·(
+
+· v + e0 − e1 · s)
+
+can ∞
+
+m
+
+can ∞
+
++
+
+p
+
+·
+
+·v
+
+can ∞
+
++
+
+e0
+
+can ∞
+
++
+
+e1 · s
+
+can ∞
+
+≤ φ(m) · p/2 + p · σ · 16 · φ(m) · n/2 + 6 · φ(m) + 16 ·
+
+n · h · φ(m) = Bclean.
+
+Note this value of Bclean is different from that in [16] due to the different distributions resulting from the distributed key generation.
+
+SwitchModulus((c0, c1), ): If the input ciphertext has noise ν then the output ciphertext will have noise ν where
+
+ν
+
+ν
+
+= p
+
++ Bscale.
+
+41
+
+The value Bscale is an upper bound on the quantity
+
+τ0 + τ1 · s
+
+can ∞
+
+,
+
+where
+
+κ(τi
+
+)
+
+is
+
+drawn
+
+from
+
+a
+
+distribution
+
+which
+
+is
+
+close to a complex Gaussian with variance φ(m) · p2/12. We therefore, we can (with high probability) take the upper
+
+bound to be
+
+Bscale = 6 · p · φ(m)/12 + 16 · p · n · φ(m) · h/12, √
+= p · 3 · φ(m) · 1 + 8 · n · h/3 .
+
+Again, note the dependence on n (compared to [16]) as the secret key s is selected from a distribution with variance n · h, and not just h. Also note the dependence on p due to the plaintext space being deﬁned mod p as opposed to mod 2 in [16].
+
+Decs(c): As explained in [14, 16] this procedure works when the noise ν associated with a ciphertext satisﬁes ν = cm · ν < q /2.
+
+DistDecsi (c): The value B is an upper bound on the noise ν associated with a ciphertext we will decrypt in our protocols. To ensure valid distributed decryption we require
+2 · (1 + 2sec) · B < q .
+Given a value of B, we therefore will obtain a lower bound on p0 by the above inequality. The addition of a random term with inﬁnity norm bounded by 2sec · B/(n · p) in the distributed decryption procedure ensures that the individual coefﬁcients of the sum t1 + · · · + tn are statistically indistinguishable from random, with probability 2−sec. This does not imply that the adversary has this probability of distinguishing the simulated execution in [14] from the real execution; since each run consists of the exchange of φ(m) coefﬁcients, and the protocol is executed many times over the execution of the whole protocol. We however feel that setting concentrating solely on the statistical indistinguishability of the coefﬁcients is valid in a practical context.
+
+SwitchKey(d0, d1, d2): In order to estimate the size of the output noise term we need ﬁrst to estimate the size of the
+
+term
+
+p · d2 · s,s2 c∞an.
+
+Using Equation 2 we ﬁnd
+
+p · d2 · es,s2 ) c∞an/q0 ≤ p ·
+
+φ(m) ·
+
+n2 · σ ·
+
+7.3 ·
+
+12
+
+n · h · φ(m)2/2 + 9.6 · +7.3 · h · n · φ(m)
+
+h · φ(m)
+
++n · 9.6 · σ · n · φ(m)2/2 + 16 · σ · φ(m)
+
++7.6 · σ · φ(m) · n · h √
+≤ p · φ(m) · σ · n2.5 · (1.49 · h · φ(m) + 2.11 · h) + 2.77 · n2 · h √
++n1.5 · (1.96 · φ(m) + 2.77 · h) + 4.62 · n
+
+= BKS.
+
+Then if the input to SwitchKey has noise bounded by ν then the output noise value will be bounded by
+
+ν
+
++
+
+BKS · p1
+
+q0
+
++
+
+Bscale.
+
+Mult(c, c ): Combining the all the above, if we take two ciphertexts of level one with input noise bounded by ν and ν , the output noise level from multiplication will be bounded by
+
+ν=
+
+ν p1 + Bscale
+
+·
+
+ν p1 + Bscale
+
++
+
+BKS p1
+
++
+
+Bscale.
+
+42
+
+G.4 Application to the Ofﬂine Phase
+
+In all of our protocols we will only be evaluating the following circuit: We ﬁrst add n ciphertexts together and perform a multiplication, giving a ciphertext with respect to modulus p0 with noise
+
+U1 =
+
+n·
+
+Bclean p1
+
++ Bscale
+
+2
+
++
+
+BKS · p0 p2
+
++
+
+Bscale.
+
+We then add on another n ciphertexts, which are added at level one and then reduced to level zero. We therefore obtain a ﬁnal upper bound on the noise for our adversarially generated ciphertexts of
+
+U2
+
+=
+
+U1
+
++
+
+n · Bclean p1
+
++ Bscale.
+
+To ensure valid (distributed) decryption, we require
+
+2 · U2 · (1 + 2sec) < p0,
+
+i.e. we take B = U2 in our distributed decryption protocol. This ensure valid decryption in our ofﬂine phase, however we still need to select the parameters to ensure security.
+Following the analysis in [16] of the BGV scheme we set, for 128-bit security,
+φ(m) ≥ 33.1 · log q1 . σ
+
+Combining the various inequalities together; a search of the parameter space the ﬁxed values of σ = 3.2, sec = 40 and h = 64, for several choices of p, n yields the estimates in tables 4, 5 and 6. And it is these parameter sizes which we use to generate the primes and rings in our implementation.
+
+n
+
+φ(m) log2 p0 log2 p1 log2 q1 log2(U2)
+
+2
+
+8192
+
+130
+
+104
+
+234
+
+89
+
+3
+
+8192
+
+132
+
+104
+
+236
+
+90
+
+4
+
+8192
+
+132
+
+104
+
+236
+
+91
+
+5
+
+8192
+
+132
+
+106
+
+238
+
+90
+
+6
+
+8192
+
+132
+
+106
+
+238
+
+91
+
+7
+
+8192
+
+132
+
+108
+
+240
+
+91
+
+8
+
+8192
+
+132
+
+108
+
+240
+
+91
+
+9
+
+8192
+
+132
+
+110
+
+242
+
+91
+
+10 8192
+
+132
+
+110
+
+242
+
+91
+
+20 8192
+
+134
+
+110
+
+244
+
+93
+
+50 8192
+
+136
+
+114
+
+250
+
+94
+
+100 8192
+
+136
+
+116
+
+252
+
+95
+
+Table 4. Parameters for p ≈ 232.
+
+43
+
+n
+
+φ(m) log2 p0 log2 p1 log2 q1 log2(U2)
+
+2
+
+16384 196
+
+136
+
+332
+
+154
+
+3
+
+16384 196
+
+138
+
+334
+
+154
+
+4
+
+16384 196
+
+140
+
+336
+
+155
+
+5
+
+16384 196
+
+142
+
+338
+
+155
+
+6
+
+16384 198
+
+140
+
+338
+
+156
+
+7
+
+16384 198
+
+140
+
+338
+
+156
+
+8
+
+16384 198
+
+140
+
+338
+
+157
+
+9
+
+16384 198
+
+142
+
+340
+
+156
+
+10 16384 198
+
+142
+
+340
+
+156
+
+20 16384 198
+
+146
+
+344
+
+157
+
+50 16384 200
+
+148
+
+348
+
+158
+
+100 16384 202
+
+150
+
+352
+
+160
+
+Table 5. Parameters for p ≈ 264.
+
+n
+
+φ(m) log2 p0 log2 p1 log2 q1 log2(U2)
+
+2
+
+32768 324
+
+202
+
+526
+
+283
+
+3
+
+32768 326
+
+202
+
+528
+
+285
+
+4
+
+32768 326
+
+204
+
+530
+
+284
+
+5
+
+32768 326
+
+204
+
+530
+
+285
+
+6
+
+32768 326
+
+206
+
+532
+
+284
+
+7
+
+32768 326
+
+206
+
+532
+
+285
+
+8
+
+32768 326
+
+208
+
+534
+
+285
+
+9
+
+32768 326
+
+208
+
+534
+
+285
+
+10 32768 326
+
+208
+
+534
+
+285
+
+20 32768 328
+
+210
+
+538
+
+286
+
+50 32768 330
+
+212
+
+542
+
+289
+
+100 32768 330
+
+216
+
+546
+
+288
+
+Table 6. Parameters for p ≈ 2128.
+
+44
+
