@@ -1,0 +1,216 @@
+Downloaded from https://academic.oup.com/jpubhealth/article/42/4/784/5698241 by guest on 18 February 2022
+
+Journal of Public Health | Vol. 42, No. 4, pp. 784–792 | doi:10.1093/pubmed/fdz171 | Advance Access Publication October 29, 2019
+Democratizing health system data to impact social and environmental health contexts: a novel collaborative community data-sharing model
+L. E. Boulware1,2, G. B. Harris3, P. Harewood4, F. F. Johnson1,5, P. Maxson1, N. Bhavsar1,2, S. S. Blackwelder6, S. S. Poley6, K. Arnold6, B. Akindele6, J. Ferranti6, M. Lyn1,5
+1Center for Community and Population Health Improvement, Duke University Clinical and Translational Science Institute, Durham, NC 27701, USA 2Division of General Internal Medicine, Department of Medicine Duke University School of Medicine, Durham, NC 27701, USA 3Durham County Department of Public Health, Durham, NC 27701, USA 4Lincoln Community Health Center, Durham, NC 27707, USA 5Division of Community Health, Department of Community and Family Medicine, Duke University School of Medicine, Durham, NC 27701, USA 6Duke Health Technology Solutions, Duke Health, Durham, NC 27707, USA Address correspondence to L. Ebony Boulware, E-mail: ebony.boulware@duke.edu.
+ABSTRACT
+Background Community health data are infrequently viewed in the context of social and environmental health determinants. We developed a novel data-sharing model to democratize health system data and to facilitate community and population health improvement. Methods Durham County, the City of Durham in North Carolina, Durham health systems and other stakeholders have developed a data-sharing model to inform local community health efforts. Aggregated health system data obtained through clinical encounters are shared publicly, providing data on the prevalence of health conditions of interest to the community. Results A community-owned web platform called the Durham Neighborhood Compass provides aggregate health data (e.g. on diabetes, heart disease, stroke and other conditions of interest) in the context of neighborhood social (e.g. income distribution, education level, demographics) and environmental (e.g. housing prices, crime rates, travel routes, school quality, grocery store proximity) contexts. Health data are aggregated annually to help community stakeholders track changes in health and health contexts over time. Conclusions The Durham Neighborhood Compass is among the first collaborative public efforts to democratize health system data in the context of social and environmental health determinants. This model could be adapted elsewhere to support local community and population health improvement initiatives.
+Keywords communities, public health, social determinants
+
+Introduction
+Social and environmental contexts are key contributors to health outcomes. Growing data demonstrating striking variation in health across large (e.g. across states),1 and small
+
+(e.g. at county, city and neighborhood levels)2 geographic
+regions highlights the need to develop strategies to improve health through interventions accounting for local contexts.3
+As a result, many municipalities are joining stakeholders,
+
+Boulware, L.E., Co-director, Director and Chief Harris, G.B., Public health director and General manager Harewood, P., Chief executive officer Johnson, F.F., Assistant professor Maxson, P., Senior staff director Bhavsar, N., Assistant professor
+
+Blackwelder, S.S., Chief analytics officer Poley, S.S., Clinical trials project leader III Arnold, K., Bioinformatician II Akindele, B., Team lead Ferranti, J., Chief information officer and Vice president Lyn, M., Co-director, Assistant professor and Chief
+
+784 © The Author(s) 2020. Published by Oxford University Press on behalf of Faculty of Public Health. All rights reserved. For permissions, please e-mail: journals.permissions@oup.com
+
+DEMOCRATIZING HEALTH SYSTEM DATA 785
+
+Downloaded from https://academic.oup.com/jpubhealth/article/42/4/784/5698241 by guest on 18 February 2022
+
+including community residents, health departments, cityplanning organizations, health care payers and health care providers, in efforts to develop novel and collaborative strategies to improve health.
+The most common social and environmental contributors to poor health and excess morbidity—challenges such as poverty, housing, food access, social support—emanate from outside the walls of traditional health care settings and cannot be easily addressed through typical health care delivery models. Health care centers seeking to address these social and environmental determinants of health have begun to recognize the importance of collaborating with other community stakeholders to improve the health care of the populations they serve.4 Health data, generated in the process of health care delivery, represent a key asset that local health care systems can ‘bring to the table’ in collaborative efforts to improve community health. However, health data are not routinely leveraged to inform communities about common health concerns for which local residents seek health care. Efforts to leverage data for community health promotion are growing.5 However, few concrete examples demonstrating health systems’ contributions to this effort have been described.
+We describe a program in Durham County, North Carolina to implement a health data-sharing model by health system and community stakeholders to improve community health. Durham County, North Carolina is a mid-sized county in the Southeastern USA. North Carolina ranks 36th for overall health nationally and 38th for premature death.1 Within North Carolina, Durham County is the sixth largest (312,000 residents) county.6 The County is ethnically and racially diverse (14% Hispanic/Latino, 38% Black, 42% White and 6% other races/ethnicities) and socioeconomically diverse (16% below poverty line, a median income of $54,000 and 20% above 100,000 annual income).7 Unlike most counties in North Carolina, Durham County is comprised primarily of a single city, Durham, which is home to a diverse economy featuring academic centers, health care, technology and a number of other sectors. Durham fares worse than the state overall on a number of health indicators, such as child mortality, percent uninsured, health risk from air pollutants, food insecurity, and consumption of fruits and vegetables.8 Durham ranks 38th among North Carolina’s 100 counties for social and economic factors, including a homicide rate almost twice that of the state.8 Durham also has health inequities (e.g. rate of low birth weight being 7% for Whites and 13% for Blacks).8 A signiﬁcant proportion (7%) of Durham’s children are uninsured, and 24% of households with children have incomes below the poverty level. Within these households, 65% are enrolled in Medicaid and more than half receive food
+
+assistance through the Supplemental Nutrition Assistance Program or the Supplemental Nutrition Program for Women, Infants and Children. In 2018, 59% of children in Durham County qualiﬁed for free or reduced lunch.8
+Over 20 years, a number of key relationships, activities and collaborations have been implemented to improve health in Durham County. For example, since 2004, a coalition of community stakeholders, called ‘Partnership for a Healthy Durham’, has been supported through the Durham County Department of Public Health to bring representatives of local neighborhoods and other community sectors (including health, technology, business, education, social services and the arts) together to tackle community health problems. The Partnership is comprised of over 500 members who have worked collaboratively to create improved communication about health resources and needs in the Durham community as well as to address health issues around access and quality of health care. For instance, the Partnership and other community partners have developed programs to improve access to care for low-income families, enhancing a healthier environment through establishing bicycle routes, creating safe spaces for physical activity, and reducing unemployment and improving education, among other initiatives. As a result of these efforts, Durham County was named an inaugural recipient of the Robert Wood Johnson’s Culture of Health Prize, awarded to communities committed to addressing broad social and environmental determinants to improve health.9
+Two health systems have historically provided health care to over 95% of Durham County residents. Duke Health— comprised of Duke University Schools of Medicine and Nursing and Duke University Health System—plays an active role in collaborations to improve the health of the Durham community, including the Partnership for a Healthy Durham. Improving community health is called out as a part of Duke’s mission, and Duke Health is also both the predominant health care provider in Durham and the county’s largest employer. Lincoln Community Health Center, established in 1971, has provided high-quality, affordable primary health care services to the residents of Durham County, Lincoln Community Health Center provides services for all people and ensures access for underinsured, low-income and uninsured residents (approximately 33,000 people). LCHC operates nine clinics in the county and provides a broad spectrum of health care services, including primary and preventive care for all ages, behavioral health care, dental care, nutrition and other patient education, care of people with HIV infection, substance abuse services, health care for the homeless, school-based health care for adolescents, and in-home care program for elderly and disabled adults.
+
+786 JOURNAL OF PUBLIC HEALTH
+
+Downloaded from https://academic.oup.com/jpubhealth/article/42/4/784/5698241 by guest on 18 February 2022
+
+Methods
+Within Durham County’s context of activation around substantial health needs, County stakeholders have developed a collaborative community health data-sharing model. The development process has entailed four streams of activity, including (1) developing a community-based platform to democratize data on community contexts, (2) brokering agreements between local health systems to share data for community use, (3) establishing partnerships between the Academic and Community Health Centers with the Durham County Department of Public Health to democratize health data and (4) implementing a data-sharing workﬂow for continuous maintenance, expansion and integrity of shared data.
+Activity 1: development of the Durham Neighborhood Compass, a community-based data-sharing platform
+Durham city and County stakeholders have developed the Durham Neighborhood Compass,10 a website designed to openly share data on community characteristics with Durham residents. The Durham Neighborhood Compass surfaces data on a number of community characteristics with relevance to health outcomes including data on educational attainment, income distribution, housing prices, crime rates, travel routes, school quality, grocery store proximity, etc., all at the neighborhood level. Data are continually updated to provide information on changes in characteristics over time. The initiative began with the intent to aggregate locally generated data from government operations and match it up with data from commonly available census and other state/federal sources. Sources of data initially included the American Community Survey, Census data, the Durham Police Department and the County Tax Administration. To broker the data platform and provide a ‘stakeholder neutral’ location for data to be shared, both Durham County and City of Durham leaders provided ﬁnancial support for a new non-proﬁt organization, called DataWorks NC, Inc., which promotes democratization of data to ‘advance community programming and public discourse’.11 DataWorks NC developed the Durham Neighborhood Compass data-sharing platform by modifying open source code12 and conducts active and ongoing engagement with community stakeholders to establish collaborative and community-driven data-sharing principles and to gain community insights gained from data. DataWorks NC has a Corporate Board that consists of leaders from Durham County, the City of Durham, Duke University and Community Organizations.
+
+Activity 2: development of stakeholder agreements to leverage a common electronic health record across Durham county health providers
+In 2014, Duke Health and Lincoln Community Health Center joined an agreement licensing a common electronic health data record, using the Epic® electronic health record platform (Epic, Inc. 2018, Verona, Wisconsin).13 Through a research collaboration, research teams from Duke and Lincoln Community Health Center as well as other community stakeholders established a data model whereby health records from both health centers were used to estimate prevalence of diabetes in adults across Durham County.14 These data were used to develop and implement community-based interventions (e.g. medical care outreach, community health worker initiatives, and behavioral care) to address biomedical, social and environmental determinants of diabetes care.15 Simultaneously, efforts to identify the best methods to use electronic health records to characterize diabetes prevalence were undertaken using the health system data.16 The success of collaborations in these initial efforts laid a foundation for continued agreements by both institutions to work together to address health issues of the community through responsible data stewardship.
+Activity 3: partnerships to share health data between health systems and county health department
+To augment the Durham Neighborhood Compass with health data, the Durham County Department of Public Health sought a collaboration with Duke Health and Lincoln Community Health Centers in 2016. The Durham County Department of Public Health formally requested that both Duke Health and Lincoln Community Health Centers provide summary reports on the prevalence of health conditions for which adult Durham County residents routinely seek health care. Health conditions were selected from a list of previously identiﬁed health conditions identiﬁed as high priorities to address in the Durham County Community Health Assessment.17 (Table 1). The request speciﬁed that data on health conditions be aggregated by residents’ home addresses and provide the capacity for stratiﬁcation of data elements by residents’ race/ethnicity, gender and age.
+Activity 4: implementation of a data-sharing workflow
+A three-step workﬂow democratizing data has been established whereby data obtained from the electronic health records are aggregated in a manner that does not violate individuals’ privacy (step 1). In accordance with state and federal regulations,28 data are received by the Durham County Department of Public Health to be used as deemed appropriate by this public health agency (step 2), and the
+
+DEMOCRATIZING HEALTH SYSTEM DATA 787
+
+Downloaded from https://academic.oup.com/jpubhealth/article/42/4/784/5698241 by guest on 18 February 2022
+
+Table 1 Health conditions for which health systems have provided aggregate data to Durham County Health Department
+
+Condition
+
+Years available
+
+Phenotype definition
+
+Diabetes
+
+2015, 2017
+
+Myocardial infarction
+
+2017
+
+Stroke
+
+2017
+
+Chronic kidney disease 2017
+
+-Only type 2 diabetes was considered in this report -All ICD codes starting with: 249., 250., E08., E09., E11, E13. -Currently in the diabetes registry or -HbA1c above 6.5% in the look back period (2015 or 2017). -Patients must have been 18 or over at the time of their diagnosis MI definitions: -Diagnosis on any type of clinical encounter or on any billed encounter at any time -ICD Codes: 410.01, 410.11, 410.21, 410.31, 410.41, 410.51, 410.61, 410.71, 410.81, 410.91, I25.2 -MI diagnosis on inpatient clinical encounter only at any time for all ICD codes starting with: I21.and I22. -Patients must have been 18 or over at the time of their diagnosis Stroke definitions: -Diagnosis on any type of clinical encounter or on any billed encounter at any time -All ICD codes starting with: 430., 431., 432., 433., 434., 436., I60, I61, I62, I63 -Patients must have been 18 or over at the time of their diagnosis Kidney disease: Improving Global Outcomes (KDIGO) Guideline,21 CDC Guideline,22 GFR-glomerular filtration rate, urine albumin to creatinine ratio (ACR, also known as urine microalbumin)22 -Patients must have been 18 or over at the time of their lab draw
+
+∗All data aggregated by county census tract and census block group as well as race, sex, ethnicity, and age
+
+public health agency provides data to DataWorks NC with the intent of democratizing it for use by the community (step 3) (Fig. 1). Data provided to the Durham County Department of Public Health are not patient-level data. Before leaving the health system, the health information relevant to each of the clinical conditions (e.g. diabetes) is aggregated to the neighborhood level—census tract and block group— with categorical tabulations of each relevant clinical variable stratiﬁed by sex, race and age. The resulting cross-tabular tables are constructed so that no cell contained data from fewer than three individuals.
+In an abundance of caution, a data de-identiﬁcation statistical expert was retained to review the procedure followed, and to certify the (very low) risk of re-identiﬁcation of protected health information. A process whereby reports could be provided annually was established by the health centers, facilitating updating of data and tracking of community health trends over time.
+Results
+The primary outcome of these efforts has been the development of an interactive web interface to view democratized data describing community contexts, including health. The interface has been presented to community stakeholders and is being iteratively reﬁned.
+
+that enables any user to view characteristics of Durham County at the census tract and census block group levels. The interface provides users with information on a number of neighborhood social and environmental characteristics (Table 2). Within each community characteristic’s domain, users can visualize data on geographical maps to compare qualitative differences in data by neighborhoods, and they can also view time trends of data. The tool explains why data elements may be important to community stakeholders and provides information on the source and deﬁnitions of data points. The Durham Neighborhood Compass allows users download data in two different ways, including downloads of individual or groups of data tables.
+Health data visualization within the Durham Neighborhood Compass
+Within the health domain, users are able to view prevalence rates of conditions for which health systems have provided reports via map or in tabular form (example shown in Fig. 2). These data reﬂect select conditions for which Durham County residents have sought care within Duke Health and Lincoln Community Health Center. Reports have been generated since 2017, with annual updates being prepared to facilitate the observation of longitudinal time trends in neighborhood health.
+
+Interactive web interface to view democratized data on community contexts
+The Durham Neighborhood Compass (https://compass.du rhamnc.gov/) is a publicly available, interactive web interface
+
+Initial impact and perceived utility of data platform to address local health needs
+The Durham Neighborhood Compass has been implemented since May 2014. DataWorks NC has presented to a num-
+
+788 JOURNAL OF PUBLIC HEALTH
+
+Downloaded from https://academic.oup.com/jpubhealth/article/42/4/784/5698241 by guest on 18 February 2022
+
+Fig. 1 Data Flow between Durham County Stakeholders ∗Process diagram depicting flow of health data from academic and community health center to community stakeholders. The process is initiated by the Durham County Department of Public Health, which requests data reports describing specific health indicators aggregated by zip code. The requested data reports respond to community health needs identified through local needs assessments. Our academic and community health centers provide reports to the County Health Department, which then provides reports to Data Works, Inc., a non-profit organization, which publishes these data along with other data describing social and environmental determinants of health. Neighborhood data on health and other determinants of health are available to the public and can be downloaded for public use.
+
+ber of community stakeholders, including at a recent 2018 Durham Health Summit. At the health summit, there was great enthusiasm for potential uses of the Durham Neighborhood Compass, with DataWorks NC receiving a number of inquiries on how to use the Durham Neighborhood Compass and additional data elements that could be shared. The Durham Neighborhood Compass has also been viewed with excitement among health system stakeholders. At Duke, a number of new research and training programs consider the tool as a key instrument to engage clinicians and researchers in engagement around community health.
+
+Discussion
+Main findings of this work
+Durham County stakeholders have successfully developed a new public model to democratize neighborhood-level health data in the context of social and environmental community characteristics. Data are shared publicly through a nonproﬁt organization formed through community partnerships, and they are freely available, providing opportunities for any stakeholder group or individual to utilize health data for their needs.
+
+Ongoing data-sharing interface refinements
+Dataworks NC is conducting a number of activities to optimize data visualization and data impact for Durham County residents. These include evaluating the presentation of data and words in the Durham Neighborhood Compass for readability and understanding. To ensure data presentations are meaningful and presented in congruence with community needs and desires, DataWorks NC has conducted a number of listening sessions with community and neighborhood stakeholders to gain insight into how community members understand the data presented in the Durham Neighborhood Compass and how they prefer to visualize it. A number of aspects of the Durham Neighborhood Compass are being reﬁned in response to input, including ensuring the Durham Neighborhood Compass addresses literacy, trust and health literacy needs.
+
+What is already known on this topic
+Traditionally, data from various public sectors are maintained within ‘silos’ and not shared, limiting collaborative efforts to view health in light of multifaceted social and environmental determinants. Furthermore, while researchers and policy makers have increasingly compiled data generated from numerous public sectors to study the joint inﬂuences of social and environmental contributors to health, ﬁndings from these efforts have often been disseminated through professional (i.e. academic or policy) routes, and they have not been readily available to individuals or groups living within local communities.
+What this work adds
+To our knowledge, the Durham Neighborhood Compass represents one of the very ﬁrst successful U.S. efforts to
+
+DEMOCRATIZING HEALTH SYSTEM DATA 789
+
+Downloaded from https://academic.oup.com/jpubhealth/article/42/4/784/5698241 by guest on 18 February 2022
+
+Table 2 Domains and example types of data elements available through the Durham Neighborhood Compass
+
+Domain
+
+Data element(s)
+
+Source(s)
+
+Civic engagement Demographics
+Economy Education Environment
+Health Housing
+
+• General election participation • Primary election participation • Median Age • Sex • Race/ethnicity • Population density • Total population • Retirement-age population • Youth population • Race/ethnic diversity • Residential and commercial building permit values • Residential and commercial occupancy rates • Land use diversity • Median household and per capita income • Residential certificates of occupancy • Supplemental security income • Child care centers per square mile • Child care centers with 4 or 5 star ratings • Licensed child care centers • Percent adults with bachelor degree • Automotive code violations • Average monthly household electricity use • Impervious area • Long commute times • Single-occupancy commuters • Tree coverage • Unmaintained property violations • Average age of death • Homes near health care clinics • Prevalence of health conditions (e.g. diabetes, kidney
+disease, myocardial infarction, stroke) • Average year of residential construction • Cost-burdened mortgage holders • Cost-burdened renters • Median gross rent • Median home value • Medium homebuyer income • Housing code violations • Renter occupied housing • Summary ejectments (evictions) per square mile • Tax value change • Poor and unsound housing conditions • Percent change in property values • Unmaintained property violations
+
+• Durham County Board of Elections
+• American Community Survey (ACS) • U.S. Census Bureau • U.S. Decennial Census
+• Durham City/County Inspections Department • U.S. Census Bureau • Durham County Tax Administration • Durham Police Department/County Sheriff • American Community Survey (ACS)
+• NC Division of Childcare and Early Education • City of Durham Neighborhood Improvement Services • U.S. Census Bureau • American Community Survey (ACS) • City of Durham Neighborhood Improvement Services • American Community Survey (ACS) • Environmental Protection Agency, EnviroAtlas
+• NC State Center for Health Statistics • U.S. Census Bureau • Duke Health • Lincoln Community Health Center • City of Durham Neighborhood Improvement Services • Home Mortgage Disclosure Act (HMDA) Database • Consumer Financial Protection Bureau • American Community Survey (ACS) • US2010 Longitudinal Tract Database • Durham County Tax Administration • Durham County Sheriff’s Department
+
+(continued)
+
+790 JOURNAL OF PUBLIC HEALTH
+
+Table 2 Continued Domain
+
+Data element(s)
+
+Infrastructure and amenities Safety
+
+• Community to work by bicycle • Homes near banks or credit unions • Homes near bus stops • Homes near fast food or convenience stores • Homes near grocery stores • Homes near pharmacies • Homes within walking distance to parks • Sidewalks to roadways • Walking to work • Working from home • Number of daily/nightly bus arrivals • Drug crimes per square mile • Property crimes per square mile • Violent crimes per square mile
+
+Source(s)
+• American Community Survey (ACS) • Triangle Transit/County Tax Administrator • City of Durham Neighborhood Improvement Services • City of Durham Transportation • Department/County Tax Administration • GoDurham/GoTriangle • City of Durham Parks and Recreation • City of Durham Public Works
+• Durham Police Department • Durham County Sheriff
+
+Downloaded from https://academic.oup.com/jpubhealth/article/42/4/784/5698241 by guest on 18 February 2022
+
+Fig. 2 Age-Adjusted Diabetes Prevalence Rate by Blockgroup, Durham County 2017 displayed in Durham Neighborhood Compass ∗Example visual map of adult diabetes prevalence rare in 2015 displayed by census blockgroup in the Durham Neighborhood Compass. ∗∗Data classified by quintiles.
+
+democratize local health system data for use by public stakeholders. While a number of tools currently exist 8, 18, 19 to evaluate county and state level health, few tools exist to evaluate health at the neighborhood level. Data at the neighborhood level are highly contextual, often very granular, and require the collaboration of multiple stakeholders in various public sectors to shed insight on speciﬁc neighborhood characteristics. For instance, data identifying the neighborhood presence of walking trails or proximity to local health clinics may require more granular information than indicators aggregated at the state or county-level can provide Similarly, indicators aggregated at the county-level are unlikely to provide insight into speciﬁc economic or structural
+
+trends that could affect the health of residents living in speciﬁc neighborhoods, such as eviction rates. We anticipate the Durham Neighborhood Compass will help build local community stakeholders’ capacities to develop health solutions through clinical interventions, community action, or policy engagement.
+We have identiﬁed a number of key insights relevant to the more widespread adoption of this approach. First, it is of utmost importance to ensure residents’ health data privacy. Our health systems have undergone extensive efforts to ensure that individuals with rare conditions (who might be identiﬁable in local communities) do not have their identities compromised. In consultation with experts in health
+
+DEMOCRATIZING HEALTH SYSTEM DATA 791
+
+Downloaded from https://academic.oup.com/jpubhealth/article/42/4/784/5698241 by guest on 18 February 2022
+
+care privacy laws, our health systems have only furnished reports to providing summary statistics on health reﬂecting neighborhood-level estimates of conditions where individual cases could not be identiﬁed through deductive analysis. Second, the health care services residents receive through local health systems may not reﬂect the totality of health concerns within a community, as those do not seek care within those systems do not have their data captured. Health care system use may also inadequately reﬂect health prevention efforts that occur outside of routine health care settings, including vaccinations or counseling. Although the overwhelming proportion (more than 95%) of Durham County residents have received care within the collaborating health systems, efforts are needed to identify additional ways to capture health indicators among those who do not use these health care systems. Third, the timeliness of data is critically important to informing community decisions. Our health systems have committed to provide annual data updates, allowing community stakeholders to track health needs in real time and providing an opportunity for the community to measure changes in neighborhood health.
+Limitations of this work
+Efforts to democratize summary health data in the USA are new. While DataWorks NC is conducting active listening sessions with community stakeholders on how best to share and display data, it is not yet clear whether community stakeholders will feel comfortable with democratizing health data over the long term. As this effort progresses, substantial work will be needed to identify the best ways for displaying data and helping stakeholders interpret data accurately. Future efforts will also be needed to understand the impact of these efforts on community health over time. Nonetheless, the potential for this and similar efforts to further empower local stakeholders to inﬂuence key non-biomedical determinants of health are substantial and warrant further development.
+Conclusions
+Community stakeholders in Durham, North Carolina, including health care systems, have implemented a successful model for democratizing health data. Through this model, stakeholders can directly visualize health as one of a number of community contexts, helping them leverage information to address local neighborhood social and environmental determinants of health. Similar efforts implemented to harness data from multiple public sectors have been successfully deployed to guide health care and social policy.20 Strategies to engage community stakeholders through data
+
+democratization efforts similar to the Durham Neighborhood Compass may help further build community capacity to address health priorities. Importantly, as these efforts to improve the transparency and accessibility of community health data continue to emerge, the use of these data should be monitored so that they are not inappropriately exploited and that the beneﬁts are used exclusively to improve the health and welfare of communities from which they are derived.
+Conflict of interest
+The authors conﬁrm that they have no conﬂict of interests to declare.
+Funding
+Funded through Durham County Department of Public Health, the City of Durham, NC, and a grant from the National Center for Advancing Translational Sciences UL1TR002553.
+Authors’ contributions
+All authors have contributed substantially to the submitted work and have read and approved the ﬁnal version of the manuscript. The individual contributions of each author is as follows: LEB, GBH, PH, FFJ, PM, JF, ML, SSB and SSP involved in study design, data acquisition, data interpretation and drafting/revising manuscript and NB, KA and BA involved in data acquisition, data analysis, data interpretation and drafting/revising manuscript.
+Acknowledgements
+The authors would like to thank John Killeen, Monte Brown, Leighton Roper, and Colleen Shannon for their assistance and guidance in the Community Health Indicators Program.
+References
+1 Radley D, McCarthy D, Hayes S. Rising to the challenge: The Commonwealth Fund scorecard on local health system performance in 2016. https://www.commonwealthfund.org/publications/fund-re ports/2016/jul/rising-challenge-commonwealth-fund-scorecard-lo cal-health-system. Accessed December 3, 2019.
+2 Diez Roux AV. Neighborhoods and health: What do we know? What should we do? Am J Public Health 2016;106(3):430–1. doi: 10.2105/ajph.2016.303064
+3 Robert Wood Johnson Foundation. From vision to action: A framework and measures to mobilize a culture of health in 2015.
+
+792 JOURNAL OF PUBLIC HEALTH
+
+Downloaded from https://academic.oup.com/jpubhealth/article/42/4/784/5698241 by guest on 18 February 2022
+
+https://www.rwjf.org/content/dam/COH/RWJ000_COH-Upda te_CoH_Report_1b.pdf. Accessed December 3, 2019.
+4 Washington AE, Coye MJ, Boulware LE. Academic health systems’ third curve: Population health improvement. Jama 2016;315(5):459– 60. doi: 10.1001/jama.2015.18550
+5 Robert Wood Johnson Foundation. Data across sectors for health in 2019. http://dashconnect.org/. Accessed December 3, 2019.
+6 United States Census Bureau. Quick facts: Durham city, North Carolina; Durham County, North Carolina. 2018. https://www.censu s.gov/quickfacts/fact/table/durhamcitynorthcarolina,durhamcou ntynorthcarolina/PST045217. Accessed December 3, 2019.
+7 Atlas S. Household income in Durham. North Carolina (City) in 2018 . https://statisticalatlas.com/place/North-Carolina/Durham/House hold-Income Accessed December 3, 2019
+8 County Health Rankings & Roadmaps. North Carolina rankings data in 2018. http://www.countyhealthrankings.org/rankings/data/ NC. Accessed December 3, 2019.
+9 Robert Wood Johnson Foundation. Durham, NC: 2014 culture of health prize winner in 2014. https://www.rwjf.org/en/library/article s-and-news/2014/06/coh-prize-durham-nc.html. Accessed December 3, 2019.
+10 Durham Neighborhood Compass. Residential building permit value per sq mile in 2017. https://compass.durhamnc.gov/. Accessed December 3, 2019.
+11 National Neighborhood Indicators Partnership. DataWorks NC in 2018. https://www.neighborhoodindicators.org/node/5555. Accessed December 3, 2019.
+12 Bradley T. NCAUG talk: Open source software in local government. 2017. https://www.youtube.com/watch?v&#x003D;isdhv13eb-4. Accessed December 3, 2019.
+13 Epic Inc. Epic with the patient at the heart. 2018. https://www.epic. com/. Accessed December 3, 2019.
+14 Miranda ML, Ferranti J, Strauss B et al. Geographic health information systems: A platform to support the ‘triple aim’. Health A_ (Millwood) 2013;32:1608–15. doi: 10.1377/hltha_.2012.1199
+
+15 Spratt SE, Batch BC, Davis LP et al. Methods and initial ﬁndings from the Durham diabetes coalition: Integrating geospatial health technology and community interventions to reduce death and disability. J Clin Transl Endocrinol 2015;2(1):26–36. doi: 10.1016/j.jcte.2014.10.006
+16 Spratt SE, Pereira K, Granger BB et al. Assessing electronic health record phenotypes against gold-standard diagnostic criteria for diabetes mellitus. J Am Med Inform Assoc 2017;24(e1):e121–8. doi: 10.1093/jamia/ocw123
+17 Partnership for a Healthy Durham. 2017 Durham County community health assessment in 2017 http://healthydurham.org/cms/wp-co ntent/uploads/2018/03/2017-CHA-FINAL-DRAFT.pdf. Accessed December 3, 2019.
+18 U.S. Department of Health & Human Services. The HIPAA privacy rule. 2013 https://www.hhs.gov/hipaa/for-professionals/priva cy/index.html. Accessed December 3, 2019.
+19 Pickard BR, Daniel J, Meha_ey M et al. EnviroAtlas: A new geospatial tool to foster ecosystem services science and resource management. Ecosystem Services 2015;14:45–55. doi: https://doi.org/10.1016/j.ecoser.2015.04.005 Accessed December 3, 2019
+20 National Health Service Confederation. The Joint Strategic Needs Assessment: A Virtual Tool to Guide Commissioning in 2011: London, Bressenden Place. https://www.nhsconfed.org/-/media/Confedera tion/Files/Publications/Documents/Brieﬁng_221_JSNAs.PDF&# x0023;targetText&#x003D;The&#x0025;20JSNA&#x0025;20wi ll&#x0025;20underpin&#x0025;20the,being&#x0025;20of&# x0025;20individuals&#x0025;20and&#x0025;20communities. Accessed December 3, 2019.
+21 Levey AS, de Jong PE, Coresh J et al. The deﬁnition, classiﬁcation, and prognosis of chronic kidney disease: A KDIGO controversies conference report. Kidney Int 2011;80(1):17–28. doi: 10.1038/ki.2010.483
+22 Centers for Disease Control and Prevention. Chronic kidney disease surveillance system: Tracking kidney disease in the United States. FAQs. 2018. https://nccd.cdc.gov/ckd/help.aspx?section&#x003D; F&#x0023;2 Accessed December 3, 2019
+
