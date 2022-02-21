@@ -1,0 +1,16 @@
+Title:          Experimental Characteristics Study of Data Storage Formats for Data Marts Development within Data Lakes
+Subject:        One of the most popular methods for building analytical platforms involves the use of the concept of data lakes. A data lake is a storage system in which the data are presented in their original format, making it difficult to conduct analytics or present aggregated data. To solve this issue, data marts are used, representing environments of stored data of highly specialized information, focused on the requests of employees of a certain department, the vector of an organization's work. This article presents a study of big data storage formats in the Apache Hadoop platform when used to build data marts.
+Keywords:       big data; data lakes; data storage formats; data marts
+Author:         Vladimir Belov, Alexander N. Kosenkov and Evgeny Nikulchev
+Creator:        LaTeX with hyperref
+Producer:       pdfTeX-1.40.21
+CreationDate:   09/17/21 17:04:48
+ModDate:        09/17/21 11:07:18
+Tagged:         no
+Form:           none
+Pages:          10
+Encrypted:      no
+Page size:      594.96 x 840.96 pts (rotated 0 degrees)
+File size:      1236576 bytes
+Optimized:      no
+PDF version:    1.7

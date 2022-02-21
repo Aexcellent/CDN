@@ -1,0 +1,216 @@
+See discussions, stats, and author profiles for this publication at: https://www.researchgate.net/publication/354662799
+
+Experimental Characteristics Study of Data Storage Formats for Data Marts Development within Data Lakes
+
+Article in Applied Sciences · September 2021
+DOI: 10.3390/app11188651
+CITATIONS
+0
+3 authors, including:
+Vladimir Belov Moscow State Institute of Radio Engineering, Electronics and Automation 16 PUBLICATIONS 43 CITATIONS
+SEE PROFILE
+
+READS
+50
+Evgeny V. Nikulchev Moscow State Institute of Radio Engineering, Electronics and Automation 278 PUBLICATIONS 852 CITATIONS
+SEE PROFILE
+
+Some of the authors of this publication are also working on these related projects: Project MTI View project PhD Thesis "Semistructured data processing" View project
+
+All content following this page was uploaded by Evgeny V. Nikulchev on 17 September 2021. The user has requested enhancement of the downloaded file.
+
+applied sciences
+Article
+Experimental Characteristics Study of Data Storage Formats for Data Marts Development within Data Lakes
+Vladimir Belov 1, Alexander N. Kosenkov 2 and Evgeny Nikulchev 1,*
+1 Department of Intelligent Information Security Systems, MIREA—Russian Technological University, 119454 Moscow, Russia; belov_v.a@mail.ru
+2 Department of Hospital Surgery, Sechenov First Moscow State Medical University, 119435 Moscow, Russia; alenkos@rambler.ru
+* Correspondence: nikulchev@mail.ru
+Abstract: One of the most popular methods for building analytical platforms involves the use of the concept of data lakes. A data lake is a storage system in which the data are presented in their original format, making it difﬁcult to conduct analytics or present aggregated data. To solve this issue, data marts are used, representing environments of stored data of highly specialized information, focused on the requests of employees of a certain department, the vector of an organization’s work. This article presents a study of big data storage formats in the Apache Hadoop platform when used to build data marts.
+Keywords: big data; data lakes; data storage formats; data marts
+
+Citation: Belov, V.; Kosenkov, A.N.; Nikulchev, E. Experimental Characteristics Study of Data Storage Formats for Data Marts Development within Data Lakes. Appl. Sci. 2021, 11, 8651. https://doi.org/10.3390/ app11188651
+Academic Editor: Luis Javier Garcia Villalba
+Received: 25 August 2021 Accepted: 15 September 2021 Published: 17 September 2021
+Publisher’s Note: MDPI stays neutral with regard to jurisdictional claims in published maps and institutional afﬁliations.
+Copyright: © 2021 by the authors. Licensee MDPI, Basel, Switzerland. This article is an open access article distributed under the terms and conditions of the Creative Commons Attribution (CC BY) license (https:// creativecommons.org/licenses/by/ 4.0/).
+
+1. Introduction
+When developing analytical systems, solving the issue of storing the loaded data becomes an important task. One of the most popular methods for storing information involves the use of relational databases [1]. However, the growth in the volume of data, the increase in the number of data acquisition channels, as well as the diversity of the structures of the data obtained have led to the emergence of several directions of research in the ﬁeld of data storage [2]. Among such areas, the concept of big data stands out [3]. The concept of big data is based on six aspects: value, volume, speed, variety, reliability, and variability [4]. This means that the term “big data” refers not only to the volume of these data, but also their ability to act as sources for generating valuable information and ideas [4].
+Among the modern methods of storing big data, the architectural concept of building data lakes stands out [5]. The data lake is a scalable system for storing and analyzing data stored in their original format and used to extract knowledge [5]. It is clear from the deﬁnition that information enters such a system with an original structure, which requires the creation of a tool for reducing data to a single structure that is understandable to the end user. In addition, when analyzing information it is often necessary to select only highly specialized data intended for solving a speciﬁc problem [6].
+To solve the described problems, the technology of creating data marts is used [7]. Data marts are a slice of the stored information with a highly specialized focus on the requests of the employees of a particular department or the speciﬁcs of the tasks assigned.
+One of the software tools that allows the building of both data lakes and data marts is the Apache Hadoop platform [8]. Data storage in this system is supported by writing information to ﬁles in the HDFS (Hadoop Distributed File System) [9]. As the HDFS does not have specialized ﬁle formats, it becomes necessary to choose a storage format from a variety of developed formats. Among the most widely known formats used in Apache Hadoop and the HDFS are JSON [10], CSV [11], Apache Parquet [12], Apache Avro [13], and Apache ORC [14]. Each of these ﬁle formats has its own characteristics in the ﬁle
+
+Appl. Sci. 2021, 11, 8651. https://doi.org/10.3390/app11188651
+
+https://www.mdpi.com/journal/applsci
+
+Appl. Sci. 2021, 11, 8651
+
+2 of 9
+structure, which determines its characteristics in terms of such criteria as write speed, read speed, occupied space, and others.
+This paper presents a study of data storage formats in relation to the creation of data marts for the tasks of creating reports during mass testing. The data source for the study was the Digital Psychological Platform for Mass Web-Surveys [15], developed for conducting psychological research in educational institutions using the methods of mass online testing.
+The aim of this paper is to study the use of different HDFS ﬁle formats applied to data mart development within the Apache Hadoop platform and to assess the effectiveness of the most popular ﬁle formats used in the HDFS. The study analyzed the effectiveness of choosing a format for building reports based on the data obtained. To analyze the formats, a number of criteria were selected, and experiments were carried out on the Hadoop clusters.
+This paper consists of six sections. The second section provides an analysis of works related to the topic of this research. It provides an overview of the main research studies aimed at exploring various storage media in large systems and the main trends, and it justiﬁes the need for ongoing research. The third section provides an overview of the studied data storage formats in the HDFS, the internal structure of data formats, supported data types, and data storage methods. The fourth section describes the experiment carried out and gives information about the conﬁguration of the experimental stand, information about the data used for the experiment, and the experimental scheme. The ﬁfth section presents the results of the experiment, derived by assessing the time and resource efﬁciency of these formats in relation to the creation of data marts. The sixth section describes the ﬁndings of this study.
+2. Related Works
+Studying the techniques of data storing is one of the most important challenges, not only for commercial software development, but also in the ﬁeld of scientiﬁc research. There are many studies aimed at ﬁnding the most optimal tools for storing data, as well as methods of storing data, depending on the software architectures used [16–29]. Depending on the approach to data storage methods, several groups of studies can be distinguished.
+Most of the research in the ﬁeld of data storage is related to the analysis of NoSQL solutions [16], as well as the choice between relational and NoSQL databases [17]. Of the greatest interest in the preparation of this article is the research related to the use of relational and NoSQL databases to create data marts. The study in [18] describes an approach to creating a data mart based on a MongoDB document database, which implies the use of the JSON format for the ﬁnal selection. In turn, relational databases have wider functionality, both for creating data marts and as tools for OLAP technologies [19].
+Exploring different storage ﬁle formats represents a different area of research. In [20–24], studies of big data storage formats, such as Apache Avro, Apache Parquet, ORC, and others are presented. These studies present the results of studying various formats in terms of performance or format selection for a speciﬁc purpose. Thus, the research in [20] is related to the study of ﬁle formats for storing data in web systems. The most popular Apache Parquet and Apache Avro formats are explored here. The research in [21] aims to study data storage formats for problems in the ﬁeld of bioinformatics and examines formats, such as Apache Parquet, ORC, Apache Avro, and other popular formats. In [22], similar problems of resource efﬁciency are considered, but only the storage formats of Apache Avro and Apache Parquet are investigated. The research in [23] is a comprehensive study of the ORC and Apache Parquet ﬁle formats, including load testing using various tools for working with these formats. These formats are very similar in structure and data storage methods, making this research the most valuable. However, this study is more theoretical in nature as it aims to study the formats themselves without being tied to a speciﬁc task.
+Despite the detailed study of data storage technologies, the study of data marts using the Apache Hadoop platform is a novel direction. Research aimed at exploring these technologies is often either conceptual-level research or considers Apache Hadoop only
+
+Appl. Sci. 2021, 11, 8651
+
+3 of 9
+as a source of data for creating data marts in other systems. For example, [24] describes a conceptual model for creating data marts in MPP Greenplum using data from a data lake based on Apache Hadoop.
+This study supplements the analyzed studies and considers a number of the most popular formats in relation to the tasks of developing data marts within the Apache Hadoop platform without using additional data storage tools.
+In addition, there are a number of studies related to developments in the ﬁeld of software integration and the choice of the optimal tool for various purposes using different decision-making methods [25–28]. The choice of system components is an important condition for the correct operation of the software complex. As data storage ﬁles are part of the analytical platform, studying the possibilities of various formats for developing data marts is an important task for the correct operation of the system as a whole.
+3. Storage Formats Overview
+One of the tools for working with data is the so-called data mart. Data marts refer to thematic data environments that address analytics in speciﬁc areas.
+When working with data using data lakes, the creation of data marts is necessary because reading all the contained data is time-consuming as well as resource-intensive. The development of data marts facilitates further work with data.
+When developing data lakes based on the Apache Hadoop platform, the platform deﬁnes the task of choosing a data storage format. The HDFS does not have a default format. Depending on the task, a choice of data storage format is required.
+The most popular formats for storing data in the HDFS are JSON, CSV, Apache Parquet, Apache Avro, and Apache ORC. The main features of these formats will be discussed below.
+Avro is a line-oriented data storage format. The main feature of the format is the presence of a schema in the JSON format, which allows faster reading and interpretation operations [13]. The ﬁle structure consists of a header and data blocks. In addition, this format supports the evolution of data schemas, handling schema changes by omitting, adding, or modifying individual ﬁelds. Avro is not a strongly typed format: the type of information for each ﬁeld is stored in the metadata section along with the schema. Due to this, prior knowledge of the schema is not required to read the serialized information [13].
+Comma-Separated Values is a text format that describes data in tabular form. The structure of the CSV ﬁle is represented as strings separated by commas. A title is assumed, but this is not a strict requirement. The CSV ﬁle does not support different types and data structures—all data are presented as strings.
+JavaScript Object Notation is a simple text format based on a subset of the JavaScript programming language. This format is most widely used in data exchange systems, API development, and remote procedure calls [10]. However, with the advent of NoSQL solutions, the JSON format has gained popularity in storing big data in document databases [29]. JSON supports data types and structures, such as string, number, Boolean, arrays, null, and internal objects [10].
+Optimized Row Columnar is a column-oriented (columnar) storage format for big data in the Apache Hadoop ecosystem [14]. ORC is optimized for reading big data streams, including integrated support for quickly ﬁnding the required rows. Columnar storage allows one to read, unpack, and process only those values that are needed for the current request. As data in ORC are strongly typed, an encoding is therefore chosen when writing that is the most suitable for each datum type, creating an internal index as the ﬁle is written [14].
+Apache Parquet is a column-oriented binary format that takes advantage of the concise presentation of information. Parquet allows one to specify compression schemes at the column level and add new encodings as they appear [12]. Parquet uses an architecture based on “deﬁnition levels” and “repetition levels”, which allows data encoding quite efﬁciently, and information about the schema is put into separate metadata [12]. The
+
+Appl. Sci. 2021, 11, 8651
+
+Apache Parquet is a column-oriented binary format that takes advantage of the concise presentation of information. Parquet allows one to specify compression schemes at the column level and add new encodings as they appear [12]. Parquet uses an architecture based on “definition levels” and “repetition levels”, which allows data encoding4 qofu9ite efficiently, and information about the schema is put into separate metadata [12]. The Parquet format explicitly separates metadata from data, allowing columns to be split across multiple files, as well as having a single metadata file referencing multiple Parquet files. Parquet format explicitly separates metadata from data, allowing columns to be split across
+m4u.ltEipxpleeﬁrilmese, nast well as having a single metadata ﬁle referencing multiple Parquet ﬁles.
+
+4. ExpeFroimr tehnetexperimental evaluation, an Apache Hadoop cluster was used. It has the characteristics described in Table 1. For the experimental evaluation, an Apache Hadoop cluster was used. It has the
+
+chTaarbaclete1r.iEstxipcserdimesecnrtiablesdtainndTcaobnlfeig1u.ration.
+
+Table 1. Experimental stand conﬁguration.
+Configuration Item
+
+Characteristics
+
+NoCdoens ﬁcgouurnation Item
+
+C3haracteristics
+
+ReplicatiNonodfeasctcoorunt
+HadoopRDepislitcraibtiuontivfaector
+Hadoop Distributive
+
+2 3
+Cloudera v. 42.2 Nodes Characteristics Cloudera v. 4.2
+
+Processor
+
+Nodes CharacterisItnictsel Core i7 2 Cores
+
+RAMProcessor
+OS RAM PlatfoPrmlaOtfoSrm PrograPmromgirnamg mlainnggulaanggeuage FrameFwraomrkework
+
+In4teGl CBore i7 2 Cores
+Debian 49 GB Java VJiratvuaaVlDiMretubaaicalhnMin9aechine
+Java vJ.a1v.8a v.1.8 ApachAe pSapcahrekSvp.a2rk.4v. 2.4
+
+FoFrotrhtehsetustduyd, ya,daadtaasteatseotbotabitnaeindeudsuinsgintghethDeiDgiitgailtaPlsPycsyhcohloogloicgaicl aPllaPtlfaotrfomrmforfoMr aMssass
+WeWbe-Sbu-Srvueryvsey[1s5[]15w]aws aussuedse. dT.hTishipslaptlfaotrfmormcoclloelcltesctdsadtaatuasuinsginwg ewbeibntienrtfearcfeascebsubilutiilnt tionttohethe plaptlfaotrfmormitsietlsfe. lBf.aBsaedseodnotnhtehseusruvrevyesy, as,paoppouplautliaotniodnadtaatbaabseasies ifsorfomremde. dT.hTehsesdeadtatbaebceocmoeme avaavilaaiblaleblfeofroarnaanlyaslyissibsybiyntinertderisdciispcliipnlainryarryesreeasercahrctheatmeasm. s.
+ThTehdeadtaataaraerae saesteotfoJfSOJSNONobojebcjetsctdsedsecrsicbriinbgintghtehreesruesltusltosfothf ethoenolinnleinteestteisntginogfoefaechach inidnidviidviudaulaplapratirctiipciapnatn. Ft.iFgiugruer1e s1hsohwoswas saimsipmlpiﬁliefdieedxeaxmapmleploefosfuscuhcahnaonbojebcjte.ct.
+
+Figure 1. An example of an object containing information about the passing of testing by one parFigtiucirpea1n. tA. n example of an object containing information about the passing of testing by one participant.
+EaEcahcJhSOJSNOoNbjoebctjeccotnctoanintsaitnhse tfholelofwolilnogwiinnfgorimnfaotriomnaatiboonutatbhoeuctotmheplceotmedpqleuteesdtioqnuneasitrieo:n- nainrea:me and surname of the test taker; - the device platform from which the test was passed (commonly, it is information
+about the operating system installed on the device)—this information can help in understanding which type of device (PC, mobile, old platforms) is used to improve the support of such operating systems; - an array of test completion information for each question. The most interesting information for this study from the array is the time the test taker spent on each question.
+
+Appl. Sci. 2021, 11, 8651
+
+−− nnaammeeaannddssuurrnnaammeeooffththeetetesstttatakkeerr;;
+
+−− ththeeddeevviciceepplalatftoforrmmfrfroommwwhhicichhththeetetessttwwaassppaasssseedd(c(coommmmoonnlyly,,ititisisininfoforrmmaatitoionn
+
+aabboouuttththeeooppeerraatitninggssyysstetemmininsstatallleleddoonnththeeddeevvicicee)—)—ththisisininfoforrmmaatitoionnccaannhheelplpininuunn--
+
+ddeerrsstatannddininggwwhhicichhtytyppeeooffddeevvicicee(P(PCC, ,mmoobbiliele, ,ooldldpplalatftoforrmmss))isisuusseeddtotoimimpprroovveeththee
+
+ssuuppppoorrttooffssuucchhooppeerraatitninggssyysstetemmss; ;
+
+5 of 9
+
+−− aannaarrrraayyoofftetessttccoommppleletitoionnininfoforrmmaatitoionnfoforreeaacchhqquueesstitoionn..TThheemmoossttininteterreesstitninggininfoforr--
+
+mmaatitoionnfoforrththisissstutuddyyfrfroommththeeaarrrraayyisisththeetitmimeeththeetetesstttatakkeerrssppeennttoonneeaacchhqquueesstitoionn. .
+
+AAsAsasaraersreueslsutu,ltli,t,iitistinsisencneeecscesesassrsayarrytyotootobotobabtinatainaindaaadtdaaatmatamamratarcrtotcncotonanitnataiinninigninagggagagrggegrgreaegtgeaadtetedindifnionfrofmorrmamtaioatitnoionn fofrofoerraeceahacchqhuqqeuusetesisotitnoionannaadnndddeddveeivcvieci:ceet:h:tehtheteytpytyeppeoefoodffeddveeivcvieci,ceeq, ,uqqeuusetesistoitnoionnnunnmuumbmebbre,ermr, ,memaeneaanrnersrepesosppnoosnnesseteimtitmiem,ee, , mmemdeeidadinaiantnitmitmiem,ee,s,tsastatnandndadaradrrddddedevevivaiaitatiiotoinon,n,a,ananndddﬁfifrrisrststtaaannndddtththhiirirrdddqqquuuaaarrrttitilileleesss...TTThhheeetottotoattalalvlvovoloululmummeeeoofofafallalltllhthee thdedaadtataptparrepeppraearpreaeddrefofdorrftohthreetehexexppeeerxripmimeerenimnttiesins2t2GiGsBB2. .TGThBhee.sseTehddeaastateawdwaeetrareeowobbetrateaininoeebddtaddiunureridningdgmumraiasnssgsppmssyaycschshoo-psloylogcghiciocalaloltgetiescstaitnlintgegsinitninddgififfienferrdeeninftftessrcechnhotoooslcslshoofoftlhtsheoecfcotouhunentcrtoryyu. .ntry.
+AAnAnanpaappplpipclilacictaiatoitnoionwnwawsaasdsdedveevevleoelolpopepededduususinsinignggththteheeAAAppapacachcheheeSSpSpapararkrkkffrrfaramammeewewwooorrkrkk[[33[3000]],,],wwwhhhiiccichhhhhhaaasssaa a llalaarrrgggeeessseeetttooofffffufuunnncccttitioioonnnsssffofoorrrwwwooorrrkkkiniinngggwwwitiihtthhdddaaatattaainiinnaaadddisiistsrttrirbiibubutuettededdssysysystsetetmemm..T.ThTheheaeappappplilpciclaiatcitaoiotninoinmim-imppplelleemmmeeennntsttssaaannnaaalgllggooorrriitiththhmmmffofoorrrrrreeeaaadddiininnggg,,,cccrrreeeaaattiitnningggaaadddaaattaatammmaarartrt,,ta,anandnddwwwrritriitinitnignggtototoaasapsspepceeicﬁcificifcifcofrofmorrmamta,at,t, deddpeeeppneednnidndigningognoontnhtehthetretartnraasnmnssmimttietittdetedpdappraaarmraamemteeetretser.rss. . rersreueslsuFtuilinFtlgFitignuiginggrdugeuardsredtaea2satss–at2ea42s–ts–e.4se4th.ts.oshhwoowwthtehtheimeimipmlpeplmelememneetnentdetedadlagaloglgroiotrhritimhthmsmfsosfrofocrrrcecrareteaiantitgningagadaaddtaaatamtamamratarbrttabsbaeasdseedodnoontnhtehthee
+
+FiFgFiugigrueur2ree.2R2. .eRRaedeaaidndigningagnadanndcdlecclaelreaianrrigningdgadtdaaat.ata. .
+
+Figure 3. Developing data mart.
+The experiment was as follows. From the dataset, it is necessary to prepare a mart containing statistical data on all the participants in the mass testing. Test pass data are a set of JSON ﬁles containing JSON objects for each participant in a bulk test. All the ﬁles are located in the HDFS cluster. The developed application was used to build the showcase.
+
+Figure 3. Developing data mart.
+Appl. Sci. 2021, 11, x FOR PEER REVIEW Appl. Sci. 2021, 11, 8651
+
+6 of 9 6 of 9
+
+FFigiguurere4.3W. Dreitvinelgopdiantag.data mart.
+The experiment was as follows. From the dataset, it is necessary to prepare a mart containing statistical data on all the participants in the mass testing. Test pass data are a set of JSON files containing JSON objects for each participant in a bulk test. All the files acFaFrigesiguelu.roerce4a.4te.WdWriirtniitnitnghgdedaHtaat.Da.FS cluster. The developed application was used to build the show-
+TThheeexexppeerirmimeennt tiswsahsoawsnfoinlloFwigsu. rFero55m.. Tthheesdpaatraks-estu, bitmisitnfeucnecstsiaornyltaounpcrhepesaraeSapmarakrt acpopnlitcaaintiionngasntaddtirsetiacdasl ddaattaa ofrnomalltthheeHpDarFtiSc..ipTaonbtsuiinldtaherempaosrst,taesdtiantga.fTraemstepiassgsednaetraaaterde,a cosentsiosftiJnSgOoNoffdfdialaettasaacagoggngrtaereigngaiatnetgeddJbSybOytNhtehoeabpjaeppclptisclaifctoiaortnieo.anTc.heTphraeerstuircelitspuiaslntwtisriintwtaernibttiunelntkoitonenstote. oAfnlltehtohefedtafhitleaes sdtaaortreaalgsoteocarfoategrdme ifanotsrtm.hTeahtHse.nDT,FhaSelncin,lukasltieonrk.thTteohletohdceaeltvoioeclnaotpiiosendauiastpoapmultiaoctmaictiaaotllniycawcllrayesacutreesdaetdteodtoctrobeucairtleedaattehtaeabstlaheboilwne AincpaAasecph.aechHeivHei[v3e1][,3w1]h, iwchhiicshneiscensescaersysfaorryffuorrthfuerrtrheeardirnegadoifntgheofretshueltrsesbuyltesmbpyloeymepeslowyietehswouitthporuTothgperraoemxgprmaemirnimmg iesnkngitllsissk,islalhsso,wawsenwllieanlslFabisgybuayrneaan5ly.aslTythss.tesF.srFporamormkt-hsteuhebmmmoiomtmfeuennntcttthtihoeenaaplpappullniicccaahtteiioosnnassSttaaprrattsrsk wwaooprrpkkliiinncggatuuionnnttiiall niittdss ttreeerrammdiisnndaatatiitooannf,,rttohhmee tttiihmmeeeHooDff wwFSoo.rrkTkioinngbguwwiliidtthhatthrheeepddoaartta,aaiissdmmateeaaasfsuruarrmeedde..is generated, consisting of data aggregated by the application. The result is written into one of the data storage formats. Then, a link to the location is automatically created to create a table in Apache Hive [31], which is necessary for further reading of the results by employees without programming skills, as well as by analysts. From the moment the application starts working until its termination, the time of working with the data is measured.
+
+Figure 5. Schema of the experiment. Figure 5. Schema of the experiment.
+55.. RReessuullttss TThhee rreessuullttss ooff tthhee ttoottaall rreeaadd aanndd wwrriittee ttiimmee oobbttaaiinneedd aarree pprreesseenntteeddiinnFFiigguurree66.. The results of the experiment show that the Apache Parquet format has the fastest result. In additioFni,gpurreev5i.oSucshesmtuadoifesth[e3e2x]psehroimwentht.at this format has the fastest data reading,
+which leads to the conclusion that it is advisable to use this format. Another format that sh5.oRweesduletxscellent results was the ORC format. However, this format requires additional improTvheemreenstusltsoobfethaeblteotaolwreoardkaindHwivreit.eOtitmheerofbotraminaetds sahroewpreedsethnetewd oinrsFtirgeusruelt6s., and therefore their use is not considered appropriate.
+The result of estimating the data volume is shown in Figure 7.
+
+Appl. Sci. 2021, 11, x FOR PEER REVIEW Appl. Sci. 2021, 11, 8651
+Appl. Sci. 2021, 11, x FOR PEER REVIEW
+
+7 of 9 7 of 9
+
+7 of 9
+
+Figure 6. Time assessment of storage formats.
+FigurTeh6e. TFriiemgsuuerlaets6ose.fsTesismmtieemnatasostiefnsssgtmotrehangetedofaof trsamtovaratosgl.ue mfoermisatssh. own in Figure 7. The result of estimating the data volume is shown in Figure 7.
+FFiigguurree 77.. RReessuullttiinngg vvoolluummee ooff ddaattaa..
+6. CoTnhceluFrsiegisouunrlests7.oRfetshueltienxgpveorliummeenot fsdhaotwa. that the Apache Parquet format has the fastest rHeasudloITton.hpiasdsaydrsitttieicomTlenh,pfeoprrerresebesvuuniotlltedusdisnoagsftsutdthudaedtiaeyesmxo[pf3aevr2rta]ismrsiihoneounrwsetldsatahthitoaoawtnsttthotohirsatahgftoeetrhtfmaoesrakAmtsphaoatafscschstruehepaePptfaionarrsgqtteuerdesetptbdofyorattrthsmaebraaAetsapehdadaicnsohgnteh, e fastes wthheircehsulelatrsdesosuftlmot.tahses oconnlicnleusteiosntinthg.at it is advisable to use this format. Another format that showAeds tehxecmellIaeninnatpdredrsiftuoilortmns ,wapnarcesevtcihoreiutOesrsRiatCu, dwfioeerssme[3lae2tc.]tHeshdoowswuecvthheacr,ht tathhriaissctffeoorrrimmstaiacttsrhaeasqsuthtihreeetsifmaasdetedistitttiadoknaetaasl reading itmo cprreoavtemwa edhnaicttsha tmloeaabdrets,aatboslewthteeollcwaosnocirtklsuivsnioolHnumitvhea.tOitthiseradfovrismaabtlse stohouwseedthtihsefowrmorastt. rAesnuoltths,eranfodrmat tha thereTfohreessththuoedwiryeucdsoeenxsiscisentleoledtncotofrnaesssiudelretirseeswdoaafspetxphpreoerpOirmRiaeCtneft.oalrmlauatn.cHheoswoefvtehre, dtheivsefloorpmedatarpepqluiciaretisonadditiona using theimAppraocvheemSepnatrsktforabme eawbloertko, wwhoirckhihnaHs iavlea.rOgethseert ofofrfmunatcstisohnoswfoerdwthoerkwinogrswt irtehsults, and 6d.aCtaoinnctlhutehsieAornepfsaocrheethHeairdouosepidsinstortibcuotnesdidseyrsetdemap. propriate. AAppaaccTChhhoeeinPsH6sa.eaarqCdrqtuouoiceonelnptectlfsluopyyrsr,smeittosehaenmetnsitrnfeeodstrhubailsutssicltaodusbident.yagOindotefahdtevarasmfrhoioaorrwmutsseaditdnsatsrhtheaaloatswttiiotoerdniasgttohmeetohfwosetrotmaraspsatkptrssreoosspufurlcptirspae.toaertittneodgurbesyepotthrhtees basedThoins tshtuedrTyehsiusislptsarotfiocmfleaaslpasrreogsneerlnisntteeuddteyastrisentluagt.deyd toofthveardioevueslodpamtaenstoorfaagneafnoarlmytaictsalspulpatpformted by the for edAusctahAteipomancaahlienorHpgeardnfoiozroamptiaosnyncsset.eTcmrhitefeorrreiabs,uuwlitlsedoisnefgltehdcitasetsdatusmudacyrhtwschilnal rbraeeclatetpiropisnltiietcodsttahosetthhtaeesnktisemxoetfsicttruteadakiteeinssg reports troelcarteedatetobatahdseaetdaapompnlaitcrhtae,tairosenswuoelftlslvaaosrfiiomtusasvsdsolaoutnamlisent.oertaegsetinfogr.mats in the Apache Hadoop platform. In adTdhiteiostnu,dityAicsotpnhlseainsmtneaedidnotpfoaercsfoeonrridmesuacontfcaeexscptrueitrdeirmyiace,onwmtaepl slaaerulienncgctehtdehsseuoufcshtehceohdfaetrhavceetleAorppiseatdicchasepapHsltiahcdaeottiooimpne it takes pulsaintfgortmhetaoAncdpraeMcahtPeePaSapdraacrhtakitmefrcaatumrtr,eeawsssowurckeh,llwaashsGiictrhsevehonalpsulamumlea.rfgoer sthete odfefvuenlocptimonesnftoorfwdaotrakimngarwtsi.th wAvdAaaurplitittaadhicnaoCihgtnrioe—oCtnnPhrouds,eeaneEsavrqtAit.qirnNaeuiupgwb.eTCi,eanunhtAotcathttehinnf.lhoeNoydessner,eAt.HKesmuqAt:dph.dua;aipaCetyddeticaonnaoichrcnntgtooehaelc,spynteecEuhS,spu.dHpiliNtrtstsiuahasats.ctra,eetdiakolArdoioisbrznb.feooeNat,ru.asfptaE.iOutiKamo.nedNln.tdste;eihs.esdv,wEesrtAio.ryirsNoseibu.sbfhNsr.ttoa,kuoeao.lrKi,Amtwifmznew.a.e,d.eNeatxVhddit.osp.sKiByncetss..hsh,;r,hhtViwaVoemho.tm.BrwwaBie.its..etnieA;ndadtimlgasll—ltteaahhmlturaoheagtuorohtewisdngoitsoicrtoneshlaroiatshpeslgtoaspdymvfro,rreefaofVosufrptu.steBnhtrpla.ceit;draastedis.ptaopeoepnnafvtdrtrsweoaoaltfpaoioguorrprrensieae,e,wedtVVdeto..haBBtrtope..ko;;pinuligsceawtitiohthne the publisAhepdavcehresiPonaroqfutheet fmoarmnuastcriinptt.his case. Other formats showed the worst results.
+
+Appl. Sci. 2021, 11, 8651
+
+8 of 9
+
+Funding: This research received no external funding.
+Institutional Review Board Statement: Not applicable.
+Informed Consent Statement: Not applicable.
+Data Availability Statement: Not applicable.
+Conﬂicts of Interest: The authors declare no conﬂict of interest.
+References
+1. Alasta, A.F.; Enaba, M.A. Data warehouse on Manpower Employment for Decision Support System. Int. J. Comput. Commun. Instrum. Eng. 2014, 1, 48–53.
+2. Chong, D.; Shi, H. Big data analytics: A literature review. J. Manag. Anal. 2015, 2, 175–201. [CrossRef] 3. Yang, C.; Huang, Q.; Li, Z.; Liu, K.; Hu, F. Big Data and cloud computing: Innovation opportunities and challenges. Int. J. Digit.
+Earth 2017, 10, 13–53. [CrossRef] 4. Cappa, F.; Oriani, R.; Peruffo, E.; McCarthy, I.P. Big Data for Creating and Capturing Value in the Digitalized Environment:
+Unpacking the Effects of Volume, Variety and Veracity on Firm Performance. J. Prod. Innov. Manag. 2020. [CrossRef] 5. Khine, P.P.; Wang, Z.S. Data Lake: A new ideology in big data era. ITM Web Conf. 2018, 17. [CrossRef] 6. Tomashevskaya, V.S.; Yakovlev, D.A. Research of unstructured data interpretation problems. Russ. Technol. J. 2021, 9, 7–17.
+[CrossRef] 7. Ghezzi, C. Designing data marts for data warehouses. ACM Trans. Softw. Eng. Methodol. 2001, 10, 452–483. [CrossRef] 8. O’Driscoll, A.; Belogrudov, V.; Carroll, J.; Kropp, K.; Walsh, P.; Ghazal, P.; Sleator, R.D. HBLAST: Parallelised sequence Similarity—
+A Hadoop MapReducable basic local alignment search tool. J. Biomed. Inf. 2015, 54, 58–64. [CrossRef] 9. HDFS. 2020 HDFS Architecture Guide. Available online: https://hadoop.apache.org/docs/r1.2.1/hdfs_design.html (accessed on
+24 July 2021). 10. Introducing JSON. Available online: https://www.json.org/json-en.html (accessed on 22 August 2021). 11. Super CSV. What is CSV? Available online: http://super-csv.github.io/super-csv/csv_specification.html (accessed on 22 August 2021). 12. Apache. Parquet Ofﬁcial Documentation 2018. Available online: https://parquet.apache.org/documen-tation/latest/ (accessed
+on 24 July 2021). 13. Apache. Avro Speciﬁcation 2012. Available online: http://avro.apache.org/docs/current/spec.html (accessed on 24 July 2021). 14. ORC. ORC Speciﬁcation 2020. Available online: https://orc.apache.org/speciﬁcation/ORCv1/ (accessed on 24 July 2021). 15. Nikulchev, E.; Ilin, D.; Silaeva, A.; Kolyasnikov, P.; Belov, V.; Runtov, A.; Pushkin, P.; Laptev, N.; Alexeenko, A.; Magomedov, S.;
+et al. Digital Psychological Platform for Mass Web-Surveys. Data 2020, 5, 95. [CrossRef] 16. Rasheed, Y.; Qutqut, M.H.; Almasalha, F. Overview of the Current Status of NoSQL Database. Int. J. Comput. Sci. Netw. Secur.
+2019, 19, 47–53. 17. Ali, W.; Shaﬁque, M.U.; Majeed, M.A.; Raza, A. Comparison between SQL and NoSQL Databases and Their Relationship with
+Big Data Analytics. Asian J. Res. Comput. Sci. 2019, 4, 1–10. [CrossRef] 18. Bicevska, Z.; Oditis, I. Towards NoSQL-based Data Warehouse Solutions. Procedia Comput. Sci. 2017, 104, 104–111. [CrossRef] 19. Hamoud, A.K.; Ulkareem, M.A.; Hussain, H.N.; Mohammed, Z.A.; Salih, G.M. Improve HR Decision-Making Based On Data
+Mart and OLAP. J. Phys. Conf. Ser. 2020, 1530, 012058. [CrossRef] 20. Wang, X.; Xie, Z. The Case for Alternative Web Archival Formats to Expedite the Data-To-Insight Cycle. In Proceedings of the
+ACM/IEEE Joint Conference on Digital Libraries, Virtual Event, China, 1–5 August 2020; pp. 177–186. 21. Ahmed, S.; Ali, M.U.; Ferzund, J.; Sarwar, M.A.; Rehman, A.; Mehmood, A. Modern Data Formats for Big Bioinformatics Data
+Analytics. Int. J. Adv. Comput. Sci. Appl. 2017, 8. [CrossRef] 22. Ramírez, A.; Parejo, J.A.; Romero, J.R.; Segura, S.; Ruiz-Cortés, A. Evolutionary composition of QoS-aware web services: A
+many-objective perspective. Expert Syst. Appl. 2017, 72, 357–370. [CrossRef] 23. Plase, D.; Niedrite, L.; Taranovs, R. A Comparison of HDFS Compact Data Formats: Avro Versus Parquet. Moksl. Liet. Ateitis 2017,
+9, 267–276. [CrossRef] 24. Raevich, A.; Dobronets, B.; Popova, O.; Raevich, K. Conceptual model of operational-analytical data marts for big data processing.
+E3S Web Conf 2020, 149. [CrossRef] 25. McCarthy, S. Reusing Dynamic Data Marts for Query Management in an on-Demand ETL Architecture. Ph.D. Thesis, Dublin
+City University, Dublin, Ireland, 2021. 26. Huh, J.H.; Seo, K. Design and test bed experiments of server operation system using virtualization technology. Hum. Cent.
+Comput. Inf. Sci. 2016, 6, 1. [CrossRef] 27. Yang, Q.; Ge, M.; Helfert, M. Developing Reliable Taxonomic Features for Data Warehouse Architectures. In Proceedings of the
+IEEE 22nd Conference on Business Informatics (CBI), Antwerp, Belgium, 22–24 June 2020; pp. 241–249. [CrossRef] 28. Nikulchev, E.; Ilin, D.; Gusev, A. Technology Stack Selection Model for Software Design of Digital Platforms. Mathematics 2021,
+9, 308. [CrossRef] 29. Oussous, A.; Benjelloun, F.-Z.; Lahcen, A.A.; Belfkih, S. NoSQL databases for big data. Int. J. Big Data Intell. 2017, 4, 171–185.
+[CrossRef]
+
+Appl. Sci. 2021, 11, 8651
+
+9 of 9
+
+30. Salloum, S.; Dautov, R.; Chen, X.; Peng, P.X.; Huang, J.Z. Big data analytics on Apache Spark. Int. J. Data Sci. Anal. 2016, 1, 145–164. [CrossRef]
+31. Apache. Hive Ofﬁcial Documentation 2014. Available online: https://hive.apache.org/ (accessed on 24 July 2021). 32. Belov, V.; Tatarintsev, A.; Nikulchev, E. Choosing a Data Storage Format in the Apache Hadoop System Based on Experimental
+Evaluation Using Apache Spark. Symmetry 2021, 13, 195. [CrossRef]
+
+View publication stats
+
