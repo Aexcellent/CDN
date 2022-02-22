@@ -1,0 +1,2629 @@
+arXiv:2101.04357v1 [cs.GT] 12 Jan 2021
+
+ON PRICING THE DATA PRIVACY: ENDOGENOUS EVOLUTION, OPTIMAL STOPPING, AND INCENTIVE COMPATIBILITY ∗
+TAO ZHANG† AND QUANYAN ZHU‡
+Abstract. Privacy is an essential issue in data trading markets. This work uses mechanism design approach to study the optimal market model to economize the value of privacy of personal data, using diﬀerential privacy. Motivated by the discovery of an individual’s dual motives for privacy protection, we consider that each data owner privately possesses an intrinsic motive and an instrumental motive. We study optimal market design in a dynamic environment by determining the privacy assignment rule that speciﬁes the privacy protection at each usage of data and the payment rules to compensate the privacy loss of the data owners, when the data owners’ instrumental motive experiences endogenous dynamics due to the data buyer’s dynamic activities. Due to the fundamental tradeoﬀ between privacy and data utility of diﬀerential privacy, there is inevitable privacy loss when data is traded with privacy protection. To mitigate the risk of uncertainties, we allow the data owners to leave the market by solving an optimal stopping problem if the accumulated privacy loss is beyond their privacy budgets that depend on their intrinsic motives. In order to inﬂuence the data owners’ stopping decisions, the data buyer uses a stopping payment rule that is independent of the data owners’ preferences and speciﬁes a monetary transfer to a data owner only at the period when he decides to stop at the end of that period. The research desideratum of this work is to characterize the theoretical design regime of optimal dynamic market models when each data owner makes coupled decisions of stopping times and the reporting of his true instrumental motives and study the inﬂuence of data owners’ endogenously dynamic private information on the design of the dynamic market model. We introduce the notion of dynamic incentive compatibility to capture the joint deviations from optimal stopping and truthful reporting. Under a monotonicity assumption about the data owners’ evolution of instrumental motives, the optimal stopping rule of the data owners can be formulated as a threshold-based rule. A theoretical design principle is provided by a suﬃcient condition of dynamic incentive compatibility. We relax the data buyer’s optimal market design problem by characterizing the monetary transfer rules in terms of privacy assignment rule and the threshold functions. To address the unavailable analytical intractability, we provide a suﬃcient condition for an approximated dynamic incentivecompatible market model.
+Key words. Data Pricing, Dynamic Mechanism Design, Optimal Stopping
+AMS subject classiﬁcations. 68Q25, 68R10, 68U05
+1. Introduction. Big data is proving itself as the biggest promising opportunity for businesses, research communities, and governments since the Internet went mainstream about two decades ago. Gigabytes, terabytes, and petabytes of industrial, commercial, and personal data rush into a great wave of opportunities. Business leaders are seeking actionable methods to exploit the enormous value of data to promote ﬁnancial gains by improving customer management, enhancing risk analysis, placing accurate marketing strategies, and so on. Meanwhile, data marketization is attracting increasing attention in response to the valuable beneﬁts and the keen demand of data. Designing eﬀective data market models is critical to eﬃciently utilize the data by enabling data trading between data owners and data buyers. Commoditization of data in a digital market can incentivize data owners’ participation through monetary transfers and thus enables the data buyers to access data of higher quality
+∗Submitted to the editors DATE. Funding: This work was funded by the Fog Research Institute under contract no. FRI-454.
+†Department of Electrical and Computer Engineering, New York University, Brooklyn, NY, 11201 (tz636@nyu.edu).
+‡Department of Electrical and Computer Engineering, New York University, Brooklyn, NY, 11201 (qz494@nyu.edu).
+1
+
+2
+
+TAO ZHANG, QUANYAN ZHU
+
+and larger quantity. Furthermore, data marketization also provides opportunities to adapt governing regime and market standardization into the digital domain. Eﬀorts in researches of data market modelings including analysis and pricing data trading have been invested for, for example, ﬁnancial data (e.g., [3, 4, 11]), IoT data (e.g., [39, 40, 60]), and medical data ([34, 53]).
+However, privacy issues naturally follow. It is critical to provide privacy protection for any forms of data releasing in the data market. Hence, privacy-preserving schemes should be an indispensable component of data market model. Due to the natural tradeoﬀ between the privacy and the utility (accuracy) of data usages, however, private data releasing without any privacy loss in general unavoidably eliminates useful value of data. As a result, privacy-preserving data market model has to take into account the privacy-utility tradeoﬀ and provide incentives for both data owners and data buyers to participate. Yet, the tradeoﬀ is in general diﬃcult to model explicitly and uncertain to both data owners and buyers. Owners of database with sensitive information often inevitably release more information than intended even under carefully crafted privacy protection ([27]). For example, ineﬀectiveness of anonymization has been shown in literature that a small amount of auxiliary information is suﬃcient for an adversary to de-anonymize an individual in database consisting of anonymized data about that individual’s personal information (see, for example, [36, 8, 28]). Another main challenges for privacy-preserving data releasing is due to the limited information about the adversary’s knowledge and ability. Hence, rigorous quantiﬁcation of privacy loss and its inﬂuence on data utility and the robustness to adversarial privacy pry with heterogeneous knowledge and prior information become important in accurate design of monetization and incentivization.
+To this end, diﬀerential privacy ([19]) (also refers to -diﬀerential privacy, with ∈ R+) is widely used as the privacy notion for the privacy-preserving schemes of data processing. Diﬀerential privacy provides strong privacy guarantees such that whether an individual data point is in the database or not is near-indistinguishable based on the output information released by randomized processing of the database regardless of what auxiliary knowledge or side information available to the adversary. Diﬀerential privacy has been studied in a signiﬁcant amount of work in noise-perturbed datareleasing mechanism and data-learning algorithms such as empirical risk minimization (e.g., [15]), statistical learning (e.g., [21]), and deep learning (e.g., [1]). The rigorous mathematical formulation of diﬀerential privacy provides an elegant framework to quantify the individual privacy loss. In particular, the parameter quantiﬁes the degree of privacy and accuracy by characterizing the upper bound of privacy loss that any individual data point can suﬀer by participating in any -diﬀerential private data processing. The parameter also gracefully parameterizes the tradeoﬀ between privacy and accuracy. Basically, the privacy of data usages increases when decreases at the expense of decreasing the accuracy or the accuracy of data usages increases when increases at the expense of decreasing the privacy. Hence, the design of privacy-preserving schemes in the data market can be characterized by the craft of .
+As remarked in [18], the choice of is essentially a social question. Choosing an acceptable may depend on the risk of privacy leakage. Suppose that an has been chosen for a data usage process. In situations with very low risks, it may be tolerable to a higher value = k , for some k = 2 or 3, while in cases when the risk is very high, increasing by a very small factor, e.g., 1.01 may be intolerable. The value of may also depend on data owners’ preferences over privacy protection, or equivalently, data owners’ valuation of privacy. However, the preference of privacy is subjective ([56, 2]). Hence, the choice of for a database consisting data points from
+
+ON THE DIFFERENTIAL PRIVATE DATA MARKET: ENDOGENOUS EVOLUTION, DYNAMIC PRICING, AND INCENTIVE COMPATIBIL
+multiple data owners needs to leverage the data owners’ preference deviations over the consequences of privacy leakage.
+In reality, data buyers necessarily request multiple accesses to the data. This induces other challenges of privacy preservation design in the data market. First, an individual owner’s valuation of privacy can change over time due to learning-bydoing, context-dependence of privacy, or inﬂuence from external factors. For example, monetary compensation at one data access may inﬂuence a data owner’s valuation of privacy at the next round of data access. The same data owner may in some cases severely concern about, but under some other circumstances be indiﬀerent to, privacy leakages ([2]). Also, an individual’s preference over privacy loss tends to be inﬂuenced by external aspects that aim to activate or suppress privacy concern, for example, fake news is spread to create illusions of safe (resp. risky) cyber environment to encourage (resp. discourage) data sharing. As a result, the change of context or time-evolution of external inﬂuences may lead to dynamics of personal valuation of privacy. Therefore, one-shot or myopic privacy protection (e.g., ﬁxed or independent policy over time) no longer provide adequate protection according to the perspective of dynamic data usages. Second, the total privacy loss might be ampliﬁed and accumulative when the number of data accesses increases due to the inevitable privacy loss at each single access. Technically, this suggests that a budget or tolerance of the total privacy loss of data owners has to be considered in the design of the market model.
+In this paper, we study the economy of data privacy and consider a privacy trading market as a part of data market activities. The market consists of a group of data owners (owners), who are the prospective participants to contribute private data by surrendering limited amount of privacy, and a single data buyer (buyer), who requests multiple accesses to the owners’ private data by providing diﬀerential privacy guarantees and monetary compensation for the corresponding privacy loss. We capture the fundamental tradeoﬀ between the diﬀerential privacy and the accuracy of data analysis, which characterizes the conﬂict between owners’ preferences and the buyer’s desire: owners prefers a smaller to obtain a certain degree of privacy while the buyers prefers a larger to extract more value from the data (through more accurate data analysis).
+Motives for an owner to protect his data privacy can arise because the privacy itself is valued as an intrinsic right [54, 33]. They can also emerge as an instrumental value, the owners’ expected economic losses from releasing their privacy through data usage to the buyer [51, 46, 33]. Hence, in this work, we characterize that each owner has a dual preference of data privacy: an intrinsic preference and an instrumental preference. Each owner’s intrinsic preference is utility primitive and is independent of how the data is used by the buyer. His instrumental preference, on the other hand, arises endogenously from the buyer’s usage of his data. Therefore, the multiple usages of data in a dynamic environment inevitably causes the instrumental preference evolves dynamically over time.
+By conceptualizing the relationship between the owners and the buyer by a principal-multiagent model in a ﬁnite horizon, this paper proposes a theoretical framework for pricing diﬀerential privacy of data in a dynamic environment, where owners’ instrumental preference over privacy is time-evolving due to endogenous progresses as well as exogenous impacts. The model applies mechanism design approaches to engineer the rules of encounter for the privacy trading activities of the owners and the buyer. The buyer takes the role of the mechanism designer, whose goal is to minimize the cost by specifying allocation rules that allocate a privacy level at at each period of time (each data access request) and payment rules that determine a payment to
+
+4
+
+TAO ZHANG, QUANYAN ZHU
+
+each participating owner at each period to compensate the owner’s privacy loss based on the valuation of privacy reported by each owner.
+The proposed model highlights the owners’ personal choices and autonomy in the privacy trading activity by making a take-it-or-leave-it oﬀer to the potential participating owners with a soft commitment and entitling each owner to adopt a stopping rule that decides whether or not to leave the market at each round of data access after a time-varying deadline determined by the historical allocations of and the individual tolerance of the maximum privacy loss. We restrict attention to direct mechanisms, in which each owner truthfully reveals the instrumental preference over privacy protection at each period to the buyer by characterizing the incentive compatibility constraints to the buyer’s optimization problem such that truthful reporting is in each owner’s best interest. The autonomy raised by allowing stopping time rules fundamentally complicates the guarantee of incentive compatibility in dynamic settings.
+This work studies the design of a dynamic market for trading data privacy and focuses on the theoretical analysis of how to optimally design the mechanism rules provided by the buyer and how the mechanism inﬂuences the owners’ coupled decision makings of reporting and stopping. The contributions of this paper are summarized as follows.
+1. We propose a dynamic market model with a soft-commitment for trading data privacy based on diﬀerential privacy, when each owner has a dual preference over privacy protection, i.e., the static intrinsic preference and the time-evolving instrumental preference. Our model captures the fundamental tradeoﬀ between privacy and utility of data in diﬀerential privacy and allows each owner to leave the market before the ﬁnite-horizon trading relationship naturally ends.
+2. We model the owners’ decision makings as a dynamic Bayesian game when each owner makes coupled decision makings of reporting and stopping. We deﬁne truthful perfect Bayesian equilibrium as the solution concept of the buyer’s optimal market design. We deﬁne an optimal stopping problem for each owner when he dynamically chooses how to report his instrumental preference to the buyer at each period.
+3. We deﬁne a new notion of dynamic incentive compatibility that captures coupled deviations from truthful reporting decisions and optimal stopping behaviors by establishing a Bellman-equation based relationship.
+4. We characterize the DIC and transform the owners’ optimal stopping problem into a threshold-based rule under a monotonicity assumption about owners’ change of instrumental preferences. A theoretical design regime is established by formulating the preference-dependent monetary transfer rules in terms of the privacy assignment rule and the preference-independent payment rules in terms of the privacy assignment rule and the threshold functions.
+5. Based on the design regime, we relax the buyer’s optimal market design problem by determining four decision rules and two constraints to a problem of ﬁnding the privacy assignment rules and the threshold functions with a single constraint for each owner. A notion of approximated dynamic incentive compatibility is proposed to address the inevitable violations of incentive compatibility due to the analytical intractability of mechanism design problems in general.
+
+ON THE DIFFERENTIAL PRIVATE DATA MARKET: ENDOGENOUS EVOLUTION, DYNAMIC PRICING, AND INCENTIVE COMPATIBIL
+1.1. Related Work. There is literature on the interactions of diﬀerential privacy and mechanism design. [25] have initiated the study of private data markets. They have treated diﬀerential privacy of data as a commodity and applied traditional static mechanism design approaches to model one-query private data trading as a variant of a multi-unit procurement auction. They have considered the cost of privacy loss as each owner’s private information and studied truthful mechanism in which each owner is incentivized to truthfully release his private information. Works following [25] include [22, 17, 32, 48, 6], which have studied how to determine through auctions. Other literature of studying how rational agents evaluate diﬀerential privacy loss and choose includes, e.g., [38, 27, 16, 55]. Authors of [27] have proposed a framework to choose diﬀerential privacy parameters through a simple static economic model with complete information of data owners and buyers based on quantities that can be estimated in practice. [30]
+There is also related work in dynamic settings. Authors of [31] have studied an orthogonal problem to [25]: owners’ valuations are public knowledge and there are multiple queries of data usages. Besides the accuracy of query outputs, [31] have also considered unbiasedness. Their model allows the data buyers to get an arbitrary number of queries and provides arbitrage-free pricing scheme for the buyers that is balanced by taking into account the compensation for privacy loss and the proﬁts from data usages. Other line of work in dynamic setting concerns optimal pricing in a timeevolving environment. There is literature considering posted price models that do not require truthful revealing of private information (e.g., [50]) and models that require incentive compatibility (e.g., [5]). Authors of [57] have proposed a dynamic privacy pricing framework in a market where a data buyer repeatedly buys data from a group of data owners, whose valuations of privacy are randomly drawn from an unknown distribution. They have treated each candidate price as one arm and modeled a multi-armed bandit problem to dynamically adjust the prices to compensate the data owners.
+In contrast, we consider a dynamic market framework, in which each owner can learn and update new his valuation of privacy (his private information). We use mechanism design approaches to dynamically set the value of and the price of privacy as a compensation for each owner’s privacy loss at each period through a dynamic optimization problem that minimizes the buyer’s cost by taking into account the incentive compatibility, individual rationality, and the buyer’s accuracy requirement. Our model oﬀers a ﬂexible commitment and allows each owner to leave the market by adopting a stopping rule once his pre-determined privacy budget is exceeded.
+There is a signiﬁcant amount of work on dynamic mechanism design problems. The literature on dynamic mechanism designs can be divided into two classes. Those are (1) mechanisms with dynamic population and static private information and (2) mechanisms with dynamic private information and static population. Authors of [43] have studied a sequential allocation problems when the participating population is dynamic. In particular, their model has considered the environment when each selfinterested agent arrives and departs dynamically overtime. The information possessed by each agent is static and includes the arrival and the departure time as well as her valuation about allocation outcomes. Other works consider this class of dynamic settings include, e.g., [41, 23, 24, 49, 42, 14]. Orthogonal to the dynamic population mechanisms, there are other works considering mechanisms, in which the underlying model is dynamic due to the time-evolution of agents’ private information. There is a large number of works lying in this category that studies for example, the dynamic pivot mechanisms (e.g., [10, 29]), dynamic team mechanisms (e.g., [9, 7, 37]), and more
+
+6
+
+TAO ZHANG, QUANYAN ZHU
+
+generally (e.g., [44, 59]). [7] have considered a dynamic team problem and proposed a balanced team mechanism to implement dynamic eﬃciency with a balanced budget. Each agent observes private signals over time and decisions are made periodically. Their mechanism provides each agent an incentive payment in each period, which equals to the expected present value of the other agents’ payoﬀs induced by this agent’s current period report, to establish an equilibrium in truthful strategies.
+The theoretical framework of our mechanism model lies in the interaction of mechanism design with dynamic population and with time-evolving private information. In particular, each data owner’s private information (i.e., valuation of privacy) changes over time and the population is dynamic due to the stopping time rule adopted by each data owner. Unlike the aforementioned works with dynamic population, we do not consider the arrival of new data owners and the departure time is determined by the stopping rule (depends on the owner’s valuation and the privacy guarantees) and is not treated as private information.
+
+1.2. Preliminaries. In this section, we review basic concepts in diﬀerential privacy and preliminary model of the data market to properly situate the contributions of this paper.
+
+1.3. Diﬀerential Privacy. Let D ≡ {D1, D2, . . . , Dn}, where each Dk ∈ D is a single data point, denote the database consisting of n data points. Let A : Dn → S denote a randomized algorithm such that A(D) ∈ S is the output of the algorithm with D as the input data. The following deﬁnition deﬁnes indistinguishability of any algorithm.
+Definition 1.1. Let D ∈ Dn and D ∈ Dn be any two databases. We say the randomized algorithm A -indistinguishable (or indistinguishable) for these two databases if
+
+(1.1)
+
+Pr(A(D) ∈ S) ≤ exp( )Pr(A(D ) ∈ S).
+
+Basically, a higher degree of indistinguishability (i.e., smaller ) implies a higher
+
+degree of privacy. Let D ≡ {D1, . . . , Dn} be another database that diﬀers from D
+
+in one data point, i.e., Dk = Dk and Dj = Dj, for all j = k. In other words,
+
+the Hamming Distance, which is deﬁned as HD(D, D ) =
+
+n i=1
+
+1{Di
+
+=
+
+Di},
+
+is
+
+1.
+
+The notion of diﬀerential privacy is developed in [19]. Speciﬁcally, the algorithm
+
+A is diﬀerentially private if the probability likelihood of A(D) ∈ S is close to the
+
+the probability likelihood of A(D ) ∈ S. Basically, diﬀerential privacy captures the
+
+indistinguishability of the algorithm in the worst-case scenario, in which the adversary
+
+knows every data points other than any single sensitive Dk, and guarantees that any single data point does not inﬂuence the distribution of algorithm outcome by much
+
+and the adversary cannot obtain much information about the sensitive data point by
+
+observing the output of the algorithm. Deﬁnition 1.2 formally describes the concept
+
+of diﬀerential privacy.
+
+Definition 1.2. ( -Diﬀerential Privacy.) A randomized algorithm A : Dn → S is -diﬀerentially private if for any pair of database D and D with HD(D, D ) = 1,
+
+(1.2)
+
+Pr(A(D) ∈ S) ≤ exp( )A(D ∈ S),
+
+where ∈ R+.
+Diﬀerential privacy is a strong privacy notion that protects any single sensitive data point in the worst-case scenario. In particular, any -diﬀerentially private algorithm A that is robust to the adversary who targets on knowing the k-th data point
+
+ON THE DIFFERENTIAL PRIVATE DATA MARKET: ENDOGENOUS EVOLUTION, DYNAMIC PRICING, AND INCENTIVE COMPATIBIL
+
+Dk of the input database D is also robust to any other adversaries who have diﬀerent target data points Dj ∈ D, for any j = k. It is diﬃcult to know what information the adversary could have about the target database. By considering the worst-case scenario, diﬀerential privacy makes no assumptions about the knowledge set of the adversary. The standard randomization approach for promoting diﬀerential privacy is perturbation with Laplacian noise (see, e.g., [20, 15, 58]).
+Next, we consider a diﬀerent scenario, i.e., there are m > 1 sensitive data points and the adversary knows all other n − m data points except these m points. Let Dm be any database such that HD(Dm, D) = m. The following corollary directly follows Deﬁnition 1.2 (see, e.g., [20, 25]).
+Corollary 1.3. Let A be any -diﬀerentially private algorithm deﬁned in Definition 1.2. Let D and Dm be any two database with HD(Dm, D) = m. Then the following holds:
+
+(1.3)
+
+Pr(A(D) ∈ S) ≤ exp(m × )Pr(A(Dm) ∈ S).
+
+Let any randomized algorithm A satisfying (1.3) be named as m -indistinguishable.
+Proof. Let D−1,0 = D, D0,1, D1,2, . . . , Dm−1,m = Dm be any sequence of data base such that each pair Dk−1,k and Dk,k+1 have HD(Dk−1,k, Dk,k+1) = 1, for all 0 ≤ k ≤ m − 1 Then, we have
+
+Pr(A(D) ∈ S) Pr(A(Dm) ∈ S)
+
+m−1
+=
+k=0
+
+Pr (A(Dk−1,k ) Pr (A(Dk,k+1 )
+
+∈ ∈
+
+S) S)
+
+≤
+
+m−1
+exp(
+k=0
+
+)
+
+=
+
+exp(m ×
+
+).
+
+In the non-worst-case scenario when there are m sensitive data points, i.e., when
+the adversary does not know m data points in the private database, Corollary 1.3
+states that any algorithm A that is -indistinguishable can provide m -diﬀerential privacy (i.e., in the worst-case scenario). In other words, raising indistinguishability
+for multiple sensitive data points guarantees a higher degree of diﬀerential privacy
+(i.e., indistinguishability in the worst-case scenario).
+Another important feature of diﬀerential privacy is its compositionality. In partic-
+ular, running the -diﬀerentially private algorithm A with input D k times induces a
+k -diﬀerential process. More generally, let the algorithm A be t-diﬀerentially private at the t-th round of running, for some t ∈ R+. Let Ak denote the sequence of k rounds of running the algorithm A with 1, . . . , k. Then, the following holds, for any pair D, D1 ∈ Dn with HD(D, D1) = 1,
+
+(1.4)
+
+k
+Pr(Ak(D) ∈ Sk) ≤ exp( i)Pr(Ak(D1) ∈ Sk).
+i=1
+
+2. Model. In this section, we describe the basic model of the private data market. With reference to Figure 1, the market consists of two parties: those are (1) n data owners (owner, he), denoted as I ≡ [n] and (2) a data buyer (buyer, she); a typical owner is indexed by i ∈ I. The buyer provides take-it-or-leave-it (i.e., the mechanism) oﬀer to the owners. The buyer requests multiple data accesses and each single data access requirement initiates one period of time. We consider a ﬁnite-horizon data trading market. Let T ≡ {0, 1, . . . , T }, with 0 ≤ T < ∞, denote the life cycle of data trading. Since each owner is allowed to leave the market, it is straightforward to see that the dynamics of valuations may lead to a dynamic population. To make owners’
+
+8
+
+TAO ZHANG, QUANYAN ZHU
+
+Fig. 1. Market model for data privacy: At each period t, each owner i reports his instrumental preference vit as vˆit = χit (vit ; vit−1, vˆit−1, t) and his stopping decision to the buyer. Given the reports vˆit = {vˆit , vˆ−it }, the buyer assigns privacy protection as t-diﬀerential privacy, where t = σ(vˆit , vˆ−it ) and speciﬁes compensation pit = βit (vˆit , vˆ−it ) to each owner i for his privacy loss at this period if owner i continues; the buyer speciﬁes a compensation for privacy and stopping payment pit = θit (vˆit , vˆ−it ) + ρi(t) if owner i stops at t.
+indices (initially given by I) consistent with population dynamics, we re-index each owner participating at period t. Let Nt ≡ [nt] with N0 = I denote the set of participating at period t, where nt ≥ 0 is the number of of owners at period t. Clearly, nt is weakly decreasing in t. For simplicity, let It : I → Nt be the identity transition mapping, with It−1 : Nt → I, such that the index of owner i at period t is it = It(i) ∈ Nt and It−1(it) = i ∈ I. For a typical owner i ∈ I, we use {i0 = i, i1, . . . , is−1, is, . . . iT } to denote owner i in diﬀerent period, i.e., it = It(i), for all t ∈ T.
+Privacy loss and payment . After the agents accept the oﬀer at the beginning, the buyer pays each owner i a payment for the purchase of data, denoted as bi ∈ J ≡ [0, ¯b] ⊂ R+, where ¯b < ∞. In this work, we consider that the data market operates without taking into account the quality of the data. Hence, the payment bi depends only on the quantity of the data provided by owner i. Additionally, since the worstcase scenario of privacy loss is independent of the data quantity, we assume, without loss of generality, that each owner provides the same quantity of data. Therefore, the payment for the purchase of data is the same for every owner, i.e., bi = bj = b ∈ J , for all i = j ∈ I. At each period t, the buyer uses diﬀerential privacy to protect the data privacy and quantify a degree of privacy protection by the (bounded) privacy loss of diﬀerential privacy that is parameterized by a scalar t ∈ E ≡ (0, ¯] ⊂ R+, t ∈ T, where ¯ < ∞1. Since the buyer uses the data from all owners together, she takes advantage of the robustness of diﬀerential privacy and speciﬁes t that is the same for every owner. The privacy loss is inevitable. As a result, the buyer speciﬁes a payment to compensate the privacy loss of each owner i at each period t, denoted as pit ∈ P ≡ [0, p¯] ⊂ R+, where p¯ < ∞.
+Dual preference of privacy . The motive of the owners to protect their privacy in the data trading is based on their preference of privacy. In this work, the buyer speciﬁes the privacy parameter t and the compensation pt ≡ {pit }it∈Nt according to owners’ preference of privacy. We consider that each owner has a dual preference of privacy in the following deﬁnition.
+Definition 2.1 (Dual Preference of Privacy). Owner i’s dual preference of privacy consists of (i) an intrinsic preference ci ∈ C, and (ii) a time-varying instrumental preference vit ∈ Vi ⊂ R, which is distributed according to a transition kernel Kit , for all i ∈ I, it = It(i), t ∈ T.
+1We eliminate t = 0 for all t ∈ T because when t = 0, the buyer cannot extract any utility from the data.
+
+ON THE DIFFERENTIAL PRIVATE DATA MARKET: ENDOGENOUS EVOLUTION, DYNAMIC PRICING, AND INCENTIVE COMPATIBIL
+Here, owner i’s intrinsic preference captures his intrinsic motives to protect his data privacy, regardless of how his data is traded and used in the data market. Owner i’s instrumental preference, on the other hand, represents his motives of privacy protection due to participating in the data market. In other words, owner i’s instrumental preference vit is endogenously aﬀected by the buyer’s dynamic mechanism. In this data market, we assume that the time-evolution of vit is due to the accumulated privacy losses, which is characterized by endogenous dynamics deﬁned as follows.
+Definition 2.2 (Endogenous Dynamics). The time evolution of vi,t is endogenous dynamics if the transition kernel Kit : Vit−1 × Et−1 → ∆(Vi), such that Kit (vit−1, t−1) speciﬁes the probability distribution of vit , for t ∈ T, i ∈ I, when owner i’s history of instrumental preferences is vit−1 and the accumulated privacy losses is (parameterized by) t−1.
+The endogenous dynamics shown in Deﬁnition 2.2 captures the endogenous eﬀect of the accumulated privacy losses t−1 on vit . The dependence of vit on the history vit can be relaxed by Markovian endogenous dynamics:
+Definition 2.3 (Markovian Endogenous Dynamics). The endogenous dynamics are Markovian if the transition kernel kit : Vi × Et−1 → ∆(Vi) depends on the history vit−2 only through vit−1 , i.e., kit (vit−1 , t−1), speciﬁes the probability distribution of vit when owner i’s current instrumental preference is vit−1 and the accumulated privacy losses is t−1.
+Both the intrinsic and the instrumental preferences are the private information of each owner. We assume that each owner is aware of his intrinsic and the instrumental preferences through, e.g., data privacy audition, and all owners’ preferences are evaluated according to the same standard. Additionally, we assume that each owner’s intrinsic preference is independent of other owners’ and his period-t instrumental preference is independent of other owners’ period-t instrumental preferences.
+Decision Makings. Since the dual preference of privacy is the private information of each owner, the data market requires each owner to report his intrinsic and instrumental preferences. Since the intrinsic preference is independent of the data market, owner i is required to report his ci at the prior ex-ante period, when the take-it-or-leave-it oﬀer is not observed by the owners. The instrumental preference vit , however, needs to be reported at the beginning of each period t. We consider a direct mechanism, in which each owner chooses report from the spaces of preference. Speciﬁcally, each owner i chooses how to report his preference by using reporting strategies ˚χi : C → C and χit : Vit × Vit−1 × t−1 → Vi, such that cˆi = ˚χi(ci) is the reported intrinsic preference, when his true preference is ci, and vˆit = χit (vit ; vit−1, vˆit−1, t) is his period-t reported instrumental preference, when his history of true instrumental preference is vit, his history of reports is vˆit−1, and the history of privacy losses is t−1. Here, owner i chooses his period-t report vˆit of vit by taking into account the histories, where t−1 is the only source of information he can obtain that contains the realizations of other owners’ private intrinsic preferences. To simplify the notation, we omit the dependence of the reporting strategies on the history, i.e., χ(vit ) = χit (vit ; vit−1vˆit−1, t), unless otherwise stated. Owner i is allowed to leave the data market by choosing an optimal stopping time once his privacy loss is beyond his privacy tolerance characterize by his intrinsic preference ci. Since the intrinsic preference is independent of the market model, we assume that the owners truthfully report their intrinsic preference.
+To support the owners’ stopping decisions, we introduce the notions of tolerance
+
+10
+
+TAO ZHANG, QUANYAN ZHU
+
+of privacy loss and commitment period.
+
+Definition 2.4 (Tolerance of Privacy Loss). Owner i’s tolerance of privacy
+
+loss (tolerance) Bi ∈ B ⊂ R+ is a scalar such that he can bear privacy loss up to Bi,
+
+i.e.,
+
+t s=0
+
+s ≤ Bi.
+
+Definition 2.5 (Commitment Period). The commitment period Tic ∈ T of
+
+owner i min{t ∈
+
+is the smallest t such that the privacy loss exceeds
+
+T:
+
+t s=0
+
+s ≥ Bi} denote the commitment period.
+
+his
+
+tolerance,
+
+i.e.,
+
+Tic
+
+=
+
+The proposed data market requires a soft commitment from owners. Speciﬁcally,
+
+each owner i is allowed to leave the market after his commitment period (included)
+is reached. The commitment is soft in the sense that Tic is stochastic due to the endogenous dynamics of vit . Let Tict represent owner i’s period-t expected commitment period (expected commitment). It is straightforward to see that in general Tict = Tict , for any t = t ∈ T, it ∈ Nt, it ∈ Nt , it = It(It−1(it )). The commitment period Tic is realized at t if and only if Tict = t. The following assumption describes the relationship between each owner’s intrinsic preference and his tolerance.
+
+Assumption 1. There exists a mapping, λ : C → B, such that Bi = λ(ci) and owner i’s payoﬀ depends on ci only through Bi, for all i ∈ I.
+Assumption 1 implies that owner i’s commitment period is partially intrinsic and partially instrumental. That is, owner i’s expected commitment Tict is jointly determined by his intrinsic preference ci through Bi, current-period privacy loss t, and history of privacy losses t−1.
+We focus on when the buyer’s speciﬁcations of t and {pit }it∈Nt based only on owners’ reports of their instrumental preferences {vˆit }it∈Nt . This setting captures the utility primitiveness of the intrinsic motives of privacy protection and the endogenous
+nature of the instrumental ones. The buyer speciﬁes the payment b by the payment rule β˚ : Cn → J such that b = β˚(cˆ) when the agents report cˆ ≡ {cˆi}i∈I. Due to the endogenous dynamics, the compensation pit is dynamically assigned at each period t. After receiving all the reports vˆt ≡ {vˆit }it∈Nt , the buyer uses a privacy assignment rule (assignment rule) σt : ×it∈Nt Vit → E and a compensation rule βit : ×it∈Nt Vit → P, respectively, to specify t = σt(vˆt) and pit = βit (vˆt).
+To inﬂuence owners’ stopping decision, the buyer uses a preference-independent
+stopping payment rule ρit : T → R, such that ρit (t) speciﬁes an additional payment to owner i if he decides to stop at period t. To distinguish the stopping period
+and the continuing period, let θit : ×it∈nt Vit → R denote the preference-dependent compensation rule that speciﬁes a compensation for owner i’s privacy loss at the
+period when he decides to stop at t. Hence, pit = θit (vˆt) + ρit (t) is the payment owner i receives when he stops at t and the joint reports of the owners are vˆt. Let σ ≡ {σt}t∈T, β ≡ {βi,t}i∈I,t∈T, θ ≡ {θi,t}i∈I,t∈T, and ρ ≡ {ρi,t}i∈I,t∈T 2. The buyer’s rule proﬁle < σ, β, θ, ρ > constitute the dynamic mechanism of the data market.
+
+2.1. Dynamic Bayesian Game. We restrict attention to the Markovian endogenous dynamic environment as described in Deﬁnition 2.3. Given the mechanism < σ, β, θ, ρ >, each owner’s independent private information and his reporting strategy determine the distribution of the payoﬀ he obtains from the data trading. The strategic interactions among the owners along with their beliefs about others’ private
+
+2The rules provided by the buyer as a take-it-or-leave-it oﬀer at the ex-ante stage are speciﬁed for all the initial participants at each period t, for all t ∈ T, no matter whether any individual leaves at any period.
+
+ON THE DIFFERENTIAL PRIVATE DATA MARKET: ENDOGENOUS EVOLUTION, DYNAMIC PRICING, AND INCENTIVE COMPATIBIL
+information inﬂuences their decision makings (i.e., reporting and stopping decisions) in the data market. Since each owner’s private information is dynamic, we naturally obtain a dynamic Bayesian game among the owners in our dynamic mechanism. A standard game-theoretic tool used to analyze such dynamic game is the solution concept known as perfect Bayesian equilibrium (PBE). In this work, we study the implementability of the dynamic mechanism in PBE, in which each owner reports truthfully, i.e., χit (vit ) = vit , it ∈ Nt, t ∈ T, when all other owners report truthfully.
+Let µi(·|K) : Vitt × Et−1 → ∆(V−tit ) denote owner i’s belief about other owners’ realized instrumental preferences, such that µi(vˆit, t−1) is his belief of vˆ−t i, when he has reported vˆit−1, he reports vˆit , and the history of privacy losses t−1, given the joint transition kernel K (when all other owners report truthfully.) Based on his estimation of v−t i using the belief µi, owner i estimates the population dynamics due to the optimal stopping rule. Let Nti denote the set of participating owners at period t estimated by owner i and let hit ≡ {Nsi}s∈Tt+1 denote the sequence of populations of participating owners from period t to period T that is estimated by owner i at period t. With a slight abuse of notation, we refer to v−it as the joint instrumental preference of owners other than i in Nti.
+Given the privacy loss t and his instrumental preference vit , owner i obtains a monetary ﬂow loss, given by a loss function it : Vi × E → R, deﬁned as follows [25]:
+
+(2.1)
+
+(vit , t) ≡ vit exp( t) − 1 .
+
+The loss function is increasing in t, i.e., the larger (resp. smaller) t is, the less (resp. more) private the data becomes; when t → 0, there is no private loss, i.e., lim t→0 (vit , t) = 0. Since vit and t are ﬁnite, (vit , t) is bounded, i.e., | (vit , t)| < ∞, for all vit ∈ Vi and t ∈ E. This captures the tradeoﬀ between owners’ privacy and the buyer’s utility extracted from the data because larger (resp. smaller) t gives the buyer more (resp. less) utility from the data. Given the compensation pit , owner i’s period-t utility is deﬁned as follows:
+
+(2.2)
+
+zit (vit , t, pit ) ≡ − (vit , t) + pit .
+
+Since is bounded and pit is ﬁnite , the utility zit (vit , t, pit ) is bounded, i.e., |zit (vit , t, pit )| < ∞, for all vit ∈ Vi, t ∈ E, and pit ∈ P.
+According to Ionescu Tulcea theorem (see, e.g., [26]), the kernels K, the as-
+
+signment rules σ, and the reporting strategy χi deﬁne a unique probability measure
+
+P [σ, χi] on ViT . Similarly, at any period t, current-period vit , KtT , σ, and χi de-
+
+ﬁne a unique probability measure P [σ, χi]|vit on ViT,t+1. Given owner i’s belief µi,
+
+the expectations with respect to P [σ, χi] and P [σ, χi]|vit , respectively, are denoted as
+
+Eσ,χi ;µi
+
+and
+
+σ,χi
+Et
+
+;µi
+
+|vit
+
+.
+
+Given
+
+< σ, βi, θi, ρi
+
+>
+
+and
+
+the
+
+reporting
+
+strategy
+
+χi,
+
+owner
+
+i’s ex-ante expected payoﬀ function and interim expected payoﬀ function, respectively,
+
+for any ﬁxed time horizon are deﬁned as follows: for any τ ∈ T,
+
+(2.3)
+
+τ −1
+
+Jiσ,βi,θi,ρi;χi,µi (τ ) ≡Eσ,χi;µi
+
+zit v˜it , σt χit (v˜it ), v˜−it , βit χit (v˜it ), v˜−it
+
+t=0
+
++ ziτ v˜iτ , στ χis (v˜iτ ), v˜−iτ , θτ χis (v˜iτ ), v˜−iτ + ρit (τ ) ,
+
+12
+
+TAO ZHANG, QUANYAN ZHU
+
+and, for any τ ∈ TTict ,
+
+(2.4)
+
+Jiσt,βi,θi,ρi;χi,µi (vit , τ ; t−1, vit−1)
+
+τ −1
+
+≡Eσt ,χi;µi|vit
+
+zis
+
+s=0
+
+v˜it , σs χis (v˜is ), v˜−is
+
+, βis
+
+χis (v˜is ), v˜−is
+
++ ziτ v˜iτ , στ χis (v˜iτ ), v˜−iτ , θτ χis (v˜iτ ), v˜−iτ + ρit (τ ) .
+
+Owner i’s expected payoﬀ functions in (2.3) and (2.4) are deﬁned when all other own-
+
+ers reporting truthfully. For simplicity, we remove the mechanism rules < σ, βi, θi, ρi >
+
+and owner i’s belief µi in the superscript of the expected payoﬀ functions, e.g.,
+
+Jiχi (τ ) = Jiσ,βi,θi,ρi;χi,µi (τ ) with Ji(τ ) = Jiχ∗i (τ ) when χ∗i is truthful, unless oth-
+
+erwise stated.
+
+Also,
+
+we
+
+remove
+
+the
+
+belief
+
+µi
+
+in
+
+the
+
+expectation,
+
+i.e.,
+
+σ,χi
+Et
+
+|vit
+
+=
+
+σ,χi
+Et
+
+;µi
+
+|vit
+
+.
+
+Definition 2.6 (Truthful Perfect Bayesian Equilibrium). A Truthful perfect Bayesian equilibrium (TPBE) of the mechanism < σ, β, θ, ρ > is a proﬁle <
+µ, χ >, where each belief µi updates ∆(V−it ) according to Bayes’ rule and each reporting strategy χit is truthful and
+
+χi = argχi max Jiσt,βi,θi,ρi;χi (vit , τ ; t−1, vit−1),
+
+for all vit ∈ Vi, t−1 ∈ Et−1, i ∈ I, t ∈ T, when all other owners’ reporting strategies are truthful at all periods. The mechanism < σ, β, θ, ρ > is implementable in TPBE (TPBE-implementable, TPBE-implementability) if it induces a game, in which the equilibrium is a TPBE.
+
+2.2. The Buyer’s Mechanism Design Problem. The privacy-utility tradeoﬀ implies that the buyer suﬀers losses of utility she can extract from the data by providing diﬀerential privacy. In this work, we ignore the utility loss from the reduce of data due to owners’ stopping decisions and restrict attention to the utility loss caused only by diﬀerential privacy protection. For any t ∈ E, t ∈ T, deﬁne the buyer’s utility loss as:
+
+(2.5)
+
+at( t) ≡ L exp(− t),
+
+where L ∈ R++ represents the maximum utility loss when t → 0. As a mechanism designer, the buyer aims to determine the rule proﬁle < σ, β,
+θ, ρ > and provide these rules as a take-it-or-leave-it oﬀer to the owners at the ex-
+ante stage. The buyer’s decision makings take into account the expected population dynamics due to owners’ stopping rule. Let τ¯ ≡ {τ¯i}i∈I ∈ Tn, where each τ¯i denotes the expected stopping time of owner i evaluated at the ex-ante stage. Additionally,
+let N ≡ {Nt}t∈T denote the sequence of population sets evaluated by the buyer. The buyer mechanism design problem is to minimize her ex-ante expected cost,
+
+(2.6)
+
+Cσ,β,θ,ρ(τ¯; N ) ≡Eσ,χi;µi
+
+L exp(−σt(v˜t)) +
+
+βit (v˜t)
+
+t∈T\τ¯
+
+it ∈Nt
+
++
+
+L exp(−στ (v˜τ )) +
+
+βiτ (v˜iτ ) + ρiτ (τ ) ,
+
+τ ∈τ¯
+
+iτ ∈Nτ
+
+ON THE DIFFERENTIAL PRIVATE DATA MARKET: ENDOGENOUS EVOLUTION, DYNAMIC PRICING, AND INCENTIVE COMPATIBIL
+
+by determining the rule proﬁle < σ, β, θ, ρ >3 that is TPBE-implementable, i.e., satisfying the dynamic incentive compatibility (DIC) for each owner i (DICi), and is individual rational for each each owner i (IRi). That is, the buyer aims to solve a constrained optimization problem:
+
+(2.7)
+
+min Cσ,β,θ,ρ(τ¯; N ), s.t. IRi, DICi,t, ∀i ∈ I, t ∈ T.
+σ,β,θ,ρ
+
+The IR constraint is imposed to guarantee that each owner i has incentive to participate in the data market. This is captured by a non-negative ex-ante expected payoﬀ, i.e., Ji(τ¯i) + b ≥ 0. The DIC constraint ensures the TPBE-implementability of the mechanism, such that each owner i has incentive to report his instrumental preference truthfully at every period. In the rest of the paper, we focus of the theoretical characterizations of DICi,t.
+As described in Section 2.1, the TPBE solution concept of the dynamic Bayesian game induced by the mechanism < σ, β, θ, ρ > requires a strong rationality of owners: each owner i is rational in the sense that (i) he maintains beliefs about all that is unknown (but payoﬀ-relevant) to him and ( ii) he can accurately forecast and estimate how other owners will respond to any decisions he makes at each period. Likewise, as shown in Section 2.2, the buyer’s mechanism design problem also requires her strong rationality to adopt accurate beliefs in regard to the dynamics of the environment (owners’ instrumental preferences and the population evolution) and to the decision makings of each owner including his beliefs about others’ instrumental preferences and the population dynamics. Our theoretical characterizations in this work are conducted based on these assumptions of strong rationality.
+
+2.3. Optimal Stopping Rule. Given the mechanism < σ, βi, θi, ρi >, owner i makes coupled decisions of reporting and stopping at each period. For any reporting strategy χi, owner i’s stopping rule is optimal if there exists τ¯i ∈ T such that
+
+(2.8)
+
+sup Jiχi (τ ) = Jiχi (τ¯i).
+τ ∈T
+
+Basically, a stopping rule is optimal if there exists a time horizon τ¯i such that owner
+i’s ex-ante expected payoﬀ is maximized, given < σ, βi, θi, ρi > and ﬁxed χi.
+To solve the optimal stopping problem (2.8), we introduce the value function Uiχti : Vi → R as follows: for any vit ∈ Vi, vit−1 ∈ Vit−1, t ∈ T, i ∈ I,
+
+(2.9)
+
+Uiχti (vit ; t−1, vit−1) ≡ sup Jiχti (vit , τ ; t−1, vit−1),
+τ ∈Tt
+
+with
+
+Uit (vit ;
+
+t−1, vit−1)
+
+=
+
+U χ∗i
+it
+
+(vit
+
+;
+
+t−1, vit−1),
+
+when
+
+owner
+
+i uses truthful
+
+reporting
+
+strategy χ∗i . Here, the value Uiχti (vit ; t−1, vit−1) is owner i’s maximum period-t interim
+
+expected payoﬀ given any < σ, βi, θi, ρi > and χi. Since the utility zit is bounded
+
+and the time horizon is ﬁnite, owner i’s value Uiχti (vit ; t−1, vit−1) is also bounded, i.e.,
+
+|Uiχti (vit ; t−1, vit−1)| < ∞, for all vit ∈ Vit, t ∈ T, i ∈ I.
+
+Lemma 2.7 ([45]). Fix any < σ, βi, θi, ρi > and χi. The followings are true. (i) the value function can be represented as, for for any vit ∈ Vi, vit−1 ∈ Vit−1,
+
+3Recall that in footnote 2, each rule in < σ, β, θ, ρ > well deﬁne the assignment and payments at every period for every owner though each owner may leave the market at any period.
+
+14
+
+TAO ZHANG, QUANYAN ZHU
+
+t ∈ T, i ∈ I,
+
+Uiχti (vit ; t−1, vit−1) = max Jiχti (vit , t; t−1, vit−1),
+
+(2.10)
+
+σ,χi
+Et
+
+|vit
+
+U χi
+it+1
+
+(v˜it+1
+
+;
+
+˜t
+
+,
+
+v˜it
+
+)
+
+.
+
+(ii) The optimal stopping rule φχi i is given as follows: (2.11) φχi i : ∃ τi ∈ T, s.t., τi = inf t ∈ T : Uiχti (vit ; t−1, vit−1) = Jiχti (vit , t; t−1, vit−1) ,
+with φ∗i = φχi ∗i , where χ∗i is owner i’s truthful reporting strategy.
+Lemma 2.7 shows the optimal stopping rule φi in terms of owner i’s value function and his interim expected payoﬀ. Here (2.10) reformulates the value function viχti as a Bellman equation. The optimal stopping rule φi in (2.11) is established based on the Bellman equation (2.10) and suggests a stopping decision at period t if the owner i’s period-t value equals his period-t interim expected payoﬀ if he stops immediately at t. Deﬁne, for any vit ∈ Vi, vit−1 ∈ Vit−1, t−1 ∈ E t−1
+
+(2.12)
+
+Gχiti (vit ;
+
+t−1,
+
+vit−1)
+
+≡
+
+Eσ,χ[it] |vit
+t
+
+sup
+
+J χi[t]
+it+1
+
+(v˜it+1
+
+,
+
+τ
+
+;
+
+t, vit)
+
+τ ∈Tt+1
+
+−J χi[t]
+it
+
+(vit
+
+,
+
+t;
+
+t−1, vit−1) + ρi(t),
+
+with
+
+J χ[iT ]
+iT +1
+
+= 0, such that Gχiti (vit ;
+
+t−1, vit−1) − ρi(t) captures owner i’s incentive of
+
+stopping or continuing, i.e., the optimal stopping rule φχi i in (2.11) can be rewritten
+
+as follows:
+
+(2.13)
+
+φχi i : ∃ τi ∈ T, s.t., τi = inf t ∈ T : Gχiti (vit ; t−1, vit−1) ≤ ρi(t) ,
+
+with φ∗i = φχi ∗i when owner i uses truthful reporting strategy χ∗i . Since Gχiti (vit ;
+
+stt−op1,pvinit−g1d) eicsisiinodnebpyenaddejnutstoinf gρiρ(it()t,).thWe hbeunyeGrχitci (avnit
+
+inﬂuence each ; t−1, vit−1) =
+
+owner i’s optimal ρi(t), owner i with
+
+χi is indiﬀerent between stopping and continuing.
+
+2.4. Dynamic Incentive Compatibility. In TPBE (Deﬁnition 2.6), owner i
+truthfully reveals his true instrumental preference vit when he has reported truthfully at all past periods and plans to report truthfully at all future periods, when all
+other owners report truthfully at all periods. Each owner i’s incentive of choosing a
+reporting strategy χit at each period t depends on how much interim expected payoﬀ he can obtain by using χit to report his period-t true instrumental preference vit . In a Markovian endogenous dynamic environment (Deﬁnition 2.3), the probability distribution of owner i’s future instrumental preference depends on vit , {vˆit−1, vˆit = χit (vit )}, and t−1; its dependence on past true instrumental preference vit−1 only through current vit . As a result, if owner i is incentivized to report truthfully when he has reported his instrumental preferences truthfully in all the past periods, then
+he is also incentivized to report truthfully when has lied in the past. Each owner
+i’s incentive to report truthfully at each period t is guaranteed by dynamic incentive
+compatibility (DIC) deﬁned as follows.
+
+ON THE DIFFERENTIAL PRIVATE DATA MARKET: ENDOGENOUS EVOLUTION, DYNAMIC PRICING, AND INCENTIVE COMPATIBIL
+
+Definition 2.8 (Dynamic Incentive Compatibility). Let χi = {χ∗i;0:t−1, χi;t:T }, where χ∗i;0:t−1 = {χ∗is }s∈T0,t−1 is the sequence of truthful reporting strategies
+up to period t − 1 and χi;t:T = {χis }s∈Tt,T is any reporting strategy sequence from t to T . The mechanism < σ, β, θ, ρ > with exist option is dynamic incentive-compatible
+in TPBE (DIC, equivalently, implementable in TPBE or TPBE-implementable) with belief µ = {µi}i∈I deﬁned in Deﬁnition 2.6 if, for any t−1 ∈ Et−1 when all the owners have reported truthfully in all the past t − 1 periods for any true vit−1 ∈ Vit−1, vit ∈ Vi, t ∈ T, i ∈ I,
+
+(2.14)
+
+max Jit (vit , t; t−1, vit−1), Eσt |vit Uit+1 (v˜it+1 ; ˜t, v˜it)
+
+≥ max
+
+Jiχti (vit , t;
+
+t−1
+
+,
+
+vit−1
+
+),
+
+σ,χi
+Et
+
+|vit
+
+U χi it+1
+
+(v˜it+1
+
+;
+
+˜t
+
+,
+
+v˜it
+
+)
+
+,
+
+with Jit (vit , t; t−1, vit−1) ≥ Jiχti (vit , t; t−1, vit−1).
+The DIC condition shown in (2.14) deﬁnes an equilibrium, in which each owner
+i with belief µi (i) has no incentive to deviate from truthful reporting at period t and planned truthful reporting in future when he has reported truthfully in all past
+periods and all other owners report truthfully at all periods and (ii) chooses optimal stopping time according to φ∗i given in (2.11).
+Deﬁne owner i’s period-t one-shot deviation strategy χ[it] ≡ {{χ∗is }s∈T0,t−1 , χ[itt], {χ∗is }s∈Tt+1 }, such that χ[it] reports owner i’s instrumental preferences at all periods except period t. Let vˆit = χ[itt](vit ) denote owner i’s period-t report of his true vit using χ[it].
+Proposition 2.9. The mechanism < σ, β, θ, ρ > with exist option is DIC with belief µ if and only if, for any vit ∈ Vit, t−1 ∈ Et−1, t ∈ T, i ∈ I,
+
+(2.15)
+
+max Jit (vit , t; t−1, vit−1), Etσ|vit Uit+1 (v˜it+1 ; ˜t, v˜it)
+
+≥ max
+
+J χ[it] it
+
+(vit
+
+,
+
+t;
+
+t−1
+
+,
+
+vit−1
+
+),
+
+Eσ,χ[it] t
+
+|vit
+
+U χi it+1
+
+(v˜it+1
+
+;
+
+˜t
+
+,
+
+v˜it
+
+)
+
+,
+
+with Jit (vit , t; t−1, vit−1) ≥ Jiχti (vit , t; t−1, vit−1).
+Proof. See Appendix A.
+Proposition 2.9 establishes a one-shot deviation principle (see, e.g., [13]) for our dynamic model that enables us to restrict attention on the characterizations of DIC when each owner i deviates from truthfulness by using any one-shot deviation strategy χ[it] for every t ∈ T, while the optimality of stopping decision is maintained. The stopping rule φi deﬁned in (2.11) is optimal for any reporting strategy χi. However, the realization of owner i’s stopping time at period t according to φi depends on his current reporting strategy χit and planned {χis }s∈Ti , true instrumental preference vit , histories t−1 and vit−1, i.e., owner i with χi is optimal to stop at t if τi = t, where τi is given in the deﬁnition of φi in (2.11). Let τi∗ denote τi when owner uses χ∗i . Proposition 2.9 implies that when τi∗ = t, owner i has no incentives to use χ[it] and stop at t, use χ[it] and continue, or use χ∗i and continue; when τi∗ > t, owner i has no incentives to use χ[it] and stop at t or use χ[it] and continue.
+3. Characterization of DIC. In this section, we characterize the DIC of our dynamic data market by providing formulations of the monetary transfer rules (i.e., the compensation rules and the stopping payment rule) in terms of the assignment
+
+16
+
+TAO ZHANG, QUANYAN ZHU
+
+rule and the suﬃcient and the necessary conditions for DIC. The following assumption holds for this section.
+
+Assumption 2. The probability density fit (vit |vit−1 , t−1) > 0 for all vit−1 ∈ Vi, t−1 ∈ Et−1, t ∈ T\{0}.
+
+Assumption 2 considers a full support environment, in which each of owner i’s instru-
+mental preferences has a strictly positive probability to occur at every period. Given any DIC market model < σ, β, θ, ρ >, truthful reporting strategy χ∗it is op-
+timal for each owner i, for all t ∈ T. For simplicity, let Jit (vit , vˆit , τ ; t−1, vit−1) denote owner i’s period-t interim expected payoﬀ when he uses any one-shot deviation strategy χ[it] with vˆit = χ[itt](vit ); When owner i reports truthfully, Jit (vit , τ ; t−1, vit−1) = Jit (vit , vit , τ ; t−1, vit−1) Then, we have the following lemma based on the envelope theorem (see, e.g., [35, 44]).
+
+Lemma 3.1. Suppose Assumption 2 holds. Then, in any DIC market model < σ, β, θ, ρ >, we have, for all τ ∈ Tt, t−1 ∈ Et−1, vit−1 ∈ Vit−1,
+
+(3.1)
+
+∂Jit (x, τ ; t−1, vit−1) ∂x
+
+x=vit
+
+= Eσ;vit
+
+τ
+1 − exp(σs(v˜s)) Gts(v˜ts|σ) , where
+s=t
+
+(3.2)
+
+Gts(v˜ts|σ)
+
+≡
+
+s k=t
+
+−∂Fit (x|v˜ik−1 , ˜k−1) fit (v˜ik |v˜ik−1 , ˜k−1)∂x
+
+.
+x=v˜ik
+
+Proof. See Appendix B.
+
+Lemma 3.1 provides a ﬁrst-order necessary condition for the optimality of each
+owner’s truthful reporting strategy. Since t > 0, the term 1 − exp( t) < 0, for all t, t ∈ T. Then, the monotonicity of Jit with respect to owner i’s instrumental preference is determined by the sign of Gts. With a slight abuse of notation, let Jit (vit , vˆit ; t−1, vit−1)
+Assumption 3. For any vit ≥ vit ∈ Vi, vit+1 ∈ Vi, t ∈ Et, t ∈ T\T , i ∈ I,
+
+(3.3)
+
+Fit+1 (vit+1 |vit , t) ≤ Fit+1 (vit+1 |vit , t).
+
+Assumption 3 imposes a monotonicity condition to the probability distribution function of each owner in the sense of ﬁrst-order stochastic dominance, i.e., higher instrumental preference at current period t leads to a higher instrumental preference at the next period t + 1 probabilistically, while keeping the same t. In other words, Assumption 3 assumes that owners who value their privacy more at the current period will most probability continue to value their privacy at the next period more than other owners with relatively lower valuation of privacy at the current period. The following lemma gives the monotonicity of Jit .
+Lemma 3.2. Suppose Assumption 3 holds. Then, in any DIC market model < σ, β, θ, ρ >, Jit (vit , τ ; t−1, vit−1) is weakly decreasing in vit for any τ ∈ Tt, t−1 ∈ E t−1, vit−1 ∈ Vit−1, t ∈ T, i ∈ I.
+Proof. See Appendix C.
+
+Based on Assumption 3.3, Lemma 3.2 shows that increasing an owner’s instrumental preference at any period decreases his interim expected payoﬀ. In other words, owners with relatively higher instrumental preference over privacy protection incline to stop than owners with a relatively lower instrumental preference.
+
+ON THE DIFFERENTIAL PRIVATE DATA MARKET: ENDOGENOUS EVOLUTION, DYNAMIC PRICING, AND INCENTIVE COMPATIBIL
+
+With a slight abuse of notation, deﬁne
+
+(3.4)
+
+Gχiti (vit , τ ;
+
+t−1 ,
+
+vit−1 )
+
+≡
+
+Eσ,χ[it] |vit t
+
+J χ[it] it+1
+
+(v˜it+1
+
+,
+
+τ
+
+;
+
+t, vit)
+
+−
+
+J χi[t] it
+
+(vit
+
+,
+
+t;
+
+t−1, vit−1) + ρi(t),
+
+where
+
+τ
+
+=
+
+inf
+
+argτ
+
+∈TT
+
+sup
+
+J χ[it]
+it+1
+
+(v˜it+1
+
+,
+
+τ
+
+;
+
+t, vit)
+
+.
+
+From Lemmas 3.1 and 3.2, we have
+
+that in any DIC market model Gχiti (vit , τ ; t−1, vit−1) is non-increasing, i.e.,
+
+∂Gχiti (x, τ ; t−1, vit−1)
+
+≤ 0.
+
+∂x
+
+x=vit
+
+Hence, it is straightforward to see that the term Gχiti (vit ; t−1, vit−1) in (2.12) is also non-increasing. From the optimal stopping rule (2.13), we deﬁne the stopping region
+as follows:
+
+(3.5)
+
+Rχiti ≡ {vit ∈ Vi : Gχiti (vit ; t−1, vit−1) ≤ ρi(t)}.
+
+Deﬁne the indiﬀerence region of the stopping region Rχiti is given as
+
+Siχti ≡ {vit ∈ Vi : Gχiti (vit ; t−1, vit−1) = ρi(t)}.
+At any vit ∈ Siχti , each owner i is indiﬀerent between stopping and continuing.
+Proposition 3.3. Suppose Assumptions 2 and 3 hold. In any DIC market model < σ, β, θ, ρ >, the optimal stopping rule φχi (2.13) is a threshold rule, i.e., the indiﬀerence region Siχti is a unique interval [κli(t), κri (t)] = Siχti with κli(t) ≤ κri (t) and κli(T ) = κri (T ) = vi, such that the stopping region Rχiti in (3.5) is equivalent to
+
+(3.6)
+
+Rχiti ≡ {vit ∈ Vi : vit ≥ κli(t)},
+
+for any reporting strategy χi, t ∈ T. Each agent i is indiﬀerent between stopping and continuing when his instrumental preference vit ∈ [κli(t), κri (t)]. We refer to κli : T → Vi as the threshold function of owner i and the optimal stopping rule is called threshold rule.
+
+Proof. See Appendix D.
+
+With threshold rule, it is optimal for each owner i using any reporting strategy χi to stop at t when his instrumental preference vit ≥ κli(t), for all t ∈ T. Let Jiχti (·, τ ; ·, ·), τ > t, denote owner i’s period-t interim expected payoﬀ Jiχti (·, τ ; ·, ·) without current-period compensation rule βit , i.e.,
+
+(3.7)
+
+J¯iχti (vit ,τ ; t−1, vit−1) ≡ − (vit , σt(χit (vit ), v−it ))
+
+τ −1
+
++
+
+Eσ,χi ;µi |vit t
+
+zis v˜it , σs χis (v˜is ), v˜−is , βis χis (v˜is ), v˜−is
+
+s=t+1
+
++ ziτ v˜iτ , στ χis (v˜iτ ), v˜−iτ , θτ χis (v˜iτ ), v˜−iτ + ρit (τ ) .
+
+Let J¯it (vit , vˆit , τ ;
+
+t−1, vit−1)
+
+denote
+
+J¯χ[it]
+it
+
+(vit
+
+,
+
+τ
+
+;
+
+t−1, vit−1) when owner i’s reporting
+
+strategy is a one-shot deviation strategy χ[it] with vˆit = χ[itt](vit ). Suppose owner i
+
+adopts any one-shot deviation strategy. Deﬁne the distances, for any t ∈ T, i ∈ I,
+
+(3.8)
+
+dSit (vˆit , vit ) ≡ − vˆit , σt(vˆit , v−it ) + vit , σt(vˆit , v−it ) ,
+
+18
+
+TAO ZHANG, QUANYAN ZHU
+
+and, for any τ ∈ Tt,
+
+(3.9)
+
+d−itS (vˆit , vit ; τ ) ≡ J¯iχti (vˆit , vˆit , τ ; t−1, vit−1) − J¯iχti (vit , vˆit , τ ; t−1, vit−1).
+
+We have the following theorem. Theorem 3.4. Suppose Assumptions 2 and 3 hold. Deﬁne Λσi : Vi × Vi → R as:
+
+(3.10)
+
+vit
+
+τ
+
+Λσi (vit , vit ; τ ) ≡
+
+Eσ;vit ,x
+
+1 − exp(σs(v˜s)) Gts(v˜ts|σ) dx,
+
+vit
+
+s=t
+
+where Gts is deﬁned in (3.2). In any DIC market model, the followings hold: (i) The compensation rule β can be represented in terms of the assignment rule
+σt, i.e.,
+
+(3.11)
+
+βit (vt) = sup Λσi (vit , v¯i; τ ) − Eσ;µi|vit sup Λσi (v˜it+1 , v¯i; τ )
+
+τ ∈Tt
+
+τ ∈Tt+1
+
++ (vit , σt(vit , v−it )).
+
+(ii) When owner i decides to stop at t, the compensation rule and the the stopping payment rule, respectively, are given in terms of σ as follows:
+
+(3.12)
+
+θit (vt) = Λσi (vit , v¯i; t) + (vit , σt(vit , v−it )),
+
+(3.13) ρi(t)
+
+T −1
+
+=Eσ ;µi |κli (t)
+
+Λσi (v˜is+1 ∧ κli(s + 1), v¯i; s + 1) − Λσi (v˜is ∧ κli(s), v¯i; s)
+
+s=t
+
+− sup Λσi (v˜is+1 ∧ κli(s + 1), v¯i; τ ) − sup Λσi (v˜is ∧ κli(s), v¯i; τ ) .
+
+τ ∈Ts+1
+
+τ ∈Ts
+
+(iii) the assignment rule σ satisﬁes the following conditions:
+
+(3.14)
+
+Λσi (vˆit , vit ; t) ≤ dSit (vˆit , vit ),
+
+(3.15)
+
+sup
+τ ∈Tt
+
+Λσi (vˆit ,
+
+v¯i;
+
+τ)
+
+−
+
+sup
+τ ∈Tt
+
+Λσi (vit ,
+
+v¯i;
+
+τ
+
+)
+
+≤
+
+inf
+τ ∈Tt
+
+d−itS (vˆit , vit ; τ )
+
+− sup ρi(τ ).
+τ ∈Tt
+
+We write DIC[κ] as a set of all assignment rules that satisfy (3.14) and (3.14), when ρ is constructed in (3.13) given threshold functions κ.
+Proof. See Appendix E.
+Theorem 3.4 establishes a design regime for DIC market model. Speciﬁcally, (3.11) and (3.12) give the designs of preference-related compensation rules β and θ in terms of the assignment rule σ, respectively, while (3.13) constructs the preferenceindependent stopping payment rule ρ in terms of σ. Given the constructions (3.11)(3.13), the conditions (3.14) and (3.15) compose a suﬃcient condition for DIC. Here, Λσi (vit , v¯i; τ ) is the information rent for any τ ∈ Tt of owner i with vit that captures the maximum privacy protection (equivalently, least privacy loss) he can obtain by pretending an owner with the highest instrumental preference v¯i ≥ vit due to the
+
+ON THE DIFFERENTIAL PRIVATE DATA MARKET: ENDOGENOUS EVOLUTION, DYNAMIC PRICING, AND INCENTIVE COMPATIBIL
+
+buyer’s not knowing his true private information vit (while keeping other owners’ behaviors ﬁxed). From Lemma 3.2, we have that owner i’s information rent Λσi (vit , v¯i; τ ) is non-negative, for all vit ∈ Vi, i ∈ N , τ ∈ Tt, t ∈ T. Hence, each owner i with vit = v¯i has no information rent for privacy protection, which coincides with the setting that
+owners have tendency for more privacy protection. Given the information rents, we
+can interpret each compensation rules as follows. The compensation rule βit in (3.11) is constructed by the maximum information rent given the optimal stopping rule,
+the expected future information rent, and the current-period immediate privacy loss.
+The compensation rule θit is (3.12) is constructed by the current-period one-period information rent and the immediate privacy loss. The stopping payment rule ρ is
+independent of any realizations of owners’ instrumental preferences. For a typical
+owner i, ρi(t) in (3.13) is formulated as an expected combination of information rent, in which the period-t interim expectation is taken by letting current-period instrumental preference be the threshold κli(t) and the stochastic process from t + 1 onward is constrained, i.e., forcing the realization of v˜is to be the threshold κli(s) if it is above κli(s). The formulation (3.13) obtains a relationship between the stopping payment rule ρi and the threshold function κli, given the assignment rule σ, such that the design of ρi can be equivalent to the design of κli, for i ∈ N . The following corollary directly follows Theorem 3.4.
+
+Corollary 3.5. Suppose Assumptions 2 and 3 hold. In any DIC market model without the stopping payment rule ρ (i.e., ρi(t) = 0, for all t ∈ T, i ∈ N ), the stopping rule is optimal if and only if there exists a threshold function κi that solves the following equation:
+
+(3.16)
+
+T −1
+
+Eσ;µi |κli (t)
+
+Λσi (v˜is+1 ∧ κli(s + 1), v¯i; s + 1) − Λσi (v˜is ∧ κli(s), v¯i; s)
+
+s=t
+
+− sup Λσi (v˜is+1 ∧ κli(s + 1), v¯i; τ ) − sup Λσi (v˜is ∧ κli(s), v¯i; τ ) = 0.
+
+τ ∈Ts+1
+
+τ ∈Ts
+
+Let ei = {ei0 , ei1 , . . . , eiT } denote a sequence of threshold value generated by a threshold function κli, where each eit = κli(t). From the stopping region Rχiti given in (3.6), if the buyer can freely choose κli(t) ∈ {vi, v¯i}, for all t ∈ T, then we say the buyer can control owner i’s stopping decision, i.e., she can make owner i stop or
+continue at any period t.
+
+Corollary 3.6. Suppose Assumptions 2 and 3 hold. Suppose, additionally, when each owner is indiﬀerent between stopping or continuing, he chooses to stay in the
+
+market. The buyer is able to prevent owner i to leave the market before t = T if
+
+and only if there exists σ ∈ DIC[{v¯iT , κl−i}]. The buyer is able to make owner i to
+
+leave the market at any speciﬁc period t ∈ T (not before t) if and only if there exists
+
+σ
+
+∈
+
+DIC[{{v¯it−1
+
+,
+
+vi
+
+,
+
+vT
+it+1
+
+},
+
+κl−i
+
+}],
+
+where
+
+vT
+it+1
+
+=
+
+{vis }Ts=t+1.
+
+Corollary 3.6 shows restrictions of the buyer’s ability to control any owner’s stop-
+
+ping decision. These restrictions are speciﬁed by DIC[{v¯iT , κl−i}] and DIC[{{v¯it−1, vi,
+
+vT
+it+1
+
+},
+
+κl−i}],
+
+which
+
+require
+
+the
+
+design
+
+of
+
+σ
+
+and
+
+the
+
+choice
+
+of
+
+thresholds
+
+{v¯iT ,
+
+κl−i}
+
+or
+
+{{v¯it−1, vi,
+
+vT
+it+1
+
+},
+
+κl−i}
+
+to
+
+satisfy
+
+the
+
+conditions
+
+constructed
+
+in
+
+Theorem
+
+3.4.
+
+We establish a necessary condition of DIC based on the result obtained in Lemma
+
+3.1.
+
+Proposition 3.7. Suppose Assumptions 2 and 3 hold. Let the compensation rules β and θ be formulated in (3.11) and (3.12), respectively, and let the stopping
+
+20
+
+TAO ZHANG, QUANYAN ZHU
+
+rule ρ be formulated in (3.13). In any DIC market model, the assignment rule σ satisﬁes the followings:
+
+(3.17)
+
+Λσi (vˆit , v¯i; t) − Λσi (vit , v¯i; t) ≤ dSit (vˆit , vit ),
+
+(3.18)
+
+sup Λσi (vˆit , v¯i; τ ) − sup Λσi (vit , v¯i; τ ) ≤ sup d−itS(vˆit , vit ; τ ).
+
+τ ∈Tt
+
+τ ∈Tt
+
+τ ∈Tt
+
+Proof. See Appendix F.
+
+4. Optimal Market Design Problem and Its Relaxation. From the for-
+
+mulations of < β, θ, ρ > in Theorem 3.4, τ¯ = {τ¯i}i∈N can be characterized by the assignment rule σ, the threshold rule κl, and the endogenous dynamics; i.e., we can
+
+write (with a slight abuse of notation) τ¯i = τ¯i(σ, κli) =
+
+T t=0
+
+t
+
+·
+
+P
+
+vit
+
+≥
+
+κli(t)
+
+=
+
+Eσ;µi
+
+T t=0
+
+t
+
+·
+
+Fit
+
+(κli(t)|vit−1
+
+,
+
+σt−1(vt−1))
+
+.
+
+Since
+
+our
+
+market
+
+model
+
+is
+
+ﬁnite-horizon,
+
+τ¯i exists. Based on Theorem 3.4, we apply a ﬁrst-order approach [47, 52] to rewrite the buyer’s objective function (2.6) as follows (by integration by parts):
+
+(4.1)
+
+Cσ,β,θ,ρ(τ¯; N ) = Eσ;µi
+
+τ¯
+
+τi
+
+L exp(−σt(v˜t)) +
+
+v˜it [exp(σt(v˜t)) − 1]
+
+t=0
+
+i∈N,τi ∈τ¯ t=0
+
++
+
+i∈N,τi ∈τ¯
+
+τi t=0
+
+[exp(σt(v˜t))) − 1](1 − Fi0 (v˜i0 )) fi(v˜i0 )/G0t(v˜0t |σ)
+
++ Ji0 (vi, τ¯i).
+
+Here, (4.1) is a relaxed objective function by making owners to make decisions at
+stationary points and substituting < β, θ, ρ > given in (3.11)-(3.13), respectively.
+From Lemma 3.2, we have hi Jit is weakly decreasing. Hence, if we make Ji0 (v¯i, τi ) ≥ 0, for all i ∈ N , the IR constraint is satisﬁed, i.e., Ji(τi ) + b ≥ 0 for all τi ∈ T. Let C¯σ,κ(τ¯; N ) = Cσ,β,θ,ρ(τ¯; N ) − Ji0 (vi, τ¯i). Hence, based on (4.1) we can relax the buyer’s mechanism design problem (2.7) as follows:
+
+(4.2)
+
+min
+σ,κ
+
+C¯σ,κ(τ¯; N ), s.t., Ji0 (v¯i, τi ) ≥ 0.
+
+Therefore, the buyer’s mechanism design problem of ﬁnding < σ, β, θ, ρ > by satisfy-
+ing the DIC and IR constraints is relaxed into solving (4.2), which requires Ji0 (v¯i, τi ) ≥ 0, for all i ∈ N .
+Due to the dynamics of owners’ instrumental preferences, however, the con-
+strained optimization problem (4.2) is in general intractable. Computationally solving
+(4.2) in general involves approximations, which may inevitably violate the strong DIC
+conditions we obtained in Theorem 3.4 and Proposition 3.7. It is beyond the scope of
+this paper to conduct algorithmic analysis of such computational approximations and
+to design eﬃcient algorithms to solve (4.2) numerically and we put them to our future
+work. To address the analytical intractability in practial mechanism design, one way
+is to use a weaker versions of incentive compatibility, referred to as δ-incentive com-
+patibility or δ approximate incentive compatibility. In our dynamic environment, we deﬁne a notion of < δiSt , δi−t S >-DIC: the market model is δiSt -DIC when it is optimal for owner i to stop; the market model is δi−t S-DIC when it is optimal for owner i to continue. Let
+
+(4.3)
+
+hSit ≡ sup
+vit ,vˆit
+
+vˆit , σt(vˆit , v−it ) − vit , σt(vˆit , v−it ) + Λσi (vˆit , vit ; t) ,
+
+ON THE DIFFERENTIAL PRIVATE DATA MARKET: ENDOGENOUS EVOLUTION, DYNAMIC PRICING, AND INCENTIVE COMPATIBIL
+
+and
+
+(4.4)
+
+h−itS ≡ sup sup J¯iχti (vit , vˆit , τ ; t−1, vit−1) − sup J¯iχti (vˆit , vˆit , τ ; t−1, vit−1)
+
+vit ,vˆit τ ∈T
+
+τ ∈T
+
++ sup Λσi (vˆit , v¯i; τ ) − sup Λσi (vit , v¯i; τ ) ,
+
+τ ∈Tt
+
+τ ∈Tt
+
+where J¯iχti is deﬁned in (3.7). We have the following proposition.
+Proposition 4.1. Suppose Assumptions 2 and 3 hold. Let < β, θ, ρ > be constructed in (3.11)-(3.13), respectively. Then, the market model is < δiSt , δi−t S >-DIC, with δiSt = hSit and δi−t S = h−itS +supτ∈Tt ρi(τ ), when δiSt > 0 and h−itS +supτ∈Tt ρi(τ ) > 0; the market model is DIC, when δiSt ≤ 0 and h−itS + supτ∈Tt ρi(τ ) ≤ 0.
+Proof. See Appendix G.
+
+Proposition 4.1 establishes a suﬃcient condition for a relaxed DIC criterion for our dynamic market model. The result can used as a worst-case analysis of the dynamic market model when there are opportunities for the owners to misreport their instrumental preferences.
+
+5. Conclusion. This work has proposed a dynamic market model for trading data privacy when the data owners have the intrinsic preferences and the instrumental preferences over privacy protections oﬀered by the data buyer, by designing one privacy assignment rule, two preference-dependent monetary transfer rules, and one preference-independent stopping payment rule. The preference-dependent monetary transfer rules are used to compensate for the privacy loss of the data owners, while the stopping payment rule is used by the data buyer to inﬂuence the data owners’ stopping decisions. We have studied mechanism designs in a dynamic environment when data owners’ instrumental preferences experience an endogenous evolution due to the data buyer’s dynamic usage of their data. The data owners is allowed to leave the market after the accumulated privacy loss is beyond the privacy budget depending on their intrinsic preferences. An optimal stopping problem has been modeled for data owners’ optimal leave of the market. Under a monotonicity assumption about the time evolution of the data owners’ instrumental preferences, the optimal stopping rule has been transformed into a threshold-based stopping rule with a set of threshold functions. By taking into consideration the owners’ coupled deviations from optimal stopping and truthful reporting, a notion of dynamic incentive compatibility based on the Bellman equation has been deﬁned as an essential design restriction of the buyer’s optimal market design.
+We have provided a solid theoretic design regime for dynamic incentive-compatible market models by characterizing the preference-dependent monetary transfer rules in terms of the privacy assignment rule. The stopping payment rule has been characterized in terms of the privacy assignment rule and the threshold functions to maintain the optimality of the data owners’ stopping decision and to support the guarantee of dynamic incentive compatibility. A restriction of the data buyer’s ability to control the data owners’ stopping decisions has been characterized in terms of the relationships between the privacy assignment rule and the threshold functions. The data buyers’ optimal market design problem by determining the four decision rules with the individual rational and the dynamic incentive compatibility constraints has been relaxed to an optimization problem of determining the privacy assignment rule and the threshold functions with one modiﬁed individual rational constraint. An approximating dynamic incentive compatible market design principle has been provided to
+
+22
+
+TAO ZHANG, QUANYAN ZHU
+
+address the inevitable violation of incentive compatibility due to analytical intractability of mechanism design problems. Designing eﬃcient algorithms to computationally solve the data buyer’s optimal dynamic market model with an analysis of the violation of the theoretical implementability is our natural future work.
+
+REFERENCES
+[1] M. Abadi, A. Chu, I. Goodfellow, H. B. McMahan, I. Mironov, K. Talwar, and L. Zhang, Deep learning with diﬀerential privacy, in Proceedings of the 2016 ACM SIGSAC Conference on Computer and Communications Security, ACM, 2016, pp. 308– 318.
+[2] A. Acquisti, L. Brandimarte, and G. Loewenstein, Privacy and human behavior in the age of information, Science, 347 (2015), pp. 509–514.
+[3] A. R. Admati and P. Pfleiderer, Selling and trading on information in ﬁnancial markets, The American Economic Review, 78 (1988), pp. 96–103.
+[4] F. Allen, The market for information and the origin of ﬁnancial intermediation, Journal of ﬁnancial intermediation, 1 (1990), pp. 3–30.
+[5] K. Amin, A. Rostamizadeh, and U. Syed, Learning prices for repeated auctions with strategic buyers, in Advances in Neural Information Processing Systems, 2013, pp. 1169–1177.
+[6] C. Aperjis and B. A. Huberman, A market for unbiased private data: Paying individuals according to their privacy attitudes, Available at SSRN 2046861, (2012).
+[7] S. Athey and I. Segal, An eﬃcient dynamic mechanism, Econometrica, 81 (2013), pp. 2463– 2485.
+[8] L. Backstrom, C. Dwork, and J. Kleinberg, Wherefore art thou r3579x?: anonymized social networks, hidden patterns, and structural steganography, in Proceedings of the 16th international conference on World Wide Web, ACM, 2007, pp. 181–190.
+[9] A. Bapna and T. A. Weber, Eﬃcient dynamic allocation with uncertain valuations, (2005). [10] D. Bergemann and J. Va¨lima¨ki, The dynamic pivot mechanism, Econometrica, 78 (2010),
+pp. 771–789. [11] B. Biais and L. Germain, Incentive-Compatible Contracts for the Sale of Information, The
+Review of Financial Studies, 15 (2015), pp. 987–1003, https://doi.org/10.1093/rfs/15.4. 987, https://doi.org/10.1093/rfs/15.4.987, https://arxiv.org/abs/http://oup.prod.sis.lan/ rfs/article- pdf/15/4/987/24432478/150987.pdf . [12] P. Billingsley, Probability and measure, John Wiley & Sons, 2008. [13] D. Blackwell, Discounted dynamic programming, The Annals of Mathematical Statistics, 36 (1965), pp. 226–235. [14] S. Board and A. Skrzypacz, Revenue management with forward-looking buyers, Journal of Political Economy, 124 (2016), pp. 1046–1087. [15] K. Chaudhuri, C. Monteleoni, and A. D. Sarwate, Diﬀerentially private empirical risk minimization, Journal of Machine Learning Research, 12 (2011), pp. 1069–1109. [16] Y. Chen, S. Chong, I. A. Kash, T. Moran, and S. Vadhan, Truthful mechanisms for agents that value privacy, ACM Transactions on Economics and Computation (TEAC), 4 (2016), p. 13. [17] P. Dandekar, N. Fawaz, and S. Ioannidis, Privacy auctions for inner product disclosures, (2011). [18] C. Dwork, Diﬀerential privacy: A survey of results, in Theory and Applications of Models of Computation: 5th International Conference, TAMC 2008, Xi’an, China, April 25-29, 2008, Proceedings, vol. 4978, Springer, 2008, p. 1. [19] C. Dwork, Diﬀerential privacy, Encyclopedia of Cryptography and Security, (2011), pp. 338– 340. [20] C. Dwork, F. McSherry, K. Nissim, and A. Smith, Calibrating noise to sensitivity in private data analysis, in Theory of cryptography conference, Springer, 2006, pp. 265–284. [21] G. K. Dziugaite and D. M. Roy, Data-dependent pac-bayes priors via diﬀerential privacy, in Advances in Neural Information Processing Systems, 2018, pp. 8430–8441. [22] L. K. Fleischer and Y.-H. Lyu, Approximately optimal auctions for selling privacy when costs are correlated with data, in Proceedings of the 13th ACM Conference on Electronic Commerce, ACM, 2012, pp. 568–585. [23] J. Gallien, Dynamic mechanism design for online commerce, Operations Research, 54 (2006), pp. 291–310. [24] A. Gershkov and B. Moldovanu, Dynamic revenue maximization with heterogeneous objects: A mechanism design approach, American economic Journal: microeconomics, 1 (2009),
+
+ON THE DIFFERENTIAL PRIVATE DATA MARKET: ENDOGENOUS EVOLUTION, DYNAMIC PRICING, AND INCENTIVE COMPATIBIL
+pp. 168–98. [25] A. Ghosh and A. Roth, Selling privacy at auction, Games and Economic Behavior, 91 (2015),
+pp. 334–346. [26] O. Herna´ndez-Lerma and J. B. Lasserre, Discrete-time Markov control processes: basic
+optimality criteria, vol. 30, Springer Science & Business Media, 2012. [27] J. Hsu, M. Gaboardi, A. Haeberlen, S. Khanna, A. Narayan, B. C. Pierce, and A. Roth,
+Diﬀerential privacy: An economic method for choosing epsilon, in 2014 IEEE 27th Computer Security Foundations Symposium, IEEE, 2014, pp. 398–410. [28] R. Jones, R. Kumar, B. Pang, A. Tomkins, A. Tomkins, and A. Tomkins, I know what you did last summer: query logs and user privacy, in Proceedings of the sixteenth ACM conference on Conference on information and knowledge management, ACM, 2007, pp. 909– 914. [29] S. M. Kakade, I. Lobel, and H. Nazerzadeh, Optimal dynamic mechanism design and the virtual-pivot mechanism, Operations Research, 61 (2013), pp. 837–854. [30] M. Kearns, M. Pai, A. Roth, and J. Ullman, Mechanism design in large games: Incentives and privacy, in Proceedings of the 5th conference on Innovations in theoretical computer science, ACM, 2014, pp. 403–410. [31] C. Li, D. Y. Li, G. Miklau, and D. Suciu, A theory of pricing private data, ACM Transactions on Database Systems (TODS), 39 (2014), p. 34. [32] K. Ligett and A. Roth, Take it or leave it: Running a survey when privacy comes at a cost, in International Workshop on Internet and Network Economics, Springer, 2012, pp. 378–391. [33] T. Lin, Valuing intrinsic and instrumental preferences for privacy, Available at SSRN 3406412, (2020). [34] M. Mankopf, S. Haider, G. Heidenreich, and K. Abraham-Fuchs, System and method for trading personal health data, May 1 2008. US Patent App. 11/588,711. [35] P. Milgrom and I. Segal, Envelope theorems for arbitrary choice sets, Econometrica, 70 (2002), pp. 583–601. [36] A. Narayanan and V. Shmatikov, Robust de-anonymization of large datasets (how to break anonymity of the netﬂix prize dataset), (2008). [37] H. Nazerzadeh, A. Saberi, and R. Vohra, Dynamic pay-per-action mechanisms and applications to online advertising, Operations Research, 61 (2013), pp. 98–111. [38] K. Nissim, C. Orlandi, and R. Smorodinsky, Privacy-aware mechanism design, in Proceedings of the 13th ACM Conference on Electronic Commerce, ACM, 2012, pp. 774–789. [39] D. Niyato, M. A. Alsheikh, P. Wang, D. I. Kim, and Z. Han, Market model and optimal pricing scheme of big data and internet of things (iot), in 2016 IEEE International Conference on Communications (ICC), IEEE, 2016, pp. 1–6. [40] D. Niyato, X. Lu, P. Wang, D. I. Kim, and Z. Han, Economics of internet of things: An information market approach, IEEE Wireless Communications, 23 (2016), pp. 136–145. [41] M. Pai and R. V. Vohra, Optimal dynamic auctions, tech. report, Discussion paper//Center for Mathematical Studies in Economics and . . . , 2008. [42] M. M. Pai and R. Vohra, Optimal dynamic auctions and simple index rules, Mathematics of Operations Research, 38 (2013), pp. 682–697. [43] D. C. Parkes and S. P. Singh, An mdp-based approach to online mechanism design, in Advances in neural information processing systems, 2004, pp. 791–798. [44] A. Pavan, I. Segal, and J. Toikka, Dynamic mechanism design: A myersonian approach, Econometrica, 82 (2014), pp. 601–653. [45] G. Peskir and A. Shiryaev, Optimal stopping and free-boundary problems, Springer, 2006. [46] R. A. Posner, The economics of privacy, The American economic review, 71 (1981), pp. 405– 409. [47] W. P. Rogerson, The ﬁrst-order approach to principal-agent problems, Econometrica: Journal of the Econometric Society, (1985), pp. 1357–1367. [48] A. Roth and G. Schoenebeck, Conducting truthful surveys, cheaply, in Proceedings of the 13th ACM Conference on Electronic Commerce, ACM, 2012, pp. 826–843. [49] M. Said, Auctions with dynamic populations: Eﬃciency and revenue maximization, Journal of Economic Theory, 147 (2012), pp. 2419–2438. [50] A. Singla and A. Krause, Truthful incentives in crowdsourcing tasks using regret minimization mechanisms, in Proceedings of the 22nd international conference on World Wide Web, ACM, 2013, pp. 1167–1178. [51] G. J. Stigler, An introduction to privacy in economics and politics, The Journal of Legal Studies, 9 (1980), pp. 623–644. [52] S. Tadelis and I. Segal, Lectures in contract theory, (2005). [53] A. Tanner, Our bodies, our data: How companies make billions selling our medical records,
+
+24
+
+TAO ZHANG, QUANYAN ZHU
+
+Beacon Press, 2017. [54] S. D. Warren and L. D. Brandeis, The right to privacy, Harvard law review, (1890), pp. 193–
+220. [55] D. Xiao, Is privacy compatible with truthfulness?, in Proceedings of the 4th conference on
+Innovations in Theoretical Computer Science, ACM, 2013, pp. 67–86. [56] H. Xu, H.-H. Teo, B. C. Tan, and R. Agarwal, The role of push-pull technology in privacy
+calculus: the case of location-based services, Journal of management information systems, 26 (2009), pp. 135–174. [57] L. Xu, C. Jiang, Y. Qian, Y. Zhao, J. Li, and Y. Ren, Dynamic privacy pricing: A multi-armed bandit approach with time-variant rewards, IEEE Transactions on Information Forensics and Security, 12 (2016), pp. 271–285. [58] T. Zhang and Q. Zhu, Dynamic diﬀerential privacy for admm-based distributed classiﬁcation learning, IEEE Transactions on Information Forensics and Security, 12 (2016), pp. 172–187. [59] T. Zhang and Q. Zhu, On incentive compatibility in dynamic mechanism design with exit option in a markovian environment, 2019, https://arxiv.org/abs/1909.13720. [60] T. Zhang and Q. Zhu, Optimal two-sided market mechanism design for large-scale data sharing and trading in massive iot networks, 2019, https://arxiv.org/abs/1912.06229.
+
+Appendix A. Proof of Proposition 2.9.
+
+The only if part is straightforward due to the optimality of truthful reporting.
+
+Hence, we omit it here and focus on the if part. The proof is constructed by es-
+
+tablishing contradictions. Fix a proﬁle < σ, β, θ, ρ >. Suppose that the truthful
+
+reporting strategy χ∗i satisﬁes (2.15) for any period-t one-shot deviation strategy χ[it] for any t ∈ T, but it violates the DIC deﬁned in (2.14). In other words, there exists
+
+another reporting strategy χ(i1) ≡ {χ(it1)} and some instrumental preference vit such
+
+that
+
+U χ(i1)
+it
+
+(vit
+
+;
+
+t−1,
+
+vit−1)
+
+>
+
+U χ∗i
+it
+
+(vit
+
+;
+
+t−1, vit−1). Let φχi i
+
+and
+
+φχ(i1)
+i
+
+denote
+
+the
+
+optimal
+
+stopping rules given χi and χ(i1), respectively. Suppose that at period t, φχi i calls for
+
+stopping
+
+but
+
+φχ(i1)
+i
+
+calls
+
+for
+
+continuing,
+
+i.e.,
+
+J χ∗i it
+
+(vit
+
+,
+
+t;
+
+t−1 ,
+
+vit−1 )
+
+<
+
+Eσ,χ(i1) |vit t
+
+U χ(i1) it+1
+
+(v˜it+1
+
+;
+
+˜t
+
+,
+
+v˜it
+
+)
+
+.
+
+Equivalently, there exists some constant η > 0 such that
+
+(A.1)
+
+J χ∗i it
+
+(vit
+
+,
+
+t;
+
+t−1 ,
+
+vit−1 )
+
++
+
+2η
+
+≤
+
+Eσ,χ(i1) |vit t
+
+U χ(i1) it+1
+
+(v˜it+1
+
+;
+
+˜t
+
+,
+
+v˜it
+
+)
+
+.
+
+Consider another reporting strategy χ(i2) ≡ {χ(it2)}t∈T, such that χ(is2) = χ(is1), for all s ∈ Tt,t+k, for some k > 0, and
+
+(A.2)
+
+Eσ,χ(i1) |vit t
+
+U χ(i1) it+1
+
+(v˜it+1
+
+;
+
+˜t
+
+,
+
+v˜it
+
+)
+
+−
+
+η
+
+≤
+
+Eσ,χ(i2) |vit t
+
+U χ(i2) it+1
+
+(v˜it+1
+
+;
+
+˜t
+
+,
+
+v˜it
+
+)
+
+.
+
+Hence, (A.1) and (A.2) yield:
+
+(A.3)
+
+J χ∗i it
+
+(vit
+
+,
+
+t;
+
+t−1, vit−1)
+
++
+
+η
+
+≤
+
+Eσ,χ(i2) |vit t
+
+U χ(i2) it+1
+
+(v˜it+1
+
+;
+
+˜t
+
+,
+
+v˜it
+
+)
+
+.
+
+Let χi ≡ {χit }t∈T denote any reporting strategy, such that χis = χ(is2), for all s ∈ Tt,t+k and χis is truthful for all s ∈ T\Tt,t+k, for some k > 0. Hence, (A.3) tells us that a deviation
+using any such χi is enough to obtain a non-negative proﬁt. Next, consider a one-shot deviation reporting strategy χ[is] for some s ∈ Tt,t+k, for k > 0, such that χ[iss] = χ(is2). Then, (A.3) gives
+
+(A.4)
+
+J χ∗i it
+
+(vit
+
+,
+
+t;
+
+t−1 ,
+
+vit−1 )
+
+<
+
+Eσ,χ[it+k−1] |vit t
+
+U χ[it+k−1] it+1
+
+(v˜it+1
+
+;
+
+˜t
+
+,
+
+v˜it
+
+)
+
+.
+
+ON THE DIFFERENTIAL PRIVATE DATA MARKET: ENDOGENOUS EVOLUTION, DYNAMIC PRICING, AND INCENTIVE COMPATIBIL
+
+Let t = t + k. From (2.10) in Lemma 2.7, we have, for all vit ∈ Vi, (A.5)
+
+U (v ; χ[it −1] it −1
+
+it −1
+
+t −2, vit −2)
+
+= max
+
+J (v χi[t −1]
+
+it −1
+
+it
+
+,t
+−1
+
+− 1;
+
+t
+
+−2, vit
+
+−2
+
+),
+
+σ,χ[it
+Et −1
+
+−1] |vit
+
+−1
+
+U χ[it it
+
+−1]
+(v˜it
+
+; ˜t
+
+−1, v˜it
+
+−1 )
+
+.
+
+With a slight abuse of notation, let Uiχti () Since the truthful reporting strategy χ∗ satisﬁes (2.15),
+
+(A.6)
+
+U (v ; χi[t −2] it −1
+
+it −1
+
+t
+
+−2 ,
+
+vit
+
+−2 )
+
+≥
+
+U (v χ[it −1]
+
+it −1
+
+it
+
+;
+−1
+
+t −2, vit −2).
+
+Hence, we have,
+
+(A.7)
+
+Eσ,χi[t −2]|vit t
+
+U χi[t −2] it+1
+
+(v˜it+1
+
+;
+
+˜t
+
+,
+
+v˜it
+
+)
+
+≥ Eσ,χ[it −1]|vit t
+
+U χ[it −1] it+1
+
+(v˜it+1
+
+;
+
+˜t
+
+,
+
+v˜it
+
+)
+
+.
+
+From (A.4), we have
+
+(A.8)
+
+Eσ,χi[t −2]|vit t
+
+U χi[t −2] it+1
+
+(v˜it+1
+
+;
+
+˜t
+
+,
+
+v˜it
+
+)
+
+>
+
+J χ∗i it
+
+(vit
+
+,
+
+t;
+
+t−1, vit−1).
+
+Backward induction yields:
+
+(A.9)
+
+Eσ,χ[it] |vit t
+
+U χ[it] it+1
+
+(v˜it+1
+
+;
+
+˜t
+
+,
+
+v˜it
+
+)
+
+>
+
+J χ∗i it
+
+(vit
+
+,
+
+t;
+
+t−1, vit−1),
+
+which contradicts the setting that χ∗ satisﬁes (2.15). Similar procedures can be used for the
+
+other cases:
+
+(i) φχi i
+
+calls
+
+for
+
+stopping
+
+and
+
+φχ(i1) i
+
+calls for stopping, (ii) φχi i
+
+calls for continuing
+
+but
+
+φχ(i1) i
+
+calls for stopping, (iii)
+
+φχi i
+
+calls
+
+for
+
+continuing
+
+and
+
+φχ(i1) i
+
+calls for continuing.
+
+Appendix B. Proof of Lemma 3.1.
+In DIC, truthful reporting is optimal for all owners. Hence, from the envelope theorem, we have, for all τ ∈ Tt, t−1 ∈ E t−1, vit−1 ∈ Vit−1,
+
+(B.1)
+
+∂Jit (x, τ ; t−1, vit−1) ∂x
+
+x=vit
+
+= Eσ;vit
+
+τ s=t
+
+1 − exp(σs(v˜s))
+
+∂v˜is ∂x
+
+x=vit
+
+.
+
+From Kolmogorov’s Existence Theorem [12], we have, for vit ∈ Vi, any t ∈ T\{T }, vit+1 = inf {vit+1 ∈ Vi : Fit+1 (vit+1 |vit , t−1) ≥ cit+1 },
+
+where cit+1 is uniformly drawn from (0, 1). From Assumption 2, we have
+
+∂v˜is
+
+= ∂v˜s
+
+s
+=
+
+−∂Fit (x|v˜ik−1 , ˜k−1)
+
+∂x x=vit
+
+∂x x=vit k=t fit (v˜ik |v˜ik−1 , ˜k−1)∂x x=v˜ik
+
+=Gts(v˜ts|σ).
+
+Appendix C. Proof of Lemma 3.2 . From Lemma 3.1, we have
+
+∂Jit (x, τ ; t−1, vit−1) ∂x
+
+x=vit
+
+= Eσ;vit
+
+τ
+1 − exp(σs(v˜s)) Gts(v˜ts|σ) ,
+s=t
+
+26
+
+TAO ZHANG, QUANYAN ZHU
+
+where
+
+Gts(v˜ts|σ)
+
+≡
+
+s k=t
+
+−∂Fit (x|v˜ik−1 , ˜k−1) fit (v˜ik |v˜ik−1 , ˜k−1)∂x
+
+.
+x=v˜ik
+
+From Assumption 3, we have Gts(vts|σ) > 0, for all vts ∈ Vts, s ≥ t ∈ T. Since exp(x) ≥ 1, for
+
+all x ≥ 0, then
+
+∂Jit (x,τ ; t−1,vit−1) ∂x
+
+x=vit
+
+≤ 0.
+
+Hence, Jit (vit , τ ;
+
+t−1, vit−1) is weakly decreasing
+
+in vit for any τ ∈ Tt, t−1 ∈ E t−1, vit−1 ∈ Vit−1, t ∈ T, i ∈ I.
+
+Appendix D. Proof of Proposition 3.3. We ﬁrst prove that Gχiti (vit ; t−1, vit−1) in (2.12) is weakly decreasing. Let χ∗i and χ[it], respectively, denote owner i’s truthful reporting strategy and period-t one-shot deviation strategy. Recall the term Gχiti (vit , τ ; t−1, vit−1) given in (3.4). With a slight abuse of notation, let τi[χi, vit ] denote the minimum time horizon, given the reporting strategy χi and owner i’s current instrumental preference vit , such that
+Gχiti (vit , τi[χi, vit ]; t−1, vit−1) = Gχiti (vit ; t−1, vit−1).
+From Lemma 3.2, it is straightforward to see that Gχiti (vit ; t−1, vit−1) is weakly decreasing in any DIC market model.
+Suppose that the indiﬀerence region contains two diﬀerent intervals, [κli(t), κri (t)] and [κ¯li(t), κ¯ri (t)] with no intersections (κli(t) = κ¯li(t)). With a slight abuse of notation, let φχi ∗i [κli] denote the (optimal) threshold rule in DIC market model and let τi[χi, vit ; κli] denote the term τi[χi, vit ] deﬁne above, when the threshold function is κli. Suppose τi[χ∗i , vit ; κli] = τi[χ∗i , vit ; κ¯li], for some vit ∈ Vi, t ∈ T. Assume without loss of generality κli(t) > κ¯li(t), for some t ∈ T. Then,
+
+P (τi[χ∗i , vit ; κli] = t) =P (vit ≥ κli(t), τi[χ∗i , vit−1 ; κli] > t − 1)
+
+Hence, we have
+
+=E E 1{vit ≥κli(t)} 1{vit−1 <κli(t−1)} .
+
+P (τi[χ∗i , vit ; κ¯li] = t) − P (τi[χ∗i , vit ; κli] = t)
+
+(D.1)
+
+=E E 1{vit ≥κ¯li(t)} 1{vit−1 <κ¯li(t−1)} − E E 1{vit ≥κli(t)} 1{vit−1 <κli(t−1)}
+
+=E E 1{κ¯li(t)≤vit ≤κli(t)} 1{vit−1 <κ¯li(t−1)} .
+Due to Assumption 2 and the setting κli(t) > κ¯li(t), the right-hand side of (D.1) is strictly positive. However, since τi[χ∗i , vit ; κli] = τi[χ∗i , vit ; κ¯li], P (τi[χ∗i , vit ; κ¯li] = t) − P (τi[χ∗i , vit ; κli] = t) = 0, which gives a contradiction. Therefore, the threshold function is unique.
+
+Appendix E. Proof of Theorem 3.4 . We ﬁrst prove that, given any Λσi that satisﬁes the conditions (3.14) and (3.15), the
+market model with βit , θit , and ρi constructed in (3.11)-(3.13), respectively, is DIC. After that, we prove that the formulation of Λσi in (3.10) is valid.
+We ﬁx other owners’ period-t instrumental preference as v−it , for any t ∈ T. Let vit ∈ Vi
+and vˆit ∈ Vi be any two instrumental preferences at any period t ∈ T. The formulation of
+θit in (3.12) yields
+
+(E.1)
+
+θit (vˆit , v−it ) − θit (vit , v−it ) =Λσi (vˆit , v¯i; t) + (vˆit , σt(vˆit , v−it )) − Λσi (vit , v¯i; t) − (vit , σt(vit , v−it )) =Λσi (vˆit , v¯i; t) − Λσi (vit , v¯i; t) − − (vˆit , σt(vˆit , v−it )) + (vit , σt(vˆit , v−it ))
+− (vit , σt(vit , v−it )) − (vit , σt(vˆit , v−it ))
+
+ON THE DIFFERENTIAL PRIVATE DATA MARKET: ENDOGENOUS EVOLUTION, DYNAMIC PRICING, AND INCENTIVE COMPATIBIL
+
+From the deﬁnition of dSit in (3.8) and condition (3.14), the right-hand side (RHS) of (E.1) becomes:
+
+(E.2)
+
+θit (vˆit , v−it ) − θit (vit , v−it ) =Λσi (vˆit , v¯i; t) − Λσi (vit , v¯i; t) − dSit (vˆit , vit ) − (vit , σt(vit , v−it )) − (vit , σt(vˆit , v−it ))
+≤ − (vit , σt(vit , v−it )) + (vit , σt(vˆit , v−it )).
+
+Rearranging (E.2) gives
+
+(E.3)
+
+− (vit , σt(vit , v−it )) + θit (vit , v−it ) ≥ − (vit , σt(vˆit , v−it )) + θit (vˆit , v−it ).
+
+Next, we apply similar procedures to βit . From the formulation of βit in (3.11), we have
+
+(E.4)
+
+βit (vˆit , v−it ) − βit (vit , v−it )
+
+= sup Λσi (vˆit , v¯i; τ ) − sup Λσi (vit , v¯i; τ ) + (vˆit , σt(vˆit , v−it )) − (vit , σt(vit , v−it ))
+
+τ ∈Tt
+
+τ ∈Tt
+
++ Eσ;µi|vit sup Λσi (v˜it+1 , v¯i; τ ) − Eσ;µi|vˆit sup Λσi (v˜it+1 , v¯i; τ ) .
+
+τ ∈Tt+1
+
+τ ∈Tt+1
+
+We apply the formulations of βit and θit , respectively, in (3.11) and (3.12) to (E.4) and obtain the following, for any τ ∈ Tt:
+
+βit (vˆit , v−it ) − βit (vit , v−it ) = sup Λσi (vˆit , v¯i; τ ) − sup Λσi (vit , v¯i; τ )
+
+τ ∈Tt
+
+τ ∈Tt
+
+(E.5)
+
+T
+
+T −1
+
++ Eσ;µi|vit
+
+− (v˜it , σs(v˜s)) +
+
+βis (v˜s) + θiT (v˜T )
+
+s=t
+
+s=t+1
+
+τ
+
+τ −1
+
+− Eσ;µi|vˆit
+
+− (v˜it , σs(v˜s)) +
+
+βis (v˜s) + Λσi (v˜iτ , v¯i; τ ) .
+
+s=t
+
+s=t+1
+
+We apply the condition (3.15) to (E.5) and obtain:
+
+(E.6)
+
+βit (vˆit ,
+
+v−it )
+
+−
+
+βit (vit ,
+
+v−it )
+
+≤
+
+inf
+τ ∈Tt
+
+d−itS (vˆit , vit ; τ )
+
+− sup ρi(τ )
+τ ∈Tt
+
+T
+
+T −1
+
++ Eσ;µi|vit
+
+− (v˜it , σs(v˜s)) +
+
+βis (v˜s) + θiT (v˜T )
+
+s=t
+
+s=t+1
+
+τ
+
+τ −1
+
+− Eσ;µi|vˆit
+
+− (v˜it , σs(v˜s)) +
+
+βis (v˜s) + Λσi (v˜iτ , v¯i; τ ) .
+
+s=t
+
+s=t+1
+
+From the deﬁnition of d−itS and J¯iχti , respectively, in (3.9) and (3.7), we have
+
+τ
+
+τ −1
+
+inf
+τ ∈Tt
+
+d−itS (vˆit , vit ; τ )
+
+− Eσ;µi|vˆit
+
+− (v˜it , σs(v˜s)) +
+
+βis (v˜s) + θiτ (v˜τ )
+
+s=t
+
+s=t+1
+
+= inf τ ∈Tt
+
+Eσ,χi ;µi |vˆit t
+
+τ
+
+τ −1
+
+− is (v˜is , σs(v˜s)) +
+
+βis (v˜s) + θiT (v˜T )
+
+s=t
+
+s=t+1
+
+− Eσ,χi;µi|vit ,vˆit t
+
+τ
+
+τ −1
+
+− is (v˜is , σs(v˜s)) +
+
+βis (v˜s) + θiT (v˜T )
+
+s=t
+
+s=t+1
+
+τ
+
+τ −1
+
+− Eσ;µi|vˆit
+
+− (v˜it , σs(v˜s)) +
+
+βis (v˜s) + Λσi (v˜iτ , v¯i; τ )
+
+s=t
+
+s=t+1
+
+τ
+
+τ −1
+
+≤ inf τ ∈Tt
+
+− Eσ,χi;µi|vit ,vˆit t
+
+− is (v˜is , σs(v˜s)) +
+
+βis (v˜s) + θiT (v˜T )
+
+s=t
+
+s=t+1
+
+.
+
+28 Hence, (E.6) becomes:
+
+TAO ZHANG, QUANYAN ZHU
+
+(E.7)
+
+βit (vˆit , v−it ) − βit (vit , v−it ) ≤ − sup ρi(τ )
+τ ∈Tt
+
++ inf τ ∈Tt
+
+−
+
+Eσ;µi |vit t
+
+,vˆit
+
+τ
+
+τ −1
+
+− is (v˜is , σs(v˜s)) +
+
+βis (v˜s) + θiT (v˜T )
+
+s=t
+
+s=t+1
+
+T
+
+T −1
+
++ Eσ;µi|vit
+
+− (v˜it , σs(v˜s)) +
+
+βis (v˜s) + θiT (v˜T ) .
+
+s=t
+
+s=t+1
+
+From the monotonicity of Jit in Lemma 3.2 and the formulation of ρi in (3.13), we have, for any τ ∈ Tt,
+
+(E.8)
+
+βit (vˆit , v−it ) − βit (vit , v−it ) ≤ − sup ρi(τ )
+τ ∈Tt
+
++ inf τ ∈Tt
+
+−
+
+Eσ;µi|vit ,vˆit t
+
+τ
+
+τ −1
+
+− is (v˜is , σs(v˜s)) +
+
+βis (v˜s) + θiT (v˜T )
+
+s=t
+
+s=t+1
+
+τ
+
+τ −1
+
++ Eσ;µi|vit
+
+− (v˜it , σs(v˜s)) +
+
+βis (v˜s) + θiτ (v˜τ ) + ρi(τ )
+
+s=t
+
+s=t+1
+
+τ
+
+τ −1
+
+≤ sup Eσ;µi|vit
+
+− (v˜it , σs(v˜s)) +
+
+βis (v˜s) + θiτ (v˜τ ) + ρi(τ )
+
+τ ∈Tt
+
+s=t
+
+s=t+1
+
++ inf τ ∈Tt
+
+τ
+
+τ −1
+
+−
+
+Eσ;µi|vit ,vˆit t
+
+− is (v˜is , σs(v˜s)) +
+
+βis (v˜s) + θiτ (v˜τ ) + ρi(τ )
+
+s=t
+
+s=t+1
+
+τ
+
+τ −1
+
+= sup Eσ;µi|vit
+
+− (v˜it , σs(v˜s)) +
+
+βis (v˜s) + θiτ (v˜τ ) + ρi(τ )
+
+τ ∈Tt
+
+s=t
+
+s=t+1
+
+τ
+
+τ −1
+
+− sup
+
+Eσ;µi|vit ,vˆit t
+
+− is (v˜is , σs(v˜s)) +
+
+βis (v˜s) + θiτ (v˜τ ) + ρi(τ ) .
+
+τ ∈Tt
+
+s=t
+
+s=t+1
+
+Hence, (E.3) and (E.8) show that the market model with βit , θit , and ρi constructed in
+(3.11)-(3.13), respectively, is DIC. Next, we prove that the formulation of Λσi in (3.10) is valid. Substituting βit , θit , and
+ρi constructed in (3.11)-(3.13), respectively, with Λσi given in (3.10), yields:
+
+(E.9)
+
+Jit (vit , τ ;
+
+t−1, vit−1) =Λσi (vit , vit ; τ )
+
+=
+
+E vit σ;µi|x
+
+τ
+
+v¯i
+
+s=t
+
+1 − exp(σs(v˜s)) Gts(v˜ts|σ) dx.
+
+From (3.1) of Lemma (3.1), we can see that (E.9) satisfy the envelope condition.
+
+Appendix F. Proof of Proposition 3.7 . We divide the proof into to parts: (i) vit ≥ κli(t) and (ii) vit ≤ κli(t). Let v−it ∈ V−i denote the period-t instrumental preference of owners other than owner i, for any t ∈ T.
+
+ON THE DIFFERENTIAL PRIVATE DATA MARKET: ENDOGENOUS EVOLUTION, DYNAMIC PRICING, AND INCENTIVE COMPATIBIL
+
+(i) vit ≥ κli(t). Let vˆit ≥ vit ≥ κli(t). For the distance dSit (vit , vˆit ) we have
+dSit (vit , vˆit ) = − vit , σt(vit , v−it ) + vˆit , σt(vit , v−it ) = − vit , σt(vit , v−it ) + vˆit , σt(vˆit , v−it ) − vˆit , σt(vˆit , v−it ) + vˆit , σt(vit , v−it ) = − vit , σt(vit , v−it ) + vˆit , σt(vˆit , v−it ) + − vˆit , σt(vˆit , v−it ) + θit (vˆit , v−it ) + vˆit , σt(vit , v−it ) − θit (vit , v−it ) + θit (vit , v−it ) − θit (vˆit , v−it )
+(DIC →) ≥ − vit , σt(vit , v−it ) + vˆit , σt(vˆit , v−it ) + θit (vit , v−it ) − θit (vˆit , v−it )
+=Λσi (vit , v¯i; t) − Λσi (vˆit , v¯i; t).
+
+Hence, the condition (3.17) is satisﬁed. (ii) v ≤ κli(t). Deﬁne,
+
+τ
+
+τ −1
+
+zim(vit ) ≡ sup Eσ;µi|vit
+
+− s(v˜is , σis (v˜s)) + βis (v˜s)) + θ(v˜τ )) + ρi(τ ) .
+
+τ ∈Tt+1
+
+s=t
+
+s=t
+
+From the deﬁnition of Λσi in (3.10), we have
+
+(F.1)
+
+sup Λσi (vˆit , v¯; τ ) − sup Λσi (vit , v¯; τ )
+
+τ ∈Tt+1
+
+τ ∈Tt
+
+=zim(vˆit ) − zim(vit )
+
+= sup
+τ ∈Tt+1
+
+Eσ;µi |vˆit
+
+τ
+
+τ −1
+
+− s(v˜is , σis (v˜s)) + βis (v˜s)) + θ(v˜τ )) + ρi(τ )
+
+s=t
+
+s=t
+
+− sup
+τ ∈Tt+1
+
+τ
+
+τ −1
+
+Eσ;µi |vit
+
+− s(v˜is , σis (v˜s)) + βis (v˜s)) + θ(v˜τ )) + ρi(τ )
+
+s=t
+
+s=t
+
+= sup
+τ ∈Tt+1
+
+Eσ;µi |vˆit
+
+τ
+
+τ −1
+
+− s(v˜is , σis (v˜s)) +
+
+βis (v˜s)) + θ(v˜τ )) + ρi(τ )
+
+s=t
+
+s=t+1
+
+− sup
+τ ∈Tt+1
+
+τ
+
+τ −1
+
+Eσ;µi |vit
+
+− s(v˜is , σis (v˜s)) +
+
+βis (v˜s)) + θ(v˜τ )) + ρi(τ )
+
+s=t
+
+s=t+1
+
++ βit (vˆit , v−it ) − βit (vit , v−it )
+
+From the optimality of truthful reporting in DIC market model,
+
+RHS of (F.1)
+
+≤ sup
+τ ∈Tt+1
+
+Eσ;µi |vˆit
+
+τ
+
+τ −1
+
+− s(v˜is , σis (v˜s)) +
+
+βis (v˜s)) + θ(v˜τ )) + ρi(τ )
+
+s=t
+
+s=t+1
+
+− sup
+τ ∈Tt+1
+
+Eσ;µi|vit ,vˆit
+
+τ
+
+τ −1
+
+− s(v˜is , σis (v˜s)) +
+
+βis (v˜s)) + θ(v˜τ )) + ρi(τ )
+
+s=t
+
+s=t+1
+
+= sup
+τ ∈Tt
+≤ sup
+τ ∈Tt
+
+J¯iχti (vˆit , vˆit , τ ; t−1, vit−1) d−itS (vit , vˆit ) .
+
+− sup
+τ ∈Tt
+
+J¯iχti (vit , vˆit , τ ; t−1, vit−1)
+
+Hence, the condition (3.18) is satisﬁed.
+
+30
+
+TAO ZHANG, QUANYAN ZHU
+
+Appendix G. Proof of Proposition 4.1 . Fix v−it as the instrumental preferences of owners other than owner i. Let vit , vˆit ∈ Vi. From the formulation of βit in (3.11), we have, for any two τ , τ ∈ Tt,
+
+(G.1)
+
+βit (vˆit , v−it ) − βit (vit , v−it ) = sup Λσi (vˆit , v¯i; τ ) − sup Λσi (vit , v¯i; τ )
+
+τ ∈Tt
+
+τ ∈Tt
+
+τ
+
+τ −1
+
++ Eσ;µi|vit
+
+− (v˜it , σs(v˜s)) +
+
+βis (v˜s) + θiτ (v˜τ )
+
+s=t
+
+s=t+1
+
+τ
+
+τ −1
+
+− Eσ;µi|vˆit
+
+− (v˜it , σs(v˜s)) +
+
+βis (v˜s) + Λσi (v˜iτ , v¯i; τ ) .
+
+s=t
+
+s=t+1
+
+From the deﬁnition of h−itS in (4.4), (G.1) becomes
+
+(G.2)
+
+βit (vˆit , v−it ) − βit (vit , v−it )
+
+≤h−itS − sup J¯iχti (vit , vˆit , τ ; t−1, vit−1) + sup J¯iχti (vˆit , vˆit , τ ; t−1, vit−1)
+
+τ ∈T
+
+τ ∈T
+
+τ
+
+τ −1
+
++ Eσ;µi|vit
+
+− (v˜it , σs(v˜s)) +
+
+βis (v˜s) + θiτ (v˜τ )
+
+s=t
+
+s=t+1
+
+τ
+
+τ −1
+
+− Eσ;µi|vˆit
+
+− (v˜it , σs(v˜s)) +
+
+βis (v˜s) + Λσi (v˜iτ , v¯i; τ ) .
+
+s=t
+
+s=t+1
+
+Since Λσi (vit , v¯i; τ ) ≥ Λσi (vit , v¯i; t), for any vit ∈ Vi, t ∈ T, τ ∈ Tt, we have Λσi (vit , v¯i; τ ) geq− t(vit , σt(vt)) + θit (vt)). Then, (G.2) becomes
+
+(G.3)
+
+βit (vˆit , v−it ) − βit (vit , v−it ) ≤ − sup J¯iχti (vit , vˆit , τ ; t−1, vit−1) + sup
+
+τ ∈T
+
+τ ∈Tt
+
+τ
+
+τ −1
+
++ h−itS + Eσ;µi|vit
+
+− (v˜it , σs(v˜s)) +
+
+βis (v˜s) + θiτ (v˜τ ) .
+
+s=t
+
+s=t+1
+
+ρt(τ )
+
+From the formulation of ρi in (3.13), we can ﬁnd the upper bound of (G.3) as follows:
+
+(G.4)
+
+βit (vˆit , v−it ) − βit (vit , v−it )
+
+≤hi−tS + sup ρt(τ ) τ ∈Tt
+
+τ
+
+τ −1
+
++ sup Eσ;µi|vit
+
+− (v˜it , σs(v˜s)) +
+
+βis (v˜s) + θiτ (v˜τ ) + ρi(τ )
+
+τ ∈Tt
+
+s=t
+
+s=t+1
+
+τ
+
+τ −1
+
+sup Eσ;µi|vit ,vˆit
+
+− (v˜it , σs(v˜s)) +
+
+βis (v˜s) + θiτ (v˜τ ) + ρi(τ ) ,
+
+τ ∈Tt
+
+s=t
+
+s=t+1
+
+which implies that
+
+sup Jiχti (vit , τ ; t−1, vit−1) + h−itS + sup ρt(τ ) ≥ sup Jiχti (vit , vˆit , τ ; t−1, vit−1).
+
+τ ∈Tt
+
+τ ∈Tt
+
+τ ∈Tt
+
+Then, it is straightforward to see that the market model is h−itS + supτ∈Tt ρt(τ ) -DIC. Similar procedures can be applied to prove the case when the optimal stopping calls for stopping.
+

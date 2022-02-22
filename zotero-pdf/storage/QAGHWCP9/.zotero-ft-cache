@@ -1,0 +1,805 @@
+Data Market Platforms: Trading Data Assets to Solve Data Problems [Vision]
+
+Raul Castro Fernandez, Pranav Subramaniam, Michael J. Franklin
+The University of Chicago
+[raulcf,psubramaniam,mjfranklin]@uchicago.edu
+
+arXiv:2002.01047v1 [cs.DB] 3 Feb 2020
+
+ABSTRACT
+Data only generates value for a few organizations with expertise and resources to make data shareable, discoverable, and easy to integrate. Sharing data that is easy to discover and integrate is hard because data owners lack information (who needs what data) and they do not have incentives to prepare the data in a way that is easy to consume by others.
+In this paper, we propose data market platforms to address the lack of information and incentives and tackle the problems of data sharing, discovery, and integration. In a data market platform, data owners want to share data because they will be rewarded if they do so. Consumers are encouraged to share their data needs because the market will solve the discovery and integration problem for them in exchange for some form of currency.
+We consider internal markets that operate within organizations to bring down data silos, as well as external markets that operate across organizations to increase the value of data for everybody. We outline a research agenda that revolves around two problems. The problem of market design, or how to design rules that lead to the outcomes we want, and the systems problem, how to implement the market and enforce the rules. Treating data as a ﬁrst-class asset is sorely needed to extend the value of data to more organizations, and we propose data market platforms as one mechanism to achieve this goal.
+PVLDB Reference Format: Charles Palmer, John Smith, Julius P. Kumquat, and Ahmet Sacan. A Sample Proceedings of the VLDB Endowment Paper in LaTeX Format. PVLDB, 12(xxx): xxxx-yyyy, 2019. DOI: https://doi.org/10.14778/xxxxxxx.xxxxxxx
+1. INTRODUCTION
+Data is the new oil [47]. Like oil, it generates enormous value for the individuals and organizations that know how to tap into and reﬁne it. Like oil, there are only a select few who know how to exploit it. In this paper, we present our vision for data market platforms: collections of protocols and systems that together enable participants to exploit the value of data.
+This work is licensed under the Creative Commons AttributionNonCommercial-NoDerivatives 4.0 International License. To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/. For any use beyond those covered by this license, obtain permission by emailing info@vldb.org. Copyright is held by the owner/author(s). Publication rights licensed to the VLDB Endowment. Proceedings of the VLDB Endowment, Vol. 12, No. xxx ISSN 2150-8097. DOI: https://doi.org/10.14778/xxxxxxx.xxxxxxx
+
+Data only generates value for a few organizations with expertise and resources to solve the problems of data sharing, discovery, and integration. Only after these problems are solved they can apply their advanced analytics and machine learning algorithms to inform decisions. None of these problems are easy to solve. Despite the many contributions of the database community (and others) to theory, algorithms, and systems for sharing, discovering, and integrating data, these problems still demand a huge investment of time and resources. This explains why the large majority of organizations only partially beneﬁt from the data they own.
+The central argument of this paper is that sharing, discovering, and integrating data is hard because data owners lack information and incentives to make their data available in a way that increases consumers’ utility. For example, companies do not share data with each other because data is a competitive asset and because it may bring legal trouble. Inside organizations, teams do not share data because it is time-consuming, may leak conﬁdential information, and it is unclear what is the return on investment. Even if everybody made their data available, consumers still need to discover data that satisﬁes their needs, which is hard given the large volume of datasets they may need to check. And last, even if relevant datasets are identiﬁed, they are often in the format chosen by the owner, which is diﬀerent than the format the consumer needs. This means the datasets need to be integrated (prepared, wrangled) which is hard and resource-intensive.
+Data market platforms establish rules to share data in a way that is easy to discover and integrate into the format consumers need. In a data market platform, data owners are encouraged to share their data because they may receive proﬁt if a consumer is willing to pay for it. Consumers are encouraged to share their data needs because the market will solve the discovery and integration problems for them in exchange for some money. In short, by spreading information among interested parties and incentivizing them, data market platforms bring data value to all participants.
+In recent years we have seen the appearance of many data markets such as Dawex [19], Xignite [66], WorldQuant [66] and others. The interest in trading data is not new. Economists have been considering these problems for decades [62,63] and the database community has made progress in issues such as pricing queries under diﬀerent scenarios [13, 15, 36]. We believe the time is ripe to design and implement data market platforms that tackle the sharing, discovery, and integration problems, and we think the database community is in an advantageous position to apply decades
+
+1
+
+of data management knowledge to the challenges these new data platforms introduce. In this paper, we outline challenges and a research agenda around the construction of data market platforms.
+Using Data Markets to Solve Data Problems
+Consider a market with sellers, buyers, and an arbiter. Sellers and buyers can be individuals, teams, divisions, or whole organizations. Consider the following example:
+• Buyer b1 wants to build a machine learning classiﬁer to identify good locations to set up a new business. b1 needs features < a, b, d, e >, and at least an accuracy of 80% for the responsible engineer to trust the classiﬁer.
+• Seller 1 owns a dataset s1 =< a, b, c > that they want to share with the arbiter.
+• Seller 2 owns a dataset s2 =< a, b , f (d) > that they won’t share with the arbiter unless the dataset is guaranteed to not leak any business information.
+Details of the example. In the example f (d) is a function of d, such as a transformation from Celsius to Fahrenheit. The function can also be non-invertible, such as a mapping of employees to IDs. Note that neither s1 nor s2 owns attribute e, which b1 wants: we discuss this attribute in Section 7.1. Last, b is an attribute similar to b.
+Challenge-1. Using s1 alone is not enough to satisfy b1’s needs. The arbiter must incentivize Seller 2 to share s2. The ﬁrst challenge is on setting a price for the dataset so Seller 2 wants to share it with the market and so that Buyer 1 wants to pay for it.
+Challenge-2. Even if s2 becomes available to the arbiter, neither s1 nor s2 alone fulﬁll b1’s need. b1 may not want to pay for two incomplete datasets that still need to go through a slow and expensive integration process. Without a transaction, sellers won’t obtain a proﬁt and buyers won’t satisfy their data need. The second challenge requires combining the datasets supplied by sellers to satisfy buyers’ needs. That, in this case, involves ﬁnding a way of going from f (d) to d, which is the attribute the buyer wants.
+Challenge-3. Without the right pricing mechanism, the buyer may oﬀer a very small price and seller 2 may be compelled to share it if that’s the best they can obtain. Eventually, incentives may be so small that neither sellers nor buyers are willing to participate in the market anymore. The third challenge is to design pricing mechanisms that incentivize sellers and buyers to participate in the market and that prevents them from gaming the market.
+Challenge-4. The degree of trust between sellers, buyers, and arbiter may vary. In internal markets deployed within an organization, sellers and buyers are employees and it is conceivable they trust each other. In external markets, we cannot assume participants trust each other. The fourth challenge is to help all participants trust each other.
+Requirements of Data Market Platforms
+Driven by the example and challenges above we can enumerate a list of requirements that data market platforms must implement to solve data problems.
+Value of Data. The market must price datasets so that it incentivizes sellers to share their data and create supply and incentivizes buyers to tell the arbiter their data needs, thus generating demand.
+
+-Market Goal 1 -Market Type -Incentive -Constraints
+
+2 Market Design Toolbox
+
+Market Rules
+
+4 DMMS
+
+3 Market Simulator
+
+Figure 1: Given a market deﬁnition (1), a market design toolbox (2) generates the market rules, which are simulated in (3), possibly reﬁned, and ﬁnally deployed on a DMMS (4).
+Market Design. Without the right rules to govern the participation of sellers, buyers, and arbiter, the market can be gamed and collapse. The key intellectual questions in this area are on how to design the rules of the market when the asset is as unique as data, which is freely replicable and can be combined in many diﬀerent ways [2]. A requirement of a data market platform is to be resilient to strategic participants.
+Plug n’ Play Market Mechanisms. Markets can be of many types: i) internal to an organization to bring down silos of data, in which case employee compensation may be bonus points; ii) external across companies where money is an appropriate incentive; iii) across organizations but using the shared data as the incentive. An example of the last type is a market between regional hospitals to facilitate data sharing where a hospital’s incentive to share data is to obtain other hospitals’ data. The goals of the market may also be varied, from optimizing the number of transactions to social welfare, data utility, and others. A requirement of data market platforms is to ﬂexibly support markets of diﬀerent types and with diﬀerent goals.
+Arbiter Platform. Because the supplied data will have a diﬀerent format than the demanded data, a key requirement to enable transactions between sellers and buyers is an arbiter platform that can combine datasets into what we call data mashups to match supply and demand.
+In the example above the arbiter can combine s1 and s2’s datasets, obtaining a dataset that is much closer to b1’s need. For that, it needs to understand how to join both datasets and needs to ﬁnd an inverse mapping function f that would transform f (d) into d if such a function exists, or otherwise ﬁnd a mapping table that links values of f (d) to values of d. In addition to these relational and non-relational operations the arbiter must also support data fusion operators to contrast diﬀerent sources of data of the same topic. Brieﬂy, the data fusion operators we envision produce relations that break the ﬁrst normal form, that is, each cell value may be multi-valued, with each value coming from a diﬀering source. Data fusion operators are appropriate when buyers want to contrast diﬀerent sources of information that contribute the same data, i.e., weather forecast signals coming from a city dataset, a sensor, and a phone. As an illustration, note Seller 2 owns attribute b which is almost identical to b, but has some non-overlapping, conﬂicting information. A buyer may be interested in looking at both signals, or at
+
+2
+
+their diﬀerence, or at their similarities, etc. A data mashup is a combination of datasets using relational, non-relational, and fusion operations.
+Data Market Management System (DMMS). In addition to the arbiter platform, a data market platform calls for platforms to support sellers and buyers. Sellers need anonymization capabilities so they feel conﬁdent when sharing their data. For example, without such a feature, Seller 2 won’t share data for fear of leaking business information. Buyers need to have the ability to describe with ﬁne granularity their data needs and the money they are willing to pay for a certain degree of satisfaction achieved on a given task. In the example above, the buyer should have the ability to deﬁne that they are only willing to pay money for a classiﬁer that achieves at least 80% accuracy. A requirement of a data market management system is to oﬀer support for sellers, buyers, and the arbiter.
+Building Trust. The degree of trust among sellers, buyers, and arbiter can be diﬀerent depending on the scenario, i.e., whether in an internal market or across the economy. A requirement of a DMMS is to implement mechanisms to help participants trust each other, such as using decentralized architectures [8] and supporting computation over encrypted data [27].
+Market Simulator. The mathematics used to make sound market designs do not account for evil, ignorant, and adversarial behavior, which exists in practice. For that reason, after producing a market design and before deploying it on a DMMS, it is necessary to simulate it in adversarial scenarios to check its robustness. Therefore, a data market platform calls for a market simulator.
+Our Vision
+Our vision is to produce market designs for diﬀerent scenarios (points (1) and (2) in Fig. 1) using a market design toolbox. The market design toolbox uses techniques from game theory and mechanism design [45] to deal with the modeling and engineering of rules in strategic settings, such as data markets. Every market design is tested using a data market simulator (point (3)), before being ﬁnally deployed in a DMMS (point (4)). While the output of the market design toolbox is a collection of equations, the output of the DMMS is software. There is an explicit interplay between market design and DMMS that constrains and informs the capabilities of the other. Exploring such an interplay is a critical aspect of our proposal.
+In the remainder of this paper, we delve into the details of our vision for data markets. We present many research questions that fall directly within the territory of the database community and beyond.
+The rest of the paper is organized as follows. In Section 2 we present one approach to pricing datasets. We follow with our vision of the data market toolbox in Section 3 and our vision of a DMMS in Section 4. Section 5 focuses on our proposal for a Mashup Builder that matches supply and demand. We present our evaluation plan in Section 6. We continue with a discussion of the impact of data markets as we envision in this paper in Section 7, followed by related work in Section 8, before presenting a ﬁnal discussion in Section 9.
+
+2. THE VALUE OF DATA
+What’s the value of data? This question has kept academics and practitioners in economics, law, business, computer science and other disciplines busy. [62, 63]. To participate in data markets, sellers and buyers need to answer this question so they can decide whether selling and buying a dataset is proﬁtable for them, but this is diﬃcult.
+The crux of the problem is that the value of a dataset may be diﬀerent for a seller and a prospective buyer. Sellers may choose to price their datasets based on the eﬀort they spent in acquiring and preparing the data, for example. Buyers may be willing to pay for a dataset based on the expectation of proﬁt the dataset may bring them: e.g., how much they will improve a process and how valuable that is. None of these strategies is guaranteed to converge to a price—and hence a transaction agreement—between participants.
+And yet, this is how prices are set in current markets of datasets such as Dawex [19], Snowﬂake’s Data Exchange [56], and many others. Sellers choose a ﬁxed price for datasets without knowing what the demand is and buyers who are willing to pay that price obtain the datasets, without knowing how useful the dataset will be to solve their problem. This leaves both sellers and buyers unsatisﬁed. Buyers may pay a high price for datasets that do not yield the expected results. Similarly, sellers may undervalue datasets that could yield more proﬁts because they lack information about what buyers want.
+A tempting option to the database community is to value datasets based on their intrinsic properties, such as quality, freshness, whether they include provenance information or not, etc. Unfortunately, valuing datasets based on the intrinsic properties of data alone does not work either. We illustrate why with the following scenarios:
+Example 1: Two datasets A and B contain the same number of records and cover the same domain. The only diﬀerence is that while A is missing 1% of its values, B is missing 30% of them. Which dataset is more valuable? Intuition says the ﬁrst dataset because of the fewer missing values it contains.
+However, if the desired answer involves a set of values that appear in B, but not in A, then B may be more valuable for this particular task, even though A has fewer missing values.
+Example 2: Consider two datasets that contain crime data of the city of Chicago. The ﬁrst one is a snapshot of 12/31/2010. The second one is a current up-to-date snapshot. Which one is more valuable in this case?
+Freshness is usually a positive trait of a dataset. However, if IâĂŹm trying to understand what the crime in Chicago was in 2010 – for example, before a particular political event – then the snapshot from 2010 will be more valuable than the current one.
+Example 3: We want to predict a variable of interest, X. We have a dataset with 5 features and a second dataset with 20 features that subsumes the ﬁrst. Would you pay more money for the second dataset than for the ﬁrst?
+Even though more features may seem better, if the dataset with 5 features is good enough to predict the variable of interest, adding more features may not help at all – in which case paying more for such a dataset would be pointless. In fact, adding more features may lead to overﬁtting the model, hence achieving worse quality. This would then require doing feature engineering, therefore consuming more of the buyerâĂŹs resources. In this last case, one would pay more
+
+3
+
+for the ﬁrst dataset, since itâĂŹs the one that helps solve the task at hand better.
+So, if intrinsic properties of data are not a good proxy to value it, what is?
+Intrinsic vs Extrinsic Value of Data
+In the markets we envision, the value (and price) of a dataset is decided by the arbiter based on the economic principles of supply and demand [53]. A scarce dataset that lots of buyers want will be priced higher than a common dataset that is hardly ever requested, regardless of the intrinsic properties of such datasets. In other words, the value of a dataset is primarily extrinsic.
+The role of intrinsic properties. When intrinsic properties of datasets are important to buyers, they can explicitly let the arbiter know. If, as a consequence of buyers’ requests, a demand is created for a particular dataset with, say, few missing values, sellers who provide those datasets will proﬁt more.
+In conclusion, we argue that the value of a dataset should be established by the market as a function of supply and demand and that when intrinsic properties of a dataset are valuable, buyers will declare such is the case as part of the request generated by data buyers.
+Having discussed how to price data we now dive into the market design component of our vision.
+3. DESIGNING THE MARKET RULES
+In this section, we show how without the right rules a market leads to undesirable outcomes. We then explain the challenges of engineering the rules of the market. To illustrate these challenges we consider a scenario such as the one depicted in Fig. 2.
+The ﬁgure (top) shows two diﬀerent data sellers, s1 and s2, who want to share datasets with the arbiter. The arbiter is shown in the middle of the ﬁgure, acting as an intermediary. There are two buyers, b1 and b2 who want a dataset d. Both s1 and s2 own d (although in practice it is common that they will have overlapping datasets, it is also possible the have the exact same dataset, such as in this case). How can we maximize everybodyâĂŹs happiness in this scenario? Owners want to sell their data and obtain a proﬁt. Buyers want to obtain the dataset to solve the task at hand. Both beneﬁt if the transaction happens, and for that, sellers and buyers must agree to pay a price, p(d) for d.
+If we set p(d) based on prices posted by the sellers, then sellers would be incentivized to set higher and higher prices trying to obtain the highest beneﬁt, and no buyer would ever buy d, leading to zero overall satisfaction. Conversely, if we set p(d) based on prices posted by buyers, then buyers would be incentivized to make prices lower and lower, and owners would stop sharing their data because they would not obtain any proﬁt. A key question a market design must answer is what rule should be used to set p(d).
+A simple pricing strategy. One possible mechanism to set a price in situations such as these is a double auction [41]. Here, s1 and s2 communicate to the arbiter their posting prices, p1, and p2 (5 and 7 in the ﬁgure). Each sellersâĂŹ posting price is private. Similarly, b1 and b2 privately post their bids, wtp1 and wtp2 (2 and 3) to the arbiter. The arbiter then sets the price of the dataset as:
+
+d
+
+a
+
+s1
+
+d s2
+e
+
+p1= 5
+
+p(d) = (min(5, 7) + max(2, 3))/2 = 4
+
+wtp1= 2
+
+b1
+
+d
+
+p(d)
+
+p(d)
+
+Arbiter
+
+p2= 7
+
+b2
+
+d
+
+wtp2=3
+
+d
+
+a
+
+s1
+
+d s2
+e
+
+r(a) r(m) r(e)
+
+m = MB(a,e)
+Arbiter m
+p(m)
+
+b1
+
+m
+
+b2
+
+m
+
+Figure 2: Top ﬁgure illustrates how a double auction mechanism sets a price, p(d). Bottom ﬁgure illustrates how revenue allocation takes place after arbiter sells m to b2.
+p(d) = ((min(p1, p2)) + max(wtp1, wtp2))/2 and communicates the price to the winning participants who are the seller that oﬀered the lowest price and the buyer that oﬀered the higher one (shaded circles in the ﬁgure). Because this mechanism creates competition between the sellers, they are encouraged to set a reasonable price, otherwise, they will lose the transaction and receive no proﬁt. Similarly, it encourages buyers to set a reasonable price as well because if they set prices too low, they won’t obtain the dataset they want. Note: This mechanism is good to illustrate the kind of incentives that well-designed markets deliver to participants, but it is not suﬃcient to build a functioning data market platform. We discuss why in the next section.
+Revenue allocation strategies. In addition to rules for pricing datasets, a well-designed market needs rules for allocating revenue. We illustrate how using the bottom diagram of Fig. 2:
+Suppose that the dataset that b1 and b2 want to acquire is m instead of d, with m being a combination of a (owned by s1) and e. In this case, neither s1’s dataset nor s2’s satisﬁes the need. In order to facilitate the transaction, the arbiter must combine a and e in a mashup, m, which is then sold to the buyers (shown in the center of the ﬁgure). Once the transaction takes place, the arbiter collects the money paid by buyers, p(m), and uses it to compensate the sellers. How to allocate the revenue to the sellers is challenging. Each seller contributed to the transaction (r(a) and r(e)), so both must be compensated. Furthermore, the transaction would not have been made possible without the arbiter’s help, so the arbiter should also capture some of the revenue, r(m).
+3.1 Research Agenda: Market Design
+We focus our discussion on 3 key challenges that our example above illustrates and form the basis of our vision for the design of data market rules. The ﬁrst challenge is related to the design of mechanisms (such as the double auction above) that work when the asset is data. The second is related to support for buyers to indicate their needs and the price they are willing to pay for data. The third is related to
+
+4
+
+the challenge of allocating revenue in a way that incentivizes participants. We discuss these 3 challenges next:
+3.1.1 The Unique Characteristics of Data as an Asset
+The double auction mechanism we used for the example above is not suﬃcient to design well-functioning markets, (despite its beneﬁts to illustrate the market design problem). This is due to the unique characteristics of data:
+1. Data is freely replicable. 2. Data is easy to combine arbitrarily.
+Why double auctions are not suﬃcient. Consider what would happen in the double auction mechanism after the ﬁrst transaction takes place. The buyer who wins the data walks away happily. The losing buyer, however, can simply bid for the same dataset again, oﬀering the price they want to pay. Sellers, even though theyâĂŹve sold the dataset once, can sell it again because data is freely replicable. This means that buyers can just wait with their ﬁxed price until a seller is willing to reduce the price to obtain some proﬁt. Because some proﬁt is better than no proﬁt, the incentives are such that the prices will plummet, making this mechanism impractical. The success of double auctions with material goods, where the ownership of goods is transferred once, cannot be easily brought in to sell data.
+The approach. The market design toolbox uses techniques from mechanism design [45], which is a discipline concerned with designing rules for a game (i.e., the market) to yield the desired results. Here, the desired results are decided by the designer based on the market goal, its type, the incentives that make sense (e.g., money vs bonus points) and possibly other constraints. We discuss diﬀerent market types and goals in the next section. Mechanism design has produced many interesting results, such as in auction theory [42], which is used, among others, to implement the real-time ad bidding that powers todayâĂŹs Internet economy [1].
+In particular, we are designing a mechanism that works across inﬁnite rounds of transactions, as well as multiple sellers and buyers coming to the market and leaving at different times. A key insight of our proposal (which we do not discuss in detail here) is the artiﬁcial creation of scarcity to incentivize seller participation in the market.
+3.1.2 How much should I Pay?
+Buyers need to indicate: i) their data needs, which can vary from query-by-example type interfaces to asking for data complementary to existing datasets, or more abstract declarations. ii) A metric to measure how a speciﬁc dataset fulﬁlls their data needs: the degree of satisfaction, which will be task-speciﬁc because metrics that may be useful to measure the quality of an ML model are diﬀerent than metrics to determine how complete are the results of an aggregate query. iii) A price they are willing to pay for the dataset, which is a function of the metric.
+To model these needs we introduce willing-to-pay functions (WTP-function), which consist of 4 components:
+• A package that includes the data task that buyers want to solve. For example, this package could contain the code to train an ML classiﬁer. This package is sent to the arbiter, so the arbiter can evaluate diﬀerent datasets on the data task and measure the degree of satisfaction.
+
+• A function that assigns a willing-to-pay price for each degree of satisfaction. For example, this function may indicate that the buyer won’t pay any money for datasets that don’t help them achieve at least 80% classiﬁcation accuracy. But after 80% accuracy, they will pay a ﬁxed amount of money.
+• Packaged data that buyers may already own and don’t want to pay money for. For example, when buyers own multiple features relevant to train the ML model but want other datasets that augment their data (add features or training samples), they can send their code and their data to the arbiter.
+• Intrinsic dataset metrics that buyers desire. Some examples are expiry date to indicate for how long data is valuable to them; freshness to indicate that more recent datasets are more valuable; authorship to indicate preferences in who created the dataset; provenance to indicate buyer needs to know how data was generated; and many others such as semantic metadata, documentation, frequency of change, quality, among many others. Each of these properties has potentially many dimensions. For example, the buyer may indicate that they want data that is not more than 2 months old, fearing that concept drift [61] may aﬀect their classiﬁcation task otherwise.
+We are working on new interfaces for users to easily indicate data needs, for example, through a schema description [24]. These new interfaces require new data models to express not only relational operations but also fusion operations that would permit merging/contrasting diﬀerent signals/opinions and transformation needs, such as pivoting, aggregates, conﬁdence intervals, etc. The WTP-Functions produced need to be interpreted by the mashup builder, a component we introduce in the next section as part of our DMMS architecture that is in charge of matching supply and demand.
+3.1.3 Allocating Revenue to Query Plans
+Consider the example above (bottom of Fig. 2), where the mashup m that leads to d is some nontrivial combination of s1’s and s2’s data that involves joining datasets and applying some transformation functions. If the price paid by the winning buyer for m was x, how do we distribute x among the two sellers that contribute datasets as well as the arbiter who solved the discovery and integration problem to produce the mashup?
+We are investigating information-theory and informationﬂow control techniques to understand how much revenue each node of the query plan deserves. In the simplest relational scenario, tracking provenance could be suﬃcient. With non-relational functions—such as the mapping function in the example of the introduction, or a data fusion operation that wants to gather several conﬂicting values together, it becomes less clear what is a good strategy to solve this problem. A valid approach for this problem must answer precisely what data and (relational and non-relational) operations led to a value in the output.
+3.2 Data Market Platform Design Space
+A solution to the market design problem that involves addressing the 3 challenges above will be informed by the type of market we are designing. We consider diﬀerent markets that cater to diﬀerent scenarios:
+
+5
+
+External markets. In external markets, money is a good incentive to get companies who own valuable information to share it with others that may beneﬁt from its use. These markets can be designed to optimize for social welfare such as in the example above, or to maximize seller or arbiter revenue, the number of buyers that satisfy their data needs, etc.
+Internal markets. Internal data market platforms have the promise of bringing down data silos by incentivizing data owners (e.g., speciﬁc teams, or individuals) to publish their data in a way that is easy to consume by others, in exchange for bonus points or other employee compensation mechanism.
+Barter and Gift Markets. These are markets where the participant’s incentive to share their data is to receive data from somebody else. Consider the coalition of hospitals we mentioned in the introduction. A hospital may want to exchange their data for data other hospitals own in order to pool more patient data that may help them devise better patient treatment strategies, for example.
+3.3 FAQ: Frequently Asked Questions
+Why would people use the market to share data? A well-designed market incentivizes sellers to share data to obtain some proﬁt, which may be monetary or some other form. It also incentivizes buyers to share their data needs in exchange for having their discovery and integration problems solved by the arbiter. What if IâĂŹm not sure if my dataset is leaking personal information? Sharing data is predicated on the assumption that it is legal. Certain PII information, for example, cannot be shared across entities without users’ permission. The DMMS that we present in the next section oﬀers tools for anonymizing and reducing the risk of leaking data.
+In addition, once a dataset has been assigned a price, it is possible to envision a data insurance market, where a different entity than the seller (i.e., the arbiter) takes liability for any legal problems caused by that data. In this case, the arbiter is incentivized to avoid those problems, stimulating more research in secure and responsible sharing of data. Wouldn’t markets concentrate data around a few organizations even more? Today, data is mostly concentrated around a handful of companies with the expertise and resources to generate, process and use it. Ideally, we want to design markets that bring the value of data to a broader audience. It is certainly possible that a market would only worsen this concentration by allocating data to the richest and more powerful players. Fortunately, it is possible to design markets that disincentivize this outcome: achieving that is a goal of our research. Is there going to be enough demand for a given, single dataset?
+We expect certain datasets will naturally have less demand than others, as with any asset today. However, with a powerful enough arbiter, individual datasets are combined and add value to lots of diﬀerent mashups that may be, in turn, designed to satisfy a varied set of buyersâĂŹ needs.
+Furthermore, studying the market dynamics will be important to determine, for example, if domain-speciﬁc markets (markets for ﬁnance, for health, for agriculture) would be more eﬃcient than more general ones in concentrating and uncovering highly valuable datasets.
+
+Why would a seller or buyer trust the arbiter? We donâĂŹt assume they would, and we discuss in the next section how this is a key design goal of a DMMS. Why would a seller know to assign a price to the dataset itâĂŹs trying to share/sell? One option is for sellers to assign a price based on the eﬀort it took them to obtain the dataset or on their perceived value. In practice, after initially setting a price, the seller may need to adjust the price in order to sell the dataset based on, for example, feedback by the arbiter.
+Alternatively, in markets where the goal is to maximize seller revenue, sellers can share their datasets without setting a price, knowing the arbiter will do its best to use their datasets in transactions. The arbiter could prevent data duplication by assessing what datasets to accept, hence addressing one of the challenges of selling data. Regardless of the merits of that mechanism to enforce the right outcomes in the market, this design would not allow participants to trade free. Furthermore, since datasets can be arbitrarily similar to each other, it is unclear what threshold the arbiter should use to make a decision, or how to compute that threshold in the ﬁrst place. Why would a buyer give out their code (as part of the WTP-function) when it may be an industrial secret? It is conceivable that buyers won’t trust the arbiter. We allow buyers to evaluate the code locally and report back their price post-usage. We are designing truthful mechanisms that incentivize buyers to tell the real value instead of reporting a low value to pay less. How do WTP-functions work for EDA-like analysis? WTP-functions capture the price buyers are willing to pay for achieving a particular degree of satisfaction. When buyers do not know how to measure their satisfaction, such as when engaging in exploratory data analysis kind of tasks, this won’t work. In these cases, we may need to rely on truthful mechanisms such as those mentioned in the previous question. How do sellers know in what mashups did their datasets participate? The arbiter must keep track of every transaction that takes place. This involves recording the mashup building process—which is necessary to allocate revenue to sellers—as well as how each dataset was used to derive the mashup. This information should be made available to sellers when they do not trust the arbiter. A key challenge of the vision is to implement the necessary tooling to guarantee that all operations are recorded properly in a tamper-proof fashion.
+3.4 Summary
+There are many types of markets and goals. Each market deﬁnition (step (1) in Fig. 1) is fed to a market design toolbox (step (2)) which produces a set of market rules using techniques from mechanism design, among others. These rules are designed in order to incentivize players such that their actions produce the outcome the designer wants.
+The rules alone do not solve the problems of sharing, discovering and integrating data. We need a DMMS to implement them in practice (step (4)): this is the topic of the next section.
+4. DATA MARKET MANAGMT. SYSTEM
+
+6
+
+RDBMS,
+
+DWH,
+
+d
+
+Lake,
+
+Cloud
+
+Package Anonymize Accountability
+
+prices
+
+revenue
+
+datasets WTP-functions
+
+Mashup Builder
+
+[m1, …, mn]
+
+WTP Evaluator
+
+[m1: wtp1, m3: wtp3]
+
+Pricing Engine
+
+Transaction Support
+
+Revenue Allocation Engine
+
+Deﬁne WTP Package WTP Obtain Data datasets
+
+Figure 3: Architecture of a Data Market Management System.
+Data market management systems must be designed to support diﬀerent market designs (i.e., rules) and they must oﬀer support to sellers, buyers, and the arbiter. The DMMS system we propose achieves that using a seller, buyer, and arbiter management platforms, which are shown in Fig. 3.
+4.1 Overview of Arbiter Mngmt. Platform
+The arbiter management platform (AMP) is the most complex of all DMMS’s components: not only does it build mashups to match supply and demand, but it also implements the market design rules. We use the architecture in Fig. 3 to drive the description of how the AMS works.
+The AMS receives a collection of WTP-functions from buyers specifying the data needs they have. Sellers share their datasets with the arbiter, expecting to proﬁt from transactions that include their datasets. The AMS uses the Mashup Builder (top of the ﬁgure) to identify combinations of datasets (we call these mashups) that satisfy buyers’ needs. These are depicted as [m1, m2, ..., mn] in the ﬁgure.
+The next step is to evaluate the degree of satisfaction that each mashup achieves for each buyer’s WTP-function. This task is conducted by the WTP-Evaluator. The WTPEvaluator ﬁrst runs the WTP-function code on each mashup and measures the degree of satisfaction achieved. For example, on an ML task, it measures the accuracy. With the degree of satisfaction, it then computes the amount of money (or other incentives) the buyer is willing to pay, wtpi. The output of the WTP-Evaluator is a collection of pairs mi, wtpi indicating the amount of money that a buyer is willing to pay for each mashup that ﬁts the needs indicated by their WTP-function.
+The next step is to use the Pricing Engine to set a price for each mi and choose a winner1. The Transaction Support component delivers mi to the winning buyer and obtains the money, wtpi. Finally, the Revenue Allocation Engine allocates wtpi among the sellers that contributed datasets used to build mi and the arbiter. At this point the transaction is completed.
+Arbiter Services. Because the arbiter knows the supply and demand for datasets, it can use this information to oﬀer additional services for buyers and sellers, perhaps for a fee. For example, the arbiter could recommend datasets to buyers based on what similar buyers have purchased before [54]. This kind of service leaks information that was previously private to other buyers. Therefore, this should be reﬂected in the market design.
+1the market design may specify more than one winner, but we use one here to simplify the presentation
+
+Negotiation Rounds. If the AMS cannot ﬁnd mashups that fulﬁll the buyer’s needs, it can describe the information it lacks and communicates to the sellers, who are incentivized to add that information to receive a proﬁt. For example, the AMS may ask the seller to explain how to transform an attribute so it joins with another one, or it may request information about how a dataset was obtained/measured, semantic annotations, mapping tables, etc. Sellers will be incentivized to help if that raises their prospect of proﬁting from the transaction. Similarly, buyers can request the arbiter for data context (provenance, how data was measured/sampled, how fresh it is, etc.) when they need it to eﬀectively use the data.
+4.2 Seller Management Platform
+The SMP communicates with the AMS to share datasets and receive proﬁt, to coordinate anonymization procedures (as we see next), as well as to agree on changes to the dataset that may improve the seller’s chances of participating in a proﬁtable transaction. Next, we explain the key services we envision SMP oﬀering sellers:
+Anonymization. Even if incentivized to sell data for money, sellers face a deterrent when their data may leak information— e.g., personally identiﬁable information (PII)—that should not be public. To assist sellers, the SMP must incorporate some support for dataset anonymization. And because anonymized datasets may leak information when combined with other datasets [44]—which is precisely what the arbiter will do as part of the mashup building process—the anonymization process must be coordinated between SMP and AMS.
+Accountability. The SMP must allow sellers to track how their datasets are being sold in the market, e.g., as part of what mashups.
+Data Packaging. The SMP assists with transforming datasets provided by sellers into a format interpretable by the arbiter. In addition, this feature must allow sellers to share datasets with coarse granularity (by pointing to a data lake, cloud storage full of ﬁles, or a data warehouse), which is useful in the case of internal markets of data, e.g., when a seller wants to remove a data silo.
+4.3 Buyer Management Platform
+Data buyers must provide the arbiter with a willing-to-pay function (WTP-function) that indicates the price a buyer is willing to pay given the satisfaction achieved by a given dataset.
+Buyer management platforms (BMP) have the following requirements:
+• Because manually describing a WTP function may be difﬁcult, a BMP must help buyers deﬁne it. One way of achieving that is through learning schemes that capture buyers’ data declaration and expectation to sketch a WTP function transparently to the buyer.
+• Secure sharing of the WTP function with the arbiter, so the arbiter computes the level of satisfaction of diﬀerent mashups and obtains the WTP price buyer bids for such a mashup.
+• Finally, a communication channel enables buyer-arbiter exchange mashups, WTP-functions, as well as allow the arbiter to recommend alternative datasets to the buyer,
+
+7
+
+e.g., when the arbiter knows of other similar buyers who have acquired such datasets.
+4.4 Trust, Licensing, Transparency
+Now we zoom out to the general architecture comprising AMS, BMS, and SMS and consider how diﬀering degrees of trust, the existence of data licenses, as well as the need for transparency, introduce additional challenges for the design and implementation of a DMMS.
+Trust. We have assumed so far that sellers and buyers trust the arbiter. Sellers trust that the arbiter wonâĂŹt share the data without sellersâĂŹ consent, that it will implement the rules established by the market design faithfully, and that it will allocate revenue following those rules too. Buyers trust the arbiter with their code (that ships as part of the WTP-function), and similar to sellers, they trust the arbiter will enforce the agreed market rules. Although we think itâĂŹs reasonable to assume trust in a third party— similar to how individuals and organizations trust the stock market—it is conceivable to imagine scenarios where trust is not granted. In this case, we need to consider techniques on privacy-preserving data management [23], processing over encrypted data [27], as well as disaggregated, peer-to-peer markets and blockchain platforms [8, 43]. Similarly, if we want to prevent buyers from sharing their code and instead rely on them self-reporting how much value they extracted from a dataset after using it, we must make sure the market design incentivizes them to tell the truth.
+Data licensing. Sellers can assign diﬀerent licenses to the datasets they share that would confer diﬀerent rights to the beneﬁciary. Similarly, buyers may be interested in obtaining datasets subject to licensing constraints. For example, a hedge fund may want to acquire a dataset with exclusive access, preventing perhaps other competitors to access the same data. The artiﬁcial scarcity generated by this license should cost more to buyers, who could be forced to pay a ’tax’ so long they maintain the exclusivity access. Other types of licenses are those that transfer ownership completely, so buyers sell the datasets as soon as they have bought them (creating a market for arbitrageurs as we discuss in the next section), or licenses that prevent the beneﬁciaries from selling a previously acquired dataset. Supporting these licensing options aﬀects both market design and DMMS system. Furthermore, it raises questions of legality and ethics that go beyond computer science and economics.
+Transparency. Transparency may be required at many points of the market process. Sellers may need to know in what mashups their data is being sold and what aspects of their data (rows, columns, speciﬁc values) is more valuable. Similarly, buyers may request transparent access to the mashup building process to understand the original datasets that contribute to the mashup and decide whether to trust them or not. We do not discuss the implications of these requirements, we only highlight they have an impact on the engineering of a DMMS.
+4.5 Markets of Many Data Types
+We have presented the AMP, SMP, and BMP without focusing on a speciﬁc type of data to be exchanged. We envision markets to trade data of many types:
+Multimedia Data. A variety of multimedia data such as text, web (i.e., a search engine market that does not de-
+
+Metadata Engine
+
+Batch Interface
+
+Ingestion Module
+
+Processor Module
+
+Sink
+
+Share Interface
+
+RDBMS, DWH, Lake, Cloud
+Tabular Data
+
+:
+: Data Items
+
+Index Builder
+Lifecycle Index
+Relationship Index
+Access Methods
+
+DoD Engine
+Data Discovery
+Integration Engine
+Blending Engine
+
+Metadata Indexes
+
+Mashup Creation
+
+Figure 4: Architecture of Mashup Builder for tabular data.
+pend on ads?), as well as video are likely targets for a data market platform. How to build DMMS platforms to reason about how to combine and prepare this data for buyers is a challenge.
+Markets for Personal Data. Ultimately, weâĂŹd like to be able to price a person’s own information. If I knew how much the information IâĂŹm giving an online service is worth, I could make a better decision on whether the exchange is really worth it or not. Because many times an individualâĂŹs own data is not worth much in itself—but quickly raises its value when aggregated with other users— it is conceivable that coalitions of users would form who collectively would choose to relinquish/sell certain personal information to beneﬁt together from their services.
+Embeddings and ML Models. Embeddings and vector data is growing fast because they are the input and output format of many ML pipelines. As data-driven companies keep building on their ML capabilities, we expect this data will only grow. Obtaining some of these embeddings incurs a high cost in compute resources, carbon footprint, and time. For example, the BERT pre-trained models produced by Google [20] take many compute hours to build. For this reason, we expect companies will rely on the exchange of pretrained embeddings more and more, and hence our interest in supporting this format in our data market platforms.
+Out of the many possible data formats, we focus initially on tabular data such as relations and spreadsheets because this data is suﬃcient to cover most business reporting, analytical, as well as many machine learning tasks. In the next section, we introduce a Mashup Builder speciﬁc to this type of data.
+5. MB: MATCHING SUPPLY AND DEMAND
+The goal of the mashup builder is to generate a collection of mashups that satisfy a WTP-function. That requires identifying relevant datasets among the many available datasets and integrating them into a mashup. The architecture of the system we are building is depicted in Fig. 4 and is designed to address the following problems:
+Data Discovery. The arbiter receives many datasets coming from organizations (a single organization may own thousands of datasets). The goal of data discovery is to identify a few datasets that are relevant to a WTP-function among thousands of diverse heterogeneous datasets.
+Data Integration and Blending. The goal of data integration and blending is to identify strategies to combine the datasets identiﬁed by the discovery component into mashups
+
+8
+
+that satisfy the WTP-function. Those strategies consist of identifying mapping and transformation functions to join attributes as well as other preparation tasks such as value interpolation to join on diﬀerent time granularities.
+Because multiple similar datasets may contribute to the same or a small group of similar mashups, data fusion operations permit combining and contrasting the diﬀerent combinations, keeping track of the origin of each data item, so consumers understand how data was assembled.
+We bootstrap the implementation of the mashup builder with Aurum [12], a data discovery system that not only allows users to ﬁnd relevant datasets but also combines them using join operations. To do that it extracts metadata from the input datasets, it organizes that metadata in an index and uses the index to identify datasets based on the criteria indicated in the WTP-function. The architecture of the Mashup Builder is shown in Fig. 3(right). We describe the components next:
+5.1 Metadata Engine
+The metadata engine’s goal is to read and maintain the lifecycle of each input dataset. Datasets can be automatically read from a source in bulk (e.g., a relational database, a data lake, a repository of CSV ﬁles in the cloud) or they can be registered manually by a user who wants to share speciﬁc datasets. This is performed by the ingestion module through its batch and sharing interfaces as shown in the ﬁgure. Each dataset is divided conceptually into data items, which are the granularity of analysis of the engine. For example, a column data item can be used to extract the value distribution of that attribute. A row data item can be used to compute co-occurrences among values. A partial row data item can be used to compute correlations, among others. For each dataset, the metadata engine maintains a time-ordered list of context snapshots. A context snapshot captures the diﬀerent properties of each dataset’s data item. For example, signatures of its contents, a collection of human or machine owners (i.e., what code is using what data), as well as the security credentials. This is performed by the Processor component of the system.
+Because data item information is not given directly at ingestion time, the engine must harness that information. Data market platforms aim to incentivize users to provide that information directly, but in certain scenarios this is not possible: e.g., a data steward pointing to a collection of databases in an internal organization. The output of the metadata engine is conceptually represented in a relational schema, as performed by the Sink component.
+The metadata engine is a fully-incremental, always-on system that is in charge of keeping the output schema as updated as possible while controlling the overhead incurred in the multiple source systems and the precision of the output information.
+5.2 Index Builder
+The index builder processes the output schema produced by the metadata engine and shapes data so it can be consumed by the dataset-on-demand engine (DoD), which is the component in charge of integration and blending of mashups. Among other tasks, the index builder materializes join paths between ﬁles, and it identiﬁes candidate functions to map attributes to each other; i.e., it facilitates the DoD’s job. The index builder keeps indexes up-to-date as the output
+
+schema changes. This calls for eﬃcient methods to leverage the signatures computed during the ﬁrst stage.
+5.3 DoD Engine
+The DoD engine takes WTP-functions as input and produces mashups that fulﬁll the WTP-function requests as output. It uses the indexes built by the index builder, the output schema generated by the metadata engine, as well as the raw data.
+The DoD relies on query reverse engineering and queryby-example techniques [60], as well as program-synthesis [4], among others, to produce the desired mashups.
+Data Fusion. When there are many datasets available, DoD may ﬁnd multiple alternatives to produce mashups. In certain cases, a buyer wants to see a contrast of mashups (this will be speciﬁed in the WTP-function). For example, consider a buyer who wants to access weather data and there are multiple sources that provide this information. A data fusion operator can align the diﬀering values into a mashup that the buyer can explore manually. A speciﬁc fusion operator may select one value based on majority voting, for example, while other fusion operators will implement other strategies. Buyers may want to have access to all available signals to make up their own minds. As a consequence, buyers may want to use DoD’s fusion operators to help combine the diﬀerent sources into mashups.
+5.4 Machines and People
+Automatically assembling a mashup from individual datasets when only given a description of how the mashup should look is an ambitious goal. Our experience working on this problem for the last few years has taught us that in certain cases this may not be possible at all, such as when ambiguity makes it impossible to understand the right strategy to combine two datasets. We devise two strategies to tackle this problem.
+The ﬁrst strategy is to have the AMS system interact with sellers to request additional information about the datasets they have shared that may help with the integration and blending process, e.g., a semantic annotation, a function to obtain an alternative representation, etc. Sellers willing to include the additional information can be incentivized to do so by obtaining a higher proﬁt, for example.
+An alternative strategy is for the mashup builder itself to incorporate humans-in-the-loop as part of its normal operation. This has been done before to answer relational queries [25, 26], and there may be opportunities to extend those techniques to help with integration and blending operations as well. Because all this takes place in the context of a market, it becomes possible to compensate those humans according to the value they are creating.
+6. EVALUATION PLAN
+In this section, we explain how we plan to evaluate market designs, as well as the DMMS implementation.
+6.1 Simulation of Market Designs
+A market design that is sound on paper may suﬀer unexpected setbacks in practice. This may happen because rationality assumptions made at design time may break in the wild. In the context of mechanism design/game theory, rationality is interpreted as players will play the best strategy available to them. Unfortunately, that does not account
+
+9
+
+for risk-lover or ignorant players. Furthermore, some players may be adversarial in practice, forming coalitions with other players to game the market. Or less dramatic, a faulty piece of software may cause erratic behavior. Below, we explain how we plan to evaluate the eﬀectiveness and eﬃciency of market design in practice.
+Eﬀectiveness. The mismatch between theory and practice calls for a framework to evaluate how resilient a market design is under adversarial, evil, and faulty processes. We plan to design a simulation platform where it is possible to implement diﬀerent rules and change the behavior of players, and where it is possible to model adversarial, coalition-building, as well as risky and ignorant players (this is shown in (3) of Fig. 1). The goal of the simulation platform is to understand the robustness of diﬀerent mechanisms before their deployment.
+Large-scale simulations introduce database challenges such as: i) supporting quick communication among many players (transaction processing); ii) modeling workloads to simulate diﬀerent strategy distributions of players. Such a simulation framework will be of independent interest.
+Eﬃciency. At its core, market mechanisms are implemented with an algorithm. The ﬁelds of mechanism design and algorithmic game theory have contributed to eﬃcient approximation algorithms [45]. In databases, algorithms with high complexity are often used in practice for small problems, and conversely, algorithms with low complexity cannot be used practically because of the size of the data. We want to contribute empirical evaluations of these designs when implemented in a software platform such as the DMMS we describe.
+6.2 Evaluating a DMMS
+We plan to deploy a prototype of our DMMS in an internal market ﬁrst, within the context of collaborating organizations. This will help hone the interface with humans, understand the deployment context and its constraints better, as well as to conduct quantitative evaluations. Although the metrics to evaluate a DMMS are many, we explain a few we deem important below.
+Mashup building. We care about quantitative metrics such as throughput, latency, scalability, robustness as well as qualitative properties, such as the degree of automation achieved by the system. Qualitative properties are harder to evaluate because of the lack of standard integration benchmarks. We are designing benchmarks that capture the data market scenario—which is general to other point integration eﬀorts as well. We think these benchmarks will be of independent interest to the database community.
+SMP, BMP, AMP. These platforms can be evaluated on their performance and scalability, but also on how successful they are at assisting sellers with anonymizing datasets and with helping buyers specify their WTP-functions. In addition, we think there are interesting systems-research opportunities to speed up the execution of market rules by using caching, memoization, and other techniques.
+7. SOCIETAL IMPACT OF DATA MARKETS
+The side eﬀects of data markets span beyond computer science and economics. We plan to engage with the broader community of scholars at The University of Chicago and
+
+elsewhere to discuss and outline the challenges of data markets in a broader societal context. We outline some interesting aspects below.
+7.1 Economic Opportunities
+A well-functioning market generates economic opportunities for other players besides sellers and buyers:
+Arbitrageurs. They play seller and buyer at the same time. Arbitrageurs buy certain datasets, transform them, perhaps combining them with certain information they possess, and sell them again to the market. The transaction generates a proﬁt for them whenever the sold dataset is priced higher than the dataset they buy. Since we want to design mechanisms that price datasets based on supply and demand, it is conceivable that the participation of arbitrageurs in the market will rise dataâĂŹs value, because they will be incentivized to transform datasets into a shape that is desired by buyers.
+Opportunistic data seller. Opportunistic data sellers may not own data, but they have time that they are willing to invest in collecting high-demand datasets. They obtain information about highly demanded datasets from the arbiter. For example, consider one more time the example of the introduction with the two sellers and the buyer. Consider a third seller, Seller 3, who does not own any dataset, but has time, and is willing to use that time to acquire/ﬁnd data for proﬁt. Because the arbiter knows that b1 would beneﬁt from attribute < e >, which neither s1 nor s2 contain, the arbiter can ask Seller 3 to obtain a dataset s3 =< e > for money. Because the arbiter knows supply and demand, not only does it help sellers and buyers, but it creates an ecosystem of economic opportunities for other entities.
+Oﬄoading tasks. As discussed above, when the arbiter does not know how to automatically assemble a mashup, it can schedule humans to help with the task and compensates them appropriately for their labor.
+Data Insurance. Once data has a value and a price, it is possible to build an insurance market around it. Such an insurance market would be useful to reason about data breaches, for example. How liable is a company that suffers a data breach that results in leaking private customer information? Or, if a seller shares a dataset that is later deanonymized by a third party, despite the best eﬀorts from the arbiter to anonymize it, who is liable? Can/Should insurance cover these cases?
+7.2 Legal and Ethical Dimension
+Who owns a dataset? Throughout this paper, we have assumed that sellers owned the data they were sharing with the arbiter. Consider a seller who has collected a dataset through their manual eﬀort and skill. In this case, does the seller own such a dataset? What if the records in the dataset correspond to users interacting with a service the seller has created? Do those users own part of the data too? A recent article from the New York Times [46] has illustrated in glaring detail how it is possible to determine with high precision the location of individuals and their daily activities from smartphone data traces. The data that permits that is routinely collected and sold by companies that proﬁt from it. This leads to questions around what data is legal to possess, what does it mean to own data, and when it should be possible to trade data.
+
+10
+
+Market Failures. Markets sometimes fail and cause social havoc. Other times, markets work only for a few, causing or accentuating existing inequality. All markets are susceptible to these kinds of problems, including the ones we envision in this paper. The diﬀerence is that we havenâĂŹt implemented our market yet, so we have a chance to study beforehand what the consequences of malfunctioning markets on society is and decide whether the tradeoﬀs are worth it. Forecasting the implications of diﬀerent market designs is a key aspect of our vision; hence the simulation framework introduced in the previous section.
+8. RELATED WORK
+We propose the ﬁrst comprehensive vision of end-to-end data market platforms that considers all players involved and makes an explicit separation between design and implementation (DMMS). We structure this section to explain how other work relates to our vision. We start with a discussion of data markets (Section 8.1) and then focus on work related to the DMMS and the Mashup Builder in Section 8.2.
+8.1 Market Design Taxonomy
+In order to ease the discussion of the related work, we explain four properties of data markets we justiﬁed in this paper are necessary. We then divide the related work into blocks and discuss them with respect to these properties. We have summarized this discussion in Table 1. The four properties we consider here are:
+• P1. Data-Enhancing: The arbiter is an active party that matches supply and demand by creating mashups adjusted to buyers’ needs.
+• P2. Plug-n-Play Market Rules: The market rules can be adjusted to diﬀerent goals and constraints.
+• P3. Incentive-Compatible: The market is designed so that buyers and sellers are incentivized to not game the system.
+• P4. Reward-Compatible: Reward high-value data, including data that is carefully curated and documented.
+Existing Marketplaces of data. Today’s marketplaces of data do not fulﬁll any of properties P1, P2, P3 or P4. We use Dawex [19] as a representative of these markets which include OnAudience.com [48], BIG.Exchange [10], BuySellAds [11] for ad data, as well Qlik Datamarket [51], Xignite [66], WorldQuant [65], DataBroker DAO [17], Snowﬂake’s Data Exchange [56], among others. In Dawex sellers oﬀer datasets that are sold as-is. Dawex facilitates in this way the sharing of datasets. Buyers, however, still need to perform a discovery stage and an integration stage, where buyers must adapt the datasets to the format they need. The Dawex platform acts as a broker. It enables transactions but does not help with the discovery and integration problems, unlike the markets we envision. In particular, the arbiter does not combine datasets to fulﬁll the buyers’ needs. Buyers have an interface to explore a sample of the dataset they want to purchase, but they need to commit and pay the price for the dataset before truly knowing how valuable the dataset is for them. This is characteristic of today’s online marketplaces that have been built with a focus on sharing and not discovering and integrating.
+Academic Market Designs. In the marketplace for data proposal [2], buyers with an ML prediction task request a
+
+dataset from the market. Given a combination of training data from multiple sellers, the work uses the Shapley value [55] to allocate revenue to sellers. The model considers one single buyer at one point in time. Like in our model, buyers only pay for datasets that are guaranteed to achieve certain quality on an ML task. This work assumes (P1) is solved without giving a solution (that’s not its focus), it considers one ﬁxed market goal (P2) and designs mechanisms for that scenario. This proposal focuses on the market modeling and it does not explain how to implement the ideas in software, but it showcases many of the challenges we have outlined here related to the design of incentive-compatible mechanisms to govern the participation of participants.
+Incentive-Compatible. A number of papers have focused on a speciﬁc problem: how to allocate revenue to multiple sellers that have contributed to a dataset (typically a training dataset) given a price for that dataset. They have used the Shapley value [55] to determine the ’value’ of each datum, and hence the total contribution of each seller [2,28,33]. The contributions of this work center around how to compute the Shapley value eﬃciently. While the algorithmic marketplace deals with the problem of data replicability, the other works do not. These lines of work is concerned with (P3), but none of (P1, P2, P4).
+Query Pricing. There is a long and principled line of work coming from the database community around the problem of how to price queries [13, 15, 36, 37]. In this setting, a dataset has a set price. The problem is how to price relational queries on that dataset in such a way that arbitrage opportunities (obtaining the same data through a diﬀerent and cheaper combination of queries) are not possible. This line of work is concerned with (P3). Recent work in this line [13] also considers how to maximize revenue for the broker under the same pricing model as above. If all datasets of a market are thought of as views over a single relation, then the setting of this work resembles ours. However, many data integration tasks require arbitrary data transformations, and many buyers want to buy fused datasets that contain diverging opinions, for example. This line of work is complementary to our vision and we plan to include these ideas as part of our design.
+Value of Data. Some work has focused on the explicit question of how to value data. For example, in [7, 34] the authors consider what’s the impact of intrinsic properties of data (e.g., sparsity, number of features) for a given ﬁxed prediction task. This line of work is complementary to ours and is interesting as a way of understanding the impact of intrinsic properties. It cannot replace our extrinsic way of pricing data, because the same dataset could be used for many tasks, i.e., other than a prediction task. It can, however, inform how buyers may perceive diﬀerent intrinsic properties and help with communicating to sellers those needs.
+Privacy-Value Connection. This line of work makes a connection between data value and privacy [13, 15, 37]. The buyer can specify a level of privacy associated with a query, in such a way that the higher the privacy level, the less the dataset is perturbed, meaning the dataset will be of higher quality. Therefore, the higher the privacy level, the higher the price of the dataset.
+A key deﬁning feature of our vision is that we make the explicit link between market design and software platform (DMMS), hence providing an end-to-end market environ-
+
+11
+
+Reference \Property
+Algorithmic [2] Feature-based Valuation [7] Sparseness-based Valuation [34] Shapley on Data Points [28]
+Shapley for KNN [33] Model-based Query Pricing [15] Max-Revenue Query Pricing [13]
+Plain Query Pricing [36] Privacy-based Query Pricing [37]
+Dawex [19]
+
+Data-Enhancing 
+ 
+
+Plug-n-Play Market Rules
+
+ 
+
+Incentive-Compatible
+  
+
+Reward-Compatible
+   
+   
+
+Table 1: Summary of data market properties. Rows show the name with which we refer to the speciﬁc work. Columns refer to 4 properties useful to contextualize the related work.
+
+ment. End-to-end means we must consider rules that anticipate the behavior of all players, as opposed to rules that apply to only narrow situations—how to perform revenue allocation once the price has been set, how to price features when the task is known to be an ML classiﬁcation task, etc.
+8.2 DMMS Related Work
+The DMMS platform presents many new challenges. One of the more challenging and ambitious components is the Mashup Builder. This module directly builds upon the rich work in the theory, algorithms, and systems for data sharing, discovery, and integration. We explain the relationships of some of the relevant work in each category here.
+Data Sharing Platforms. The datahub system [9] introduced a data version control system implemented on a software platform that allows members of a team to collaborate. OrpheusDB [67] similarly oﬀers teams the ability to collaborate over a relational system and capture how data evolves. In addition to these systems in the database community, many approaches in the library and information science community also deal with issues of data sharing. Systems such as TIND [59], KOHA [35], as well as online repositories such as the Harvard Dataverse [18] or the ICPSR [31] at the University of Michigan, geared towards sharing data across the social sciences.
+Data Discovery. Data discovery systems such as Infogather [68], Google Goods [30] and Dataset search [29], deﬁne a speciﬁc task and focus on how to build indexes to solve that task. There is also a line of work on data catalogs, with Amundsen [5], WhereHows [64], Databook [16] as open-source examples and Alation [3], Azure’s data catalog [6], and Informatica’s data catalog [32] as some commercial examples. A more general approach to data discovery is Aurum [12], which provides most of the functionality required to implement the systems above.
+Data Integration. Relevant work in data integration for the mashup builder is query reverse engineering [58, 60], as well as query-by-example and spreadsheet-style interfaces to data integration such as S4 [50]. Modern data integration systems such as Civilizer [52] and BigGorilla [14] assume the existence and participation of a human expert that needs to build DAGs of integration operators during the integration activity. We borrowed the term data mashup from the Yahoo Pipes system [49]. Related to creating mashups given many diﬀerent datasets, some work [22] has studied the diminishing returns of integrating datasets.
+
+Data Fusion and Truth Discovery. Data fusion refers to the ability to combine multiple sources of information to improve the quality of the end result. In the context of our vision, we consider data fusion operators that permit combining multiple (possibly diverging) datasets and oﬀer the result to users. This can be useful, among others, for truth discovery [39]: the process of identifying the real value for a speciﬁc variable. The database community has contributed results to these areas [21, 38, 40, 57]. We are building on top of this existing work to inform the design of fusion operators that can be incorporated into the architecture we explained in this paper.
+None of the work above has the goal of incentivizing users and buyers to solve the information-incentive problems that the markets we propose in this paper tackle. At the same time, all the work above is relevant to build the mashup builder, which is one piece of the larger class of DMMS systems we envision.
+9. DISCUSSION
+In this paper, we presented a vision for data market platforms that focus on the problems of data sharing, discovery, and integration. These problems are the main hurdle many organizations today face to extract value from data, and therefore, our vision has the potential impact of democratizing data.
+Understanding data. While data and artiﬁcial intelligence are driving many changes to our economic, social, political, ﬁnancial, and legal systems, we know surprisingly little about their foundations and governing dynamics. Furthermore, to an extent unseen in previous economic upheavals, the rapid pace of technological and social innovation is straining the ability of policy and economic practice to keep up. Moreover, while the recombination and integration of diverse data creates vast new value, we currently have neither theory for how data can be combined nor industrial policy for how to protect against the personal exposures and abuses that grow in proportion. We remain stuck with old models for understanding these new phenomena and antiquated heuristics for making decisions in the face of change. We think that the data markets we propose are a vehicle to initiate the study of theory, policy, and mechanism design to address this challenge.
+We expect that the insights, algorithms, and systems that will be produced as a consequence of this research will inform the design of future data market platforms. We expect
+
+12
+
+that the diﬀerent systems, simulators, and approaches pro-
+
+[20] J. Devlin, M.-W. Chang, K. Lee, and K. Toutanova.
+
+posed here will pose interesting new lines of research for the
+
+Bert: Pre-training of deep bidirectional transformers
+
+database community.
+
+for language understanding. arXiv preprint
+
+arXiv:1810.04805, 2018.
+
+10. REFERENCES
+
+[21] X. L. Dong, L. Berti-Equille, and D. Srivastava.
+
+[1] About the ad auction, google.
+
+Integrating conﬂicting data: The role of source
+
+https://support.google.com/adsense/answer/160525?hl=en.
+
+dependence. Proc. VLDB Endow., 2(1):550âĂŞ561,
+
+[2] A. Agarwal, M. Dahleh, and T. Sarkar. A marketplace
+
+Aug. 2009.
+
+for data: An algorithmic solution. In Proceedings of the 2019 ACM Conference on Economics and Computation, EC ’19, pages 701–726, New York, NY, USA, 2019. ACM.
+[3] Alation Data Catalog: A Single Source of Reference.
+
+[22] X. L. Dong, B. Saha, and D. Srivastava. Less is more: selecting sources wisely for integration. In Proceedings of the 39th international conference on Very Large Data Bases, PVLDB’13, pages 37–48. VLDB Endowment, 2013.
+
+https://www.alation.com/.
+
+[23] C. Dwork and A. Roth. The algorithmic foundations
+
+[4] R. Alur, R. Singh, D. Fisman, and A. Solar-Lezama.
+
+of diﬀerential privacy. Found. Trends Theor. Comput.
+
+Search-based program synthesis. Commun. ACM,
+
+Sci., 9(3&#8211;4):211–407, Aug. 2014.
+
+61(12):84âĂŞ93, Nov. 2018.
+
+[24] R. C. Fernandez, N. Tang, M. Ouzzani,
+
+[5] Amundsen âĂŤ lyftâĂŹs data discovery & metadata
+
+M. Stonebraker, and S. Madden. Dataset-on-demand:
+
+engine. https://eng.lyft.com/amundsen-lyfts-data-
+
+Automatic view search and presentation for data
+
+discovery-metadata-engine-62d27254fbb9.
+
+discovery, 2019.
+
+[6] Microsoft Azure-Data Catalog: Get more value from
+
+[25] M. J. Franklin, D. Kossmann, T. Kraska, S. Ramesh,
+
+your enterprise data assets. https://azure.microsoft.com/en-us/services/data-
+
+and R. Xin. Crowddb: Answering queries with crowdsourcing. In Proceedings of the 2011 ACM
+
+catalog/.
+
+SIGMOD International Conference on Management of
+
+[7] P. Bajari, V. Chernozhukov, A. HortaÃğsu, and
+
+Data, SIGMOD âĂŹ11, page 61âĂŞ72, New York,
+
+J. Suzuki. The impact of big data on ﬁrm
+
+NY, USA, 2011. Association for Computing
+
+performance: An empirical investigation. Working
+
+Machinery.
+
+Paper 24334, National Bureau of Economic Research,
+
+[26] M. J. Franklin, B. Trushkowsky, P. Sarkar, and
+
+February 2018.
+
+T. Kraska. Crowdsourced enumeration queries. In
+
+[8] R. Beck, J. Stenum Czepluch, N. Lollike, and
+
+Proceedings of the 2013 IEEE International
+
+S. Malone. Blockchain–the gateway to trust-free
+
+Conference on Data Engineering (ICDE 2013), ICDE
+
+cryptographic transactions. 2016.
+
+âĂŹ13, page 673âĂŞ684, USA, 2013. IEEE Computer
+
+[9] A. Bhardwaj, A. Deshpande, A. J. Elmore, D. Karger,
+
+Society.
+
+S. Madden, A. Parameswaran, H. Subramanyam,
+
+[27] C. Gentry and D. Boneh. A fully homomorphic
+
+E. Wu, and R. Zhang. Collaborative data analytics
+
+encryption scheme, volume 20. Stanford University
+
+with datahub. Proc. VLDB Endow., 8(12):1916–1919,
+
+Stanford, 2009.
+
+Aug. 2015.
+
+[28] A. Ghorbani and J. Zou. Data shapley: Equitable
+
+[10] Big.exchange. https://big.exchange.
+
+valuation of data for machine learning, 2019.
+
+[11] Buysellads. https://www.buysellads.com.
+
+[29] Google dataset search.
+
+[12] R. Castro Fernandez, Z. Abedjan, F. Koko, G. Yuan,
+
+https://toolbox.google.com/datasetsearch.
+
+S. Madden, and M. Stonebraker. Aurum: A data
+
+[30] A. Halevy et al. Goods: Organizing Google’s Datasets.
+
+discovery system. In 2018 IEEE 34th International
+
+In SIGMOD, 2016.
+
+Conference on Data Engineering (ICDE), pages
+
+[31] ICPSR: Sharing data to advance science.
+
+1001–1012, April 2018.
+
+https://www.icpsr.umich.edu/icpsrweb/.
+
+[13] S. Chawla, S. Deep, P. Koutrisw, and Y. Teng.
+
+[32] Informatica-Enterprise Data Catalog: Discover and
+
+Revenue maximization for query pricing. Proc. VLDB
+
+inventory data assets across your organization.
+
+Endow., 13(1):1–14, Sept. 2019.
+
+https://www.informatica.com/products/data-
+
+[14] C. Chen, B. Golshan, A. Y. Halevy, W. C. Tan, and
+
+catalog/enterprise-data-catalog.html.
+
+A. Doan. Biggorilla: An open-source ecosystem for
+
+[33] R. Jia, D. Dao, B. Wang, F. A. Hubis, N. M. Gurel,
+
+data preparation and integration. IEEE Data Eng.
+
+B. Li, C. Zhang, C. Spanos, and D. Song. Eﬃcient
+
+Bull., 41:10–22, 2018.
+
+task-speciﬁc data valuation for nearest neighbor
+
+[15] L. Chen, P. Koutris, and A. Kumar. Towards
+
+algorithms. Proc. VLDB Endow., 12(11):1610–1623,
+
+model-based pricing for machine learning in a data
+
+July 2019.
+
+marketplace. In Proceedings of the 2019 International
+
+[34] E. JunquÃľ de Fortuny, D. Martens, and F. Provost.
+
+Conference on Management of Data, SIGMOD ’19, pages 1535–1552, New York, NY, USA, 2019. ACM.
+
+Predictive modeling with big data: Is bigger really better? Big Data, 1(4):215–226, 2013. PMID:
+
+[16] Databook: Turning Big Data into Knowledge with
+
+27447254.
+
+Metadata at Uber. https://eng.uber.com/databook/.
+
+[35] Koha library software. https://koha-community.org/.
+
+[17] Databroker dao. https://databrokerdao.com/.
+
+[36] P. Koutris, P. Upadhyaya, M. Balazinska, B. Howe,
+
+[18] Harvard dataverse. https://dataverse.harvard.edu/. [19] Dawex: Sell, buy and share data.
+https://www.dawex.com/en/.
+
+and D. Suciu. Query-based data pricing. J. ACM, 62(5):43:1–43:44, Nov. 2015.
+
+13
+
+[37] C. Li, D. Y. Li, G. Miklau, and D. Suciu. A theory of
+
+for data preparation and analytics. Proc. VLDB
+
+pricing private data. ACM Trans. Database Syst.,
+
+Endow., 12(12):1954–1957, Aug. 2019.
+
+39(4):34:1–34:28, Dec. 2014.
+
+[53] P. A. Samuelson. Foundation of economic analysis.
+
+[38] X. Li, X. L. Dong, K. Lyons, W. Meng, and
+
+Harvard Economic Studies, 1947.
+
+D. Srivastava. Truth ﬁnding on the deep web: Is the
+
+[54] B. Sarwar, G. Karypis, J. Konstan, and J. Riedl.
+
+problem solved? Proc. VLDB Endow., 6(2):97âĂŞ108, Dec. 2012.
+
+Item-based collaborative ﬁltering recommendation algorithms. In Proceedings of the 10th International
+
+[39] Y. Li, J. Gao, C. Meng, Q. Li, L. Su, B. Zhao,
+
+Conference on World Wide Web, WWW ’01, pages
+
+W. Fan, and J. Han. A survey on truth discovery.
+
+285–295, New York, NY, USA, 2001. ACM.
+
+SIGKDD Explor. Newsl., 17(2):1âĂŞ16, Feb. 2016.
+
+[55] L. S. Shapley. A value for n-person games. Santa
+
+[40] X. Lin and L. Chen. Domain-aware multi-truth
+
+Monica, CA: RAND Corporation, 1952.
+
+discovery from conﬂicting sources. Proc. VLDB
+
+[56] Snowﬂake’s data exchange.
+
+Endow., 11(5):635âĂŞ647, Jan. 2018.
+
+https://www.snowﬂake.com/data-exchange/.
+
+[41] R. P. McAfee. A dominant strategy double auction.
+
+[57] D. Srivastava and X. L. Dong. Big data integration. In
+
+Journal of economic Theory, 56(2):434–450, 1992.
+
+Proceedings of the 2013 IEEE International
+
+[42] R. B. Myerson. Optimal auction design. Math. Oper. Res., 6(1):58–73, Feb. 1981.
+[43] S. Nakamoto. Bitcoin: A peer-to-peer electronic cash system, 2009.
+[44] A. Narayanan and V. Shmatikov. Robust de-anonymization of large sparse datasets. In Proceedings of the 2008 IEEE Symposium on Security and Privacy, SP ’08, pages 111–125, Washington, DC,
+
+Conference on Data Engineering (ICDE 2013), ICDE ’13, pages 1245–1248, Washington, DC, USA, 2013. IEEE Computer Society.
+[58] W. C. Tan, M. Zhang, H. Elmeleegy, and D. Srivastava. Reverse engineering aggregation queries. Proc. VLDB Endow., 10(11):1394–1405, Aug. 2017.
+[59] Tind - reimagining library technology. https://tind.io/.
+
+USA, 2008. IEEE Computer Society.
+
+[60] Q. T. Tran, C.-Y. Chan, and S. Parthasarathy. Query
+
+[45] N. Nisan, T. Roughgarden, E. Tardos, and V. V. Vazirani. Algorithmic Game Theory. Cambridge
+
+reverse engineering. The VLDB Journal, 23(5):721–746, Oct. 2014.
+
+University Press, New York, NY, USA, 2007.
+
+[61] A. Tsymbal. The problem of concept drift: deﬁnitions
+
+[46] One nation, tracked.
+
+and related work. Computer Science Department,
+
+https://www.nytimes.com/interactive/2019/12/19/opinion/locatiTonri-nity College Dublin, 106(2):58, 2004.
+
+tracking-cell-phone.html.
+
+[62] H. R. Varian. Versioning information goods, 1997.
+
+[47] The world’s most valuable resource is no longer oil,
+
+[63] Versioning: The smart way to sell information.
+
+but data.
+
+https://hbr.org/1998/11/versioning-the-smart-way-to-
+
+https://www.economist.com/leaders/2017/05/06/the-
+
+sell-information.
+
+worlds-most-valuable-resource-is-no-longer-oil-but-
+
+[64] WhereHows: Data Discovery and Lineage for Big Data
+
+data.
+
+Ecosystem. https://github.com/linkedin/WhereHows.
+
+[48] Onaudience.com. https://www.onaudience.com.
+
+[65] Worldquant. https://data.worldquant.com.
+
+[49] Re-Live Yahoo Pipes: Get and Manipulate Data From
+
+[66] Xignite.
+
+the Open Web by Connecting Blocks.
+
+https://aws.amazon.com/solutionspace/ﬁnancial-
+
+https://www.pipes.digital/.
+
+services/solutions/xignite-market-data-cloud-
+
+[50] F. Psallidas, B. Ding, K. Chakrabarti, and
+
+platform/.
+
+S. Chaudhuri. S4: Top-k spreadsheet-style search for
+
+[67] L. Xu, S. Huang, S. Hui, A. J. Elmore, and
+
+query discovery. In Proceedings of the 2015 ACM
+
+A. Parameswaran. Orpheusdb: A lightweight
+
+SIGMOD International Conference on Management of
+
+approach to relational dataset versioning. In
+
+Data, SIGMOD ’15, pages 2001–2016, New York, NY,
+
+Proceedings of the 2017 ACM International
+
+USA, 2015. ACM.
+
+Conference on Management of Data, SIGMOD ’17,
+
+[51] Qlik datamarket.
+
+pages 1655–1658, New York, NY, USA, 2017. ACM.
+
+https://www.qlik.com/us/products/qlik-data-market.
+
+[68] M. Yakout et al. InfoGather: Entity Augmentation
+
+[52] E. K. Rezig, L. Cao, M. Stonebraker, G. Simonini,
+
+and Attribute Discovery by Holistic Matching with
+
+W. Tao, S. Madden, M. Ouzzani, N. Tang, and A. K.
+
+Web Tables. In SIGMOD, 2012.
+
+Elmagarmid. Data civilizer 2.0: A holistic framework
+
+14
+

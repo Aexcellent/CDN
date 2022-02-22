@@ -1,0 +1,89 @@
+arXiv:1905.06462v1 [cs.CY] 14 May 2019
+
+Data Markets to support AI for All: Pricing, Valuation and Governance
+Ramesh Raskar, Praneeth Vepakomma, Tristan Swedish, Aalekh Sharan* Massachusetts Institute of Technology Cambridge, MA 02139, USA
+{raskar,vepakom,tswedish}@mit.edu
+1 Introduction
+We discuss a data market technique based on intrinsic (relevance and uniqueness) as well as extrinsic value (inﬂuenced by supply and demand) of data. For intrinsic value, we explain how to perform valuation of data in absolute terms (i.e just by itself), or relatively (i.e in comparison to multiple datasets) or in conditional terms (i.e valuating new data given currently existing data).
+2 Motivation for creating Data Markets
+AI will beneﬁt from Liquid Markets: Data is increasingly concentrated in large ﬁrms. For startups, and small organizations it is increasingly difﬁcult to compete as the lack of availability of data can stymie any and all efforts to build better machine learning algorithms. Algorithmic capability indeed increases with the availability and quality of data. One way to tackle this is the marketplace approach. By creating conditions such that data, the raw material for AI, can be bought and sold with security, privacy and consent safeguarded, specialized niches will be created and ﬁrms will be able to tackle a smaller subset of the problem. A precondition for this large scale collaboration to occur is the existence of liquid markets at various steps of the value chain.
+Example: Consider a diagnostic healthcare company aiming to do an acquisition of labeled X-ray images from various hospitals for developing state of the art diagnostics. The key problem in such a setting is: “How can value of datasets from each hospital be estimated to decide their price?” The data for some hospitals can belong to unique health traits and demographics and can be very valuable for the diagnostic use-case of the company while data from some other hospitals may be of a relatively much lower value. A key problem therefore is that obtaining large amounts of diverse, yet useful data costs a lot of resources. There are also diminishing returns at some point when additional data does not improve the capabilities of the algorithm, if additional data is not acquired intelligently in a cost-effective manner.
+1
+
+3 Data Valuation for AI
+Absolute, relative or conditional data purchase: Another required facet to setting up a data market is to build a capability to perform valuation of data in absolute terms (i.e just by itself), or relatively (i.e in comparison to multiple datasets) or in conditional terms (i.e valuating new data given currently existing data).
+Intrinsic or extrinsic data valuation: Any of these data valuation use-cases can be performed via intrinsic factors of evaluation such as based on quality of information within the dataset or via extrinsic factors of evaluation such as based on demand-supply, market economics, game theoretic mechanisms and speculative market forces or via a combination of both as in (Balazinska et al., 2013; Deep and Koutris, 2017; Koutris et al., 2015, 2013; Li et al., 2014; Zheng et al., 2017a, 2019, 2017b).
+Goal dependent or independent data trading: An additional slicing to this problem includes goal speciﬁc or goal independent data valuation depending on whether there is a speciﬁc well-deﬁned goal for the data purchase or if it is exploratory by design for a goal that is currently undeﬁned; but would be drafted later on.
+Horizontal or vertical data acquisition: In addition to all these situations of data valuation, yet another categorization is based on whether the data acuiqition is being done vertically (in terms of acquiring attributes/columns) or horizontally (acquiring records/rows) as in(Ghorbani and Zou, 2019; Jia et al., 2019). This terminology of ’vertical partitioning’ and ’horizontal partitioning’ extends from the databases as well as distributed systems research communities.
+Figure 1: Data market showing data providers, data customers, notions of market basket and data pricing
+Privacy aware data valuation: Ideally such a data valuation needs to be acheived by looking at as few records per data source as possible or via privacy aware AI (Gupta and Raskar, 2018; Vepakomma et al., 2018a, 2019, 2018b). Pooling of all data at a centralized location defeats the central purpose and the data sharing constraints of pri-
+2
+
+vacy, security, safety, fairness and resource efﬁciency need to be kept in consideration with regards to a data valuation solution for data markets.
+Relevance and diversity of data acquisition: An optimal data purchase under these constraints needs to cater to high utility and low redundancy (high diversity) of data in terms of incremental beneﬁt obtained. There is often a tradeoff of utility vs. diversity of data that needs to be considered in realistic settings. This concept has been the guding principle for techniques like sure independence screening (SIS) and conditional sure independence screening (Barut, Fan, and Verhasselt, 2016; Fan and Lv, 2008; Zhong and Zhu, 2015) currently actively being studied in the ﬁeld of statistics and in min redundancy max relevance (mRMR) Peng, Long, and Ding, 2005 in the ﬁeld of data mining, during the precursory periods of current day AI and machine learning.
+As shown in Figure 1, a robust data valuation acts as a good input for data pricing as well as for building an optimal market basket of data for every data consumer.
+The intent of sharing these possibilities is to motivate further discussion and research. We summarize some of these points with regards to data valuation in the context of data markets as shown below:
+Figure 2: Landscape of data valuation problems for data markets
+4 Data is very complex to price
+The value of an incremental unit of data is also conditionally dependent on data already possessed by the prospective data buyer entity that is valuating it. This is because one would like to obtain relevant yet diverse data from what is already available in-house. In addition, data can be acquired for performing either a similar or a more diverse task in comparison to the current use-cases being applied on data that is already available in-house. Also, there are so many archetypes that it is difﬁcult to ﬁnd a proxy variable (like weight or number in the case of other goods) that can be used to deﬁne the data. Since seamless discovery and a small spread in price is essential for a marketplace to function well, it has been challenging thus far to create a functioning data marketplace.
+3
+
+A thorough data pricing startegy needs to adhere to the following guiding principles.
+Data Pricing Guidelines
+1. Liquidity: models freshness of dat in terms of value vs diminished/increased value over time
+2. Traceability: can be only ‘sold’ once, or sold non-exclusively
+3. Consent: maintains privacy of owner, tracks consent over time, and reduces friction with smart contracts or data concierges.
+4. Neutrality: accessible to all buyers to prevent unfair trading practices. Otherwise, it would encourage some players (be it large or small) to unfairly price out the rest of prospective buyers during the trading.
+5. Recourse: Allows for calling back, provides right to be forgotten, allows for some course correction, broadly remains self-sustaining.
+5 Data sharing challenges that data markets need to address
+Although acquiring the right amount of quality data is ideal, data sharing is heavily impeded by friction caused by lack of trust, data sharing regulations such as HIPAA/GDPR, lack of ease and lack of incentive. We further expand on these factors that cause data friction.
+1. Lack of incentives:
+(a) Large organizations need incentive mechanisms to share data with small players. For example, an incentive for data sharing between large centralized hospitals and local clinics, testing centers could be to foster better provision of health.
+(b) Big tech players have taken a lead and are rapidly collecting and hoarding data while monopolizing the data resources and are preventing small players from entering into data acquisition. This stiﬂes innovation.
+(c) Individuals need incentives to share their data as they happen to generate and own tremendous amount of data on a daily basis. But this leads to the burden of consent management which is too complex to manage granularly across different modalities, time horizons, and trust-levels in data buyers.
+(d) Governments and non-proﬁt are often not allowed to sell data for monetary gains .
+2. Lack of ease of sharing data: Due to lack of automated processes, digitization, access to data pre-processing pipelines, compatible data schemas, lack of standardization across data sources and other forms of siloing of socially beneﬁcial data; seamless data sharing is restricted. To summarize, these factors include:
+4
+
+(a) Lack of digitization and lack of use cases (b) Lack of data standardization across multiple sources (c) Collection of data currently will likely cost more than market price of data (d) Socially beneﬁcial good data is locked away (e.g. with government, non-
+proﬁts, hospitals, remote sensing data)
+3. Lack of trust: Data sharing can also be impeded by the factors of market forces, need for maintaining trade secrets, competitive economy that impedes trust, fear of losing control and accountability over future usage of data for adversarial purposes. To summarize, these factors include cases when:
+(a) Data owner does not trust what the buyer will do with data in a competing environment
+(b) Data indirectly contains trade secrets of the data owner (c) Fear of adversarial future usage of shared data
+4. Regulations: Data sharing is regulated for privacy, security, fairness and safety and therefore any data transactions for performing basic data analysis or for any advanced AI/ML usecases has to be aware of these constraints and be able to safely circumvent these friction points while also maintaining compliance with the law. To summarize:
+(a) In sectors such as health, ﬁnance and cybersecurity that are tightly governed by local, federal and international data sharing regulations such as HIPAA, GDPR, COX, PCI, SHIELD, we need a new strategy for safe data sharing.
+(b) Policies for inter as well as intra organizational data sharing have to be adhered to.
+(c) The origination of data may have country speciﬁc regulations on usage. Therefore international regulations need to be adhered to with respect to both the data provider as well as the data consumer.
+(d) There are policies where data cannot physically leave the premises of the data owners.
+6 Governance and encouragement for a data market ecosystem
+In addition from the perspective of governance, the following would be key to support the setup as well as to sustain a good ecosystem for data markets Sharan, 2018.
+(a) Need to support technological solution vs market solution vs policy-driven solutions.
+5
+
+(b) Data governance policies by undertaking a study of changes needed in existing legal/regulatory frameworks.
+(c) Standardization of data sharing (d) Setting up national ‘nodes’ of servers for data exchange (like stock ex-
+changes) (e) ‘Clean Data’ credits like ‘clear air’ carbon credits (f) Treat data as labor (it’s from activity, that creates value) (g) Ethics and bias: self certiﬁcation as well as audits
+References
+[1] Magdalena Balazinska et al. “A discussion on pricing relational data”. In: In Search of Elegance in the Theory and Practice of Computation. Springer, 2013, pp. 167–173.
+[2] Emre Barut, Jianqing Fan, and Anneleen Verhasselt. “Conditional sure independence screening”. In: Journal of the American Statistical Association 111.515 (2016), pp. 1266–1277.
+[3] Shaleen Deep and Paraschos Koutris. “QIRANA: A framework for scalable query pricing”. In: Proceedings of the 2017 ACM International Conference on Management of Data. ACM. 2017, pp. 699–713.
+[4] Jianqing Fan and Jinchi Lv. “Sure independence screening for ultrahigh dimensional feature space”. In: Journal of the Royal Statistical Society: Series B (Statistical Methodology) 70.5 (2008), pp. 849–911.
+[5] Amirata Ghorbani and James Zou. “Data Shapley: Equitable Valuation of Data for Machine Learning”. In: arXiv preprint arXiv:1904.02868 (2019).
+[6] Otkrist Gupta and Ramesh Raskar. “Distributed learning of deep neural network over multiple agents”. In: Journal of Network and Computer Applications 116 (2018), pp. 1–8.
+[7] Ruoxi Jia et al. “Towards Efﬁcient Data Valuation Based on the Shapley Value”. In: arXiv preprint arXiv:1902.10275 (2019).
+[8] Paraschos Koutris et al. “Query-based data pricing”. In: Journal of the ACM (JACM) 62.5 (2015), p. 43.
+[9] Paraschos Koutris et al. “Toward practical query pricing with QueryMarket”. In: proceedings of the 2013 ACM SIGMOD international conference on management of data. ACM. 2013, pp. 613–624.
+[10] Chao Li et al. “A theory of pricing private data”. In: ACM Transactions on Database Systems (TODS) 39.4 (2014), p. 34.
+[11] Hanchuan Peng, Fuhui Long, and Chris Ding. “Feature selection based on mutual information: criteria of max-dependency, max-relevance, and min-redundancy”. In: IEEE Transactions on Pattern Analysis & Machine Intelligence 8 (2005), pp. 1226–1238.
+6
+
+[12] Aalekh Sharan. “Data Marketplace for AI”. In: NITI Aayog,”https://www. youtube.com/watch?v=TmhOSQppLgA” (2018).
+[13] Praneeth Vepakomma et al. “No Peek: A Survey of private distributed deep learning”. In: arXiv preprint arXiv:1812.03288 (2018).
+[14] Praneeth Vepakomma et al. “Reducing leakage in distributed deep learning for sensitive health data”. In: arXiv preprint arXiv:1812.00564 (2019).
+[15] Praneeth Vepakomma et al. “Split learning for health: Distributed deep learning without sharing raw patient data”. In: arXiv preprint arXiv:1812.00564 (2018).
+[16] Zhenzhe Zheng et al. “An online pricing mechanism for mobile crowdsensing data markets”. In: Proceedings of the 18th ACM International Symposium on Mobile Ad Hoc Networking and Computing. ACM. 2017, p. 26.
+[17] Zhenzhe Zheng et al. “ARETE: On Designing Joint Online Pricing and Reward Sharing Mechanisms for Mobile Data Markets”. In: IEEE Transactions on Mobile Computing (2019).
+[18] Zhenzhe Zheng et al. “Trading data in the crowd: Proﬁt-driven data acquisition for mobile crowdsensing”. In: IEEE Journal on Selected Areas in Communications 35.2 (2017), pp. 486–501.
+[19] Wei Zhong and Liping Zhu. “An iterative approach to distance correlation-based sure independence screening”. In: Journal of Statistical Computation and Simulation 85.11 (2015), pp. 2331–2345.
+7
+

@@ -1,0 +1,2086 @@
+This article has been accepted for publication in a future issue of this journal, but has not been fully edited. Content may change prior to final publication. Citation information: DOI 10.1109/ACCESS.2018.2845105, IEEE Access
+
+Accepted to IEEE ACCESS on 2018-05-24. Digital Object Identiﬁer 10.1109/ACCESS.2017.DOI
+
+Three hierarchical levels of Big-data Market Model over Multiple Data Sources for Internet of Things
+BUSIK JANG1 (Student Member, IEEE), SANGDON PARK2 (MEMBER, IEEE), JOOHYUNG LEE3 (MEMBER, IEEE), AND SANG-GEUN HAN1 (Member, IEEE).
+1Department of Mathematical Sciences, Korea Advanced Institute of Science and Technology, Daejeon 34141, South Korea 2Information and Electronics Research Institute, Korea Advanced Institute of Science and Technology, Daejeon 34141, South Korea 3Department of Software at Gachon University, Seongnam 461-701, South Korea
+Corresponding author: Sangdon Park (e-mail: sangdon.park@kaist.ac.kr) and Joohyung Lee (e-mail:j17.lee@gachon.ac.kr).
+“This research was supported by Basic Science Research Program through the National Research Foundation of Korea(NRF) funded by the Ministry of Education (NRF-2018R1D1A1B07050670) and the Ministry of Science & ICT (NRF-2018R1C1B6001849).”
+
+ABSTRACT This paper proposes three hierarchical levels of a competitive big-data market model. We consider that a service provider gathers data from multiple data sources and provides valuable information from reﬁned data as a service to its customers. Under our approach, a service provider determines optimal data procurement from multiple data sources within its budget constraint. The multiple data sources follow the service provider’s action by independently submitting bidding prices to the service provider. Further, customers decide whether to subscribe or not based on the subscription fee, their willingness-to-pay, and the quality of the reﬁned data. We study the economic beneﬁts of such a market model by analyzing the hierarchical decision making procedures as a Stackelberg game. We show the existence and the uniqueness of the Nash equilibrium (NE), and the NE solution is given as a closed form. Finally, we reveal that the obtained unique equilibrium solution maximizes the payoff of all market participants.
+INDEX TERMS Data Market, Internet of Things, Stackelberg Game, Industrial Informatics
+
+I. INTRODUCTION
+D UE to continuing developments in sensor technologies, inexpensive storage and processing capabilities, large or complex data sets from various sources (i.e., Internet of Things (IoT), social networks, and crowdsourcing), which are known as big-data, have witnessed an explosive increase [1], [2]. Using modern machine learning technologies [3], [4], such big-data should be cost-effectively collected [5]– [8] stored [9]–[14] and analyzed to extract valuable knowledge and information. For instance, valuable knowledge and information from big-data can be used to understand media content usage patterns in the media industry and pre-trade decision-support analytics in banking etc.
+These perspectives can be understood as showing that valuable information from big-data can be sold or provided to customers as a service that produces proﬁt [15]. This concept has been recently introduced as data-as-a-service (DaaS) [16]. Hence, to maximize the information value of collected data, various forms of data management problems have been studied in the literature taking into account characteristics of
+
+data, such as leakage problems, possibility of replication, and data exclusivity [17]–[21]. Nevertheless, due to the limited amount of data that can be collected from a single company, it is challenging to maximize the satisfaction of service users. Accordingly, it is obvious that, for optimal data management, the data market needs to embrace open data-trading.
+This concern has recently motivated studies of marketbased data trading model among market participants for the big-data era; such studies should enable a more effective utilization of data sources through the creation of a data market [3], [11], [22]–[29]. Speciﬁcally, various market structures for data trading such as a monopoly market, oligopoly market and single/double side auction market were introduced in [23]. The effect of bundling data to form a coalition of multiple service providers has been analyzed in [24]. This study reveals that a bundling strategy can attract more customers and achieve higher revenue. Lately, by considering competitive market models among multiple market participants, which can be modeled using a non-cooperative market model, analytic research has been suggested in [3], [28]. As a ﬁrst
+
+VOLUME 4, 2016
+
+1
+
+2169-3536 (c) 2018 IEEE. Translations and content mining are permitted for academic research only. Personal use is also permitted, but republication/redistribution requires IEEE permission. See http://www.ieee.org/publications_standards/publications/rights/index.html for more information.
+
+This article has been accepted for publication in a future issue of this journal, but has not been fully edited. Content may change prior to final publication. Citation information: DOI 10.1109/ACCESS.2018.2845105, IEEE Access
+Author et al.: Preparation of Papers for IEEE TRANSACTIONS and JOURNALS
+
+approach to designing a non-cooperative data trading market model, Niyato et al. in [3] modeled a simple market form that consists of the data source, service provider, and service customers, and designs their interactions. They separate the role of service provider and data source; the service provider purchases raw data from the data source, and then extracts useful information from the data, and ﬁnally provides it to customers. They assume that all collected data is stored in a single data source. Thus, there is no competition among data source providers and willingness-to-pay (WTP) of the customers is assumed to be uniform. As a work to extend [3], an auction based market model was proposed by Jiao et al. [28] under the same market structure as that used in [3]. In that study, customers bid a service fee to a service provider, and the service provider adopts an optimal bidding value to maximize its proﬁt. In this process, the service provider uses Bayesian-optimal mechanisms to optimize the data size and the unit price of the data.
+All previous works on competitive data trading market models have adopted single data source and analyzed interaction between service provider under single data source and customers. However, as suggested in [24], to design a competitive data trading market and maximize revenue from valuable information, bundling from multiple data sources should be considered. Hence, in this paper, we addresses a data trading problem in which a service provider gathers data from multiple data sources and provides valuable information from reﬁned data as a service to its customers. We consider that multiple data sources conduct a data bidding competition to maximize their own revenue by considering the budget suggested by the service provider. And, customers decide whether to subscribe or not based on the subscription fee, WTP, and the quality of the reﬁned data. Finally, three hierarchical levels of multiple data sources, a service provider and customers are modeled based on Stackelberg game theory. The contributions of this paper are summarized as follows:
+‚ This paper designs three hierarchical levels of a competitive data trading market model. Speciﬁcally, in order to resolve the limitation of previous works [3], we consider multiple data sources and a service provider that can gather data from multiple sources.
+‚ Under a budget constraint proposed by the service provider, optimal data procurement from multiple data sources is obtained by the proposed algorithm. In details, customers decide whether to subscribe or not based on the subscription fee, WTP, and the quality of the reﬁned data. The advantage of the proposed algorithm is that the service provider can estimate how much data will be collected in its budget constraint to maximize its beneﬁt.
+‚ The economic beneﬁts of this trading mechanism are studied by analyzing the decision-making procedures of the data source, the service provider and the customers. The problem is formulated as a non-cooperative Stackelberg game. The existence and the uniqueness
+2
+
+FIGURE 1: Three hierarchical levels of data market model with multiple data sources
+of the Nash equilibrium (NE) are shown, and a closed form solution of the NE is obtained. Also, we show that obtained unique equilibrium solution maximizes the payoff of all market participants. ‚ The proposed WTP of subscription is designed to be more realistically than in [3], [28]. In the previous works, WTP was assumed to be uniformly distributed. That is not only unrealistic, but also an example of very simple modeling, which is optimized at half of the maximum value of WTP. Here, we constructed the probability density function of the WTP to follow the log-normal distribution [30]. By adopting the realistic WTP, we can calculate the expected subscribers more practically.
+The rest of this paper is organized as follows. Section II presents an overview of our big-data market model and introduces some common notations. Section III formulates data trading between multiple data sources and service provider, and prove that there exists a unique NE. Section IV formulates the proﬁt function of the service provider and solves an optimization problem. Some numerical results are presented in Section V, and ﬁnally, this paper is concluded in Section VI.
+II. SYSTEM MODEL In this section, we present a data market model consisting of three groups that behave for their own beneﬁt: R data sources pDSiqRi“1, a single service provider, and C customers. The overall structure of our system model is described in Figure 1. In addition, since there are many newly deﬁned variables, we provide symbol tables in this paper in Table 1 for the convenience of the reader.
+The interaction between these three groups can be explained by the Stackelberg game model, which will be described in detail below. Moreover, we describe how the proposed model is improved over that used in previous works.
+In our data market model, there are two competitions and one optimization among these three groups. The ﬁrst competition is that within the group of the data sources. Each data source gathers raw data such as CCTV video data, weather data, GPS data and so on. Data sources compete
+VOLUME 4, 2016
+
+2169-3536 (c) 2018 IEEE. Translations and content mining are permitted for academic research only. Personal use is also permitted, but republication/redistribution requires IEEE permission. See http://www.ieee.org/publications_standards/publications/rights/index.html for more information.
+
+This article has been accepted for publication in a future issue of this journal, but has not been fully edited. Content may change prior to final publication. Citation information: DOI 10.1109/ACCESS.2018.2845105, IEEE Access
+Author et al.: Preparation of Papers for IEEE TRANSACTIONS and JOURNALS
+
+TABLE 1: Major symbols
+
+Symbol
+ni n bi B γi Ui s
+
+Deﬁnition
+Data bidding from DSi to SP Total sum of ni Revenue received by DSi Budget Weight factor of DSi Utility function of DSi Subscription fee for the service
+
+by bidding for their raw data simultaneously; this can be
+
+described as a normal form game. In other words, the data
+
+source DSi chooses a data bid without knowing the others'
+
+bids.
+
+The second competition is that between the data sources
+
+and the service provider. The service provider determines a
+
+budget
+
+B
+
+for
+
+obtaining
+
+raw
+
+data
+
+n
+
+“
+
+řR
+i“1
+
+ni
+
+from
+
+the
+
+data
+
+sources. On the other hand, each data source provides raw
+
+data to the service provider and, as a result, the revenue of
+
+each is determined. In this case, the service provider allocates
+
+the budget to the data sources proportionally. In other words,
+
+let the amount of data provided by DSi be the ni, the revenue bi is deﬁned as
+
+bi
+
+“
+
+ni řR
+j“1
+
+nj
+
+B.
+
+(1)
+
+Note that
+
+řR
+j“1
+
+nj
+
+implies an unit price of the data, and the
+
+B
+
+sum of all bi cannot exceed budget B.
+
+The last item is optimization from the perspective of the
+
+service provider, which it does to maximize its own proﬁt.
+
+The service provider acquires raw data from data sources, and
+
+performs data processing through the machine learning algo-
+
+rithm. Then, the service provider provides the reﬁned data
+
+to customers, and optimizes the budget B and subscription
+
+fee s. On the other hand, the customers decide whether to
+
+subscribe based on the subscription fee, WTP, and the quality
+
+of the reﬁned data.
+
+Now, with a ﬂow chart, we analyze how the proposed
+
+system model works in a sequential manner, and show that
+
+it can be modeled as a three hierarchical level one-leader-
+
+multiple-followers Stackelberg game. Prior to providing a
+
+description of our model, a one-leader-multiple-followers
+
+Stackelberg game model has one leader and multiple follow-
+
+ers. The leader can determine his strategy before the multiple
+
+followers choose their strategies; thus, he can predict the
+
+strategy to be chosen by the followers so that he has a
+
+favorable position to maximize his own interests. Then, con-
+
+sidering the leader’s chosen strategy, the followers compete
+
+with each other to choose strategies that maximize their own
+
+beneﬁt; the competition of followers is typically modeled as
+
+a strategic form game.
+
+First, through an algorithm that will be proposed in this
+
+paper, the service provider determines the budget B and sub-
+
+scription fee s that maximize its revenue. Here, the service
+
+VOLUME 4, 2016
+
+FIGURE 2: Three hierarchical levels of data market model with multiple data sources
+provider plays a role of leader in the Stackelberg game, since leader chooses its own best strategy, anticipating the data sources’ actions with WTP distribution. Next, the service provider informs the data sources of its determined budget B; then, the data sources compete with each other by proposing their raw data to the service provider to obatain budget B. Because they compete after the service provider’s decision, they play roles as followers in the Stackelberg game; and this competition can be modeled as a strategic form game. Now, the service provider distributes the budget to the data sources as a percentage of the data received, and reﬁnes the data to be sold to the customers. Subsequently, the customers decide to subscribe according to the subscription fee, WTP, and the quality of the data set by the service provider. The cycle of the proposed system model is shown in Fig 2.
+III. NASH EQUILIBRIUM ANALYSIS
+In this section, to prove the existence and uniqueness of NE, we focus on an analysis of the Stackelberg game in the proposed model. Note that each data source acts to maximize its cost-effectiveness, so we introduce a utility function to explain it mathematically. Before deﬁning the utility function, we assume commonly used conditions of the utility function: continuously differentiable, strict concavity. To deﬁne the utility function Ui for DSi, the input is of course ni, but the output has another factor to be considered together with (1). Even though each data source DSi receives bi as revenue, there is a risk of data leakage. Because data is easy to copy or disseminate, once data is leaked, the data will be inevitably devalued. Therefore, we denote γi as a weight factor to quantify the risk of the data leakage of DSi.
+Deﬁnition 1. For ﬁxed budget B, utility function of DSi is
+3
+
+2169-3536 (c) 2018 IEEE. Translations and content mining are permitted for academic research only. Personal use is also permitted, but republication/redistribution requires IEEE permission. See http://www.ieee.org/publications_standards/publications/rights/index.html for more information.
+
+This article has been accepted for publication in a future issue of this journal, but has not been fully edited. Content may change prior to final publication. Citation information: DOI 10.1109/ACCESS.2018.2845105, IEEE Access
+Author et al.: Preparation of Papers for IEEE TRANSACTIONS and JOURNALS
+
+deﬁned as
+
+$
+’ ’ & Uipni, n´i; γiq “
+
+ni řR
+j“1
+
+nj
+
+B
+
+´
+
+γini,
+
+’
+
+’ %
+
+0,
+
+if ni ą 0; if ni “ 0.
+
+where non-negative ni and weight factor γi P r0, 1s.
+
+Deﬁnition 2. A Stackelberg game between data sources and service provider is deﬁned by maximizing pUiqRi“1. Moreover NE of the game is deﬁned as n˚ “ pn˚i qRi“1.
+Note that if n˚i is the NE of Ui, it satisﬁes such following inequality for all i:
+
+Uipn˚i , n˚´i; γiq ě Uipni, n˚´i; γiq, for all ni ě 0
+We now prove the existence and uniqueness of NE n˚ for maximizing pUiqRi“1. In this case, there has been similar works to ﬁnd the NE in various models [31]–[33]. Especially, Hajek and Gopalakrishnan [32], Johari [33] propose a price anticipating model; they show the existence and uniqueness of NE in their model. Therefore, we adapt Johari’s result and present the main theorem in the section below.
+
+Lemma 1. The vector n is a NE(i.e., n˚) of the game to maximize pUiqRi“1 if and only if at least two components of n are positive, and the vector n satisﬁes a following
+conditions:
+
+$ˆ
+
+˙
+
+’1 & γi
+
+1 ´ ni
+
+řR
+j“1
+
+nj
+
+’
+
+1
+
+%
+
+γi
+
+“ řR j“1
+
+nj
+
+B
+
+ď řR j“1
+
+nj
+
+B
+
+if ni ą 0; (2)
+if ni “ 0.
+
+Proof. pñq First, we suppose that n˚ is a NE. If n˚ is a zero vector, then it satisﬁes Uipn; q ą Uipn˚; q “ 0 for
+all n ą 0. So it contradicts to deﬁnition of NE. If only one component of n˚ is positive and let n˚i ą 0 be the only one positive point. Then Uipni, n˚´i; γiq “ B ´ γin˚i , but Uipnj, n˚´j; q “ 0 for all j ‰ i, so it contradicts to continuously differentiable utility function. Therefore, n˚
+
+has at least two positive components.
+
+According to assumption of utility function, Ui is strictly concave, and continuously differentiable. Thus n˚ is the unique maximizer over Ui, so n˚ satisﬁes the following
+conditions:
+
+#
+
+BUi Bn˚i
+
+pn˚i ,
+
+n˚´i;
+
+q
+
+“0 ď0
+
+if n˚i ą 0; if n˚i “ 0.
+
+The equation (2) can be obtained by simple math.
+
+pðq Conversely, we suppose that n has at least two
+
+positive components, and satisﬁes the equation (2). By the
+
+ﬁrst
+
+condition,
+
+it
+
+is
+
+satisﬁed
+
+to
+
+řR
+j‰i
+
+nj
+
+ą
+
+0
+
+for
+
+ﬁxed
+
+ni
+
+ą
+
+0.
+
+Thus
+
+ni{pni
+
+`
+
+řR
+j‰i
+
+nj
+
+q
+
+is
+
+strictly
+
+concave
+
+and
+
+continu-
+
+ously differentiable function. Therefore, Uipni, n´i; q is also
+
+strictly concave and continuously differentiable function.
+
+Moreover, the second condition (2) implies that n is a
+
+maximizer of Uipni, n´i; q, thus n is a NE.
+
+4
+
+Here we deﬁne a new game and a new utility function Up to prove the original game. We will prove the new game, and then solve the original game by ﬁnding a correlation between the new game and the original game.
+Theorem 1. For the vector b “ pbiqRi“1 deﬁned in (1), there exists a unique NE of following game.
+
+$ ’maximize &
+GAM E : such that
+
+řR
+i“1
+
+Upipbi
+
+q,
+
+řR
+i“1
+
+bi
+
+ď
+
+B;
+
+(3)
+
+’ %
+
+bi ě 0, for all i,
+
+where Upipbiq is a utility function such that
+
+Upipbiq
+
+“
+
+1 γi
+
+ˆ bi
+
+´
+
+b2i
+
+˙ .
+
+2B
+
+Proof. The utility function Upi is a quadratic function of bi, so it is easy to show that Upi is a non-negative, strictly increasing, concave, and continuously differentiable on r0, Bs. Furthermore, the domain set r0, Bs is a convex, closed, and bounded in the Euclidean space. Thus there exists a unique NE of the game by Rosen [34].
+
+Corollary 1. Suppose that b˚ is a NE of the game (3), then it satisﬁes the following conditions for some ρ
+
+$’&Upi1pb˚i q “ ρ
+
+if b˚i ą 0;
+
+Upi1p0q ď ρ
+
+if b˚i “ 0;
+
+(4)
+
+’%řR
+i“1
+
+b˚i
+
+“
+
+B.
+
+Proof. The ﬁrst and second conditions occur naturally as a result of NE b˚ in (3). Also, since Upi is a strictly increasing function, the last condition is needed.
+
+Theorem 1 shows the existence and uniqueness of the NE b˚ for the new game, and Corollary 1 gives three conditions that are satisﬁed by b˚. Through these theorems, it is possible to solve the original game by ﬁnding the relation between b˚ and n˚. Now let’s look at the relation in the next theorem.
+
+Theorem 2. Suppose that b˚ is a NE of the game (3), then there exists a unique NE n˚ of the game to maximize pUiqRi“1.
+
+Proof. Let n˚ “ ρb˚, where pb˚, ρq are satisfying (4). We claim that n˚ is a NE, thus we check two sufﬁcient conditions by Lemma 1. First, if n˚ is a zero vector, then b˚ is as well. It satisﬁes Upipb; q ą Upipb˚; q, for all b ą 0, so
+it contradicts to deﬁnition of NE. If only one component of n˚ is positive, then b˚ is as well. Let b˚i ą 0 be the only one positive point, then b˚i “ B, and ρ “ 0 are derived from (4). But Upi1p0q ą 0 “ ρ, so it contradicts to second condition of (4). Therefore, n˚ has at least two positive components and
+in this case, ρ ą 0.
+Following check the other sufﬁcient condition. We describe ﬁrst and second conditions of (4) over ρb˚i as below.
+
+1 γi
+
+´ 1
+
+´
+
+ρb˚i ¯
+B
+
+“ρ
+
+if ρb˚i ą 0;
+
+(5)
+
+1 γi
+
+ď ρ if ρb˚i “ 0.
+
+VOLUME 4, 2016
+
+2169-3536 (c) 2018 IEEE. Translations and content mining are permitted for academic research only. Personal use is also permitted, but republication/redistribution requires IEEE permission. See http://www.ieee.org/publications_standards/publications/rights/index.html for more information.
+
+This article has been accepted for publication in a future issue of this journal, but has not been fully edited. Content may change prior to final publication. Citation information: DOI 10.1109/ACCESS.2018.2845105, IEEE Access
+Author et al.: Preparation of Papers for IEEE TRANSACTIONS and JOURNALS
+
+Thus, the second sufﬁcient condition of (2) is derived from
+(5) by substitution b˚i to (1). In this case, the comparison of (2) and (5) makes it easy to ﬁnd out ρ:
+
+ρ
+
+“
+
+řR
+i“1
+
+n˚i
+
+.
+
+(6)
+
+B
+
+Therefore, since n˚ satisﬁes two sufﬁcient conditions of Lemma 1, n˚ is NE. Moreover, since b˚ is a unique solution of the game (3), n˚ “ ρb˚ is a unique NE as well.
+
+Theorem 2 shows the existence and uniqueness of NE n˚ of the Stackelberg game deﬁned at Deﬁnition 2. Now we evaluate the exact value of b˚ by using the Karush-KuhnTucker(KKT) conditions [35].
+
+Theorem 3. Suppose that b˚ is a NE of the game (3), then exact value of the b˚ “ pb˚i qRi“1 is as follows:
+
+b˚i
+
+“
+
+# Bp1 ´ νγiq
+0
+
+if
+
+ν
+
+ă
+
+1 γi
+
+;
+
+if
+
+ν
+
+ě
+
+1 γi
+
+,
+
+“ maxt0, Bp1 ´ νγiqu
+
+where ν is derived by KKT conditions and evaluated later at Corollary 2.
+
+Proof. For evaluating b˚, we will prove the constraints (4).
+Since the Up is a strictly increasing, concave, and continu-
+ously differentiable function on r0, Bs, the constraints (4) are satisfy the KKT conditions. Therefore, for each NE point b˚i , there exist λi P R and ν P R such that:
+
+b˚i ě 0;
+
+R
+ÿ b˚i “ B;
+
+i“1
+
+λi ě 0;
+
+(7)
+
+λib˚i “ 0;
+
+(8)
+
+1 γi
+
+ˆ 1
+
+´
+
+b˚i B
+
+˙
+
+“
+
+λi ` ν.
+
+(9)
+
+From the above conditions, we introduce two more conditions for convenience. First, (9) makes an equation of λi and substitutes to (7), thus we obtain an following equation.
+
+1 γi
+
+ˆ 1
+
+´
+
+b˚i B
+
+˙
+
+´
+
+ν
+
+ě
+
+0
+
+(10)
+
+Otherwise, (9) makes an equation of λi and substitutes to (7), thus we obtain an following equation.
+
+ν
+
+ď
+
+1 γi
+
+ˆ 1
+
+´
+
+b˚i ˙ B
+
+(11)
+
+Now to derive the exact b˚i , we prove by splitting two cases
+
+about
+
+ν.
+
+First,
+
+suppose
+
+ν
+
+ă
+
+1 γi
+
+,
+
+since
+
+b˚i
+
+“
+
+0
+
+is
+
+contradiction
+
+to (10), we obtain b˚i ą 0. Thus λi “ 0 by (8), and then the
+
+equation ν
+
+“
+
+1 γi
+
+´ 1
+
+´
+
+b˚i B
+
+¯
+
+is
+
+derived
+
+by
+
+(9).
+
+Therefore
+
+we
+
+obtain
+
+b˚i
+
+“
+
+Bp1
+
+´
+
+νγiq.
+
+Otherwise,
+
+suppose
+
+ν
+
+ă
+
+1 γi
+
+,
+
+then
+
+ν
+
+VOLUME 4, 2016
+
+satisﬁes that
+
+1 γi
+
+ď
+
+ν
+
+ď
+
+1 γi
+
+´ 1
+
+´
+
+b˚i B
+
+¯
+
+by
+
+(11).
+
+Therefore,
+
+b˚i
+
+must be 0.
+
+As a result,
+
+b˚i
+
+“
+
+# Bp1 ´ νγiq
+0
+
+if
+
+ν
+
+ă
+
+1 γi
+
+;
+
+if
+
+ν
+
+ě
+
+1 γi
+
+,
+
+“ maxt0, Bp1 ´ νγiqu
+
+Note that the bidding of data sources is non-negative by Deﬁnition 1. But suppose that ith data source DSi shall not start a bidding, i.e., ni “ 0. In this situation, bidding doesn’t affect either the other data sources or the service provider, because the utility and allocated budget of DSi are both 0. In other words, we can simplify this model by removing the zero bidding data sources.
+
+Deﬁnition 3. Let r ă R be the number of positive bidding data sources. Without loss of generality, it can be redeﬁned that the data sources pDSiqri“1, their utility pUiqri“1, their allocated budget b “ pbiqri“1, and their bidding n “ pniqri“1 ą 0.
+The data trading model modiﬁed by deﬁnition 3 can simplify the result of Theorem 3 as follows:
+
+b˚i “ Bp1 ´ νγiq, for all i P r1, rs.
+
+(12)
+
+Corollary 2. Suppose that b˚ ą 0 is a NE of the game (3), then ν is as follows:
+
+ν
+
+“
+
+r´1
+
+řr
+i“1
+
+γi
+
+.
+
+(13)
+
+Proof. From third condition of (4),
+
+řr
+i“1
+
+b˚i
+
+“
+
+B;
+
+ô řri“1p1 ´ νγiq “ 1; by (12)
+
+ô
+
+r
+
+´
+
+řr
+i“1
+
+ν γi
+
+“
+
+1;
+
+ô
+
+ν
+
+řr
+i“1
+
+γi
+
+“
+
+r
+
+´
+
+1;
+
+ô
+
+ν
+
+“
+
+. r´1
+
+řr
+i“1
+
+γi
+
+Corollary 3. Suppose that b˚ ą 0 is a NE of the game (3), then the scalar ν derived by KKT conditions and the scalar ρ deﬁned at (4) are actually same, i.e., ν “ ρ.
+
+Proof. First, from the ﬁrst condition of (4), we can obtain this equation:
+
+Uxi1pb˚i q
+
+“
+
+1 γi
+
+ˆ 1
+
+´
+
+b˚i ˙ B
+
+“
+
+ρ.
+
+Otherwise, from (12), we can obtain this equation:
+
+b˚i “ Bp1 ´ νγiq;
+
+ô
+
+1 γi
+
+´ 1
+
+´
+
+b˚i ¯
+B
+
+“
+
+ν.
+
+Therefore, ρ is the same as ν
+
+5
+
+2169-3536 (c) 2018 IEEE. Translations and content mining are permitted for academic research only. Personal use is also permitted, but republication/redistribution requires IEEE permission. See http://www.ieee.org/publications_standards/publications/rights/index.html for more information.
+
+This article has been accepted for publication in a future issue of this journal, but has not been fully edited. Content may change prior to final publication. Citation information: DOI 10.1109/ACCESS.2018.2845105, IEEE Access
+Author et al.: Preparation of Papers for IEEE TRANSACTIONS and JOURNALS
+
+Corollary 2 and 3 show the exact value of ν and the relation between ν and ρ. These corollaries allow us to obtain the exact n˚.
+
+Theorem 4. Suppose that b˚ ą 0 is a NE of the game (3), then exact value of the n˚ “ pn˚i qri“1 is as follows:
+
+n˚i
+
+“
+
+Bpr
+
+´
+
+1qpřri“1 γi ´ přri“1 γiq2
+
+γir
+
+`
+
+γiq .
+
+(14)
+
+In
+
+this
+
+case,
+
+the
+
+total
+
+amount
+
+of
+
+raw
+
+data
+
+n˚
+
+“
+
+řr
+i“1
+
+n˚i
+
+is as follows:
+
+n˚
+
+“
+
+Bpr ´ 1q
+
+řr
+i“1
+
+γi
+
+.
+
+(15)
+
+Proof. Since n˚ “ ρb˚ “ νb˚, by the equation (12) and
+
+(13)
+
+n˚i
+
+“
+
+r´1
+
+řr
+i“1
+
+γi
+
+¨
+
+B
+
+ˆ 1
+
+´
+
+r´1
+
+řr
+i“1
+
+γi
+
+γi
+
+˙
+
+;
+
+“
+
+B
+
+pr
+
+´
+
+1qpřri“1 γi ´ přri“1 γiq2
+
+γir
+
+´
+
+γiq
+
+.
+
+Moreover, using the equation (6) and (13),
+
+ρ “ ν;
+
+ô
+
+řr
+i“1
+
+n˚i
+
+B
+
+“
+
+r´ řr
+i“1
+
+1 γi
+
+;
+
+ô
+
+r
+ÿ n˚i
+i“1
+
+“
+
+Bpr ´ 1q
+
+řr
+i“1
+
+γi
+
+.
+
+Since we assume positive bidding of data sources in deﬁnition 3, the NE n˚i in (14) must be positive. Thus, our data market model must satisfy the following two inequalities.
+
+r
+
+ÿ
+
+r ´ 1 ą 0 and
+
+γi ´ γir ` γi ą 0 (16)
+
+i“1
+
+Competition requires at least two competitors, so it is
+
+natural to satisfy the ﬁrst inequality r ą 1. The second
+
+inequality
+
+can
+
+be
+
+written
+
+as
+
+ř
+j
+
+‰i
+
+γj
+
+ą
+
+pr ´ 2qγi,
+
+and
+
+that
+
+will be a hint to estimate a concrete γi, for all i P r1, rs. More
+
+detailed analysis of the γi setting will be discussed in Chapter
+
+V.
+
+IV. OPTIMAL PRICING In this section, we deﬁne a new proﬁt function and prove an optimization problem from the perspective of the service provider. In order to deﬁne a new proﬁt function, the service provider must consider income and expenses. The income can be obtained by multiplying the subscription fee by the expected number of subscribers; the expenses can be obtained by adding budget and data processing costs. Most of these values are easy to calculate, but estimating the expected number of subscribers is not.
+Customers decide whether to subscribe based on the quality of the reﬁned data and the subscription fee. The ﬁrst factor
+6
+
+1
+
+0.9
+
+0.8
+
+0.7
+
+Accuracy
+
+0.6
+
+0.5
+
+0.4
+0.3
+0.2 0
+
+α = 0.25, β = 0.04 α = 0.5, β = 0.04 α = 0.5, β = 0.08 α = 0.5, β = 0.12 α = 0.75, β = 0.04
+10 20 30 40 50 60 70 80 90 100 Data size
+
+FIGURE 3: Data quality function φpnq for variant parameters α “ p0.25, 0.5, 0.75q, and β “ p0.04, 0.08, 0.12q.
+
+will be estimated by deﬁning the data quality function φ later in (17). As the budget of the service provider increases, the amount of raw data to be received increases according to (15), and the quality of the reﬁned data also improves. In addition, the second factor should be approached from an economic point of view. Since the price of the market depends on the law of demand, the service provider must set reasonable subscription fees. When the subscription fee goes up, the demand from the customers falls; conversely, when the subscription fee goes down, the demand from the customers rises.
+Therefore, proﬁt function F shall be deﬁned with two variables B and s, and the service provider optimizes F to maximize its own proﬁt.
+A. DATA QUALITY FUNCTION
+First, we deﬁne a data quality function φ before deﬁning proﬁt function F . According to machine learning and data mining, it is a hard and complicated process to extract good information from raw data. But the method of data processing is not our approach; we are interested in reﬁned data, that is, the result of data processing. Thus, we deﬁne φ to estimate the gap between the reﬁned data and the real data; in other words, this means accuracy. Therefore, we apply two principles to deﬁne the function φ. The ﬁrst is a characteristic of machine learning: the higher the number of examples, the higher the accuracy [36]. The second is the law of diminishing marginal utility: the marginal utility diminishes as the supply increases [37]. Since both concave and strictly increasing conditions may represent these two principles, φ should be a strictly increasing and concave function. These two principles are reasonable since the distribution of realworld data has strictly increasing and concave conditions, and the real world data can be well approximated by welldeﬁned data quality function from [3].
+VOLUME 4, 2016
+
+2169-3536 (c) 2018 IEEE. Translations and content mining are permitted for academic research only. Personal use is also permitted, but republication/redistribution requires IEEE permission. See http://www.ieee.org/publications_standards/publications/rights/index.html for more information.
+
+This article has been accepted for publication in a future issue of this journal, but has not been fully edited. Content may change prior to final publication. Citation information: DOI 10.1109/ACCESS.2018.2845105, IEEE Access
+Author et al.: Preparation of Papers for IEEE TRANSACTIONS and JOURNALS
+
+Deﬁnition 4. Data quality function is deﬁned as follows:
+
+φpnq “ 1 ´ αe´βn.
+
+(17)
+
+where α and β are constant parameters. Then, φpnq P r0, 1s.
+Now we analyze the parameters α and β as deﬁned above. First we put n “ 0 into φpnq; then, we obtain φp0q “ 1 ´ α. This means the α is used to set the lower bound of the function. In other words, even though there exists a small amount of raw data, data processing with φ guarantees accuracy of at least 1 ´ α. On the other hand, since β is an exponential value, the β is used to set the rate of increase. That is, the higher the value of β is, the sharper the φ value is.
+Figure 3 shows the data quality function φ for variant parameters α and β. Different colored solid lines represent the variation of α “ p0.25, 0.5, 0.75q with ﬁxed β “ 0.04, and different types of black lines represent variation of β “ p0.04, 0.08, 0.12q with ﬁxed α “ 0.5.
+Note that we have supposed that the total amount of raw data n˚ is an NE in Deﬁnition 2, then n˚ “ νB by (15). Because the value ν is deﬁned by data source strategies, it is just a constant value from the perspective of the service provider, and it can be possible to express φ in terms of B by replacing n˚ “ νB. In other words, we can redeﬁne the data quality function (17) with variable B as follows:
+
+φpνBq “ 1 ´ αe´βνB.
+
+(18)
+
+B. EXPECTED NUMBER OF SUBSCRIBERS
+As we explained above, customers determine whether of not to use the service by data quality and subscription fee. As higher data quality is considered more desirable, the number of subscribers is in direct proportion to the data quality. On the other hand, the subscription fee and the number of subscribers are in inverse proportion to each other, because of the law of demand. Thus, from the view of the service provider, the number of subscribers can be predicted using these proportion factors.
+Since we already deﬁned a data quality function, the only thing left is to deﬁne the inverse relationship between subscription fee and the number of subscribers. More precisely, the customers probabilistically decide whether to subscribe by comparing the subscription fee and their WTP. Thus, we adopt a log-normal distribution(LND) to express this process mathematically. Since a lot of natural phenomena follow the LND, it is useful for practically modeling this process. Therefore, we can deﬁne the inverse relationship under the assumption that WTP follows an LND [30]. It implies that most service users will subscribe at very low prices; most of them will not subscribe at very high prices; however, those who cancel their subscriptions will ﬂuctuate more depending on price ﬂuctuations near the appropriate price.
+We assume that X means the customer’s maximal payment (i.e., WTP). Thus, let X be a positive random variable, and it follows an LND. By deﬁnition, the cumulative distribution
+VOLUME 4, 2016
+
+Expected number of subscribers
+
+500
+
+400
+
+300
+
+200
+
+100
+
+0 100
+
+50
+
+Data size
+
+0 0
+
+1
+
+2
+
+3
+
+4
+
+5
+
+Subscription fee
+
+FIGURE 4: The expected number of subscribers (20) for subscription fee s and amount of data n with C “ 500, α “ 0.5, β “ 0.04, µ “ 0, and σ “ 1
+
+function F psq of the random variable X means the probability that X is less than or equal to s, as follows:
+
+F psq “ P pX ď sq
+
+“
+
+1 2
+
+`
+
+1
+
+erf
+
+ˆ
+
+ln s ?
+
+´
+
+µ
+
+˙
+
+,
+
+2
+
+2σ
+
+where the erfpxq is the error function used in measure theory. Since we assume X means WTP, P pX ď sq means the
+probability of not subscribing when the subscription fee is s. Therefore, the probability of subscribing when the subscription fee is s is expressed as 1 ´ P pX ď sq “ P pX ą sq, as follows:
+
+1 ´ F psq “ P pX ą sq
+
+“
+
+1 2
+
+´
+
+1
+
+erf
+
+ˆ
+
+ln s ?
+
+´
+
+µ
+
+˙
+
+2
+
+2σ
+
+.
+
+(19)
+
+As a result, (19) expresses the subscription probability of the customer with respect to the subscription fee. If the number of customers C is multiplied by (19), the result represents the inverse relationship between the subscription fee and the number of subscribers. Moreover, the formula can be used ﬂexibly by adjusting the µ and σ values in accordance with the situation. For the sake of convenience, we now assume µ “ 0 and σ “ 1 in this section.
+Added to this, by multiplying by a data quality function (17), which is another proportional factor, the expected number of subscribers can be predicted from the view of the service provider, as follows:
+
+Cˆ
+
+ˆ ln s ˙˙
+
+2
+
+1 ´ erf
+
+? 2
+
+φpnq.
+
+(20)
+
+Figure 4 shows the expected number of subscribers (20) for subscription fee s and data size n. This indicates that the overall expected number of subscribers is low, when the
+
+7
+
+2169-3536 (c) 2018 IEEE. Translations and content mining are permitted for academic research only. Personal use is also permitted, but republication/redistribution requires IEEE permission. See http://www.ieee.org/publications_standards/publications/rights/index.html for more information.
+
+This article has been accepted for publication in a future issue of this journal, but has not been fully edited. Content may change prior to final publication. Citation information: DOI 10.1109/ACCESS.2018.2845105, IEEE Access
+Author et al.: Preparation of Papers for IEEE TRANSACTIONS and JOURNALS
+
+accuracy of the data is poor due to the small amount of the data. However, even when the accuracy of the data is good, the expected number of subscribers decreases as the subscription fee increases.
+
+C. PROFIT FUNCTION
+To deﬁne the proﬁt function F , we should consider the income and expenses of the service provider. The income is the product of the subscription fee s and the expected number of subscribers (20). The expenses are both budget B and the data processing costs. To account for the cost of data processing, we denote a new factor p that is the price of data processing per 1 unit of data. Since the cost of data processing is proportional to the amount of raw data, the cost of processing data n is pn. Note that we suppose that the total amount of raw data n˚ is a NE, then n˚ “ νB by (15). Thus the total expenses are B ` pνB “ p1 ` pνqB, in this case. As a result, the proﬁt function of the service provider is represented as follows:
+
+sC ˆ
+
+ˆ ln s ˙˙
+
+F ps, Bq “ 2
+
+1 ´ erf ? 2
+
+φpnq ´ p1 ` pνqB.
+
+We assume that the received raw data n˚ is an NE, and so the data quality function φ is expressed in terms of B by (18). Therefore, the proﬁt function is deﬁned with two variables B
+
+and s, as follows:
+
+sC ˆ
+
+ˆ ln s ˙˙
+
+F ps, Bq “
+
+2
+
+1 ´ erf ? 2
+
+φpνBq ´ p1 ` pνqB
+
+“
+
+sC 2
+
+ˆ 1
+
+´
+
+ˆ ln s ˙˙ erf ? p1
+2
+
+´
+
+αe´βνB q
+
+´p1 ` pνqB
+
+(21)
+
+D. OPTIMIZATION
+
+Now we prove an optimization problem of the proﬁt function F ps, Bq. First, using the analytical method to show that the second order derivative is negative, we prove that F ps, Bq is a concave function for s and B. Thus, F ps, Bq has a global maximum, which is the largest value of the function. Next, we solve the optimization problem by using the gradient decent method through the numerical method. The gradient descent method is a popular one, and numerically solves problems through a computer program.
+First, take a ﬁrst derivative of F ps, Bq with respect to s and B; then we have
+
+BF Bs
+
+“
+
+C 2
+
+p1
+
+´
+
+αe´βν
+
+B
+
+q
+
+˜
+
+ˆ ln s ˙
+
+c 2
+
+ˆ
+
+ln2
+
+s
+
+¸ ˙
+
+1 ´ erf ? 2
+
+´
+
+exp π
+
+´
+
+2
+
+,
+
+BF BB
+
+αβνsC “2
+
+ˆ 1
+
+´
+
+erf
+
+ˆ
+
+ln ?
+
+s
+
+˙˙
+
+e´βν
+
+B
+
+2
+
+´ p1 ` pνq.
+
+When these two equations are 0 simultaneously, there are some possibilities of critical point over positive s and B.
+
+8
+
+One of them is the global maximum point F ps, Bq, but we skip this because there is a limit to hand calculation in the analytical method.
+Next, take a second derivative of F ps, Bq with respect to s and B; then we have
+
+B2F Bs2
+
+“
+
+´
+
+C ?
+2πs
+
+p1
+
+´
+
+αe´βν B qp1
+
+`
+
+ln
+
+sq
+
+exp
+
+ˆ ´
+
+ln2 2
+
+s
+
+˙
+
+,
+
+B2F BB2
+
+“
+
+αβ2ν2sC ´2
+
+ˆ 1
+
+´
+
+erf
+
+ˆ
+
+ln ?
+
+s
+
+˙˙
+
+e´βνB
+
+.
+
+2
+
+Since these two equations are negative, F ps, Bq is a concave function. Therefore, there is a unique maximum point, and the equation has an optimal solution.
+In addition, we can ﬁnd the unique maximum point ps˚, B˚q and the unique maximum value F ps˚, B˚q by using the gradient descent method. In this process, we used the MATLAB program to ﬁnd the optimal solution for the parameters in Table 3, as follows:
+
+F ps˚, B˚q “ 186.93 at ps˚, B˚q “ p1.35, 23.79q. (22)
+
+And we will check that these values are correct in the next section.
+
+V. NUMERICAL RESULTS In this section, we will analyze whether the mathematical proof in the data market model is correct. Moreover, by using certain graphs, we will verify visually whether the NE of the Stackelberg game is correct and whether the optimal point of the optimization problem is correct.
+
+A. PARAMETER SELECTION In order to analyzie the proposed market model, we conﬁgure parameters C, p, α, β, r, and γ as follows:
+
+‚ Since the C affects only the size of the resulting values, there are relatively few restrictions on the parameter selection. Thus, we just set the number of customers C “ 500. Also, for the sake of convenience, we set µ “ 0 and σ “ 1 which are the variables of LND.
+‚ For the data quality function, based on a real-world data as in [3], which consists of accelerometer and gyroscope samples collected from smart phones, we set the parameters α “ 0.5 and β “ 0.04. It should be noted that the work in [3] used both support vector machines and logistic regression as classiﬁcation algorithm.
+‚ The work in [38] provided an analysis of data processing cost, which revealed that the data processing costs are 0.5 to 0.8 times the data collection costs. Thus, following those results, we set the unit price of the data processing p “ 0.5.
+‚ The other two parameters r and γ must be set considering inequality (16). According to the second inequality of (16), γi must be satisﬁed following inequality
+
+ÿ
+
+γj{pr ´ 2q ą γi,
+
+(23)
+
+j‰i
+
+VOLUME 4, 2016
+
+2169-3536 (c) 2018 IEEE. Translations and content mining are permitted for academic research only. Personal use is also permitted, but republication/redistribution requires IEEE permission. See http://www.ieee.org/publications_standards/publications/rights/index.html for more information.
+
+This article has been accepted for publication in a future issue of this journal, but has not been fully edited. Content may change prior to final publication. Citation information: DOI 10.1109/ACCESS.2018.2845105, IEEE Access
+Author et al.: Preparation of Papers for IEEE TRANSACTIONS and JOURNALS
+
+70
+
+Bidding data of DS
+
+1
+
+60
+
+Bidding data of DS with γ = 0.5
+
+2
+
+2
+
+50
+
+Bidding
+
+data
+
+of
+
+DS 3
+
+with
+
+γ 3
+
+=
+
+0.9
+
+40
+
+Bidding data
+
+30
+
+20
+
+10
+
+0
+
+-10
+
+-20
+
+0
+
+0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9
+
+Variation of γ1
+
+FIGURE 5: Bidding data for γ1 variation from 0.05 to 0.9, with ﬁxed pr, γ2, γ3q “ p3, 0.5, 0.9q
+
+Bidding data Bidding data
+
+80 Bidding data of DS
+1
+
+Bidding data of DS with γ = 0.3
+
+2
+
+2
+
+60
+
+Bidding data of DS with γ = 0.5
+
+3
+
+3
+
+Bidding data of DS with γ = 0.7
+
+4
+
+4
+
+Bidding data of DS with γ = 0.9
+
+5
+
+5
+
+40
+
+20
+
+0
+
+-20
+
+-40
+
+0
+
+0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9
+
+Variation of γ
+1
+
+FIGURE 6: Bidding data for γ1 variation from 0.05 to 0.9, with ﬁxed pr, γ2, γ3, γ4, γ5q “ p5, 0.3, 0.5, 0.7, 0.9q
+
+100 Bidding data of DS
+1
+
+Bidding data of DS with γ = 0.45
+
+2
+
+2
+
+80
+
+Bidding data of DS with γ = 0.5
+
+3
+
+3
+
+Bidding data of DS with γ = 0.55
+
+4
+
+4
+
+Bidding data of DS with γ = 0.6
+
+5
+
+5
+
+60
+
+40
+
+20
+
+0
+
+-20
+
+0
+
+0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9
+
+Variation of γ
+1
+
+FIGURE 7: Bidding data for γ1 variation from 0.05 to 0.9, with ﬁxed pr, γ2, γ3, γ4, γ5q “ p5, 0.45, 0.5, 0.55, 0.6q
+
+and
+
+so
+
+it
+
+is
+
+determined
+
+depending
+
+on
+
+r
+
+and
+
+ř
+j‰i
+
+γj .
+
+If
+
+not, there is a negative bidding for the ith data source so,
+
+by deﬁnition 3, the game between the data sources and
+
+the service provider is not valid.
+
+Figures 5, 6, and 7 show how the bidding of data sources
+
+changes as γ1 increases from 0.05 to 0.9 with ﬁxed γj, j ‰ i and B “ 50. Figure 5 is a graph with ﬁxed parameters pr, γ2, γ3q “ p3, 0.5, 0.9q; the Figure 6 is a graph with ﬁxed parameters pr, γ2, γ3, γ4, γ5q “ p5, 0.3, 0.5, 0.7, 0.9q; and Figure 7 is a graph with ﬁxed
+
+parameters pr, γ2, γ3, γ4, γ5q “ p5, 0.45, 0.5, 0.55, 0.6q. Analyzing these ﬁgures, it can be seen that negative
+
+biddings occur when there is a great difference between
+
+γ values. In this case, the game between the data sources
+
+and the service provider is not valid, because the bidding
+
+of data sources must be positive. These results can be
+
+interpreted as follows: since the γ represents the risk of
+
+data leakage, data sources with high risk(large γ) are
+
+reluctant to play the game with data sources with low
+
+risk(small γ). In addition, when comparing Figures 5
+
+and 6, the DS3 of Figure 5 has positive bidding at γ1 values from 0.45 to 0.9. On the other hand, the DS5 of Figure 6 has only negative bidding at γ1 values up to 0.9. This shows that although the two γ values are identical
+
+to 0.9, the bidding data can be different depending on
+
+both the number of data sources and on the other γ
+
+values.
+
+Therefore, in order for the game to be valid, we should
+
+set all γ to a similar level under appropriate r. Mathe-
+
+matically, if γj « γi, for all j ‰ i, then the inequality
+
+(23) is represented as follows:
+
+r´1
+
+ÿ
+
+ÿ
+
+γj{pr ´2q « γi{pr ´2q “
+
+j‰i
+
+i“1
+
+r r
+
+´ ´
+
+1 2
+
+γi
+
+ą γi,
+
+(24)
+
+and thus the game is valid. For example, Figure 7 shows that if the γj, for j ‰ 1 values are set to be similar to each other, then all data sources have positive bidding on γ1 P r0.35, 0.65s. Based on the results of Figure 7, we decided to set γi by p0.4, 0.45, 0.5, 0.55, 0.6q.
+
+VOLUME 4, 2016
+
+Profit of Service Provier
+
+250
+
+Optimal point 186.93 at (1.35, 23.79)
+
+200
+
+150
+
+100
+
+50
+
+0 0
+2 4 6
+Subscription fee
+
+8 10 0
+
+100
+
+80
+
+60
+
+40
+
+20
+
+Budget
+
+FIGURE 8: The proﬁt function of service provider F ps, Bq for subscription fee s and amount of data B.
+
+As a result, we set up undeﬁned parameters C, p, α, β, r, and γ as shown in Table 2.
+
+TABLE 2: Concrete parameters for theoretical experiment
+
+The number of customers Unit price of data processing Parameters in data quality function Mean and standard deviation of LND The number of data sources
+Risk of data leakage
+
+C “ 500 p “ 0.5 pα, βq “ p0.5, 0.04q pµ, σq “ p0, 1q r“5 pγ1, γ2, γ3, γ4, γ5q “ p0.4, 0.45, 0.5, 0.55, 0.6q
+
+B. THEORETICAL EXPERIMENT Here, we will check whether the result of the optimization problem is actually optimized under the assumption of NE n˚i . Next, by using optimized B, we will check that the NE b˚i and n˚i actually achieves the maximized utility of each data source.
+First, from the perspective of the service provider, the optimization problem of the proﬁt function F ps, Bq was
+9
+
+2169-3536 (c) 2018 IEEE. Translations and content mining are permitted for academic research only. Personal use is also permitted, but republication/redistribution requires IEEE permission. See http://www.ieee.org/publications_standards/publications/rights/index.html for more information.
+
+This article has been accepted for publication in a future issue of this journal, but has not been fully edited. Content may change prior to final publication. Citation information: DOI 10.1109/ACCESS.2018.2845105, IEEE Access
+Author et al.: Preparation of Papers for IEEE TRANSACTIONS and JOURNALS
+
+TABLE 3: Concrete results of Stackelberg game with B “ 23.8
+
+γi
+
+n˚i
+
+b˚i MaxUi
+
+DS1 0.4 13.71 8.57 3.08 DS2 0.45 10.66 6.66 1.87 DS3 0.5 7.62 4.76 0.95 DS4 0.55 4.57 2.86 0.34 DS5 0.6 1.52 0.95 0.04
+
+Total 2.5 38.08 23.8
+
+already solved in (22). The service provider’s optimal strat-
+
+egy p1.35, 23.79q can be obtained using the gradient descent
+
+method in the MATLAB program; and then, the service
+
+provider’s maximum proﬁt 186.93 can be obtained by sub-
+
+stituting the optimal point into F ps, Bq.
+
+Figure 8 shows the service provider’s proﬁt function F for
+
+the two variables s and B; and the optimization problem can
+
+be veriﬁed visually through in this ﬁgure. We can see that
+
+F ps, Bq is a concave function for both variables and has a
+
+globally unique maximum value 186.93 at p1.35, 23.79q.
+
+Next, the exact value of NE b˚i and n˚i can be obtained by substituting the budget B “ 23.79, obtained from the
+
+above optimization problem, into (12) and (14). Moreover,
+
+these values determine the total amount of data received by
+
+the service provider, the maximum utility of each data source,
+
+and the unit price of the data. The results are shown in Table
+
+3; we will verify the mathematical proofs using the obtained
+
+value now.
+
+First, if the revenue b˚i given to DSi is NE, according to the third condition of (4), the total sum of b˚i must be budget B. Actually, the sum of the revenues is rounded to
+
+23.8, which is the same as budget B obtained from the
+
+optimization problem. Second, if the bidding data n˚i is NE, according to (6), the value that is obtained by dividing the
+
+1tpoř.6ta5il“asn1udnmρ˚i oq“{fBnν˚i ““byρpt5hbe´ecbau1udqs{gepeřtpřB5i“5im1“γ1uisnqt˚ib“qe{Be4q{u2“a.5l
+
+to ρ. Actually, 38.08{23.8 “ “ 1.6. Third,
+
+by setting the gamma of all the data sources to be similar to
+
+each other, all data sources have positive bidding; thus, they
+
+all have positive maximum utilities. Furthermore, in order to
+
+verify that these maximum utilities are actually the largest
+
+values, we introduce Figure 9. Figure 9 shows the change of
+
+utilities according to the variation of bidding for each data
+
+source; this ﬁgure visually shows that the utility of each data
+
+source actually has a maximum value in the NE n˚i .
+
+C. EXPERIMENT : POSTURE ASSESSMENT DATA In the previous steps, we have checked that the proposed model is well deﬁned, the optimization problem is truly globally optimized, and the NE points actually maximize the utility of the data source. In this step, we use a real-world data [8], [38], [39] to implement the proposed model. The data used in these papers are the trunk and shoulder postures of workers collected for 80 working days in three differ-
+10
+
+4
+
+Utility of DS
+1
+
+3.5
+
+Utility of DS
+2
+
+Utility of DS
+3
+
+3
+
+Utility of DS
+4
+
+Utility of DS
+5
+
+NE at (13.7, 3.08)
+
+2.5
+
+NE at (10.7, 1.87)
+
+Utility of data sources
+
+2
+
+1.5
+
+NE at (7.6, 0.95)
+
+1
+NE at (4.6, 0.34) 0.5
+
+NE at (1.5, 0.04)
+
+0
+
+0
+
+2
+
+4
+
+6
+
+8
+
+10 12 14 16 18 20
+
+Variation of bidding
+
+FIGURE 9: The change of utilities according to the variation of bidding for each data source.
+
+ent methods; using inclinometer, observation from video ﬁlm, and self-report via questionnaire. The data collection methods and costs are described in [8], the data processing methods and costs are in [38], and the collected data can be found in [39]. According to [8], to collect the same amount of data for 80 working days, the inclinometer method requires C65K(kilo-euros), the observation method requires C56K, and the questionnaire method requires C37K.
+Now we apply these results to our model and try to implement them by regulating the parameters. First, we assume that there are three data sources and collect data using the inclinometer, observation, and questionnaire methods, respectively. To avoid confusion, denote three data sources as follows: DSinc is a data source using the inclinometer method, DSobs is a data source using the observation method, DSque is a data source using the questionnaire method.
+The inclinometer method is the most costly to collect data due to the equipment, however, it has the advantage of multitasking and collecting data simultaneously. In contrast, the questionnaire method is the cheapest due to the simple collection method, however, it is quite less efﬁcient in measuring the data. Lastly, the cost and efﬁciency of the observation method is about halfway between those of the other two methods. Since the more difﬁcult to collect the data, the greater the risk of data leakage, we assume that γinc ď γobs ď γque. In addition, with reference to inequalities (23) and (24), we set the gamma parameters as follows; γinc “ 0.3, γobs “ 0.4, and γque “ 0.5.
+According to [38], inclinometer method were collected 80 days of data, but 79 were successfully processed due to intractable noise. The other methods were fully processed for 80 days. Thus, we can expect the accuracy of the data quality function φ to be 239{240 “ 0.995 when 240 days of data are input, and the parameters of the function is set as follows; α “ 0.7, β “ 0.0206. Moreover, since the costs of all methods for collections are C100K and costs
+VOLUME 4, 2016
+
+2169-3536 (c) 2018 IEEE. Translations and content mining are permitted for academic research only. Personal use is also permitted, but republication/redistribution requires IEEE permission. See http://www.ieee.org/publications_standards/publications/rights/index.html for more information.
+
+This article has been accepted for publication in a future issue of this journal, but has not been fully edited. Content may change prior to final publication. Citation information: DOI 10.1109/ACCESS.2018.2845105, IEEE Access
+Author et al.: Preparation of Papers for IEEE TRANSACTIONS and JOURNALS
+
+of all methods for processing are C52K(except the common
+
+costs),
+
+pν
+
+“
+
+p˚
+
+2 1.2
+
+“
+
+0.52
+
+by
+
+equation
+
+(13).
+
+Thus
+
+we
+
+set
+
+the
+
+unit price of data processing p “ 0.312.
+
+For realistic implementation, we change the mean and
+
+standard deviation values of LND to µ “ 0.6439 and
+
+σ “ 0.2342 introduced in [40]. Also we change the number
+
+of customers to C “ 1000 in order to regulate the size of the
+
+result. All other parameter values will be used in the same
+
+way. As a result, in this section, we set up the parameters as
+
+shown in table 4.
+
+TABLE 4: Concrete parameters for posture assessment data
+
+The number of customers Unit price of data processing Parameters in data quality function Mean and standard deviation of LND The number of data sources
+Risk of data leakage
+
+C “ 1000 p “ 0.312 pα, βq “ p0.7, 0.0206q pµ, σq “ p0.6439, 0.2342q r“3 pγinc, γobs, γqueq “ p0.3, 0.4, 0.5q
+
+The implementation results for the posture assessment data are shown in Table 5, and the table is divided into data sources, a service provider, and customers. Each group chosen their own strategy by optimization problem and NE, and the numerical values corresponding to each group is ﬁlled in the table.
+From the table 5, the data sources group receive the service provider’s budget through the bidding data, where each utility is maximized by the NE. DSinc is received C40.82K by bidding data of 68.03 days, DSobs is received C27.21K by bidding data of 45.36 days, and DSque is received C13.61K by bidding data of 22.68 days. Next, the service provider is determined by the optimization problem to have subscription fee C1.459K and budget C81.64K, and according to the NE, 136.07 days of data are received by the data sources group. Thus, the service provider’s proﬁt is determined by (21), and it gains C865.59K. Lastly, the data that the customers are received by subscribing to the service provider have a quality of 0.9935 by (17). At this time, the number of subscribers is determined as 709.65 by (20), and approximately 710 customers are expected to use these services.
+
+VI. CONCLUSION In this paper, we have proposed a three hierarchical levels big-data market model that consists of multiple data sources, a service provider, and customers. We have designed a rigorous game theoretic model to derive the unique NE point of the market participants. We also designed realistic WTP by following LND, so the expected number of subscribers can be calculated practically. The analytic results have demonstrated that our proposed approach is guaranteed to have a unique equilibrium point that maximizes the payoff for all market participants. As our future work, multiple service providers can be considered to extend our model. Moreover, block chain technique can also be applied to design a fully decentralized structure where all components are either producers or consumers.
+VOLUME 4, 2016
+
+TABLE 5: Results for posture assessment data
+
+DSinc DSobs DSque
+SP
+
+γi 0.3 0.4 0.5
+s
+1.459
+
+n˚i 68.03 45.36 22.68
+n
+136.07
+
+b˚i 40.82 27.21 13.61
+B
+81.64
+
+MaxUi 20.41 9.07 2.27
+Proﬁt
+865.59
+
+Serviced data quality The number of subscriber
+
+C
+
+0.9935
+
+709.65(rounded to 710)
+
+REFERENCES
+[1] J. Gantz and D. Reinsel, “Extracting value from chaos,” IDC iview, vol. 1142, no. 2011, pp. 1–12, 2011.
+[2] M. Chen, S. Mao, and Y. Liu, “Big data: A survey,” Mobile Networks and Applications, vol. 19, no. 2, pp. 171–209, 2014.
+[3] D. Niyato, M. A. Alsheikh, P. Wang, D. I. Kim, and Z. Han, “Market model and optimal pricing scheme of big data and internet of things (iot),” in Communications (ICC), 2016 IEEE International Conference on. IEEE, 2016, pp. 1–6.
+[4] W. Fan and A. Bifet, “Mining big data: current status, and forecast to the future,” ACM sIGKDD Explorations Newsletter, vol. 14, no. 2, pp. 1–5, 2013.
+[5] N. Kiukkonen, J. Blom, O. Dousse, D. Gatica-Perez, and J. Laurila, “Towards rich mobile phone datasets: Lausanne data collection campaign,” Proc. ICPS, Berlin, 2010.
+[6] L. Moreira-Matias, J. Gama, M. Ferreira, J. Mendes-Moreira, and L. Damas, “Predicting taxi–passenger demand using streaming data,” IEEE Transactions on Intelligent Transportation Systems, vol. 14, no. 3, pp. 1393–1402, 2013.
+[7] J. Wahlström, S. E. Mathiassen, P. Liv, P. Hedlund, C. Ahlgren, and M. Forsman, “Upper arm postures and movements in female hairdressers across four full working days,” Annals of occupational hygiene, vol. 54, no. 5, pp. 584–594, 2010.
+[8] C. Trask, S. E. Mathiassen, J. Wahlström, M. Heiden, and M. Rezagholi, “Data collection costs in industrial environments for three occupational posture exposure assessment methods,” BMC medical research methodology, vol. 12, no. 1, p. 89, 2012.
+[9] J. Gubbi, R. Buyya, S. Marusic, and M. Palaniswami, “Internet of things (iot): A vision, architectural elements, and future directions,” Future generation computer systems, vol. 29, no. 7, pp. 1645–1660, 2013.
+[10] T. Li, Y. Liu, Y. Tian, S. Shen, and W. Mao, “A storage solution for massive iot data based on nosql,” in Green Computing and Communications (GreenCom), 2012 IEEE International Conference on. IEEE, 2012, pp. 50–57.
+[11] C. Perera, R. Ranjan, and L. Wang, “End-to-end privacy for open big data markets,” IEEE Cloud Computing, vol. 2, no. 4, pp. 44–53, July 2015.
+[12] M. S. Khan, M. S. Islam, and H. Deng, “Design of a reconﬁgurable rﬁd sensing tag as a generic sensing platform toward the future internet of things,” IEEE Internet of things journal, vol. 1, no. 4, pp. 300–310, 2014.
+[13] A. Zaslavsky, C. Perera, and D. Georgakopoulos, “Sensing as a service and big data,” arXiv preprint arXiv:1301.0159, 2013.
+[14] S. Li, L. Da Xu, and X. Wang, “Compressed sensing signal and data acquisition in wireless sensor networks and internet of things,” IEEE Transactions on Industrial Informatics, vol. 9, no. 4, pp. 2177–2186, 2013.
+[15] K. Pantelis and L. Aija, “Understanding the value of (big) data,” in Big Data, 2013 IEEE International Conference on. IEEE, 2013, pp. 38–42.
+[16] D. Machan, “Daas: The new information goldmine,” Wall Street Journal, pp. 1–3, 2009.
+[17] H. R. Varian, “Pricing information goods,” 1995. [18] J. C.-I. Chuang and M. A. Sirbu, “Optimal bundling strategy for digital
+information goods: Network delivery of articles and subscriptions,” Information Economics and Policy, vol. 11, no. 2, pp. 147–176, 1999. [19] Y. Bakos and E. Brynjolfsson, “Bundling information goods: Pricing, proﬁts, and efﬁciency,” Management science, vol. 45, no. 12, pp. 1613– 1630, 1999. [20] M. D. Smith, J. Bailey, and E. Brynjolfsson, “Understanding digital markets: Review and assesment,” 2001.
+11
+
+2169-3536 (c) 2018 IEEE. Translations and content mining are permitted for academic research only. Personal use is also permitted, but republication/redistribution requires IEEE permission. See http://www.ieee.org/publications_standards/publications/rights/index.html for more information.
+
+This article has been accepted for publication in a future issue of this journal, but has not been fully edited. Content may change prior to final publication. Citation information: DOI 10.1109/ACCESS.2018.2845105, IEEE Access
+Author et al.: Preparation of Papers for IEEE TRANSACTIONS and JOURNALS
+
+[21] H. R. Varian, “Buying, sharing and renting information goods,” The Journal of Industrial Economics, vol. 48, no. 4, pp. 473–488, 2000.
+[22] A. E. Al-Fagih, F. M. Al-Turjman, W. M. Alsalih, and H. S. Hassanein, “A priced public sensing framework for heterogeneous iot architectures,” IEEE Transactions on Emerging Topics in Computing, vol. 1, no. 1, pp. 133–147, 2013.
+[23] D. Niyato, X. Lu, P. Wang, D. I. Kim, and Z. Han, “Economics of internet of things: An information market approach,” IEEE Wireless Communications, vol. 23, no. 4, pp. 136–145, 2016.
+[24] D. Niyato, D. T. Hoang, N. C. Luong, P. Wang, D. I. Kim, and Z. Han, “Smart data pricing models for the internet of things: A bundling strategy approach,” IEEE Network, vol. 30, no. 2, pp. 18–25, 2016.
+[25] M. A. Alsheikh, D. Niyato, D. Leong, P. Wang, and Z. Han, “Privacy management and optimal pricing in people-centric sensing,” IEEE Journal on Selected Areas in Communications, 2017.
+[26] H. Susanto, H. Zhang, S. Y. Ho, and B. Liu, “Effective mobile data trading in secondary ad-hoc market with heterogeneous and dynamic environment,” in 2017 IEEE 37th International Conference on Distributed Computing Systems (ICDCS), June 2017, pp. 645–655.
+[27] C. Niu, Z. Zheng, F. Wu, X. Gao, and G. Chen, “Trading data in good faith: Integrating truthfulness and privacy preservation in data markets,” in 2017 IEEE 33rd International Conference on Data Engineering (ICDE), April 2017, pp. 223–226.
+[28] Y. Jiao, P. Wang, D. Niyato, M. A. Alsheikh, and S. Feng, “Proﬁt maximization auction and data management in big data markets,” in Wireless Communications and Networking Conference (WCNC), 2017 IEEE. IEEE, 2017, pp. 1–6.
+[29] N. C. Luong, D. T. Hoang, P. Wang, D. Niyato, D. I. Kim, and Z. Han, “Data collection and wireless communication in internet of things (iot) using economic analysis and pricing models: A survey,” IEEE Communications Surveys & Tutorials, vol. 18, no. 4, pp. 2546–2590, 2016.
+[30] A. Alberini, “Efﬁciency vs bias of willingness-to-pay estimates: bivariate and interval-data models,” Journal of environmental economics and management, vol. 29, no. 2, pp. 169–180, 1995.
+[31] F. Kelly, “Charging and rate control for elastic trafﬁc,” Transactions on Emerging Telecommunications Technologies, vol. 8, no. 1, pp. 33–37, 1997.
+[32] B. Hajek and G. Gopalakrishnan, “Do greedy autonomous systems make for a sensible internet,” in Conference on Stochastic Networks, Stanford University, vol. 222, 2002.
+[33] R. Johari and J. N. Tsitsiklis, “Efﬁciency loss in a network resource allocation game,” Mathematics of Operations Research, vol. 29, no. 3, pp. 407–435, 2004.
+[34] J. B. Rosen, “Existence and uniqueness of equilibrium points for concave n-person games,” Econometrica: Journal of the Econometric Society, pp. 520–534, 1965.
+[35] S. Boyd and L. Vandenberghe, Convex optimization. Cambridge university press, 2004.
+[36] P. Domingos, “A few useful things to know about machine learning,” Communications of the ACM, vol. 55, no. 10, pp. 78–87, 2012.
+[37] O. Lange, “The determinateness of the utility function,” The Review of Economic Studies, vol. 1, no. 3, pp. 218–225, 1934.
+[38] C. Trask, S. E. Mathiassen, J. Jackson, and J. Wahlström, “Data processing costs for three posture assessment methods,” BMC medical research methodology, vol. 13, no. 1, p. 124, 2013.
+[39] C. Trask, S. E. Mathiassen, J. Wahlström, and M. Forsman, “Cost-efﬁcient assessment of biomechanical exposure in occupational groups, exempliﬁed by posture observation and inclinometry,” Scandinavian journal of work, environment & health, pp. 252–265, 2014.
+[40] R. T. Carson and M. Czajkowski, “A new baseline model for estimating willingness to pay from discrete choice models,” in International Choice Modelling Conference, Sydney, Australia, 2013.
+
+BUSIK JANG (S’18) is currently Ph.D student in the School of Mathematical Science at Korea Advanced Institute of Science and Technology (KAIST), Daejeon, Republic of Korea. He received the M.S. degrees in KAIST in 2014 and B.S degree in Yeungnam university in 2012 at the Mathematics department. His research interests include post quantum cryptography, p2p network, block chain, IoT and cloud computing.
+SANGDON PARK (S’16–M’17) is currently Postdoctoral Researcher in the School of Electronic Engineering at Korea Advanced Institute of Science and Technology (KAIST), Daejeon, Republic of Korea,. He received the B.S., M.S. and Ph.D. degrees in KAIST in 2011, 2013, and 2017, respectively. He has contributed several articles to the International Telecommunication Union Telecommunication (ITU-T). He received a Best Student Paper Award at the 11th International Conference on Queueing Theory and Network Applications in 2016. His research interests include resource allocation and optimization in smart grids, wireless network, and cloud computing.
+JOOHYUNG LEE (S’09–M’14) is currently an Assistant Professor in the Department of Software, at Gachon University, South Korea. He received his B.S, M.S. and Ph.D. Degrees from the Korea Advanced Institute of Science and Technology (KAIST), Daejeon, South Korea, in 2008, 2010 and 2014, respectively. From 2012 to 2013, he was a Visiting Researcher with the Information Engineering Group, Department of Electronic Engineering, City University of Hong Kong, Hong Kong. From 2014 to 2017, he worked at Samsung Electronics as a Senior Engineer. He has contributed several articles to the International Telecommunication Union Telecommunication (ITU-T) and 3rd Generation Partnership Project (3GPP). His current research interests include resource allocation and optimization, with a focus on resource management for Future Media (e.g., Augmented Reality, Virtual Reality), 5G networks, green networks, cloud computing, smart grids (future power grids), and network economics. Dr. Lee was an active member of the GreenTouch Consortium. He has been a Technical Reviewer for several conferences and journals, such as the IEEE COMMUNICATIONS LETTERS, the IEEE TRANSACTIONS ON VEHICULAR TECHNOLOGY, and Elsevier Computer Communications. He received a Best Paper Award at the Integrated Communications, Navigation, and Surveillance Conference in 2011.
+
+12
+
+VOLUME 4, 2016
+
+2169-3536 (c) 2018 IEEE. Translations and content mining are permitted for academic research only. Personal use is also permitted, but republication/redistribution requires IEEE permission. See http://www.ieee.org/publications_standards/publications/rights/index.html for more information.
+
+This article has been accepted for publication in a future issue of this journal, but has not been fully edited. Content may change prior to final publication. Citation information: DOI 10.1109/ACCESS.2018.2845105, IEEE Access
+Author et al.: Preparation of Papers for IEEE TRANSACTIONS and JOURNALS
+SANG-GEUN HAHN (M’18) received Ph.D. degrees in Mathematics from Ohio state university, Columbus, OH, USA in 1987. He was lecturer in Ohio state university from 1986 to 1987. In 1989, he was a newly appointed professor of Mathematical Sciences at KAIST and served as an adjunct professor at the Graduate School of Information Security in 2011. His research interests include number theory, elliptic curve cryptography, post quantum cryptography and quantum computing.
+
+VOLUME 4, 2016
+
+13
+
+2169-3536 (c) 2018 IEEE. Translations and content mining are permitted for academic research only. Personal use is also permitted, but republication/redistribution requires IEEE permission. See http://www.ieee.org/publications_standards/publications/rights/index.html for more information.
+

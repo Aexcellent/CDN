@@ -1,0 +1,833 @@
+arXiv:2003.11424v1 [cs.CR] 25 Mar 2020
+
+BlockMarkchain: A Secure Decentralized Data Market with a Constant Load on the Blockchain
+Hamidreza Ehteram∗†1, Mohammad Taha Toghani∗‡1,2, and Mohammad Ali Maddah-Ali§3
+1Department of Electrical Engineering, Sharif University of Technology, Tehran, Iran 2Department of Electrical and Computer Engineering, Rice University, Houston, TX, USA
+3Nokia Bell Labs, Holmdel, NJ, USA
+Abstract
+In this paper, we develop BlockMarkchain, as a secure data market place, where individual data sellers can exchange certiﬁed data with buyers, in a secure environment, without any mutual trust among the parties, and without trusting on a third party, as a mediator. To develop this platform, we rely on a smart contract, deployed on a secure public blockchain. The main challenges here are to verify the validity of data and to prevent malicious behavior of the parties, while preserving the privacy of the data and taking into account the limited computing and storage resources available on the blockchain. In BlockMarkchain, the buyer has the option to dispute the honesty of the seller and prove the invalidity of the data to the smart contract. The smart contract evaluates the buyer’s claim and punishes the dishonest party by forfeiting his/her deposit in favor of the honest party. BlockMarkchain enjoys several salient features including (i) the certiﬁed data has never been revealed on the public blockchain, (ii) the size of data posted on the blockchain, the load of computation on the blockchain, and the cost of communication with the blockchain is constant and negligible, and (iii) the computation cost of veriﬁcations on the parties is not expensive.
+1 Introduction
+These days, having access to the massive datasets on a subject becomes one of the key elements for a research or business initiative to be successful. Large companies are willing to spend a considerable amount of money to collect and process data. This motivates some organizations to develop their business as mediators for collecting and selling data to others. Still, a major amount of valuable and expensive data is lost or remained unused. For example, every day thousands of medical records, in the form of reports of medical diagnosis, treatments, test results, MRI, and X-Ray images are generated, with considerable cost, and then lost or forgotten after treatment. Those records, if collected, can signiﬁcantly facilitate and accelerate medical and pharmaceutical research and treatment.
+One major reason that those data remained unused is that there is no easy-to-use popular and secure platform, as a data market place, that allows individuals to present and sell their data directly, and assures them that they will beneﬁt from that.
+In literature, developing such a platform is known as fair exchange problem [1]. It has been shown that there is no solution for the fair exchange problem without any trusted third party [2]. We need a third party as a mediator between the data sellers and the buyers, to enforce the parties to fulﬁll their commitments, prevent malicious behavior, evaluate the validity of data, and manage disputes. The challenge is that the mediator can exploit the situation, and ask for unreasonable commission fees. He/She may lie about the real values
+∗These two authors contributed equally. †ehteram.hamidreza@ee.sharif.edu ‡mttoghani@rice.edu §mohammad.maddahali@nokia-bell-labs.com
+
+Carol (Certiﬁed authority)
+
+SignCarol[hash(DT )]
+hash(DT )
+
+Alice’s dishonestly
+
+DT = DT 1$
+
+Public Blockchain
+
+DT
+
+Alice (Data owner)
+
+Smart Contract
+DT 1$
+
+Bob (Buyer)
+
+Bob’s dishonestly
+
+DT = DT 1$
+
+(a) Alice owns a data, denoted by DT . Bob has access to hash(DT ) which is signed by Carol and he desires to pay say 1$, for DT to purchase it.
+
+(b) Alice’s dishonestly: Sending a fake data and taking money from Bob. Bob’s dishonestly: Access to the real data and refusal to pay for it.
+
+Figure 1: Problem Statement
+
+of data, sell the data without the owners awareness and permission, or abuse the data for some unintended purposes. FacebookCambridge Analytica data scandal is only one example of those misbehaviors [3].
+Recently, it has been shown that a smart contract, deployed on a public blockchain, can be used as the third party. Since smart contract on a blockchain is transparent, immutable, and veriﬁable, it does not have many disadvantages of regular mediators, such as deviating from the protocol and dishonesty. Of course, transparency can be a disadvantage too, because it may violate data privacy. This motivates [4] using zeroknowledge proofs [5], in order to be able to publicly verify the honesty of the parties without revealing the data itself. However, using zero-knowledge proofs cause a huge computation burden on the parties. In this paper, our objective is to develop a blockchain-oriented solution for a data market place, with minimum communication, computational, and storage overhead on the blockchain and the parties.
+We focus on a scenario, where a data seller, named Alice, owns some data, denoted by DT , which is stored on a data storage (see Figure 1a). The data, when generated, is certiﬁed by Carol, as a trusted individual (e.g., a medical doctor). In particular, hash(DT ), for some cryptographic hash function hash, has been signed by Carol and posted on the blockchain (we will explain these steps in details in Section 3). Signing the data by an authenticated party, Carol, prevents generating fake data. It also speciﬁes the possession of data by its true owner, Alice. The data buyer, Bob, wants to buy this data, through a smart contract, deployed on the blockchain.
+The proposed platform must resolve the following challenges (see Figure 1b)
+1. No Trusted Environment: In the trading process, we cannot presume the seller Alice or the buyer Bob is trusted. We only assume the data authenticator Carol is trusted, and she veriﬁes validity of data DT before signing hash(DT ) and posting it on the blockchain. Let’s explicate Alice and Bob’s dishonesty:
+(a) Resistance to Alice’s dishonesty: If Alice does not send valid data DT to Bob, no money should be transfered from Bob to Alice and Alice must be punished for her dishonesty.
+(b) Resistance to Bob’s dishonesty: If Bob receives the valid data, he must not be able to deny its veracity and the agreed price must be paid to Alice. In other words, Bob must not be able to refrain the payment after receiving the valid data.
+
+2
+
+2. Privacy: No part of the data should be revealed to anyone other than Bob. In other words, in the process of trading data, no part of the data should be uploaded to the blockchain. Even if Bob has a valid dispute, no part of valid data is revealed. Of course, this does not include the case where Alice reveals the data to the public, or the case where Bob does so after paying for it.
+3. Low resource over-head on Blockchain: With current technologies, storage and computation on the blockchain is very expensive. For a blockchain-oriented platform to work in the real world, we need to be very cautious about the computational, storage, and communication overhead that the platform imposes on the blockchain.
+In [6], posted on Github on June 20, 2018, we propose a ﬁrst version of our solution, named Blockchainbased Data Market, where we avoid any computationally-heavy cryptographic solutions such as zero-knowledge proofs. This platform is such that not only computation cost on parties is not expensive, but also computation and storage cost on the smart contract is small. In more detail, in the primary version when parties behave according to the protocol, the needed computation and storage cost to run the smart contract is constant and negligible. On the other hand, when a party deviates from the protocol and behaves dishonestly, the cost of disputation proof on the smart contract is in the order of O(log(N )) where N denotes the size of the primary data. More recently FairSwap [7] (improved in [8]) also proposes a scheme to solve the fair exchange problem. In their platform also the data size in a disputation on the smart contract is in order of O(log(N )). However, the proposed scheme [6] the data transferred oﬀ-chain has a smaller size than FairSwap. In this paper, we present the modiﬁed version of Blockchain-based Data Market, BlockMarkchain, where we further reduce the computation and storage cost of disputation on the smart contract from O(log(N )) to a constant O(1).
+Alternative approaches, base on game theory, have been proposed in [9, 10]. In those solutions, each party at ﬁrst commits a deposit on the smart contract. If one of the parties behave maliciously, both parties will be punished and lose their deposit. This motivates the parties to behave honestly in trade. In the schemes of [9, 10], the malicious party is not detected, and thus those schemes do not work if one party is willing to harm the other, at the cost of damaging itself. On the contrary, in BlockMarkchain, the platform detects the wrongdoer and only punishes him/her.
+The rest of the paper is organized as follows. In Section 2, we will review the concepts of blockchain and smart contracts. In Section 3, we describe problem setting. In Section 4, we introduce BlockMarkchain platform. In Sections 5 and 6, we further improve the proposed solution in terms of the size of uploaded data and computation on the blockchain. In Section 7, we conclude.
+Notations: hash denotes a cryptographic hash function, which is collision, preimage, and secondpreimage resistant (see [11] for the deﬁnitions). SignA[X] is equal to the sign of X by A signature. Enck(X) and Deck(X) denote the encrypt and decrypt version of X by key k using a secure cryptography function so Deck(Enck(X)) = X. For a function g and a number X, C(g(X)) ∈ R+ denotes computational complexity of calculating g(X). X denotes a version of X that one claims that it is equal to X. X||Y denotes the concatenation of X and Y . For M ∈ N, [M ] = {1, . . . , M }.
+2 Background
+In this section, we review blockchains and smart contracts, as the fundamental decentralized tools we use to develop our data market.
+2.1 Blockchain
+In 2008, Bitcoin was presented as a peer-to-peer decentralized cash network [12]. Unlike conventional banking networks, which is based on a trusted entity (e.g., a bank) to maintain the ledger, Bitcoin network relies on some volunteers, called miners, to develop a public ledger of validated transactions with authenticated signatures, and to prevent fraud and double-spending. The public ledger is formed as an ordered sequence of blocks, named as blockchain, where each block contains some transactions. Every miner has a copy of the blockchain. Miners compete to generate a new block to be added to the blockchain. Every 10 minutes on average, a new block, generated by one of the miners, will be the winner, and is broadcasted to the network.
+3
+
+Every other miner receives this block and inspects it. If it is valid, the miner will add it to the current blockchain; otherwise, it will be discarded. The competition is based on proof of work. In this strategy, each miner needs to solve a hash-based puzzle. In this puzzle, each miner needs to change a nonce ﬁeld in the header of the block such that the hash of the header has a speciﬁc property. The miner who generates a block with a list of valid transactions, and ﬁnds the nonce faster than the others is the winner. A block reward and some transaction fees, in a cryptocurrency called Bitcoin, have been allotted to the winner. This reward can be spent in the subsequent blocks.
+In this process, all miners have a copy of the blockchain, where blocks in those copies become eventually consistent. It is shown that unless a major fraction of the processing power in the network is controlled by an adversary, the network is secure.
+The fact that we can have a decentralized trusted network, without a central management, that can maintain a database is considered as a revolutionary achievement. Central management is prone to corruption, abuse of information, intimidation, etc. Blockchain technology leads to new platforms for diﬀerent applications where the role of central management is replaced by an immutable and transparent blockchain.
+2.2 Smart Contract
+Blockchain technology enables another important capability, called smart contract. A smart contract is a computer program that is deployed on the blockchain. A user can interact with this program by issuing a transaction to the address of the smart contract. When such a transaction is received by a miner, it will run the smart contract with the transaction as the input and updates the account of that smart contract as the output.
+Since smart contracts are deployed on the blockchain, it is transparent and immutable, anyone can read every single line of the code, observe and verify the inputs and outputs. This will expand the application of blockchain to a wide variety the cases, and allows us to develop alternative solutions for the scenarios which have been designed and managed in a central manner. Bitcoin, in the form of the locking script in the transactions, allows implementing smart contracts. However, it scripting language is not Turing complete, and thus its scope of applications is limited [13]. The constraints of writing the code in Bitcoin protocol motivate developers to build protocols in which more sophisticated smart contracts can be implemented. In 2013, Ethereum protocol [14] was created as a convenient platform to compose smart contracts. For example, Stroj smart contract [15] is implemented to develop a decentralized storage platform on Ethereum.
+Recall that the result of running a smart contract for input is veriﬁed by all miners. To do so, all miners will run the smart contract by themselves. As a result, we have to keep the computation complexity of the smart contract to be very limited. This will be controlled by the cost that miners will ask to run the smart contract.
+3 Data Market: Problem Description
+In this section, we describe the problem statement, the requirements, and also the trust model for the data market.
+3.1 Problem Statement
+We consider a scenario, where Alice owns some data, denoted by DT , and intents to transfer it to Bob as a person who wants to buy the data for a price, which has been agreed upon, denoted by CTarget. All parties have access to a public and transparent blockchain, and a smart contract deployed on it to facilitate the exchange. Data DT is certiﬁed by Carol, who is a trusted person. For example, Carol can be a doctor, who witnesses the generation of the data. To certify the data, Carol signs hash(DT ), and posts it and hash(DT ) on the blockchain, in an interaction with the smart contract. Beyond that, Carol will not keep any record of the data and will not intervene in the process of trading the data.
+We also assume Alice and Bob deposit some values denoted by CdepositA and CdepositB respectively, on the smart contract. If Alice is dishonest in the process of exchange, and sends incorrect data to Bob, the smart contract should transfer CdepositA to Bob. Similarly if Bob is dishonest, and disputes the validity of the data, after receiving the genuine data, the smart contract should transfer CdepositB to Alice. The problem
+4
+
+here is how to design the steps of the trade process and the smart contract such that all of the requirements listed in the next subsection are fulﬁlled.
+3.2 Requirements
+Assume in the end of the process, Bob receives DT as target data DT from Alice. We need, the following conditions to be satisﬁed:
+1. No need to trust a third party in the trade process: The platform should be such that it does not need any middle party (other than the smart contract) to moderate the trade process.
+2. Presence of the certiﬁed person, Carol, is not required during the trade process: The platform should be such that only at the time that a record of Alice is issued, the certiﬁed person needs to be available to sign the hash of the data and place it and hash(DT ) on the blockchain. Recall that Carol is assumed to be honest and thus her signature on hash of the record in this platform means that the data with hash(DT ) is genuine. Carol does not keep any record of the data, and is not available later to interact with.
+3. Alice’s dishonesty can be proved and punished: If DT is not equal to DT , Bob must be able to dispute the trade and prove Alice’s dishonesty. In that case Alice must not receive CTarget and Bob must also receive CdepositA from Alice.
+4. Bob’s dishonesty can be proved and punished: If DT is equal to DT , then Alice must receive CTarget. In this case, if Bob is dishonest, and disputes the validity of the data, the smart contract should be able to prove Bob’s dishonestly and send CdepositB, in addition to CTarget, to Alice.
+5. If the network is disconnected, before DT is revealed to Bob, none of the parties suﬀers any loss: Let us assume that before DT is revealed to Bob, the network stops working. In this case, the situation should be as if the trade did not start at all. It means that Alice does not have access to CTarget, Bob does not receive data DT , CdepositA is refundable to Alice, and CdepositB and CTarget to Bob.
+6. No need for the parties to do extensive computation: The platform should be such that parties in a trade (Alice and Bob) don’t need to execute large computations.
+7. No need to place bulk of data on the blockchain: We know that uploading data to a public blockchain costs a lot. For example, the cost of uploading 1M B data in Ethereum blockchain is about $600 based on the current price of Ether on 22 August 2019 [16, 17]. The platform should be designed such that it does not store bulky data on the blockchain.
+8. No need to execute extensive computation on the blockchain: As we know, all computations on a smart contract must be veriﬁed by all miners thus it costs too much if these computations are extensive. Miners may refuse to mine and verify such transactions.
+9. Privacy of the data must be preserved: The platform should be such that during the trade process, the data is not revealed to the network.
+3.3 The Trust Model
+In this problem, we consider the following trust model under which we design and improve the proposed platform:
+1. We assume that Alice and Bob are not trusted and may act maliciously.
+2. We assume that Carol is trusted. If hash(DT ) is matched with hash(DT ), which has been signed and posted by Carol on blockchain, then DT is genuine.
+3. The public blockchain is secure, transparent, and immutable. The smart contract, its input, and its state (or its account), is transparent to everyone.
+5
+
+Phase1
+
+Alice
+2
+
+Smart
+
+Contract
+
+Bob
+
+CdepositA
+
+1 CTargheat sCh(dDepoTs)itB
+
+3 Enck(DT )
+
+4 hash(Enck(DT ))
+
+Yes
+
+5
+
+6 k
+
+Enc k(D T )
+
+Phase2
+
+Figure 2: The messages transferred in O(N )-Algorithm
+4 The Data Market Platform
+In previous section, we described the problem formulation and requirements. In Subsection 4.1, we present BlockMarkchain platform. In Subsection 4.2, we prove how the proposed platform satisﬁes the required conditions stated in the problem. In Sections 5 and 6, we further improve the proposed algorithm in terms of disclosure of the data and the cost of storage and computation on the blockchain respectively from O(N ) to O(log(N )) and from O(log(N )) to O(1).
+4.1 Platform Presentation
+In this section, we present the proposed scheme which includes two phases (Figure 2).
+4.1.1 Trading Phase In this phase, Alice and Bob follows Algorithm 4.1 to interact with each other through a smart contract to exchange DT .
+
+6
+
+Algorithm 4.1 O(N )-Algorithm: Trading Phase
+1: procedure Initialization 2: Alice owns data DT , which is certiﬁed by Carol. This means Carol has signed hash(DT ) as
+SignCarol[hash(DT )] and posted hash(DT ) and SignCarol[hash(DT )] on the smart contract. 3: Alice and Bob agree upon price CTarget, and also CdepositA and CdepositB. 4: Alice generates a key, denoted by k. 5: end procedure
+
+6: procedure Trading Phase 7: Bob sends hash(DT ) to the smart contract, showing he has interest in buying DT . 8: Bob deposits CTarget and CdepositB to the smart contract, nonrefundable for one day. 9: Alice deposits CdepositA to the smart contract, nonrefundable for one day.
+If Algorithm doesn’t get to Step 13 until the end of one day, it will go to Step 21. 10: Alice generates Enck(DT ) as an encrypted version of DT , using key k, where DT is the data that
+she claims to be equal to DT . Alice sends Enck(DT ) to Bob using an oﬀ-chain channel (a custom P2P channel).
+11: Alice commits hash(Enck(DT )) to the smart contract, claiming it is indeed hash of Enck(DT ) .
+12: Bob checks if hash(Enck(DT )), posted on the smart contract is indeed equal to hash of Enck(DT ), then sends ”Yes” to the smart contract if the equality is veriﬁed. In other words, Bob checks this equality:
+
+hash(Enck(DT )) == hash(Enck(DT ))
+If Bob sends ”No” to the smart contract or remains silent until the end of one day, the smart contract goes to Step 21. 13: After receiving ”Yes” by the smart contract from Bob, Alice sends k to the smart contract, claiming it is indeed key k. 14: Bob can check the validity of the received data in Step 10 by decrypting it using key k (available on the smart contract), then computing the hash of the decrypted data, and then comparing it with hash(DT ). In other words, he can check the following equality:
+
+hash Deck Enck(DT ) == hash DT
+
+If the equality is not veriﬁed by Bob, he sends Enck(DT ) to the smart contract. Otherwise, he does not send anything to the smart contract.
+
+15: if the smart contract receives no objection from Bob in a determined grace period (say 2 days) then
+
+16:
+
+CTarget is refundable to Alice, and CdepositA and CdepositB to Alice and Bob respectively.
+
+17:
+
+Algorithm terminates.
+
+18: else
+
+19:
+
+Go to Disputation Phase (Algorithm 4.2).
+
+20: end if
+
+21: Deposits be refundable.
+
+CTarget and CdepositB are refundable to Bob and CdepositA to Alice. Algorithm terminates.
+
+22: end procedure
+
+7
+
+4.1.2 Disputation Phase
+
+Algorithm 4.2 O(N )-Algorithm: Disputation Phase
+
+1: procedure Disputation Phase
+
+2: Bob sends Enck(DT ) to the smart contract, claiming he received it from Alice in Step 10 of Algorithm 4.1.
+
+Recall that Bob received Enck(DT ) from Alice in Step 10 of Algorithm 4.1.
+
+3: Smart contract computes hash(Enck(DT )) and compares it with hash(Enck(DT )), received in Step 11 of Algorithm 4.1, from Alice.
+
+4: if hash(Enck(DT )) == hash(Enck(DT )) then
+
+5:
+
+Using key k, the smart contract calculates Deck(Enck(DT )) as decryption of Enck(DT ), and then
+
+computes hash(Deck(Enck(DT ))).
+
+Recall that the smart contract received hash(Enck(DT )) and k from Alice in Steps 11 and 13 of Algorithm 4.1.
+
+6:
+
+if hash(Deck(Enck(DT ))) == hash(DT ) then
+
+7:
+
+go to Step 15: Bob is dishonest.
+
+8:
+
+else
+
+9:
+
+go to Step 14: Alice is dishonest.
+
+10:
+
+end if
+
+11: else
+
+12:
+
+go to Step 15: Bob is dishonest.
+
+13: end if
+
+14: Alice is dishonest.
+
+CTarget, CdepositA, and CdepositB are refundable to Bob. Algorithm terminates. 15: Bob is dishonest.
+
+CTarget, CdepositA, and CdepositB are refundable to Alice. Algorithm terminates. 16: end procedure
+
+4.2 Addressing the Requirements
+Now, we will explain how the proposed algorithm addresses the challenges listed in Subsection 3.2:
+1. No need to trust a third party in the trade process: By carefully reviewing the proposed platform, it is obvious that does not need any middle man since the smart contract takes care of the integrity of the trade between Alice and Bob.
+2. No need to presence of the certiﬁed person, Carol, during the trade process: The proposed algorithm does not need any attendance of the certiﬁed person during the trade process.
+3. Overcoming Alice’s dishonesty: If Alice sends another data instead of DT to Bob, according to Step 2 of Algorithm 4.2, Bob will send the encrypted version of DT (Enck(DT )) to the smart contract. The smart contract already has key k and can investigate and conﬁrm that Alice took a fraudulent step (see Steps 6-10 of Algorithm 4.2). So, in Step 14 of Algorithm 4.2, the smart contract gives all money (CTarget, CdepositA, and CdepositB) to Bob as a penalty. Note that CdepositA must cover the cost of the data uploading to the blockchain by Bob in the case that disputation happens.
+4. Overcoming Bob’s dishonesty: Bob’s dishonesty means that he has received DT , but he disputes to take all deposits (CTarget, CdepositA, and CdepositB) by uploading another data instead of the data which has received oﬀ-chain. But, such a fraud can be detected. Recall that Bob, in Step 12 of Algorithm 4.1, already has conﬁrmed that the hash of received encrypted data is equal to the claimed hash on the smart contract in Step 11 of Algorithm 4.1, i.e., hash(Enck(DT )) = hash(Enck(DT )) . Therefore if he claims that some other data has been received through the oﬀ-chain channel, according
+
+8
+
+to the second-preimage resistancy of the hash function, his data does not have the same hash value
+as hash(Enck(DT )) to pass the condition of Step 4 of Algorithm 4.2. If Bob still claims this, then the smart contract will send his deposit (CdepositB), in addition to CTarget, to Alice.
+
+5. If the network is disconnected, before DT is revealed to Bob, none of the parties suﬀers any loss: After sending key k to the smart contract (in Step 13 of Algorithm 4.1), DT is revealed to Bob, hence if the network is disconnected before it, the smart contract sends CdepositA to Alice, and CdepositB and CTarget to Bob (in Step 21 of Algorithm 4.1).
+
+6. No need for the parties to do extensive computation: According to Algorithm 4.1, the compu-
+
+tational overhead on Alice is computing the encryption of DT and the hash of Enck(DT ) (in Steps 10
+
+and 11), and on Bob is computing the hash of Enck(DT ), the decryption of Enck(DT ), and the
+
+hash of Deck(Enck(DT )) (in Steps
+
+12 and 14).
+
+Let
+
+us
+
+assume
+
+that
+
+for
+
+any
+
+data
+
+D,
+
+|Enck (D)| |D|
+
+=
+
+α,
+
+C (Enck (D)) |D|
+
+= β1,
+
+C (Deck (D)) |D|
+
+= β2,
+
+and
+
+C (hash(D)) |D|
+
+= β3,
+
+for
+
+some
+
+α≥1
+
+and
+
+β1, β2,
+
+and
+
+β3
+
+> 0.
+
+Then
+
+the computational overhead on the parties is O(N ), where N = |DT |.
+
+7. No need to place bulk of data on the blockchain: Reviewing Algorithms 4.1 and 4.2, one can see that if the disputation phase does not happen, then the size of the data uploaded to the blockchain is constant and negligible. On the other hand, if disputation happens, according to Algorithm 4.2, Bob needs to upload the encrypted data that he received through the oﬀ-chain channel, to the smart contract. We know that the size of the encrypted version of the data is proportional to the size of the data, which is large, in the order of the size of the data i.e., N . In the next sections, we will modify the proposed algorithm and resolve this issue.
+
+8. No need to execute extensive computation on the blockchain: Again, one can conﬁrm that in Algorithm 4.1, the computation cost of the smart contract is very limited. However, if the disputation
+phase is called, then calculating hash(Enck(DT )) and hash(Deck(Enck(DT ))) in Steps 4 and 6 of Algorithm 4.2 require O(N ) computation, which is not desired. We will resolve this issue in the modiﬁed algorithm in the next sections.
+
+9. Privacy of the data must be preserved: We can conﬁrm that the proposed algorithm addresses the privacy challenges by considering two diﬀerent scenarios:
+
+(a) If the disputation does not happen, the ﬁnal data is revealed only to Bob and never to the blockchain. Thus, it is not publicly available and the privacy of the data is preserved.
+(b) The disputation happens because Alice has sent a wrong data to Bob. In that case, Bob initiates the disputation phase and in that phase DT will be revealed. However, DT is not the same as DT and thus revealing it does not violate privacy.
+
+There is a concern here. In the case of disputation, if Algorithm 4.2 happens, even if DT and DT are diﬀerent in a bit, and then DT will be revealed entirely. We will resolve this issue in the modiﬁed algorithms in the next sections.
+
+5 Platform Improvement: O(log(N ))-Algorithm:
+In this modiﬁed version of the algorithm, Carol uses Merkle Tree [18] of data DT , in a certain way, described in Algorithm 5.1, and commits the hash of the root and the signed version of it to the smart contract (see Figure 3a). This approach will reduce the size of the data, uploaded to the smart contract in the disputation phase, and maximum computation load of the smart contract from O(N ) to O(log(N )), as detailed in Algorithm 5.1 (Figure 3).
+
+9
+
+Algorithm 5.1 O(log(N ))-Algorithm: Trading Phase
+1: procedure Initialization 2: Alice owns data DT , which is divided into M ∈ N chunks, each of size L ∈ N bits,
+as DT = (DT1 , . . . , DTM ). Data DT is certiﬁed by Carol. This means Carol has uploaded MerkleRoot(hash(DT1 ), . . . , hash(DTM )) and SignCarol MerkleRoot hash(DT1 ), . . . , hash(DTM ) to the smart
+contract (see Figure 3a). 3: Alice and Bob agree upon price CTarget, and also CdepositA and CdepositB. 4: Alice generates a key, denoted by k. 5: end procedure
+
+6: procedure Trading Phase 7: Bob sends MerkleRoot hash(DT1 ), . . . , hash(DTM ) to the smart contract, showing his interest in buying
+DT . 8: Bob deposits CTarget and CdepositB to the smart contract, nonrefundable for one day. 9: Alice deposits CdepositA to the smart contract, nonrefundable for one day.
+If Algorithm doesn’t get to Step 13 until the end of one day, it will go to Step 21. 10: Alice generates Enck(DTm), ∀m ∈ [M ], as an encrypted version of DTm, using key k, where DTm is the
+mth chunk of data DT (Similar to Algorithm 4.1, DT is the data that Alice sends and claims to be DT ).
+Alice sends Dataoﬀchain hash(DT1 ), Enck(DT1 ), hash(DT2 ), Enck(DT2 ), . . . , hash(DTM ), Enck(DTM ) to Bob through the oﬀ-chain channel. 11: Alice commits MerkleRoot(Dataoﬀchain) to the smart contract, claiming it is equal to MerkleRoot of Dataoﬀchain (Figure 3b). 12: Bob checks if:
+a MerkleRoot(Dataoﬀchain) == MerkleRoot(Dataoﬀchain)
+b MerkleRoot(hash(DT1 ), . . . , hash(DTM )) == MerkleRoot(hash(DT1 ), . . . , hash(DTM ))
+and sends ”Yes” to the smart contract, if the above equalities hold. If Bob sends ”No” to the smart contract or remains silent until the end of one day, the smart contract goes to Step 21. 13: After receiving ”Yes” by the smart contract from Bob, Alice sends k to the smart contract, claiming it is indeed key k. 14: Bob can check validity of the received data by decrypting each encrypted chunk using key k (available on the smart contract), then computing the hash of each decrypted chunk, and then comparing each with the version that Alice sent to him through the oﬀ-chain channel. In other words, he can check the following equality for all chunks:
+
+hash Deck Enck(DTm) == hash DTm , m ∈ [M ]
+
+If the above equality is not valid for at least one chunk, say chunk w ∈ [M ], Bob sends
+
+hash(DTw)||Enck(DTw), and its Merkle proof for MerkleRoot(Dataoﬀchain) to the smart contract. Otherwise, he does not send anything to the smart contract.
+
+15: if the smart contract receives no objection from Bob in a determined grace period (say 2 days) then
+
+16:
+
+CTarget is refundable to Alice, and CdepositA and CdepositB to Alice and Bob respectively.
+
+17:
+
+The algorithm terminates.
+
+18: else
+
+19:
+
+Go to the Disputation Phase (Algorithm 5.2).
+
+20: end if
+
+21: Deposits be refundable.
+
+CTarget and CdepositB are refundable to Bob and CdepositA to Alice. Algorithm terminates.
+
+22: end procedure
+
+10
+
+MerkleRoot (hash( ), … , hash( ))
+
+hash( )
+
+hash( )
+
+hash( )
+
+hash( )
+
+(a) Data DT is split into M ∈ N chunks (say M = 4), as DT = (DT1 , . . . , DTM ). Carol uploads MerkleRoot(hash(DT1 ), . . . , hash(DTM )) and SignCarol MerkleRoot hash(DT1 ), . . . , hash(DTM ) smart contract.
+
+MerkleRoot (Data
+
+)
+
+to the
+
+hash( )
+
+Enc ( )
+
+hash( )
+
+Data Enc ( )
+
+hash( )
+
+Enc ( )
+
+hash( )
+
+Enc ( )
+
+(b) Alice sends sequence Dataoﬀchain
+
+hash(DT1 ), Enck(DT1 ), hash(DT2 ), Enck(DT2 ), . . . , hash(DTM ), Enck(DTM ) , in-
+
+closed in the orange box in the ﬁgure, to Bob through the oﬀ-chain channel. Alice also commits MerkleRoot(Dataoﬀchain)
+to the smart contract, claiming it is equal to MerkleRoot of Dataoﬀchain. If Bob disputes the validity of a chunk of data (say 3rd chunk), represented by red rectangle, he sends
+
+hash(DT3 )||Enck(DT3 ) and its Merkle proof (shown by blue rectangles) to the smart contract.
+
+Figure 3: Merkle Tree for O(log(N ))-Algorithm
+
+Algorithm 5.2 O(log(N ))-Algorithm: Disputation Phase
+
+1: procedure Disputation Phase
+
+2: If there is a chunk w ∈ [M ], such that hash Deck Enck(DTw) = hash DTw , Bob sends its hash and
+
+encrypted version, i.e., hash(DTw)||Enck(DTw), along with its Merkle proof for MerkleRoot(Dataoﬀchain) to the smart contract, claiming he received it from Alice in Step 10 of Algorithm 5.1. We denote these data
+
+as Proofoﬀchain.
+
+Recall that Bob received Dataoﬀchain from Alice in Step 10 of Algorithm 5.1.
+
+3: Using the uploaded data by Bob, the smart contract veriﬁes Proofoﬀchain for MerkleRoot(Dataoﬀchain),
+
+received in Step 11 of Algorithm 5.1.
+
+4: if Proofoﬀchain is veriﬁed for MerkleRoot(Dataoﬀchain) then
+
+5:
+
+Using key k, the smart contract calculates Deck Enck(DTw) as decryption of Enck(DTw), and then
+
+computes hash Deck Enck(DTw) .
+
+Recall that the smart contract received MerkleRoot(Dataoﬀchain) and k from Alice in Steps 11 and 13 of Algorithm 5.1.
+
+6:
+
+if hash Deck Enck(DTw) == hash(DTw) then
+
+7:
+
+go to Step 15: Bob is dishonest.
+
+8:
+
+else
+
+9:
+
+go to Step 14: Alice is dishonest.
+
+10:
+
+end if
+
+11: else
+
+12:
+
+go to Step 15: Bob is dishonest.
+
+13: end if
+
+14: Alice is dishonest.
+
+CTarget, CdepositA, and CdepositB are refundable to Bob. Algorithm terminates.
+
+15: Bob is dishonest.
+
+CTarget, CdepositA, and CdepositB are refundable to Alice. Algorithm terminates.
+
+16: end procedure
+
+11
+
+5.1 Analysis of O(log(N ))-Algorithm
+It is easy to verify that the ﬁrst to ﬁfth requirements are satisﬁed in this algorithm. Also, it is easy to see that the computation and storage cost of the trading phase to the smart contract is constant. Here we want to evaluate the computation load for the parties and the computation and storage cost of the disputation phase to the smart contract.
+
+5.1.1 Computation Load for the Parties
+According to Algorithm 5.1, the computation load for Alice is computing the encryption of each chunk of the data and MerkleRoot of Dataoﬀchain (Steps 10 and 11), and for Bob is computing MerkleRoot(Dataoﬀchain), MerkleRoot(hash(DT1 ), . . . , hash(DTM )), and hash Deck Enck(DTm) , ∀m ∈ [M ] (Steps 12 and 14). Similar to the analysis of the previous algorithm, the computation load for the parties is O(N ), where |DT | = N .
+
+5.1.2 Size of the Data Uploaded to the Blockchain
+
+As we argued, in Algorithm 4.1, in the disputation phase, the size of the data uploaded to the smart contract
+
+is O(N ). Here we argue that in modiﬁed Algorithm 5.1 and 5.2, this is reduced to O(log(N )).
+
+Let us assume |DT | = N , and thus the number of chunks is equal to M =
+
+N L
+
+. In addition, let us assume
+
+that
+
+for
+
+any
+
+data
+
+D,
+
+|Enck (D)| |D|
+
+=
+
+α,
+
+for
+
+some
+
+α≥
+
+1.
+
+Then
+
+the
+
+size
+
+of
+
+Proofoﬀchain,
+
+the
+
+uploaded
+
+data
+
+to
+
+the
+
+smart contract, in this scheme is equal to:
+
+(log2
+
+M
+
++
+
+1)h
+
++
+
+αL
+
+=
+
+(log2(
+
+N L
+
+)
+
++
+
+1)h
+
++
+
+αL
+
+where h denotes the size of the hash output. The optimum size of L to minimize the uploaded cost is equal
+
+to:
+
+L∗
+
+=
+
+α
+
+h ln(2)
+
+.
+
+For example for α = 1 and h = 256, the optimal chunk size is equal to 369 bits. Therefore, the order of data that must be uploaded to the blockchain for the disputation phase is reduced from O(N ) to O(log(N )).
+
+5.1.3 Computation Load of the Smart Contract
+Moreover, the computation load of the smart contract in the disputation phase is also reduced to O(log(N )). The reason is that the smart contract veriﬁes a Merkle proof, in Step 4 of Algorithm 5.2, with O(log(N )) computation load and computes the hash of the decryption of an encrypted chunk of the data, in Step 6 of Algorithm 5.2, with O(1) computation load.
+
+5.1.4 Privacy of The Data
+Similar to the previous algorithm, here also the privacy of the data is perfectly guaranteed. However, in addition to that, in the disputation phase, at most one chunk of DT is revealed.
+
+6 Platform Improvement: O(1)-Algorithm
+Recall that in the disputation phase of both O(N )-Algorithm and O(log(N ))-Algorithm, Bob needs to prove that the data that he sends to the smart contract, in the disputation phase, is the same as what he has received from Alice through the oﬀ-chain channel. This proof requires upload cost of, respectively, O(N ) and O(log(N )) in O(N )-Algorithm and O(log(N ))-Algorithm. In this section, we propose an alternative approach to reduce this cost O(1) using Alice’s signature. In this approach, Alice sends to Bob, the hash of each chunk of the data, the encrypted version of each chunk, along with her signature of those contents, through the oﬀ-chain channel. Since the public key of Alice is already available on the smart contract, in case that Bob wants to dispute the validity of one chunk, he can very easily prove that he received that chunk from Alice, as detailed in Algorithm 6.1 (Figure 4).
+
+12
+
+Algorithm 6.1 O(1)-Algorithm: Trading Phase
+1: procedure Initialization 2: Alice owns data DT , which is divided into M ∈ N chunks, each of size L ∈ N bits,
+as DT = (DT1 , . . . , DTM ). Data DT is certiﬁed by Carol. This means Carol has uploaded MerkleRoot(hash(DT1 ), . . . , hash(DTM )) and SignCarol MerkleRoot hash(DT1 ), . . . , hash(DTM ) to the smart
+contract (see Figure 3a). 3: Alice and Bob agree upon price CTarget, and also CdepositA and CdepositB. 4: Alice generates a key, denoted by k. 5: end procedure
+
+6: procedure Trading Phase 7: Bob sends MerkleRoot(hash(DT1 ), . . . , hash(DTM )) to the smart contract, showing his interest in buying
+DT .
+8: Bob deposits CTarget and CdepositB to the smart contract, nonrefundable for one day.
+9: Alice deposits CdepositA to the smart contract, nonrefundable for one day.
+If Algorithm doesn’t get to Step 12 until the end of one day, it will go to Step 20. 10: Alice generates Enck(DTm), ∀m ∈ [M ], as an encrypted version of DTm, using key k, where DTm is
+the mth chunk of data DT . Alice sends hash(DTm)||Enck(DTm), ∀m ∈ [M ], to Bob through the oﬀ-chain channel. Moreover, she sends the signed of hash of their concatenation using her private key (the one
+
+paired with her public key on the blockchain), SignAlice hash hash(DTm)||Enck(DTm) the oﬀ-chain channel. 11: Bob checks if:
+
+to Bob through
+
+a the signature of Alice in SignAlice hash hash(DTm)||Enck(DTm) is veriﬁed, using Alice public key
+and hash(DTm)||Enck(DTm), ∀m ∈ [M ].
+b MerkleRoot(hash(DT1 ), . . . , hash(DTM )) == MerkleRoot(hash(DT1 ), . . . , hash(DTM ))
+and sends ”Yes” to the smart contract, if the above equalities hold. If Bob sends ”No” to the smart contract or remains silent until the end of one day, the smart contract goes to Step 20. 12: After receiving ”Yes” by the smart contract from Bob, Alice sends k to the smart contract, claiming it is indeed key k. 13: Bob can check validity of the received data by decrypting each encrypted chunk using key k (available on the smart contract), then computing the hash of each decrypted chunk, and then comparing each with the version that Alice sent to him through the P2P channel. In other words, he can check the following equality for all chunks:
+hash Deck Enck(DTm) == hash DTm , m ∈ [M ]
+
+If the above equality is not valid for at least one chunk, say chunk w ∈ [M ], Bob sends
+
+Enck(DTw)||hash(DTw), and SignAlice hash hash(DTw)||Enck(DTw) to the smart contract. Otherwise, he
+
+does not send anything to the smart contract.
+
+14: if the smart contract receives no objection from Bob in a determined grace period (say 2 days) then
+
+15:
+
+CTarget is refundable to Alice, and CdepositA and CdepositB to Alice and Bob respectively.
+
+16:
+
+The algorithm terminates.
+
+17: else
+
+18:
+
+Go to Disputation Phase (Algorithm 6.2).
+
+19: end if
+
+20: Deposits be refundable.
+
+CTarget and CdepositB are refundable to Bob and CdepositA to Alice. Algorithm terminates.
+
+21: end procedure
+
+13
+
+Smart
+
+Alice
+2
+
+Contract
+
+Bob
+
+CdepositA
+
+C C (hasTh(aDMrTg1e)er,kt.le. R. ,ohdoateshp(oDsMTit)B)
+
+1
+
+3
+
+hash(DTm)||Enck
+hash hash(DSiTgmn)A||lEicne ck
+
+(DTm)
+(DTm)
+
+(∀m ∈ [M ])
+
+Phase1
+
+5 k
+
+Yes
+
+4
+
+Phase2
+
+hash(DwT )||Enc k(DwT )
+hash hasShi(gDnwATl)ic||eEnck(DwT )
+
+Figure 4: The messages transferred in O(1)-Algorithm Algorithm 6.2 O(1)-Algorithm: Disputation Phase
+1: procedure Disputation Phase 2: If there is a chunk w ∈ [M ], such that hash Deck Enck(DTw) = hash DTw , Bob sends its hash and
+
+encrypted version, i.e., hash(DTw)||Enck(DTw), along with SignAlice hash hash(DTw)||Enck(DTw) to the smart contract, claiming he received it from Alice in Step 10 of Algorithm 6.1.
+Recall that Bob received these data from Alice in Step 10 of Algorithm 6.1. 3: Using the uploaded data by Bob, at ﬁrst, the smart contract checks signature of data.
+
+4: if
+
+Alice’s signature in SignAlice hash hash(DTw)||Enck(DTw)
+
+is veriﬁed using
+
+hash hash(DTw)||Enck(DTw) then
+
+5:
+
+Using key k, the smart contract calculates Deck Enck(DTw) as decryption of Enck(DTw), and then
+
+computes hash Deck Enck(DTw) .
+
+Recall that the smart contract received k from Alice in Step 12 of Algorithm 6.1.
+
+6:
+
+if hash Deck Enck(DTw) == hash(DTw) then
+
+7:
+
+go to Step 15: Bob is dishonest.
+
+8:
+
+else
+
+9:
+
+go to Step 14: Alice is dishonest.
+
+10:
+
+end if
+
+11: else
+
+12:
+
+go to Step 15: Bob is dishonest.
+
+13: end if
+
+14: Alice is dishonest.
+
+CTarget, CdepositA, and CdepositB are refundable to Bob. Algorithm terminates. 15: Bob is dishonest.
+
+CTarget, CdepositA, and CdepositB are refundable to Alice. Algorithm terminates.
+
+16: end procedure
+
+14
+
+6.1 Analysis of O(1)-Algorithm
+It is easy to verify that the ﬁrst to ﬁfth requirements are satisﬁed in this algorithm. Also, it is easy to see that the computation and storage cost of the trading phase to the smart contract is constant. Here we want to evaluate the computation load for the parties and the computation and storage cost of the disputation phase to the smart contract.
+
+6.1.1 Computation Load for the Parties
+
+According to Algorithm 6.1, the computation load for Alice is computing the encryption of each chunk of the
+
+data and the signature of the hash of hash(DTm)||Enck(DTm) (Step 10), and for Bob is computing veriﬁcation
+
+of the signature of Alice in the hash of hash(DTm)||Enck(DTm), MerkleRoot(hash(DT1 ), . . . , hash(DTM )), and
+
+hash Deck Enck(DTm)
+
+, ∀m
+
+∈ [M ]
+
+(Steps
+
+11
+
+and
+
+13).
+
+Let
+
+us
+
+assume
+
+that
+
+for
+
+any
+
+data
+
+D,
+
+C (Sign(D)) |D|
+
+= β4,
+
+for some β4 > 0. Similar to the analysis of the previous algorithm, the computation load for the parties is
+
+O(N ), where |DT | = N .
+
+6.1.2 Size of the Data Uploaded to the Blockchain
+Note that the volume of the disputation data in this algorithm is constant, so by considering 65 bytes length for the signature [19], h = 256, α = 1, and L = 256 the volume of the data needed for the disputation is 1032 bits. Therefore, the order of data that must be uploaded to the blockchain for the disputation is reduced to O(1).
+
+6.1.3 Computation Load of the Smart Contract Also, the computation load of the smart contract in the disputation phase is also O(1), which is very desirable.
+
+6.1.4 Privacy of The Data In this approach also, in the disputation phase, only one chunk of DT is revealed.
+
+7 Conclusion
+In this paper, by exploiting the advantages of blockchain and smart contracts, we propose BlockMarkchain platform as a decentralized data market that does not require any mutual trust between the trade parties or a trusted third party as a mediator. In the proposed platform, the computation and storage load on the smart contract is negligible and constant if the parties behave honestly. In the presence of malicious behavior, the proposed algorithm allows the honest party to prove the malicious behavior of the other party to the smart contract, again with O(1) computation and storage cost to the blockchain.
+
+References
+[1] H. Pagnia, H. Vogt, and F. C. Gartner, “Fair exchange,” Computer Journal, vol. 46, no. 1, pp. 55–75, 2003.
+[2] H. Pagnia and F. C. Gartner, “On the impossibility of fair exchange without a trusted third party,” Department of Computer Science, Darmstadt University of Technology, Tech. Rep., 1999.
+[3] C. Cadwalladr and E. Graham-Harrison, “Revealed: 50 million facebook proﬁles harvested for cambridge analytica in major data breach.” https://www.theguardian.com/news/2018/mar/17/ cambridge-analytica-facebook-influence-us-election, 2018.
+[4] Bitcoin Wiki, “Zero knowledge contingent payment.” https://en.bitcoin.it/wiki/Zero_ Knowledge_Contingent_Payment, 2018.
+
+15
+
+[5] A. Rosen, Concurrent Zero-Knowledge. Springer, 2006. [6] H. Ehteram, M. T. Toghani, and M. A. Maddah-Ali, “Blockchain based data market.” https://github.
+com/mttoghani/Blockchain-based_Data_Market/blob/master/Poster.jpg, Jun 20, 2018. [7] S. Dziembowski, L. Eckey, and S. Faust, “Fairswap: How to fairly exchange digital goods,” in in Pro-
+ceedings of the 2018 ACM SIGSAC Conference on Computer and Communications Security, p. 967984, Aug 13, 2018. [Online]. Available: https://eprint.iacr.org/2018/740. [8] L. Eckey, S. Faust, and B. Schlosser, “Optiswap: Fast optimistic fair exchange,” 2019. [Online]. Available: https://eprint.iacr.org/2019/1330. [9] A. Asgaonkar and B. Krishnamachari, “Solving the buyer and sellers dilemma: A dual-deposit escrow smart contract for provably cheat-proof delivery and payment for a digital good without a trusted mediator,” 2018. [Online]. Available: https://arxiv.org/abs/1806.08379. [10] BitBay, “double deposit escrow.” https://bitbay.market/double-deposit-escrow, 2018. [11] P. Rogaway and T. Shrimpton, “Cryptographic hash-function basics: Deﬁnitions, implications, and separations for preimage resistance, second-preimage resistance, and collision resistance,” in International workshop on fast software encryption, pp. 371–388, Springer, 2004. [12] S. Nakamoto, “Bitcoin: a peer-to-peer electronic cash system,” 2008. [Online]. Available: http://www. bitcoin.org/bitcoin.pdf. [13] Bitcoin Wiki, “Script,” 2019. [Online]. Available: https://en.bitcoin.it/wiki/Script. [14] V. Buterin, “A next-generation smart contract and decentralized application platform,” 2013. [Online]. Available: https://github.com/ethereum/wiki/wiki/White-Paper. [15] Storj, “Storj: A decentralized cloud storage network framework.” https://storj.io/storjv3.pdf, 2018. [16] G. Wood, “Ethereum: A secure decentralised generalised transaction ledger,” 2014. [Online]. Available: http://gavwood.com/paper.pdf. [17] ETHgasstation, “Recommended gas prices in gwei.” https://ethgasstation.info, 2019. [18] R. Merkle, “Protocols for public key cryptosystems,” Symposium on Security and Privacy, IEEE Computer Society, pp. 122–133, April 1980. [19] Solidity, “Introduction to smart contracts (solidity v0.5.11).” https://solidity.readthedocs.io/en/ latest/introduction-to-smart-contracts.html, 2019.
+16
+
