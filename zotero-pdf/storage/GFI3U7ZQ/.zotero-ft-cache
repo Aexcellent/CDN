@@ -1,0 +1,801 @@
+See discussions, stats, and author profiles for this publication at: https://www.researchgate.net/publication/220933952
+A relevance-extended multi-dimensional model for a data warehouse contextualized with documents
+Conference Paper · January 2005
+DOI: 10.1145/1097002.1097007 · Source: DBLP
+
+CITATIONS
+44
+4 authors: Juan Manuel Pérez Instituto Politécnico Nacional 12 PUBLICATIONS 115 CITATIONS
+SEE PROFILE
+María José Aramburu Universitat Jaume I 78 PUBLICATIONS 973 CITATIONS
+SEE PROFILE
+
+READS
+129
+Rafael Berlanga-Llavori Universitat Jaume I 152 PUBLICATIONS 1,767 CITATIONS
+SEE PROFILE
+Torben Bach Pedersen Aalborg University 351 PUBLICATIONS 5,978 CITATIONS
+SEE PROFILE
+
+Some of the authors of this publication are also working on these related projects: SLOD-BI: Development of an open linked data infrastructure for Social Business Intelligence aimed at SMEs View project The BagTrack Project View project
+
+All content following this page was uploaded by Rafael Berlanga-Llavori on 23 May 2014.
+The user has requested enhancement of the downloaded file.
+
+A Relevance-Extended Multi-dimensional Model for a Data Warehouse Contextualized with Documents
+
+Juan Manuel Pérez, Rafael Berlanga, María José Aramburu
+Universitat Jaume I
+{martinej,berlanga,aramburu}@uji.es
+
+Torben Bach Pedersen
+Aalborg University
+tbp@cs.aau.dk
+
+ABSTRACT
+Current data warehouse and OLAP technologies can be applied to analyze the structured data that companies store in their databases. The circumstances that describe the context associated with these data can be found in other internal and external sources of documents. In this paper we propose to combine the traditional corporate data warehouse with a document warehouse, resulting in a contextualized warehouse. Thus, contextualized warehouses keep a historical record of the facts and their contexts as described by the documents. In this framework, the user selects an analysis context which is represented as a novel type of OLAP cube, here called R-cube. R-cubes are characterized by two special dimensions, namely: the relevance and the context dimensions. The ﬁrst dimension measures the relevance of each fact in the selected analysis context, whereas the second one relates each fact with the documents that explain their circumstances. In this work we extend an existing multi-dimensional data model and algebra for representing the R-cubes.
+Categories and Subject Descriptors
+H.4.2 [Information Systems Applications]: Types of Systems—decision support
+General Terms
+Design
+Keywords
+OLAP, text-rich XML documents
+1. INTRODUCTION
+Current data warehouse [8] and OLAP [3] technologies can be eﬃciently applied to analyze the huge amounts of structured data that companies produce. These organizations also produce many documents and use the Web as
+Permission to make digital or hard copies of all or part of this work for personal or classroom use is granted without fee provided that copies are not made or distributed for proﬁt or commercial advantage and that copies bear this notice and the full citation on the ﬁrst page. To copy otherwise, to republish, to post on servers or to redistribute to lists, requires prior speciﬁc permission and/or a fee. DOLAP’05, November 4–5, 2005, Bremen, Germany. Copyright 2005 ACM 1-59593-162-7/05/0011 ...$5.00.
+
+their largest source of external information. Examples of internal and external sources of information include the following: purchase-trends and market-research reports, demographic and credit reports, popular business journals, industry newsletters, technology reports, etc. Although these documents cannot be analyzed by current OLAP technologies mainly because they are unstructured and contain a large amount of text, they include highly valuable information that should also be exploited by companies. The current trend is to ﬁnd these documents available in XML-like formats [21].
+Our proposal is to build XML document warehouses that can be used by companies to store unstructured information coming from their internal and external sources. In [16] we outlined a multi-dimensional implementation of a document model [15] for the analysis of the information stored in a warehouse of text-rich XML documents. In this paper we present an architecture for the integration of a corporate warehouse of structured data with a warehouse of unstructured documents. We call the resulting warehouse a contextualized warehouse. Thus, a contextualized warehouse is a new kind of decision support system that allows users to obtain strategic information by combining all their sources of structured data and unstructured documents, and by analyzing the integrated data under diﬀerent contexts. For example, if we have a document warehouse with business news articles, we can analyze the evolution of the sales measures stored in our corporate warehouse in the context of a period of crisis as described by the relevant news. Thus, we could detect which products have been more aﬀected. The same set of facts could be less revealing under a diﬀerent context (e.g. regions in economical development). Furthermore, for those facts that are not available in the corporate warehouse, some kind of alternative approximate information about them could be extracted from past economical reports (e.g. aggregated measures of historical export-import rates of some countries), and then included in the contextualized warehouse. We note that some important characteristics make diﬀerent typical OLAP facts from factual information extracted from documents: the extracted facts may be incomplete (since not all the dimensions may be quoted in the documents contents) and/or imprecise (if the dimension values found belong to non-base levels).
+The applications described above require both the availability of a document warehouse and its cooperation with the corporate data warehouse. The circumstances of the original facts are understood by analyzing their contexts, that is, the information available in the documents related
+
+19
+
+with the facts. In this paper, a context is deﬁned as a set of textual fragments that can provide analysts with strategic information important for decision-making tasks. Contexts are thus unstructured, and cannot be managed by the wellstructured corporate warehouse. Since the document warehouse may contain documents about many diﬀerent topics, we apply well-known Information Retrieval (IR) [1] techniques to select the context of analysis from the document warehouse. Thus, in order to build a contextualized OLAP cube, the analyst will specify the context under analysis by supplying a sequence of keywords. Each fact in the resulting cube will have a numerical value representing its relevance with respect to the speciﬁed context, thereby its name, Rcube (Relevance cube). Moreover, each fact in the R-cube will be related to its context (i.e. the set of the relevant documents that describe the context of the fact). In this paper we extend an existing multi-dimensional data model to represent these two new dimensions (relevance and context), and we study how the traditional OLAP operations aﬀect them.
+The relevance and context dimensions provide us further information about facts that can be very useful for analysis tasks. From the user point of view, the relevance dimension can be used to explore the most relevant portions of an R-cube. For example, it can be used to identify the period of a political crisis, or the regions under economical development. The usefulness of the context dimension is twofold. First, it can be used in the selection operations to restrict the analysis to the facts described in a given subset of the documents (e.g. the most relevant documents). And second, the user will be able to gain insight into the circumstances of a fact by retrieving its related documents. The graphs, charts, and other binary ﬁles possibly linked in the documents would also be presented to the user, easing the understanding of the analysis context.
+The main contributions of this paper are both, (1) an architecture for the integration of a traditional structured corporate warehouse with a document warehouse, resulting in a contextualized warehouse; and (2) the formal multidimensional data model and the algebra unary operations to manage R-cubes.
+The rest of the paper is organized as follows. Section 2 discusses the related work. In Section 3 we present the architecture of a contextualized warehouse. Section 4 shows how the analysis cubes (R-cubes) are built. The multidimensional data model for R-cubes is presented in Section 5. In Section 6 we propose an algebra for R-cubes. Finally, Section 7 addresses conclusions and future work.
+2. RELATED WORK
+In [7] the importance of external contextual information to understand the results of historical analysis was emphasized. Some works like [21] are focused on the construction of repositories of XML documents gathered from the Internet, but they do not provide on-line analysis tools.
+In [13], OLAP operations are extended to involve dimension and/or measures contained in external XML data. From a diﬀerent point of view, [2] propose to extend XQuery [20] with grouping constructs to evaluate OLAP-style aggregation queries on XML documents. However, the cited papers only deal with highly structured XML data (e.g. on-line XML products pricing lists), since the measures and dimensions should be selected by using XPath expressions [20].
+
+These approaches are not suitable for analyzing text-rich XML documents where the measure and dimension values are found in the documents textual contents.
+A recent paper [12] provides mechanisms to perform special text aggregations on the contents of XML documents, e.g., getting the number of words of a document section, its most frequent keywords, a summary, etc. Although these text-mining operations are very useful to explore an XML document collection, these techniques cannot be applied to evaluate OLAP operations on the factual information described by the textual contents of the documents. Our approach diﬀers from [12] in the sense that we do not analyze the documents textual contents themselves, we extract the dimension values from the documents contents and relate the documents with those corporate facts characterized by the same dimension values. Afterwards, we analyze the corporate data by using the documents as their context.
+Information Retrieval (IR) [1] is playing an important role on the Web, since it has enabled the development of useful discovery tools (e.g. web search engines) and digital library services. These applications deal with huge amounts of textrich documents and have successfully applied IR techniques to query this type of repositories. In an IR system the users describe their information needs by supplying a sequence of keywords. The result is a set of documents ranked by relevance. The relevance is a numerical value which measures how well the document ﬁts the user information needs. Traditional IR models (e.g. the vector space model [18]) calculate this relevance value by considering the local and global frequency (tf-idf) of the query keywords in the document and the collection, respectively. Intuitively, a document will be relevant to the query if the speciﬁed keywords appear frequently in its textual contents and they are not frequent in the collection. Newer proposals in the ﬁeld of IR include language modeling [17] and relevance modeling [9] techniques. The works on language modeling consider each document as a language model. Thus, documents are ranked according to the probability of obtaining the query keywords when randomly sampling from the respective language model. An extension of the language modeling approach is relevance modeling [9] which estimates the probability of observing a query keyword in the set of documents relevant to a query. The language and relevance modeling approaches still internally apply the keyword frequency to estimate probabilities, and they have been shown to outperform baseline tf-idf models in many cases [17, 9]. As discussed below, our approach relies on relevance modeling techniques. Unlike traditional IR models, language and relevance models provide a formal background based on probability theory which is suitable to be included in the formalization of OLAP operations.
+In [15] we presented a document model for text-rich XML documents where information extraction techniques [10, 5, 6] are applied to identify the facts described by the textual contents of the documents. Particularly, [10] and [5] were proven to work to extract time and location references. Given an IR condition, in [15] we showed how relevance modeling techniques [9] can be applied to estimate the relevance of a fact by the probability of observing this fact in a document which contains the keywords stated in the IR condition. By following this research line, in a short paper [16] we outlined a multi-dimensional implementation of the relevance model discussed in [15]. The focus of the present paper is contextualized warehouses. Here we relate
+
+20
+
+the facts of a traditional corporate warehouse with the documents that describe their circumstances. IR conditions are used for establishing an analysis context, and the relevance model of [15] is applied to calculate the relevance of the facts in the resulting analysis cube (R-cube). The relevance value of a fact measures how well the fact ﬁts into the selected context. At any moment, it is possible to retrieve the documents related to a fact, and to gain insight into the explanation of its circumstances. The architecture of a contextualized warehouse, and the extended multi-dimensional data model and algebra for R-cubes proposed in the current paper are novel.
+In [11] a probabilistic multi-dimensional model was presented, but it does not clearly discuss how the probabilities of the facts are re-calculated after an aggregation. Moreover, the selection operation does not modify the probabilities of the facts in the resulting cube. We consider that the conditions established in a selection operation are also a restriction on the context under analysis and therefore the relevance of facts must be updated accordingly.
+3. CONTEXTUALIZED WAREHOUSES
+Figure 1 shows the proposed architecture for the contextualized warehouse. Its main components are a traditional structured corporate warehouse [8], a document warehouse able to evaluate IR conditions [15], and a fact extractor module. Building a contextualized warehouse mainly means relating each fact of the corporate warehouse with its context. For this purpose, the fact extractor tool uses the dimensions deﬁned in the corporate warehouse to detect and build the facts described in the documents. Next, we describe this process in detail by means of an example.
+
+Document Warehouse
+Q, XPath Fact Extractor
+Contexts & Facts
+
+Corporate Warehouse
+Dimensions
+
+OLAP Cube
+
+Corp. Facts
+
+Document Analysts
+
+Contextualized R-cube
+Facts
+
+Contexts &
+Facts
+
+Analysts
+
+Figure 1: Contextualized warehouse architecture
+Let us consider the corporate warehouse of an international provider of vegetable oil by-products. The main products of this company include: f o1, f o2 (used as preservatives in the f ood sector), and he1 and he2 (used in the elaboration of healthcare products). The company keeps in its corporate warehouse a historical record of its sales, the quantity sold (Quantity measure) and its cost (Amount measure), per product and customer. Thus, the dimensions of the corporate warehouse are T ime, P roducts and Customers. The P roducts are classiﬁed into Sectors (f ood and healthcare). Finally, Customers are organized into Countries and Regions (e.g. Southeast Asia, Central America, etc.).
+
+Our example company also maintains a document warehouse of business newspapers gathered from the Internet in XML format. Figure 2 shows a fragment of an example document of this warehouse that depicts a context for the sales of food sector products to customers of the Southeast Asian region, made during the second half of 1998. Notice that contexts are very useful for analysis tasks, since they can give us detailed information about the facts of the corporate warehouse. For example, the document in Figure 2 would help to understand a sales drop.
+<article date=‘‘Dec.1,1998’’> <paragraph> The financial crisis in Southeast Asian countries, has mainly affected companies in the food market sector. Particularly, Chicken SPC Inc. has reduced total exports to $1.3 million during this half of the year from $10.1 million in 1997. </paragraph> ... </article>
+Figure 2: Example fragment of a business journal
+By applying information extraction techniques [10, 5, 6], and considering the predeﬁned analysis dimensions of the example corporate warehouse, the dimension values Southeast Asia, f ood, and 1998/2nd half can be identiﬁed in the document fragment. The fact extractor tool builds all the valid facts with them, in this case, (P roducts.Sector = f ood, Customers.Region = Southeast Asia, T ime.Half year = 1998/2nd half ). As it can be noticed, some of these dimension values are not precise enough and belong to non-base dimension categories, for example, the SoutheastAsia dimension value belongs to the category Region of the Customers dimension. We may also ﬁnd documents where some dimensions are not mentioned, resulting in incomplete facts. For each fact, the fact extraction tool also keeps the number of times that its dimension values occur in the document fragment (i.e. the fact dimension values frequency). This frequency determines the importance of the fact in the document, and later will be used to estimate the relevance of a fact in a given context.
+Let us now consider the second sentence of the example document of Figure 2. It depicts two facts: (Company = Chicken SP C, T ime.Y ear = 1997, Export = $10, 100, 000), (Company = Chicken SP C, T ime.Half year = 1998/2nd half, Export = $1, 300, 000). Chicken SPC Inc. could be a potential customer or competitor of our example oil provider company. In this way, the document warehouse also provides highly valuable strategic information about some facts that are not available in the corporate warehouse nor in external databases. We note that sometimes it is relatively easy to obtain these facts, for example, when they are presented as tables in the documents. However, most times documents contain already aggregated measure values (total exports in the facts of the previous example). The main problem here is to automatically infer the implicit aggregation function that was applied (i.e. average, sum, etc.) Alternatively, the system could ask the user to guess the aggregation function by showing him/her the document contents. In this work we mainly focus on the fact dimensions, leaving for future work the management of measures extracted from texts. Notice that documents extracted measure values are not essential to construct a contextualized warehouse, since the dimension values found in a document are suﬃcient to relate it
+
+21
+
+F Products.ProductId Customers.Country Time.Month
+
+Amount R Ctxt
+
+f1 f o1 f2 f o2 f3 f o2 f4 f o1 f5 f o2
+
+C uba J apan Korea J apan Korea
+
+1998/03 1998/02 1998/05 1998/10 1998/11
+
+4, 300, 000$ 3, 200, 000$
+900, 000$ 300, 000$ 400, 000$
+
+0.05 0.1 0.2 0.4 0.25
+
+d03.005, d07.005 d05.02 d04.04 d01.04, d02.08 d02.08, d06.01
+
+Table 1: Example R-cube. Each row represents a fact. The R and the Ctxt columns (dimensions) depict the relevance value and the context of the facts, respectively. Each dri denotes a document fragment of the
+collection whose relevance with respect to Q is r.
+
+with the corporate facts that are characterized by these dimension values.
+4. BUILDING R-CUBES
+In this section we study how the analysis cubes are materialized from the contextualized warehouse. We call them R-cubes since they include two special system-maintained dimensions, namely: the relevance and the context dimensions. From these cubes, users can study the contextualized facts.
+In order to create an R-cube the analyst must supply a query of the form (Q, XP ath, M DX), which states the following restrictions: Q is an Information Retrieval (IR) condition, consisting of a sequence of keywords that speciﬁes the context under analysis; XP ath is a path expression [20] that establishes the document sections under study; ﬁnally, M DX are conditions over the dimensions and measures of the analysis [19]. Here, our purpose is not to deﬁne a new query language, but to identify the type of conditions needed to build an analysis cube in a contextualized warehouse.
+The query process takes place as follows: (1) First, the IR condition Q and the path expression XP ath are evaluated in the documents warehouse. The result is a set of documents fragments satisfying XP ath and Q, along with their relevance with respect to Q. (2) Second, the fact extractor component parses the documents fragments obtained in step (1) and returns the set of facts described by each document fragment, along with their frequency. Notice that we do not parse entire documents, but those document fragments selected by the XP ath expression. (3) Next, or in parallel to steps (1) and (2), the MDX conditions are evaluated on the corporate warehouse. (4) Then, we assign each document to those facts of the corporate database whose dimension values can be “rolled-up” or “drilled-down” to some (possibly imprecise or incomplete) fact described by this document. (5) Finally, we calculate the relevance of each fact, resulting in an R-cube.
+By following with the running example, let us consider the analysis of the sales of food products under the context of a ﬁnancial crisis reported in the business articles of the document warehouse. Thus, given Q =“f inancial, crisis”, XP ath =“/db/business/article/paragraph” and M DX = (P roducts.[f ood], Customers.Country, T ime.[1998].M onth, SU M (M easures.Amount) > 0) as query conditions, the contextualized warehouse will return the R-cube presented in Table 1. That is, the set of facts of the corporate warehouse that satisfy the stated MDX conditions, along with their relevance values with respect to the IR condition (relevance dimension, depicted as R), and the set of text fragments where each fact occurs (context dimension, represented by Ctxt).
+
+As Table 1 shows, the relevance (R dimension) is a numeric value that measures the importance of each fact in the context established by the initial query conditions. The most relevant facts of our example R-cube involve the sales made to Japanese and Korean customers during the months of October and November 1998. Notice that we could obtain the details described in the relevant documents by performing a drill-through operation on the context dimension [19]. By studying these documents we can discover that the Southeast Asian ﬁnancial crisis reported by the document of Figure 2, is a valid explanation of the sales drop. Each document di of the context dimension also has associated a relevance value (represented by the r superscript in dri ) which measures how well this document describes the selected analysis context.
+A detailed discussion on the calculus of the relevance of the facts can be found in [15], a brief explanation of the involved formulas is included in Appendix A. Intuitively, a fact will be relevant for the selected context if the fact is found in a document which is also relevant for this context (e.g. if the keywords of the IR condition Q occur frequently in the document). In [15] we applied relevance modeling techniques [9] to estimate the relevance of a fact by means of the probability of observing this fact in the set of documents relevant to the IR condition. The probability of ﬁnding a fact in a document is determined by the frequency of the dimension values of this fact in the textual contents of the document.
+An interesting property of this approach is that the sum of the relevance values of all the facts in an R-cube is equal to one. However, notice that not all the document collections are suitable for all the analysis (e.g. an analysis on ﬁnancial crisis with a document collection about products manufacturing processes) and the sum of the facts relevance values will be kept equal to one. Later in the paper, we will denote by Quality the factor that normalizes the relevance values of the facts. This factor indicates the quality of the R-cube for the selected context, since it measures the overall relevance of the documents that satisfy the IR condition Q.
+Unlike OLAP-XML federations like those proposed in [13], R-cubes are materialized once, when the query is fetched to the contextualized warehouse, and will be incrementally updated when new relevant documents and data satisfying the original query are added to their respective warehouses. The main advantage of this approach is that pre-aggregations can be performed over R-cubes, thus allowing fast analysis operations over them.
+The rest of the paper will focus on the formal deﬁnition of R-cube, and the provision of a suitable algebra for OLAP operations.
+
+22
+
+5. A MULTIDIMENSIONAL DATA MODEL FOR R-CUBES
+In this section we deﬁne a data model for the R-cubes. We extend an existing multidimensional model [14] with two new special dimensions to represent both, the relevance of the facts and their context. For each component of the extended data model, we show its deﬁnition and give some examples.
+
+5.1 Dimensions
+A dimension D is a two-tuple D = (CD, D), where CD = {Cj} is a set of categories Cj.
+Example 1. In [14] everything that characterizes a fact is considered to be a dimension, even those attributes modeled as measures in other approaches. Figure 3 shows the dimensions for the running example.
+
+Each category Cj = {e} is a set of dimension values. D is a partial order on ∪jCj (the union of all dimension values in the individual categories). Given two values e1, e2 ∈ ∪jCj, then e1 D e2 if e1 is logically contained in e2. The intuition is that each category represents the values of a particular granularity. We will write e ∈ D, e is a dimensional value of D, if e ∈ ∪j Cj.
+There are two special categories present in all dimensions: D, ⊥D ∈ CD (the top and bottom categories). The category ⊥D has the values with the ﬁnest granularity. These values do not logically contain other category values and are
+logically contained by the values of other coarser categories. The category D = { } represents the coarsest granularity. For all e ∈ D, e D .
+The partial order D can be generalized to work on categories as follows: given C1, C2 ∈ CD, then C1 D C2 if ∃e1 ∈ C1, e2 ∈ C2, e1 D e2. We will write instead of
+D when it is clear that is the partial order of the dimension D.
+
+Example 2. The Customers dimension has the categories
+
+⊥Customers = Country Region
+
+Customers, with the
+
+dimension values Country = {Japan, Korea, Cuba, . . .}
+
+and Region = {Souhteast Asia, Central America, . . .}. The
+
+partial order on category values is: Japan Southeast Asia
+
+, Korea Southeast Asia, Cuba Central America
+
+, etc.
+
+Customers D
+
+Time D Products D Amount D
+
+R
+
+D
+
+Customers
+
+Time
+
+Products
+
+Amount
+
+R
+
+Region Country
+
+Year Half-year
+Month
+
+Sector ProductId
+
+Amount
+
+Rel.Degree
+
+Ctxt D
+Ctxt
+Col
+
+Sales
+
+F
+
+Figure 3: Dimensions of the example case of study. R and Ctxt are the relevance and context dimensions of the R-cube.
+The Relevance Dimension. The relevance dimension depicts the importance of each fact of the R-cube in the selected context (i.e. the IR condition Q). Therefore, it can
+
+be used to identify the portions of an R-cube that are more
+
+interesting for the context of analysis.
+
+Diﬀerent approaches can be followed to state the relevance
+
+dimension R. The simplest one is to deﬁne it just with the
+
+bottom and top categories: ⊥R = Relevance R R. Since
+
+we model the relevance as a probability value, the values
+
+of the Relevance category are real numbers in the interval
+
+[0,1]. Like in [11], we propose to introduce an intermediate
+
+category to allow users to study relevance values from a
+
+higher qualitative abstraction level. In this new category
+
+the relevance values will be classiﬁed into groups (Relevance
+
+Degrees) like irrelevant, relevant or very relevant.
+
+However, the relevance values are normalized to have their
+
+sum equal to one. Thus, a relevance index of 0.02 may
+
+be irrelevant if the rest of relevance values are signiﬁcantly
+
+greater, or relevant if the maximum value of relevance ob-
+
+tained was, for example, 0.03.
+
+Thus, we need to deﬁne a dynamic partial order
+
+γ R
+
+to
+
+map the values r of the base Relevance category to values
+
+of the Relevance Degree category depending on the value of
+
+r/γ. In this way, we will use γ as a normalization factor.
+
+Note that γ should measure the global relevance of a particu-
+
+lar result. Typical measures are γ = M AX(r), γ = AV G(r)
+
+or γ = Quality.
+
+Deﬁnition 1. The relevance dimension is a two-tuple R = (CR, γR) where: CR = {Relevance, Relevance Degree, R} is the set of categories; Relevance = [0, 1] is the base cate-
+
+gory ⊥R; Relevance Degree ∈ ℘([a, b]) is a partition on the
+
+interval of
+
+r
+
+γ R
+
+rd,
+
+Real numbers [a, b]; and if r ∈ Relevance, rd ∈
+
+γ R
+
+is
+
+the
+
+Relevance
+
+partial order Degree and
+
+r/γ ∈ rd.
+
+Example 3. Let us consider γ = M AX(r) (the maximum
+
+value of relevance obtained in the R-cube), and ﬁve diﬀerent
+
+degrees of relevance, Relevance Degree = {very irrelevant
+
+= [0, 0.25), irrelevant = [0.25, 0.45), neutral = [0.45, 0.55),
+
+relevant = [0.55, 0.75), very relevant = [0.75, 1]}, a partition
+
+of [0,1]. As Table 1 shows, M AX(r) = 0.4, then 0.05
+
+0.4 R
+
+very irrelevant, 0.1
+
+0.4 R
+
+irrelevant,
+
+0.2
+
+0.4 R
+
+neutral,
+
+0.4
+
+0.4 R
+
+very relevant and 0.25
+
+0.4 R
+
+relevant.
+
+The Context Dimension. The context of the facts is detailed by the documents of the warehouse. We represent these documents in the context dimension, along with their relevance to the IR condition Q.
+
+Deﬁnition 2. The context dimension is a two-tuple Ctxt = (CCtxt, Ctxt), where CCtxt = {Col, Ctxt} is the set of categories. The category ⊥Ctxt = Col = {dr} is the set of the documents d of the warehouse, the subscript r denotes the
+relevance of the document to the context of analysis (the IR
+condition Q).
+
+Example 4. In our example, d1, . . . d7 are documents of the warehouse which describe the context of the facts presented in the R-cube. The relevance value with respect to the established IR condition is 0.04 for d1, 0.08 for d2, 0.005 for d3, 0.04 for d4, 0.02 for d5, 0.01 for d6 and 0.005 d7. Then, {d01.04, d02.08, d03.005, d04.04, d05.02, d06.01, d07.005} ⊂ Ctxt.
+The context dimension as deﬁned in Deﬁnition 2 is plain, i.e., it has no hierarchies. It is possible to deﬁne a hierarchy for the context dimension by considering the hierarchical structure of the XML documents, and by classifying
+
+23
+
+the diﬀerent documents fragments into the category which represents their element type (i.e. tag name). This hierarchy would allow the user to navigate on the structure of the XML documents in the OLAP operations. However, for simplicity reasons we do not include such a hierarchy in the paper.
+5.2 Fact-Dimension Relations
+The fact-dimension relations link facts with dimension values. By following [14], given a set of facts F = {f } and a dimension D, the fact-dimension relation between F and D is the set F D = {(f, e)}, where f ∈ F and e ∈ D.
+A fact f is characterized by the dimension value e, written f ❀D e, if ∃ e ∈ D, (f, e ) ∈ F D∧e D e. In order to avoid missing values it is required that ∀f ∈ F, ∃ e ∈ D, (f, e) ∈ F D. If the dimension value that characterizes a fact is not known, the pair (f, ) is added to F D.
+Example 5. In the example of Table 1 we have the facts F = {f1, f2, f3, f4, f5}. F DCustomers is the fact-dimension relation that links each fact with its value in the dimension Customers. Thus, F DCustomers = {(f1, Cuba), (f2, Japan), (f3, Korea), (f4, Japan), (f5, Korea)}, and for example f3 ❀Customers Southeast Asia.
+
+Example 6. The fact-dimension relation F DAmount links
+each fact with is value in the dimension Amount, F DAmount = {(f1, 4, 300, 000$), (f2, 3, 200, 000$), (f3, 900, 000$), (f4, 300, 000$), (f5, 400, 000$)}.
+
+The Relevance Fact-Dimension Relation. The relevance fact-dimension relation links each fact with its relevance value.
+
+Deﬁnition 3. The relevance fact-dimension relation is the
+
+set F R = {(f, r)} where f ∈ F is a fact and r ∈ R its rele-
+
+vance. We require each fact to have a unique relevance value,
+
+∀f ∈ F, ∃! r ∈ R, (f, r) ∈ F R. The sum oÈf the relevance val-
+ues of all the facts in F is equal to one, (f,r)∈F R r = 1. Let rd ∈ RelevanceDegree and γ, we will write f ❀γR rd,
+meaning that the relevance degree of the fact f is rd when
+
+global relevance measure γ is applied, if ∃r ∈ R, (f, r) ∈ F R
+
+and r
+
+γ R
+
+rd.
+
+Example 7. For the running example we have F R = {(f1, 0.05), (f2, 0.1), (f3, 0.2), (f4, 0.4), (f5, 0.25)}, and by taking γ = M AX(r) = 0.4, f1 ❀0R.4 very irrelevant, f2 ❀0R.4 irrelevant, f3 ❀0R.4 neutral, f4 ❀0R.4 very relevant and f5 ❀0R.4 relevant. That is, f5 is relevant, but f2 may be irrelevant for the selected context.
+
+The Context Fact-Dimension Relation. The context fact-dimension relation links each fact with the documents that describe its context.
+Deﬁnition 4. We deﬁne the context fact-dimension relation as the set F Ctxt = {(f, dr)} where f ∈ F is a fact described by the document d, also written f ❀Ctxt d, and r is the relevance value of d, dr ∈ Ctxt.
+Example 8. In the example, F Ctxt = {(f1, d03.005), (f1, d07.005), (f2, d05.02), (f3, d04.04), (f4, d01.04), (f1, d02.08), (f5, d02.08), (f5, d06.01)}. The documents d1, d2 depict the context of the fact f4, then f4 ❀Ctxt d1 and f4 ❀Ctxt d2.
+
+5.3 R-cubes: Relevance-Extended Multidimensional Objects
+We extend the deﬁnition of multidimensional object [14] to include the relevance and context dimensions discussed before.
+Deﬁnition 5. A relevance-extended multidimensional object or R-cube is a four-tuple RM = (F, D, F D, Q), where: F = {f } is a set of facts; D = {Di, i = 1, . . . , n} ∪ {R, Ctxt} is a set of dimensions, R, Ctxt ∈ D are the relevance and context dimensions previously deﬁned; F D = {F Di, i = 1, ..., n} ∪ {F R, F Ctxt} is a set of fact-dimension relations, one for each dimension Di ∈ D; F R, F Ctxt ∈ F D are the relevance and context fact-dimension relations discussed above; and Q is an IR condition. In the model, we represent the relevance of each fact to the context established by the IR condition Q.
+We measure the analysis quaÈlity of an R-cube RM for the
+selected context by Quality = (f,dr)∈F Ctxt r. That is, the overall relevance to the IR condition Q of the documents that describe the facts of the R-cube.
+Example 9. The sales shown in Table 1 constitute the set of facts F of the R-cube. The set of dimensions is D = {Products, Customers, Time, Amount} ∪ {R, Ctxt}. In the previous examples we have shown the deﬁnition of some of these dimensions along with their corresponding fact-dimension relations. The IR condition used for stating the context of analysis was Q =“f inancial, crisis”. The quality of the R-cube is Quality = 0.2.
+6. R-CUBES ALGEBRA
+In this section we present an algebra for the R-cubes by extending the deﬁnition of the unary operators presented in [14] to regard the relevance and context of the facts. For each operator, we show its deﬁnition, and discuss how the relevance and context are updated in the result by giving some examples.
+6.1 Selection Operator
+The selection operator restricts the facts in the cube to the subset of facts that satisfy some given conditions.
+Deﬁnition 6. Let p : D1 × . . . × Dn × R × Ctxt → {true, f alse} be a predicate on the dimensions D. The relevanceextended selection operator, Rσ, is deﬁned as: Rσ[p](RM ) = (F , D , F D , Q ), where F = {f ∈ F | ∃(e1, . . . , en, r, d) ∈ D1 × . . . × Dn × R × Ctxt, p(e1, . . . , en, r, d) ∧ f ❀1 e1 ∧ . . . ∧ f ❀n en ∧ f ❀R r ∧ f ❀Ctxt d}, D = D and F D = {F Di, i = 1 . . . n} ∪ {F R , F Ctxt }. F Di = {(f , e) ∈ F Di| f ∈ F }, F Ctxt = {(f , dr) ∈ F Ctxt|f ∈ F } and F R =
+{(f , rβ)|(f È, r) ∈ F R∧f ∈ F }, β = Quality/Quality ≥ 1,
+Quality = (f,dr)∈F Ctxt r and Q = Q.
+The set of facts in the resulting R-cube is restricted to those facts characterized by the dimension values where p is true. The fact-dimension relations are restricted accordingly too. Notice that the quality of the R-cube will be decreased when any relevant document is discarded by the selection operation. As formally discussed in the theorem (1) of Appendix B, the relevance values are increased by a factor of β. Thus, it is ensured that the sum of the relevance values of the facts in the resulting R-cube remains equal to one.
+
+24
+
+F’ Products.ProductId Customers.Country Time.Month Amount R Ctxt
+
+f4 f o1 f5 f o2
+
+J apan Korea
+
+1998/10 1998/11
+
+300, 000$ 0.62 d01.04, d02.08 400, 000$ 0.38 d02.08, d06.01
+
+Table 2: Result of applying Rσ on the example R-cube of Table 1, p = (Customers.Region = Southeast Asia, R.Relevance Degree = very relevant or relevant). Quality’ = 1.54.
+
+Example 10. We can apply the relevance-extended selection operator to dice the R-cube and study the sales made to Southeast Asian customers. Since conditions on the relevance dimension are supported, we could also restrict the analysis to those facts considered as relevant or very relevant. Thus, p = (Customers.Region = Southeast Asia, R.Relevance Degree = very relevant or relevant). Table 2 shows the resulting R-cube. The set of facts is restricted to F = {f4, f5}. The resulting fact-dimension relations are: F P roducts = {(f4, f o1), (f5, f o2)}, F Customers = {(f4, Japan), (f5, Korea)}, F T ime = {(f4, 1998/10), (f5, 1998/11)}, F Amount = {(f4, 300, 000$), (f5, 400, 000$)}. Notice that the stated restriction also aﬀects the set of documents that describe the facts of the R-cube, F Ctxt = {(f4, d01.04), (f4, d02.08), (f5, d02.08), (f5, d06.01)}, F Cxt ⊂ F Ctxt. Since some relevant documents for the analysis context are discarded, the quality of the resulting R-cube decreases to Quality = 0.13 < Quality = 0.2. Consequently, the relevance value of the facts in the result is also aﬀected, since these values will be now normalized by Quality . Thus, relevance of facts is increased in a β factor, β = Quality/Quality = 1.54. The resulting relevance fact-dimension relation is F R = {(f1, 0.62), (f2, 0.38)}.
+The β factor measures the quality lost in the resulting Rcube. Good restrictions will result in low β values, since they preserve the relevant facts of the R-cube and discard the nonrelevant ones. However, sometimes, we may be interested in a particular region of the cube. A high β value (a low Quality ) will warn the user of a meaningless result.
+Example 11. When the selection operator is applied to the example R-cube of Table 1, with the predicate p = (Customers.Region = Central America), the set of facts in the resulting R-cube is restricted to F = {f1}, and the context fact-dimension relation becomes F Ctxt = {d03.005, d07.005}. Consequently, the quality is reduced to Quality = 0.01, resulting β = 0.2/0.01 = 20. The high β value points to a considerable quality lost, meaning that the analysis result is not signiﬁcant in the selected context (e.g the ﬁnancial crisis mainly aﬀected the Southeast Asian countries).
+6.2 Aggregate Formation Operator
+The aggregate formation operator evaluates an aggregation function on the R-cube. By following [14], we assume the existence of a family of functions g : 2F → Dn+1 that receive a set of facts and compute an aggregation by taking the data from the requested fact-dimension relation (e.g. SU Mi takes the data from F Di, and performs the sum).
+The Group operator deﬁned in [14] groups the facts characterized by the same dimension values. Given the dimension values (e1, . . . , en) ∈ D1 ×. . .×Dn, Group(e1, . . . , en) = {f ∈ F |f ❀1 e1 ∧ . . . ∧ f ❀n en}.
+Example 12. In the example R-cube of Table 1, we can group those sales made to Southeast Asian customers during the second half of 1998 as follows: given the dimension
+
+values ( , Southeast Asia, 1998/2nd half, ) ∈ P roducts × Region × Half year × Amount, Group( , Southeast Asia, 1998/2nd half, ) = {f4, f5}.
+
+Deﬁnition 7. Given a new dimension Dn+1, an aggregation function g : 2F → Dn+1, and a set of grouping categories {Ci ∈ CDi , i = 1 . . . n, CDi = CR, CCtxt}, the relevance-extended aggregate formation operator, Rα, is de-
+ﬁned as Rα[Dn+1, g, C1, . . . , Cn](RM ) = (F , D , F D , Q ),
+where:
+
+F = {Group(e1, . . . , en)|(e1, . . . , en) ∈ C1 × . . . × Cn ∧ Group(e1, . . . , en) = ∅},
+D = {Di, i = 1 . . . n} ∪ {Dn+1} ∪ {R, Ctxt}, Di = (CDi , Di ), CDi = {Cij ∈ CDi |Ci Di Cij },
+Di = , Di|CDi F D = {F Di, i = 1 . . . n} ∪ {F Dn+1} ∪ {F R , F Ctxt }, F Di = {(f , ei)|∃(e1, . . . , en) ∈ C1 × . . . × Cn,
+f = Group(e1, . . . , en) ∈ F ∧ ei = ei},
+
+F Dn+1 =
+
+{(Group(e1, . . . , en),
+
+(e1 ,...,en )∈C1 ×...×Cn
+
+g(Group(e1, . . . , en)))|Group(e1, . . . , en) = ∅},
+
+F R = {(f , r )|∃(e1, . . . , en) ∈ C1 × . . . × Cn
+
+∧ f = Group(e1, . . . , en) ∈ F
+
+∧r=
+
+r},
+
+(f,r)∈F R,f ∈Group(e1,...,en)
+F Ctxt = {(f , dr )|∃(e1, . . . , en) ∈ C1 × . . . × Cn ∧ f = Group(e1, . . . , en) ∈ F
+
+∧ dr ∈
+
+{dr }},
+
+(f,dr )∈F Ctxt,f ∈Group(e1,...,en)
+
+Q =Q
+
+Each fact in the resulting R-cube represents a group of facts of the original R-cube (those characterized by the same values in the grouping category). The aggregation function is evaluated over each group of facts and the result is stored in the new dimension Dn+1. The dimensions Di, . . . Dn are restricted to the ancestor categories of the corresponding grouping category. The F Ctxt fact-dimension relation now relates each new fact with the documents that were associated to any of the original facts of the corresponding group. As discussed in [15], we estimate the relevance of the facts by the frequency of their dimension values in the relevant documents. Consequently, the relevance of each group is the sum of the relevance values of the original facts in the group (see theorem (2) in Appendix B). We update the F R fact-dimension relation accordingly. Thus, the sum of the relevance values of the facts in the resulting R-cube remains
+
+25
+
+F
+{f1} {f2, f3} {f4, f5}
+
+P roducts
+
+Customers .Region Central America Southeast Asia Southeast Asia
+
+T ime .Half year 1998/1st half 1998/1st half 1998/2nd half
+
+Amount
+
+T otal 4, 300, 000$ 4, 100, 000$
+700, 000$
+
+R 0.05 0.3 0.65
+
+C txt d03.005, d07.005 d05.02, d04.04 d01.04, d02.08, d06.01
+
+Table 3: Result of applying Rα[Total, SU MAmount, P roducts, Region, Half year, Amount] on the example R-cube of Table 1.
+
+equal to one. Likewise, the quality of the R-cube is not modiﬁed.
+
+Example 13. In the example R-cube of Table 1, we can
+
+compute the total amount of sales per Region and Half year
+
+by applying the aggregate formation operator as follows:
+
+Let T otal = (CT otal, T otal) be a new dimension to store
+
+the result of the sum, with the categories CT otal = {T otal
+
+Amount, T otal}, ⊥T otal = T otal Amount
+
+T otal. Let
+
+SU MAmount be the aggregation function that performs the
+
+sum of the values of the Amount dimension. Since we want
+
+to evaluate the sum per Region and Half year, the group-
+
+ing categories are { P roducts, Region, Half year, Amount}. Table 3 shows the result of applying the aggregate forma-
+
+tion operator Rα[T otal, SU MAmount, P roducts, Region, Half year, Amount] on the R-cube of Table 1.
+In the resulting R-cube, there is a new fact for each combi-
+
+nation (e1, . . . , e2) of dimension values in the given grouping categories, (e1, . . . , e2) ∈ P roducts × Region × Half year ×
+Amount. In the example, the possible combinations are ( , Central America, 1998/1st half, ), ( , Southeast Asia,
+
+1998/1st half, ) and ( , Southeast Asia, 1998/2nd half,
+
+). Each new fact represents the group of original facts
+
+characterized by the corresponding combination of grouping
+
+categories values. Thus, in the resulting R-cube, we have the
+
+facts {f1} = Group( , Central America, 1998/1st half, ), {f2, f3} = Group( , Southeast Asia, 1998/1st half, ) and {f4, f5} = Group( , Southeast Asia, 1998/2nd half, ), obtaining F = {{f1}, {f2, f3}, {f4, f5}}.
+
+The resulting R-cube has seven dimensions. The Ctxt and
+
+R dimensions are not modiﬁed. The dimension P roducts
+
+and Amount have been cut to their top categories, P roducts
+
+and Amount, respectively. The dimension Customers is
+
+cut, so that only the categories Region
+
+Customers are
+
+kept. The T ime dimension is also cut to the categories
+
+Half year Y ear
+
+T ime. The new dimension T otal
+
+stores the result of the aggregation.
+
+The fact dimension-relations F P roducts , F Customers ,
+
+F T ime and F Amount , now link each new fact with the
+
+dimension values that characterize the corresponding group
+
+of original facts. For example, for the new fact {f4, f5}, we have that ({f4, f5}, ) ∈ F P roducts , ({f4, f5}, Southeast Asia) ∈ F Region , ({f4, f5}, 1998/2nd half ) ∈ F T ime and ({f4, f5}, ) ∈ Amount . The F Ctxt fact dimension-
+
+relation links each new fact with the documents that were
+
+related with the original facts of the corresponding group. For example, in the original R-cube we had {(f4, d01.04), (f4, d02.08), (f5, d02.08), (f5, d06.01)} ⊂ F Ctxt, then, in the resulting R-cube we have {({f4, f5}, d01.04), ({f4, f5}, d02.08), ({f4, f5}, d06.01)} ⊂ F Ctxt . Thus, the quality of the R-cube remains
+Quality = Quality = 0.2. The relevance of the new facts
+
+is the sum of the relevance values of the original facts in
+
+the corresponding group. In the example, we have that
+
+({f4, f5}, 0.65) ∈ F R , since {(f4, 0.4), (f5, 0.25)} ⊂ F R.
+
+Finally, the new F T otal fact-dimension relation links each
+
+new fact with the result of applying the aggregation function SU MAmount to the corresponding group of facts. Since {(f4, 300, 000$), (f5, 400, 000$)} ⊂ F Amount, then ({f4, f5}, 700, 000$) ∈ F T otal.
+The resulting R-cube clearly shows that the most relevant is {f4, f5}. That is, the ﬁnancial crisis had the strongest impact in the Southeast Asian region during the second half of the year, which would explain the corresponding sales fall. We could gain insight into the context of this fact by performing a drill-through operation [19], thus retrieving the textual contents of the documents which explain the details of the crisis.
+6.3 Projection Operator
+The projection operator removes some of the cube dimensions. Next, we give the formal deﬁnition of the relevanceextended projection operator. It is basically the projection operator deﬁned in [14], but restricted to avoid the removal of the relevance and the context dimensions. In this way, the R-cubes algebra here presented is closed, since the result of the three operations over R-cubes is always an R-cube.
+Deﬁnition 8. Given the dimensions D1, . . . , Dk ∈ D − {R, Ctxt}, the relevance-extended projection operator, Rπ, is deﬁned as Rπ[D1, . . . , Dk](RM ) = (F , D , F D , Q ): F = F , D = {D1, . . . , Dk}∪{R, Ctxt}, F D = {F D1, . . . , F Dk} ∪{F R, F Ctxt}, and Q = Q.
+Example 14. By following with the Example 13, we can apply the relevance extended-projection operator to slice the result of the aggregation by removing the P roducts and Amount dimensions. The result is equivalent to the one that would be obtained with the traditional OLAP roll-up operation.
+Thus, by applying Rπ[Customers, T ime, T otal Amount] on the R-cube of Table 3, we obtain a new R-cube with the same set of facts, the dimensions Customers, T ime, T otal, R and Ctxt as returned by the aggregation operator, along with their corresponding fact-dimension relations. Since the relevance values are not modiﬁed, the quality of the resulting R-cube remains Quality = Quality = 0.2.
+As discussed in [14], the drill-down operation is equivalent to evaluating an aggregate formation on lower categories. Since more detailed data is required, a reference to the original R-cube is needed.
+Finally, note that an R-cube is an special multidimensional object [14]. Thus, an R-cube can also be operated by using the algebra proposed in the base model. In this case, the result may no longer be an R-cube, since the relevance or the context dimension may projected away, or the facts relevance may not be updated. However, these operators can be used for performing interesting IR-like analysis to explore the documents collection. For example, the context dimension may be used as grouping category to calculate aggregations over the facts described in each document.
+
+26
+
+7. CONCLUSIONS AND FUTURE WORK
+In this paper we have presented an architecture for the construction of contextualized warehouses. A contextualized warehouse is a new decision support system that allows users to obtain strategic information by combining all their sources of structured data and unstructured documents, and by analyzing the integrated data under diﬀerent contexts. In a contextualized warehouse, the user speciﬁes an analysis context by supplying a sequence of keywords (IR condition). The analysis is performed in an R-cube which is materialized by retrieving the documents and facts related to the selected context. R-cubes, are characterized by two special system-maintained dimensions, namely: the relevance and the context dimensions. Relevance is a numeric value that measures the importance of each fact in the established context of analysis. The context dimension relates each fact with the documents that explain its circumstances (i.e the context of the fact). We have extended an existing multidimensional data model for the R-cubes and studied how the relevance and context dimensions should be addressed by the unary algebra operators.
+In order to validate the usefulness and performance of our approach, a prototype system is currently being built. In this prototype a structured warehouse of historical ﬁnancial data is contextualized with the digital version of some popular business journals. The goal is to analyze companies stock market values and determine the causes of the increases and decreases of their stock prices. We base the implementation of the prototype on a commercial multi-dimensional database. The relevance and the context dimensions are supported by two special measures whose implicit aggregation functions are the sum and the union, respectively.
+In future work, the R-cubes algebra should be completed with binary operators. For this purpose, data fusion mechanisms [4] can be applied to combine the relevance of the involved facts. The R-cubes base model supports incompleteness and imprecision [14]. We plan to exploit these properties in the future to analyze the facts described in the documents which are not available in the corporate warehouse. Another possible extension of the present work is to reﬂect the hierarchical structure of the XML documents in the context dimension of the R-cubes, so that users will be able to navigate on the structure of the XML documents in the OLAP operations. Pre-aggregation strategies for Rcubes also remain to be studied.
+8. ACKNOWLEDGEMENTS
+This work was started during a stay performed by the ﬁrst author at the Database and Programming Technologies research group at the Department of Computer Science at Aalborg University.
+This project has been partially funded by the Spanish National Research Project TIC2002-04586-C04-03 and the Fundaci´on Bancaixa Castell´o.
+9. REFERENCES
+[1] R. A. Baeza-Yates and B. A. Ribeiro-Neto. Modern Information Retrieval. ACM Press / Addison-Wesley, 1999.
+[2] K. Beyer, D. Chamb´erlin, L. S. Colby, F. O¨ zcan, H. Pirahesh, and Y. Xu. Extending XQuery for analytics. In Proc. of SIGMOD, pages 503–514, 2005.
+[3] E. F. Codd. Providing OLAP to user-analysts: An IT mandate, 1993.
+
+[4] W. B. Croft. Combining approaches to information retrieval. In Advances in Information Retrieval, pages 1–36. Kluwer, 2000.
+[5] R. Danger, R. Berlanga, and J. Ruiz-Shulcloper. CRISOL: An Approach for Automatically Populating Semantic Web from Unstructured Text Collections. In Proc. of DEXA, pages 243–252, 2004.
+[6] R. Grishman. Information Extraction: Techniques and Challenges. In Proc. of SCIE, pages 10–27, 1997.
+[7] W. H. Inmon. Building the Data Warehouse. John Wiley & Sons, 1996.
+[8] R. Kimball. The Data Warehouse Toolkit. John Wiley & Sons, 2002.
+[9] V. Lavrenko and W. B. Croft. Relevance-Based Language Models. In Proc. of SIGIR, pages 120–127, 2001.
+[10] D. M. Llido´, R. Berlanga, and M. J. Aramburu. Extracting Temporal References to Assign Document Event-Time Periods. In Proc. of DEXA, pages 62–71, 2001.
+[11] B. R. Moole. A Probabilistic Multidimensional Data Model and Algebra for OLAP in Decision Support Systems. In Proc. of IEEE SoutheastCon, 2003.
+[12] B.-K. Park, H. Han, and I.-Y. Song. XML-OLAP: A Multidimensional Analysis Framework for XML Warehouses. In Proc. of DaWaK, 2005.
+[13] D. Pedersen, K. Riis, and T. B. Pedersen. XML-Extended OLAP Querying. In Proc. of SSDBM, pages 195–206, 2002.
+[14] T. B. Pedersen, C. S. Jensen, and C. E. Dyreson. A foundation for capturing and querying complex multidimensional data. Inf. Syst., 26(5):383–423, 2001.
+[15] J. M. P´erez, R. Berlanga, and M. J. Aramburu. A Document Model Based on Relevance Modeling Techniques for Semi-structured Information. In Proc. of DEXA, pages 318–327, 2004.
+[16] J. M. P´erez, T. B. Pedersen, R. Berlanga, and M. J. Aramburu. IR and OLAP in XML Document Warehouses. In Proc. of ECIR, pages 536 – 539, 2005.
+[17] J. M. Ponte and W. B. Croft. A language modeling approach to information retrieval. In Research and Development in Information Retrieval, pages 275–281, 1998.
+[18] G. Salton, A. Wong, and C. S. Yang. A vector space model for automatic indexing. Commun. ACM, 18(11):613–620, 1975.
+[19] G. Spoﬀord. MDX Solutions with Microsft SQL Server Analysis Services. John Wiley & Sons, 2001.
+[20] W3C. Extensible Markup Language (XML) 1.0. http://www.w3.org/TR/REC-xml, February 2004.
+[21] L. Xyleme. A dynamic warehouse for XML data of the Web. IEEE Data Engineering Bulleting, 24(2):40 – 47, 2001.
+
+APPENDIX
+
+A. FACT RELEVANCE CALCULUS
+This appendix summarizes the approach proposed in [15] to calculate the relevance of a fact to an IR condition. Given an IR condition Q = q1q2 . . . qn, where each qi is a query keyword, we estimate the relevance of a fact f by calculating the probability of observing this fact in the set of documents RQ relevant to Q:
+
+È
+
+P (f |RQ) =
+
+Èd∈RQ P (f |d)P (Q|d)
+d ∈RQ P (Q|d )
+
+(1)
+
+In formula (1), P (f |d) is the probability of ﬁnding the fact f in a relevant document d ∈ RQ. This probability is estimated by formula (2). P (Q|d) is the probability of observing the query keywords in this document. By follow-
+
+27
+
+ing [9], we assume that the query keywords qi are independent and use formulas (3) and (4) for estimating P (Q|d).
+
+P (f |d) = F F (f, d)/|d|f
+
+(2)
+
+P (Q|d) = P (qi|d)
+
+(3)
+
+qi ∈Q
+
+P (qi|d)
+
+=
+
+λ
+
+T
+
+F (qi, |d|t
+
+d)
+
++
+
+(1
+
+−
+
+λ) ctfqi coll sizet
+
+(4)
+
+In formula (2), F F (f, d) returns the frequency of the fact f dimension values in the document d. That is, the number of times that the fact f dimension values occur in the document d. |d|f is the total number of dimension values found in the document d. Finally, in formula (4), T F (qi, d) returns the frequency of the query keywords qi in the document d (the number of occurrences of qi in d), |d|t is the total number of words in the document d, ctfqi is the number of times that qi occurs in all the documents of the warehouse, and coll sizet is the total number of words in all the documents of the warehouse. The λ factor is called the smoothing parameter [9], since it avoids probabilities equal to zero when a document does not contain all the query keywords.
+Intuitively, the denominator of formula (1) measures how good the set of relevant documents RQ is, since it computes the sum of the probabilities of observing the query keywords in each document of RQ. We propose formula (5) as a measure of the quality of an R-cube:
+
+Quality =
+
+P (Q|d)
+
+(5)
+
+d∈RQ
+
+B. THEOREMS AND PROOFS
+This appendix presents the theorems referenced along the paper.
+
+Theorem 1. Let F = {f } be a set of facts and RQ the set of documents which describe these facts. Let F ⊆ F , and RQ ⊆ RQ the documents which describe the facts in F . The relevance P (f |RQ ) of the facts f ∈ F can be
+calculated as follows:
+
+È
+
+P (f |RQ
+
+)
+
+=
+
+P (f |RQ)β, β
+
+=
+
+È d∈RQ P (Q|d)
+d∈RQ P (Q|d)
+
+≥
+
+1
+
+Proof. Let f ∈ F , as discussed in Appendix A we estimate its relevance P (f |RQ ) by:
+
+È
+
+P (f |RQ ) =
+
+Èd∈RQ P (f |d)P (Q|d)
+d ∈RQ P (Q|d )
+
+Since the documents d ∈ RQ − RQ do not describe any fact of F , the probability of observing a fact f ∈ F in a node d ∈ RQ − RQ is P (f |d) = 0. Thus, we can write:
+
+È
+
+P (f |RQ ) =
+
+Èd∈RQ P (f |d)P (Q|d)
+d ∈RQ P (Q|d )
+
+The relevance P (Q|d) of the documents d ∈ RQ ⊇ RQ do not change since the IR condition Q is mantained. In this
+
+ÈÈ way, β =
+
+d∈RQ P (Q|d) d∈RQ P (Q|d)
+
+≥
+
+1
+
+(notice
+
+that
+
+|RQ|
+
+≥
+
+|RQ |).
+
+Finally, the previous formula can be expressed as:
+
+È
+
+È
+
+P (f |RQ ) =
+
+È d∈RQ P (f |d)P (Q|d) È d ∈RQ P (Q|d)
+
+d ∈RQ P (Q|d)
+
+d ∈RQ P (Q|d)
+
+= P (f |RQ)β
+
+Theorem 2. Let {Ci ∈ CDi , i = 1 . . . n} be a set of grouping categories, and let Group(e1, . . . , en) be the group of
+facts of the cube characterized by the category values (e1, . . . , en) ∈ C1 × . . . × Cn. The relevance value of the group P (Group(e1, . . . , en)|RQ) is determined by the following for-
+mula:
+
+P (Group(e1, . . . , en)|RQ) =
+
+P (fi|RQ)
+
+fi ∈Group(e1 ,...,en )
+
+Proof. Consider the fact f characterized by the dimension values (e1, . . . , e2). By applying the formula (2), the probability P (f |d) of ﬁnding the fact f in the document d can be estimated as follows:
+
+P (f |d)
+
+=
+
+F F (f, d) |d|f
+
+=
+
+fi ∈Group(e1 ,...,en )
+
+F F (fi, d) |d|f
+
+=
+
+P (fi|d)
+
+fi ∈Group(e1 ,...,en )
+
+That is, P (f |d) can be calculated by adding the dimension values frequency of each fact of Group(e1, . . . , en) in the document d. Notice that ∀fi ∈ Group(e1, . . . , en), fi ❀1 e1 ∧ . . . ∧ fi ❀n en.
+Finally, with the previous result, the fact relevance calcu-
+lus formula (1) can be expressed as:
+
+È
+
+P (f |RQ) =
+
+Èd∈RQ P (f |d)P (Q|d)
+d ∈RQ P (Q|d )
+
+È
+
+=
+d∈RQ
+
+È fi∈Group(e1,...,en) P (fi|d)
+d ∈RQ P (Q|d )
+È
+
+P (Q|d)
+
+=
+fi ∈Group(e1 ,...,en )
+
+È d∈RQ P (fi|d)P (Q|d)
+d ∈RQ P (Q|d )
+
+=
+
+P (fi|RQ)
+
+fi ∈Group(e1 ,...,en )
+
+View publication stats
+
+28
+

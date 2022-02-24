@@ -1,0 +1,831 @@
+DOI:10.16411/j.cnki.issn1006-7736.2014.01.016
+
+1
+
+LNG
+
+40
+
+1
+
+Vol． 40 No． 1
+
+2014 2
+
+Journal of Dalian Maritime University
+
+Feb． 2014
+
+
+
+1006-7736 2014 01-0113-04
+
+LNG
+
+1
+
+1
+
+2
+
+1
+
+1．
+
+116026 2．
+
+100101
+
+LNG
+
+．
+
+LNG
+
+、
+
+．
+
+LNG
+
+．
+
+LINGO
+
+．
+
+LNG
+
+．
+
+LNG
+
+U169． 6
+
+A
+
+Optimized model of configuration volume of LNG tank container in land-sea combined transport
+SUN Jia-qing1 TANG Li-min1 WANG Cheng-wu2 YAN Ying-mei1
+
+1． Transportation Management College Dalian Maritime University Dalian 116026 China 2． Scheduling Department Petro China Kunlun Gas Co． LTD Beijing 100101 China
+Abstract Based on the objective of maximizing the enterprise profit this paper established optimized model of configuration volume of LNG tank container in land-sea combined transport． For the LNG not being long time stored in tank container and the high cost and the rent for container tank container a punishing function and the decision-making factor were introduced to further optimize the operational efficiency of the tank container and meet the needs of different decision makers with different preferences． At the same time the tank container security storage and transportation time were considered in the constraint conditions based on the safety of LNG storage and transportation． Finally with the aid of the LINGO optimization software this paper verifies the model with an example and results show that the proposed model can be used in tank
+
+container configuration optimization of LNG land-sea combined transport in practice． Key words integrated transportation liquefied natural gas
+LNG tank container configuration volume nonlinear optimization
+
+0
+
+、
+
+、
+
+、
+
+．
+
+、
+
+．
+
+Chen 1
+
+KOZAN 2 EN 3
+
+1 1
+
+JANS-
+
+4 5
+
+6
+． LNG
+LNG LNG
+、
+
+“
+
+、
+
+”
+
+．
+
+CH4
+
+LNG 、
+
+LNG 、
+
+、 LNG
+
+2013-07-11． 1963 －
+
+13BGJ031
+
+2009A814 ．
+
+E-mail dlmusjq@ 163． com．
+
+114
+
+40
+
+－ 162℃ 、 LNG
+LNG 、
+LNG
+1
+1． 1 1 2
+3
+T
+7
+
+/
+． LNG
+．
+
+40
+
+4
+
+T
+
+5
+
+6 LNG
+
+8 9
+
+1． 3 1
+
+max Ｒ = I － C
+
+∑∑ ∑∑ C = pQ +
+
+Xij Cij +
+
+Xij Cw +
+
+∑  XijCF + CM + ωF
+
+F
+
+ω
+
+．
+
+=
+
+－．
+
+、
+
+、
+
+、
+
+、
+
+．
+
+．
+
+．
+
+．
+
+640 000
+
+15%
+
+5%
+
+10
+
+125 974
+
+365
+
+353． 69 ．
+
+．
+
+1． 2
+
+1
+
+X
+
+t ij
+
+t
+
+LNG TEU ．
+
+2
+
+S
+
+t i
+
+t
+
+i
+
+i
+
+i
+
+LNG
+
+i =1 2 … n Q
+
+T
+
+TEU q
+
+TEU Th
+
+Tn
+
+d Td
+
+d Ts
+
+d Cij
+
+M
+
+、
+
+i
+
+j
+
+d ． Cw CF
+
+Cij i
+
+j
+
+．
+
+i
+
+j
+
+D
+
+t i
+
+t
+
+Vi LNG
+
+/
+
+d
+LNG
+/km Tw /d
+/ CM
+/ P
+ω
+
+Cw = 354
+
+{F =
+
+1 － Pta
+
+× 354Q ta tn
+
+Pta ≤ 0． 97
+
+0 Pta ＞ 0． 97
+
+2
+
+s． t． 1
+
+X
+
+t sd
+
+≤
+
+q
+
+∑X
+
+t ij
+
+=
+
+X tsd
+
+∑ ∑ X
+
+t ij
+
+≥
+
+Vtj t
+
+th /2 + tn + td ≤ ts td = th /2 + tn
+F t = 1 － e－g t
+
+g t = t －  /η  = min XDI / VDi
+β = t－
+
+∑ ∑ Xij =
+
+Xji
+
+i
+
+j
+
+∑ Q =
+
+Xij
+i
+
+th + td tn
+
+2
+
+1 2 3 4 5 6 7 8 9 10
+11
+LNG
+
+1
+
+LNG
+
+115
+
+LNG LNG
+4 5
+
+9
+
+LNG
+
+7
+
+10
+
+D
+
+． LNG
+
+3 6—
+
+C = 4500 + 0． 3 ×
+
+．
+
+640 000
+
+20 a
+
+5000
+
+i = 8%
+
+A = P A / P 8% 20 －
+
+F A / F 8% 20
+
+65 000 / · ．
+
+11
+
+、
+
+18 000 ．
+
+2
+2． 1 LNG
+
+．
+
+2． 2
+
+LNG
+
+．
+LINGO 、
+
+LNG
+
+LNG
+
+D
+
+LNG
+
+7
+
+1
+
+… D8 ．
+
+1 LNG
+
+D1 D2 1、2 ．
+
+Tab． 1 The total demand of LNG in every node
+
+L
+
+t
+
+D1
+
+73
+
+32． 85
+
+D2
+
+365
+
+164． 25
+
+D3
+
+292
+
+131． 4
+
+D4
+
+328． 5
+
+147． 83
+
+D5
+
+693． 5
+
+312． 08
+
+D6
+
+438
+
+197． 10
+
+D7
+
+584
+
+262． 80
+
+D8
+
+803
+
+361． 35
+
+L
+
+t
+
+2
+
+0． 9
+
+10
+
+4． 5
+
+8
+
+3． 6
+
+9
+
+4． 1
+
+19
+
+8． 6
+
+12
+
+5． 4
+
+16
+
+7． 2
+
+22
+
+9． 9
+
+2
+
+km
+
+Tab． 2 The distance of each node
+
+D
+
+D1
+
+D2
+
+D3
+
+D4
+
+D5
+
+D6
+
+D7
+
+D 0 48 27 36 26 50 10 40
+
+D1 D2 … D7 ．
+
+max Ｒ = 4000XSD － C
+
+C = pQ + 6000Xsd + 2000Xds +
+
+∑ ∑ XijCij + 40
+
+Xij × 16． 5 Vj
+
+Xij + 18 000 + ωF
+
+2． 3
+
+LINGO
+
+．
+
+1a
+
+A = 200
+
+TEU
+
+6000 / TEU
+
+2000 /
+
+TEU． LNG
+
+B = 40 d．
+
+H =6 d
+
+N = 7 d．
+
+w = 1．
+
+1
+
+．
+
+1 LINGO
+
+Fig． 1 Operation state of LINGO
+
+NLP
+
+Z = 280 TEU
+
+Ｒ = 7． 48
+
+C = 4． 4 ．
+
+LINGO
+
+LNG
+
+3．
+
+3
+
+TEU
+
+Tab． 3 Scheduling number between each node
+
+D D1 D2 D3 D4 D5 D6 D7 Sum D 50 19 15 5 37 23 9 42 200
+
+116
+
+40
+
+4
+LNG
+
+LNG
+
+．
+
+．
+
+、
+
+LNG
+
+．
+
+LNG
+
+．
+
+Ｒeferences
+1 CHEN C Y． A two-stage stochastic network model and solution methods for the dynamic empty container allocation problem J ． Transportation Science 1998 32 2 52 － 60．
+2 KOZAN E． Optimizing container transfers at multimodal terminals J ． Mathematical and Computer Modeling 2000 31 4 10 － 12．
+3 JANSEN B SWINKELS P C J TEEUWEN G J A et al．
+
+Operational planning of a large-scale multi-modal trans-
+
+portation system J ． European Journal of Operational
+
+Ｒesearch 2004 156 1 41 － 53．
+
+4
+
+．
+
+J．
+
+2009 1 101 － 105．
+
+CHEN Chao ZENG Qing-cheng． Ｒobust optimization
+
+model for asset deployment in a container shipping line
+
+J ． Journal of Harbin Engineering University 2009
+
+1 101 － 105． in Chinese
+
+5
+
+．
+
+J．
+
+2010 2 25 － 28．
+
+YANG Yang WANG Di． Optimize the empty containers
+
+disposition of ports with genetic algorithm J ． Logistics
+
+Sci － Tech 2010 2 25 － 28． in Chinese
+
+6
+
+．
+
+D．
+
+2011．
+
+JI Yu． Ｒesearch on empty containers reposition for sea-
+
+rail transportation D ． Dalian Dalian Maritime Univer-
+
+sity 2011． in Chinese
+
+7
+
+．
+
+J．
+
+2002 10 14 － 17．
+
+ZHOU Xiang． Discussion on timing law for container is-
+
+land turn-round J ． Containerization 2002 10 14 －
+
+17． in Chinese
+
+櫒櫒櫒櫒櫒櫒櫒櫒櫒櫒櫒櫒櫒櫒櫒櫒櫒櫒櫒櫒櫒櫒櫒櫒櫒櫒櫒櫒櫒櫒櫒櫒櫒櫒櫒櫒櫒櫒櫒櫒櫒櫒櫒櫒
+
+112
+
+5
+VLCC
+
+．
+
+Ｒeferences
+
+1
+
+．
+
+J．
+
+2006 32 2 62 －
+
+66．
+
+JIA Da-shan SUN Jun-yan LUO Hong-bo． Chinese
+
+importing oil marine lane safety evaluation and strategy
+
+J ． Journal of Dalian Maritime University 2006 32
+
+2 62 － 66． in Chinese
+
+2
+
+．
+
+J．
+
+2005 8 31 － 34．
+
+YANG Xiao-long LIU Xi-song． Ｒisk analysis and coun-
+
+termeasures study on China petroleum importing J ．
+
+Technology Economics 2005 8 31 － 34． in Chinese
+
+3
+
+．
+
+D．
+
+2009．
+
+WANG Bin． Analysis on the safety of SLOCS for crude
+
+oil import of China D ． Dalian Dalian Maritime Uni-
+
+versity 2009． in Chinese
+
+4
+
+．
+
+J．
+
+2006 27 2 75 － 80．
+
+CHEN Fei-er ZHANG Ｒen-yi． Optimization of Chinese
+
+crude oil import route network J ． Journal of Shanghai
+
+Maritime University 2006 27 2 75 － 80． in Chi-
+
+nese
+
+5
+
+．
+
+D．
+
+2007．
+
+CHU Liang-yong． Study on waterborne petroleum logis-
+
+tics system and distribution ＆ transportation network of
+
+China D ． Dalian Dalian Maritime University 2007．
+
+in Chinese
+
+6
+
+．
+
+D．
+
+2009．
+
+LI Min-min． The optimization of an imported crude oil
+
+maritime transportation network for China based on de-
+
+mand distribution D ． Dalian Dalian Maritime Uni-
+
+versity 2009． in Chinese
+
+7
+
+．
+
+·
+
+D．
+
+2009．
+
+SHI JING Dao-shen． The risk assessment on the piracy
+
+in Malacca-Singapore Straight D ． Dalian Dalian
+
+Maritime University 2009． in Chinese
+

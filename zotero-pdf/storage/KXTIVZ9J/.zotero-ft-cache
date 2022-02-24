@@ -1,0 +1,1220 @@
+29
+
+7
+
+2020 7
+
+OPEＲATIONS ＲESEAＲCH AND MANAGEMENT SCIENCE
+
+Vol． 29 No． 7 July． 2020
+
+1
+
+2
+
+2
+
+3
+
+1．
+
+430081 2．
+
+430063
+
+430063 3．
+
+。
+
+。
+
+、
+
+。
+
+。 。
+
+U691
+
+A
+
+1007-3221 2020 07-0064-08 doi 10． 12005 / orms． 2020． 0173
+
+Dynamic Stowage Planning Decision for Inland Container Liner Ｒoute Shipping with Uncertain Container Quantity
+
+LI Jun1 ZHANG Yu2 JI San-you2 MA Jie3 1． School of Automobile and Traffic Engineering Wuhan University of Science and Technology Wuhan 430081 China 2． School of Logistics Engineering Wuhan University of Technology Wuhan 430063 China 3． School of Navigation Wuhan University of Technology Wuhan 430063 China
+Abstract The inland container liner route stowage planning needs to make the dynamic decision as the quantity of foreign trade containers can be changed by the customs inspection continuously． Based on the rolling scheduling strategy the stowage planning of current port is divided into multiple stages according to the random event namely customs inspection． The stowage planning model for a single stage in current port is developed with the objective of minimizing the ship stack occupancy number and the differences of stowage plans between adjacent stages． Then the liner route stowage planning decision is made by rolling． The matheuristic algorithm which contains the integer programming the destructor and the rebuilder is proposed to make the multiple stages rolling stowage planning for each port． Numerical examples based on real-world shipping scenarios show the difference between the proposed model and algorithm for minimizing the ship stack occupancy number is small． And for the differences of stowage plans between adjacent stages the results from the algorithm are better than the model． Therefore the proposed model and algorithm can be utilized to assist in making the dynamic stowage planning decision for inland container liner route shipping with uncertain container quantity． They can both make the stowage plans to absorb the uncertain container quantity robustly and the algorithm has a better performance than the model． Key words container shipping route stowage planning uncertain container quantity matheuristic rolling scheduling dynamic decision
+
+0
+2018-03-30 1989-
+
+、
+71372202 51679182
+
+。
+。
+
+7
+
+65
+
+。
+
+。 1～3 、 9。
+
+4～6 、
+
+78 、 。
+
+。 。
+。 。
+
+。 。
+
+。
+
+。
+
+、
+
+。
+
+2
+
+。
+
+2． 1
+1
+
+d a= o d
+
+1
+
+o
+
+2
+
+O－D a 。 。
+
+3 。
+2． 2
+
+、 1。
+
+、
+
+、
+
+、
+
+、
+
+2。
+
+2
+
+1
+
+P
+
+Qp
+
+p O－D
+
+Q p = Qb ∪Qs p p∈P Qb p
+
+1
+
+p O－D
+
+Qb p = a | o p d∈
+
+66
+
+2020 29
+
+P opd a = o d
+
+O－D a= o d
+
+Qs p G
+
+Qs P
+
+p
+
+= a | o p d∈P o = pd
+
+、、
+
+G= 1 2 3 J
+
+、
+
+p 2
+
+J = JF∪JA = JL∪JＲ JF
+
+JA
+
+JL
+
+JＲ
+
+NTp
+
+NTp = t | 0tTp 。
+
+Tp
+
+p
+
+p
+
+Ntg a t d
+
+g d ∈Qs p
+
+TEU g∈G Nt+g a t
+p
+
+t∈NTp a = o d
+
+g Qs p
+
+TEU g∈G Nt－g a
+p
+
+t∈NTp － 0 t
+d
+
+a= o d ∈ g
+
+TEU t∈NTp － 0
+
+p g∈G wg
+
+g
+
+ton g ∈ G ΔLG
+
+a = o d ∈Qs
+
+ton ΔCG
+
+ton
+
+STj
+
+j
+
+j
+
+TEU j∈J SWj
+
+ton j∈J L
+
+。
+
+3
+
+xtjg a t
+
+ja
+
+g
+
+TEU t∈NTp g∈G j∈J a∈
+
+Q p p∈P ytj a 0 － 1
+
+。t
+
+ja
+
+1
+
+0
+
+t∈NTp j∈J a∈Q p p∈P。 4
+
+。
+
+。
+
+p p Stowage Planning Model － 0 p∈P － 1
+
+t SPM t
+
+t =t +1 Tp。
+t∈NTp
+
+3
+
+f1 t = min ∑ ∑ytj a
+
+1
+
+a∈Q p j∈J
+
+∑ ∑ f2 t = min
+
+| ytj a － y t－1 j a |
+
+2
+
+a∈Qs p j∈J
+
+∑xtig a = Ntg a a ∈ Qs p g ∈ G
+
+3
+
+j∈J
+
+Ntg a = N t－1 g a + Nt+g a － Nt－g a a ∈ Qs p g ∈ G 4
+
+xtjg a = xTp－1jg a a ∈ Qb p g ∈ G j ∈ J
+
+5
+
+∑ytj a  1 a ∈ Q p
+
+6
+
+j∈J
+
+∑ ytj a  1 j ∈ J
+
+7
+
+a∈Q p
+
+∑ ytj a  xtjg a  L·ytj a j ∈ J a ∈ Q p
+
+8
+
+g∈G
+
+∑ ∑xtjg a  STj j ∈ J
+
+9
+
+a∈Q p g∈G
+
+∑ ∑xtjg a ·wg  SWj j ∈ J
+
+10
+
+a∈Q p g∈G
+
+∑ ∑ ∑ ∑ xtjg a ·wg － xtjg a ·wg  ΔLG 11
+
+a∈Q p g∈G j∈JF
+
+j∈JA
+
+∑ ∑ ∑ ∑ xtjg a ·wg － xtjg a ·wg  ΔCG 12
+
+a∈Q p g∈G j∈JL
+
+j∈JＲ
+
+xtjg a 0 xtjg a ∈Z j∈J g∈G a∈Q p
+
+13
+
+ytj a = 0 1 j∈J a∈Q p
+
+14
+
+1～ 2
+
+1
+
+3。
+
+。 t =0
+
+2
+
+14
+
+。
+
+3
+
+4
+
+。 3～
+
+7 O－D
+
+5 6
+7 O－D
+
+xtjg a
+
+ytj a t
+
+ytj a = 1
+
+t
+
+j
+
+ytj = 0
+
+9
+
+8
+
+xtjg a ＞ 0
+
+j
+
+a
+
+xtjg a = 0 a
+
+10
+
+11
+
+12
+
+13 14
+
+。
+
+2
+
+4
+
+p
+
+t =0
+
+SPM 0
+
+SPM 0 f1 0 = min ∑ ∑yoj a 3 a∈Q p j∈J
+
+5 ～ 14 。
+
+2． 3 f1 t
+
+t = Tp
+
+f1 t
+
+LBM1 。
+
+p
+
+Low Bound Model 1
+
+NTpg a
+
+。
+
+4
+
+Ntg a = NTpg a a∈Qs p g∈G
+
+15
+
+LBM1 f1 t = min ∑ ∑ytj a 3 15 5 ～ 14 a∈Q p j∈J f2 t
+
+f1 t
+
+Low Bound Model 2 LBM2
+
+∑ ∑ LBM2 f2 t = min
+
+| ytj a － y t－1 j a | 3 ～ 14
+
+a∈Qs p j∈J
+
+LBM1 LBM2
+
+SPM
+
+f1 t f2 t 。
+
+67
+
+3
+
+Matheuristic Algorithm MA 。
+10
+
+Two-level progressive Ｒandom Fixing Procedure
+Mixed Integer Programming Heuristic 。
+
+、
+
+。
+
+Step 1
+
+。
+
+t =0
+
+SPM 0
+
+Step 2 Step 3
+O－D A1 t 。
+
+。
+。 O－D
+。 A0 t
+
+t =t +1 t t ＞0
+
+1
+
+Ｒandom Destruction 。
+
+A0 t
+
+A1 t A0 t
+
+O－D
+
+a'
+
+O a'
+
+0 O a'
+
+。
+
+A1 t
+
+O－D
+
+a″
+
+O a″
+
+0 O a″
+
+kk ng k
+Nt－g a″
+
+1 O a″ g
+gn k Nt－g a″ ng k
+k
+
+k ng k 
+
+68
+2 O－D
+Step 4 。
+LBM2
+f2 t
+Step 5 t t ＞0
+Step 6
+
+Fixed Destruction 。
+
+A0 t A1 t
+
+。
+
+t t ＞0
+
+。 f1 t
+
+。
+LBM2
+Step 2 ～ 5 。
+
+2020 29
+
+1
+
+S1
+
+32
+
+S2
+
+48
+
+S3
+
+72
+
+/t 45 60 75
+
+/ TEU ΔLG / t
+
+96
+
+30
+
+192
+
+30
+
+360
+
+40
+
+ΔCG / t 30 30 40
+
+4 3
+
+。 2。
+3。
+
+。
+
+S1 L1 C45
+
+S1
+
+L1
+
+C45
+
+。
+
+2
+
+L1
+
+L2
+
+L3
+
+L4
+
+4
+
+5
+
+6
+
+7
+
+3
+C45 45%
+
+C65 65%
+
+C85 85%
+
+4． 2
+
+SPM、LBM1 LBM2
+
+Gurobi 7． 5． 1 。
+
+MA
+
+MA_Ｒandom MA_
+
+Fixed
+
+Python 3． 6
+
+。
+
+4GB
+
+Intel Core I7-5500U 2． 40GHz
+
+。
+
+5
+
+4
+4
+4． 1 GB / T 19283-2010
+1。
+
+。
+
+60 。
+
+4． 2． 1
+
+SPM
+
+λ1 、λ2
+
+∑ ∑  λ1
+
+ytj a
+
++
+
+
+
+f t = min a∈Q p j∈J
+
+ 16
+
+∑ ∑  λ2
+
+| ytj a － y t－1 j a | 
+
+a∈Qs p j∈J
+
+S3
+
+4
+
+。
+
+f1
+
+、、
+
+f1 = ∑ ∑ ∑yTpj a p∈P a∈Q p j∈J
+
+f2 f2 =
+
+∑ ∑ ∑ ∑ | ytj a
+p∈P t∈NTp － 0 a∈Qs p j∈J
+T
+
+－ y t－1 j a
+
+| 。
+
+7
+
+69
+
+4
+
+λ1 λ2 = 100 1
+
+f1
+
+f2
+
+T
+
+S3L1C45 103 3 3． 2
+
+λ1 λ2 = 50 1
+
+f1
+
+f2
+
+T
+
+102 2 2． 7
+
+λ1 λ2 = 10 1
+
+f1
+
+f2
+
+T
+
+102 2 2． 6
+
+λ1 λ2 = 1 1
+
+f1
+
+f2
+
+T
+
+103 2 2． 8
+
+λ1 λ2 = 1 10
+
+f1
+
+f2
+
+T
+
+102 2 2． 5
+
+λ1 λ2 = 1 50
+
+f1
+
+f2
+
+T
+
+103 2 3
+
+λ1 λ2 = 1 100
+
+f1
+
+f2
+
+T
+
+104 2 3． 2
+
+S3L1C65 144 2 2． 9 144 2
+
+3 144 2 3． 1 144 2 2． 9 144 2
+
+3 144 2 2． 9 144 2 2． 9
+
+S3L1C85 192 1 62． 5 192 1 62． 2 192 1 62． 2 192 1 62． 6 192 1 62． 2 192 1 62． 3 193 2 63
+
+S3L2C45 140 2 64． 6 139 2 63． 6 139 2 63． 5 139 2 63． 7 139 2 63． 5 139 2 63． 7 139 1 64． 2
+
+S3L2C65 193 1 123． 1 195 2 63． 3 193 1 123． 1 193 1 123． 1 193 1 63． 3 193 1 63． 3 193 1 123． 2
+
+S3L2C85 255 2 63． 4 257 2 63． 2 257 2 63． 5 257 2 63． 8 256 2 63． 6 255 2 63． 3 257 2 63． 4
+
+S3L3C45 186 2 93． 2 186 2 127． 9 186 2 91． 9 186 2 104． 8 186 2 97． 2 186 2 121． 2 186 2 103． 3
+
+S3L3C65 247 3 71． 4 250 3 71 246 3 79． 8 247 3 71． 9 246 3 70． 5 250 3 79 246 3 75． 4
+
+S3L3C85 324 3 125． 7 321 3 125． 5 324 3 125． 2 320 2 126． 3 324 3 125． 3 321 3 128． 2 324 3 125． 3
+
+S3L4C45 239 6 73 237 6 189． 1 235 6 132． 7 239 6 151． 6 235 7 132． 2 238 7 129． 3 241 6 73． 3
+
+S3L4C65 323 7 197． 5 323 7 161． 4 325 7 250． 4 323 7 157． 5 325 7 250． 8 322 7 187． 6 322 7 190． 9
+
+S3L4C85 394 4 98 394 3 83． 6 395 4 68． 6 399 5 68． 2 394 3 80． 9 396 3 83． 9 394 4 68． 3
+
+228． 3 3 81． 5 228． 3 2． 9 84． 7 228． 2 2． 9 88． 9 228． 5 2． 9 83． 3 228 2． 9 84． 6 228． 3 2． 9 82． 3 228． 6 2． 9 79． 7
+
+4 SPM
+λ1 λ2 = 1 10
+
+SPM
+
+λ1 、λ2 。
+
+。
+
+SPM
+
+λ1 λ2 = 1 10。 4． 2． 2
+
+MA_Ｒandom
+
+5
+
+10
+
+。
+
+SPM
+
+MA
+
+5 ～7 。
+
+f1 、f2 、T
+
+4
+
+gap1
+
+gap2
+
+%
+
+gap1 = 100 ×
+
+f1 from SPM or MA － f1 from LBM1 f1 from LBM1
+
+gap2 = 100 ×
+
+f2 from SPM or MA － f2 from LBM2 。 f2 from LBM2
+
+- S1
+
+LBM1
+
+LBM2
+
+SPM
+
+f1
+
+T f2 T
+
+f1 gap1 f2 gap2 T
+
+S1 L1 C45 48 60． 2 2 22． 7 51 6． 3 2
+
+0
+
+32
+
+MA_Ｒandom
+
+MA_Fixed
+
+f1 gap1 f2 gap2 T
+
+f1 gap1 f2 gap2 T
+
+51 6． 3 2 0 24． 5 51 6． 3 2 0 25． 4
+
+S1 L1 C65 67 61． 1 2 51
+
+9
+
+3 2 0 62． 3 70 4． 5 2 0 50． 1 70 4． 5 2 0 52． 3
+
+S1 L1 C85 85 0． 6 2 1 88 3． 5 2 0 1． 1 88 3． 5 2 0 0． 8 88 3． 5 2 0
+
+1
+
+S1 L2 C45 60 0． 4 2 1． 6 64 6． 7 2 0 1． 7 65 8． 3 2 0 1． 6 65 8． 3 2 0 1． 7
+
+S1 L2 C65 84 0． 7 3 1． 9 92 9． 5 3 0 2． 1 91 8． 3 3 0 1． 6 91 8． 3 3 0 1． 9
+
+S1 L2 C85 113 0． 7 2 1． 7 117 3． 5 2 0 1． 8 117 3． 5 2 0 1． 6 117 3． 5 2 0 1． 7
+
+S1 L3 C45 84 2． 4 5 2． 9 98 16． 7 5 0 3． 6 98 16． 7 5 0 2． 6 98 16． 7 5 0 3． 1
+
+S1 L3 C65 102 0． 6 6 2． 6 116 13． 7 6 0 2． 7 114 11． 8 6 0 2． 5 114 11． 8 6 0 2． 6
+
+S1 L3 C85 153 60． 9 1 63． 3 156 2 1 0 65． 4 156 2 1 0 43． 4 156 2 1 0 45． 5
+
+S1 L4 C45 99 60． 9 10 63． 3 127 28． 3 11 10 46． 5 127 28． 3 10 0 20． 1 127 28． 3 10 0 21． 8
+
+S1 L4 C65 130 1． 3 10 3． 9 165 26． 9 10 0 4． 1 165 26． 9 10 0 3． 1 165 26． 9 10 0 3． 1
+
+S1 L4 C85 173 60． 7 5 52． 3 184 6． 4 5 0 63． 3 185 6． 9 5 0 50． 4 185 6． 9 5 0 53． 3
+
+99． 8 25． 9 4 22． 4 110． 6 10． 5 4． 2 0． 8 23． 9 110． 4 10． 5 4 0 16． 9 110． 4 10． 5 4 0 17． 8
+
+70
+
+2020 29
+
+6
+
+- S2
+
+LBM1
+
+LBM2
+
+SPM
+
+MA_Ｒandom
+
+MA_Fixed
+
+f1
+
+T f2 T
+
+f1 gap1 f2 gap2 T
+
+f1 gap1 f2 gap2 T
+
+f1 gap1 f2 gap2 T
+
+S2 L1 C45 63 0． 2 2 0． 9 66 4． 8 2 0 1． 1 66 4． 8 2 0 0． 8 66 4． 8 2 0 0． 9
+
+S2 L1 C65 96 60． 3 2 61 100 4． 2 2 0 62． 6 99 3． 1 2 0 51 99 3． 1 2 0 51． 7
+
+S2 L1 C85 121 0． 4 3 1 127 5 3 0 1． 2 127 5 3 0 0． 9 127 5 3 0
+
+1
+
+S2 L2 C45 86 0． 6 2 2． 1 89 3． 5 2 0 2． 2 92 7 2 0
+
+2 92 7 2 0 1． 9
+
+S2 L2 C65 125 0． 5 2 1． 8 130 4
+
+2
+
+0
+
+2 130 4 2 0 1． 5 130 4 2 0 1． 6
+
+S2 L2 C85 167 11． 4 2 1． 9 169 1． 2 2 0 1． 9 169 1． 2 2 0 1． 7 169 1． 2 2 0 1． 8
+
+S2 L3 C45 111 0． 6 5 3． 3 123 10． 8 5 0 3． 8 122 9． 9 5 0 2． 2 122 9． 9 5 0 2． 4
+
+S2 L3 C65 150 63． 8 5 63 165 10 5 0 66． 7 161 7． 3 5 0 43． 1 161 7． 3 5 0 45． 8
+
+S2 L3 C85 205 0． 8 5 4． 5 218 6． 3 5 0 3． 1 220 7． 3 5 0 2． 5 220 7． 3 5 0 2． 6
+
+S2 L4 C45 145 18． 2 8 9． 1 174 20 8 0 7． 3 173 19． 3 8 0 5． 2 173 19． 3 8 0
+
+7
+
+S2 L4 C65 190 1 9 5． 3 221 16． 3 10 11． 1 8． 3 221 16． 3 9 0 4． 2 221 16． 3 9 0 4． 3
+
+S2 L4 C85 251 61． 1 5 4． 7 260 3． 6 6 20 5 260 3． 6 5 0 2． 9 260 3． 6 5 0 3． 2
+
+142． 5 18． 2 4． 2 13． 2 153． 5 7． 5 4． 3 2． 6 13． 18 153． 3 7． 4 4． 2 0 9． 8 153． 3 7． 4 4． 2 0 10． 4
+
+7
+
+- S3
+
+LBM1
+
+LBM2
+
+f1
+
+T
+
+f2
+
+T
+
+f1
+
+S3 L1 C45 98 1． 4 2 2． 8 102
+
+S3 L1 C65 141 1． 6 2 2． 9 144
+
+S3 L1 C85 190 61 1 63 192
+
+S3 L2 C45 135 62． 5 1 64． 7 139
+
+S3 L2 C65 190 120． 7 1 123 193
+
+S3 L2 C85 252 61． 1 2 63． 5 256
+
+S3 L3 C45 182 130． 3 2 87． 2 186
+
+S3 L3 C65 243 69． 4 3 69． 8 246
+
+S3 L3 C85 315 121． 8 2 125． 3 324 S3 L4 C45 225 126． 9 6 130． 9 235
+
+S3 L4 C65 300 185 7 134． 1 325
+
+S3 L4 C85 389 79． 6 3 84． 4 394
+
+221． 7 85． 1 2． 7 79． 3 228
+
+SPM
+
+MA_Ｒandom
+
+MA_Fixed
+
+gap1 f2 gap2 T
+
+f1 gap1 f2 gap2 T
+
+f1 gap1 f2 gap2 T
+
+4． 1 2 0 2． 5 102 4． 1 2 0 1． 7 102 4． 1 2 0 2． 5
+
+2． 1 2 0
+
+3 144 2． 1 2 0 2． 7 144 2． 1 2 0 2． 6
+
+1． 1 1 0 62． 2 192 1． 1 1 0 53． 1 192 1． 1 1 0 52． 2
+
+3 2 100 63． 5 139 3 1 0 44． 8 139 3 1 0 47． 5
+
+1． 6 1 0 63． 3 193 1． 6 1 0 93． 2 193 1． 6 1 0 102． 6
+
+1． 6 2 0 63． 6 256 1． 6 2 0 44． 5 256 1． 6 2 0 53． 9
+
+2． 2 2 0 97． 2 187 2． 7 2 0 93． 9 187 2． 7 2 0 94． 3
+
+1． 2 3 0 70． 5 247 1． 6 3 0 51． 6 247 1． 6 3 0 71． 2
+
+2． 9 3 50 125． 3 320 1． 6 2 0 105． 4 320 1． 6 2 0 107． 4
+
+4． 4 7 16． 7 132． 2 238 5． 8 6 0 130． 8 238 5． 8 6 0 130． 9
+
+8． 3 7 0 250． 8 323 7． 7 7 0 131． 2 323 7． 7 7 0 132． 1
+
+1． 3 3 0 80． 9 396 1． 8 3 0 59． 6 396 1． 8 3 0 64． 2
+
+3． 1 2． 9 13． 9 84． 6 228． 1 3． 1 2． 7 0 67． 7 228． 1 3． 1 2． 7 0 71． 8
+
+5 MA_Ｒandom MA_Fixed
+67
+
+S1 SPM、
+。
+
+3% 。 SPM、 MA_Ｒandom MA_Fixed 。
+57
+
+LBM2
+
+MA_Ｒandom MA_Fixed
+
+SPM。
+
+MA _ Ｒandom
+
+MA_Fixed
+
+SPM 。
+
+MA_Ｒandom
+
+。
+
+SPM、 MA _ Ｒandom
+
+MA_Fixed
+
+LBM1
+
+。
+
+LBM1
+
+7
+
+71
+
+。
+
+MA_Ｒandom
+
+MA_Fixed
+
+。
+
+SPM
+
+LBM2
+
+MA_ Fixed
+
+LBM2
+
+SPM、
+
+MA _ Fixed
+
+。
+
+SPM
+
+SPM、
+MA_Ｒandom MA_Ｒandom MA
+
+。 MA_Ｒandom MA_Fixed。
+
+5
+
+。
+
+。
+
+。 SPM
+
+MA
+
+SPM
+
+MA 。
+
+。
+
+MA
+
+MA _ Ｒandom
+
+。
+
+。
+
+1 Ding D Chou M C． Stowage planning for container ship
+
+a heuristic algorithm to reduce the number of shifts J ．
+
+European Journal of Operational Ｒesearch． 2015 246
+
+242-249．
+
+2
+
+．
+
+Bay
+
+J．
+
+2007 41 2
+
+199-204．
+
+3 Low M H Y Zeng M Hsu W J Huang S Y Liu F
+
+Win C A． Improving safety and stability of large contain-
+
+erships in automated stowage planning J ． IEEE Systems
+
+Journal 2011 5 1 50-60．
+
+4 Azevedo A T Arruda E F Salles-Neto L L Chaves A
+
+A Moretti A C． Solution of the 3D stochastic stowage
+
+planning for container ships through representation by
+
+rules C / / Fourth International Workshop Proceedings
+
+Eureka． 2013 120-129．
+
+5
+
+．
+
+J．
+
+2014 14 5 59-67．
+
+6 Imai A Sasaki K Nishimura E Papadimitriou S． Multi-
+
+objective simultaneous stowage and load planning for a
+
+container ship with container rehandle in yard stacks J ．
+
+European Journal of Operational Ｒesearch 2006 171
+
+373-389．
+
+7 Wilson I D Ｒoach P A Ware J A． Container stowage
+
+pre-planning using search to generate solutions a case
+
+study J ． Knowledge － Based System． 2001 14
+
+137-145．
+
+8 Kang J G Kim Y D． Stowage planning in maritime
+
+container transportation J ． Journal of the Operational
+
+Ｒesearch Society 2002 53 415-426．
+
+9 Ambrosino D Paolucci M Sciomachena A． Experimen-
+
+tal evaluation of mixed integer programming models for
+
+the multi-port master bay plan problem J ． Flexible
+
+Services and Manufacturing Journal 2015 27 263-284．
+
+10 Ambrosino D Paolucci M Sciomachena A． A MIP
+
+heuristic for multi-port stowage planning J ． Transpor-
+
+tation Ｒesearch Procedia 2015 10 725-734．
+
