@@ -11,13 +11,13 @@
 	},
 	"configOptions": {
 		"getCollections": true,
-		"hash": "da5f08ffe66383fc2b974755d1f588f52508a08e329f748509a151bddebf36e9"
+		"hash": "bffc772f710d1af1ddfc4145052988d75a38d190751bd5bab3def9ea5c2b4e1c"
 	},
 	"translatorType": 2,
 	"browserSupport": "gcsv",
 	"inRepository": false,
 	"priority": 100,
-	"lastUpdated": "2022-02-14"
+	"lastUpdated": "2022-02-25"
 }
 
 ZOTERO_CONFIG = {"GUID":"zotero@chnm.gmu.edu","ID":"zotero","CLIENT_NAME":"Zotero","DOMAIN_NAME":"zotero.org","REPOSITORY_URL":"https://repo.zotero.org/repo/","BASE_URI":"http://zotero.org/","WWW_BASE_URL":"https://www.zotero.org/","PROXY_AUTH_URL":"https://zoteroproxycheck.s3.amazonaws.com/test","API_URL":"https://api.zotero.org/","STREAMING_URL":"wss://stream.zotero.org/","SERVICES_URL":"https://services.zotero.org/","API_VERSION":3,"CONNECTOR_MIN_VERSION":"5.0.39","PREF_BRANCH":"extensions.zotero.","BOOKMARKLET_ORIGIN":"https://www.zotero.org","BOOKMARKLET_URL":"https://www.zotero.org/bookmarklet/","START_URL":"https://www.zotero.org/start","QUICK_START_URL":"https://www.zotero.org/support/quick_start_guide","PDF_TOOLS_URL":"https://www.zotero.org/download/xpdf/","SUPPORT_URL":"https://www.zotero.org/support/","TROUBLESHOOTING_URL":"https://www.zotero.org/support/getting_help","FEEDBACK_URL":"https://forums.zotero.org/","CONNECTORS_URL":"https://www.zotero.org/download/connectors"}
@@ -19288,7 +19288,7 @@ var BetterCSLJSON__Translator__doExport = (() => {
   // gen/items/csl-types.json
   var require_csl_types = __commonJS({
     "gen/items/csl-types.json"(exports, module) {
-      module.exports = ["post", "song", "standard", "entry", "bill", "article-newspaper", "report", "dataset", "legal_case", "broadcast", "review", "entry-encyclopedia", "legal_commentary", "book", "thesis", "manuscript", "speech", "paper-conference", "article-magazine", "interview", "post-weblog", "webpage", "pamphlet", "graphic", "musical_score", "entry-dictionary", "gazette", "video", "classic", "review-book", "patent", "legislation", "figure", "chapter", "treaty", "article-journal", "map", "personal_communication", "regulation", "motion_picture", "article", "hearing"];
+      module.exports = ["standard", "legal_case", "regulation", "map", "legal_commentary", "motion_picture", "thesis", "video", "article", "hearing", "legislation", "article-newspaper", "webpage", "dataset", "manuscript", "broadcast", "review-book", "treaty", "personal_communication", "article-journal", "speech", "chapter", "report", "article-magazine", "pamphlet", "classic", "gazette", "entry", "book", "interview", "post", "song", "figure", "musical_score", "post-weblog", "entry-encyclopedia", "paper-conference", "review", "graphic", "bill", "patent", "entry-dictionary"];
     }
   });
 
@@ -19359,7 +19359,6 @@ var BetterCSLJSON__Translator__doExport = (() => {
     "mapMath",
     "mapText",
     "mapUnicode",
-    "newTranslatorsAskRestart",
     "parseParticles",
     "patchDates",
     "platform",
@@ -19478,7 +19477,6 @@ var BetterCSLJSON__Translator__doExport = (() => {
     mapMath: "",
     mapText: "",
     mapUnicode: "conservative",
-    newTranslatorsAskRestart: true,
     parseParticles: true,
     patchDates: "",
     platform: "",
@@ -19638,7 +19636,7 @@ var BetterCSLJSON__Translator__doExport = (() => {
         if (!translator2 && inTranslator)
           translator2 = ZOTERO_TRANSLATOR_INFO.label;
       }
-      const prefix = ["better-bibtex", translator2, error && "error", worker && `(worker ${worker})`].filter((p) => p).join(" ");
+      const prefix = ["better-bibtex", translator2, error && ":error:", worker && `(worker ${worker})`].filter((p) => p).join(" ");
       return `{${prefix}} +${diff} ${asciify(msg)}`;
     }
     formatError(e, indent = "") {

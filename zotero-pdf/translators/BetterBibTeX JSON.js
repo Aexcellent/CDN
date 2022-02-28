@@ -9,7 +9,7 @@
 	"configOptions": {
 		"async": true,
 		"getCollections": true,
-		"hash": "f752fba6b8a6e6cfaf18a93031efafaa18e4eb9796254b98768cc20c492b81ad"
+		"hash": "0f8ddd7a0ee7158d9d63043ce2fa2efafd5b3296b656af74f96cc5c6d64fa7ad"
 	},
 	"displayOptions": {
 		"exportNotes": true,
@@ -20,7 +20,7 @@
 	"browserSupport": "gcsv",
 	"priority": 49,
 	"inRepository": false,
-	"lastUpdated": "2022-02-14"
+	"lastUpdated": "2022-02-25"
 }
 
 ZOTERO_CONFIG = {"GUID":"zotero@chnm.gmu.edu","ID":"zotero","CLIENT_NAME":"Zotero","DOMAIN_NAME":"zotero.org","REPOSITORY_URL":"https://repo.zotero.org/repo/","BASE_URI":"http://zotero.org/","WWW_BASE_URL":"https://www.zotero.org/","PROXY_AUTH_URL":"https://zoteroproxycheck.s3.amazonaws.com/test","API_URL":"https://api.zotero.org/","STREAMING_URL":"wss://stream.zotero.org/","SERVICES_URL":"https://services.zotero.org/","API_VERSION":3,"CONNECTOR_MIN_VERSION":"5.0.39","PREF_BRANCH":"extensions.zotero.","BOOKMARKLET_ORIGIN":"https://www.zotero.org","BOOKMARKLET_URL":"https://www.zotero.org/bookmarklet/","START_URL":"https://www.zotero.org/start","QUICK_START_URL":"https://www.zotero.org/support/quick_start_guide","PDF_TOOLS_URL":"https://www.zotero.org/download/xpdf/","SUPPORT_URL":"https://www.zotero.org/support/","TROUBLESHOOTING_URL":"https://www.zotero.org/support/getting_help","FEEDBACK_URL":"https://forums.zotero.org/","CONNECTORS_URL":"https://www.zotero.org/download/connectors"}
@@ -438,7 +438,7 @@ var BetterBibTeXJSON__Translator__detectImport__doImport__doExport = (() => {
   var require_version = __commonJS({
     "gen/version.js"(exports, module) {
       init_globals();
-      module.exports = "6.2.5";
+      module.exports = "6.2.10";
     }
   });
 
@@ -511,7 +511,6 @@ var BetterBibTeXJSON__Translator__detectImport__doImport__doExport = (() => {
     "mapMath",
     "mapText",
     "mapUnicode",
-    "newTranslatorsAskRestart",
     "parseParticles",
     "patchDates",
     "platform",
@@ -630,7 +629,6 @@ var BetterBibTeXJSON__Translator__detectImport__doImport__doExport = (() => {
     mapMath: "",
     mapText: "",
     mapUnicode: "conservative",
-    newTranslatorsAskRestart: true,
     parseParticles: true,
     patchDates: "",
     platform: "",
@@ -790,7 +788,7 @@ var BetterBibTeXJSON__Translator__detectImport__doImport__doExport = (() => {
         if (!translator && inTranslator)
           translator = ZOTERO_TRANSLATOR_INFO.label;
       }
-      const prefix = ["better-bibtex", translator, error && "error", worker && `(worker ${worker})`].filter((p) => p).join(" ");
+      const prefix = ["better-bibtex", translator, error && ":error:", worker && `(worker ${worker})`].filter((p) => p).join(" ");
       return `{${prefix}} +${diff} ${asciify(msg)}`;
     }
     formatError(e, indent = "") {

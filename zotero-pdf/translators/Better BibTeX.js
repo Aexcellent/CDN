@@ -9,7 +9,7 @@
 	"configOptions": {
 		"async": true,
 		"getCollections": true,
-		"hash": "c5610bf0c17dd69b7f1e32c36a1c49e2e12bce554868ff1496415973b1718930"
+		"hash": "e16dab19bbf36ea3968d0df0aacb78cc1451443ca2c8e126e0a8ef9823bbadb3"
 	},
 	"displayOptions": {
 		"exportNotes": false,
@@ -21,7 +21,7 @@
 	"browserSupport": "gcsv",
 	"priority": 199,
 	"inRepository": false,
-	"lastUpdated": "2022-02-05"
+	"lastUpdated": "2022-02-23"
 }
 
 ZOTERO_CONFIG = {"GUID":"zotero@chnm.gmu.edu","ID":"zotero","CLIENT_NAME":"Zotero","DOMAIN_NAME":"zotero.org","REPOSITORY_URL":"https://repo.zotero.org/repo/","BASE_URI":"http://zotero.org/","WWW_BASE_URL":"https://www.zotero.org/","PROXY_AUTH_URL":"https://zoteroproxycheck.s3.amazonaws.com/test","API_URL":"https://api.zotero.org/","STREAMING_URL":"wss://stream.zotero.org/","SERVICES_URL":"https://services.zotero.org/","API_VERSION":3,"CONNECTOR_MIN_VERSION":"5.0.39","PREF_BRANCH":"extensions.zotero.","BOOKMARKLET_ORIGIN":"https://www.zotero.org","BOOKMARKLET_URL":"https://www.zotero.org/bookmarklet/","START_URL":"https://www.zotero.org/start","QUICK_START_URL":"https://www.zotero.org/support/quick_start_guide","PDF_TOOLS_URL":"https://www.zotero.org/download/xpdf/","SUPPORT_URL":"https://www.zotero.org/support/","TROUBLESHOOTING_URL":"https://www.zotero.org/support/getting_help","FEEDBACK_URL":"https://forums.zotero.org/","CONNECTORS_URL":"https://www.zotero.org/download/connectors"}
@@ -65117,7 +65117,7 @@ ${this.chunk.trim()}`;
         if (!translator2 && inTranslator)
           translator2 = ZOTERO_TRANSLATOR_INFO.label;
       }
-      const prefix = ["better-bibtex", translator2, error && "error", worker && `(worker ${worker})`].filter((p) => p).join(" ");
+      const prefix = ["better-bibtex", translator2, error && ":error:", worker && `(worker ${worker})`].filter((p) => p).join(" ");
       return `{${prefix}} +${diff} ${asciify(msg)}`;
     }
     formatError(e, indent = "") {
@@ -65222,7 +65222,6 @@ ${indent}${this.formatError(e.error, "  ")}
     "mapMath",
     "mapText",
     "mapUnicode",
-    "newTranslatorsAskRestart",
     "parseParticles",
     "patchDates",
     "platform",
@@ -65341,7 +65340,6 @@ ${indent}${this.formatError(e.error, "  ")}
     mapMath: "",
     mapText: "",
     mapUnicode: "conservative",
-    newTranslatorsAskRestart: true,
     parseParticles: true,
     patchDates: "",
     platform: "",
@@ -73491,174 +73489,6 @@ ${indent}${this.formatError(e.error, "  ")}
     \uD55C\uAD6D\uC5B4
   };
 
-  // gen/babel/tag.json
-  var ame2 = "en";
-  var american2 = "en";
-  var australian2 = "en";
-  var bri2 = "en";
-  var british2 = "en";
-  var canadian2 = "en";
-  var en2 = "en";
-  var en_au2 = "en";
-  var en_ca2 = "en";
-  var en_en2 = "en";
-  var en_gb2 = "en";
-  var en_nz2 = "en";
-  var en_us2 = "en";
-  var eng2 = "en";
-  var english2 = "en";
-  var english_au2 = "en";
-  var english_australia2 = "en";
-  var english_ca2 = "en";
-  var english_canada2 = "en";
-  var english_gb2 = "en";
-  var english_newzealand2 = "en";
-  var english_nz2 = "en";
-  var english_unitedkingdom2 = "en";
-  var english_unitedstates2 = "en";
-  var english_us2 = "en";
-  var new3 = "en";
-  var newzealand2 = "en";
-  var ukenglish2 = "en";
-  var usenglish2 = "en";
-  var ja2 = "ja";
-  var ja_ja2 = "ja";
-  var jap2 = "ja";
-  var japanese2 = "ja";
-  var \u65E5\u672C\u8A9E2 = "ja";
-  var chinese2 = "zh";
-  var chinese_hans2 = "zh";
-  var chinese_hans_hk2 = "zh";
-  var chinese_hans_mo2 = "zh";
-  var chinese_hans_sg2 = "zh";
-  var chinese_hant2 = "zh";
-  var chinese_hant_hk2 = "zh";
-  var chinese_hant_mo2 = "zh";
-  var chinese_simplified2 = "zh";
-  var chinese_simplified_hongkongsarchina2 = "zh";
-  var chinese_simplified_macausarchina2 = "zh";
-  var chinese_simplified_singapore2 = "zh";
-  var chinese_traditional2 = "zh";
-  var chinese_traditional_hongkongsarchina2 = "zh";
-  var chinese_traditional_macausarchina2 = "zh";
-  var zh2 = "zh";
-  var zh_hans2 = "zh";
-  var zh_hans_hk2 = "zh";
-  var zh_hans_mo2 = "zh";
-  var zh_hans_sg2 = "zh";
-  var zh_hant2 = "zh";
-  var zh_hant_hk2 = "zh";
-  var zh_hant_mo2 = "zh";
-  var zh_zh2 = "zh";
-  var \u4E2D\u65872 = "zh";
-  var austrian2 = "de";
-  var de2 = "de";
-  var de_19012 = "de";
-  var de_at2 = "de";
-  var de_at_19012 = "de";
-  var de_ch2 = "de";
-  var de_ch_19012 = "de";
-  var de_ch_19962 = "de";
-  var de_de2 = "de";
-  var deutsch2 = "de";
-  var ger2 = "de";
-  var german2 = "de";
-  var german_at2 = "de";
-  var german_austria2 = "de";
-  var german_ch2 = "de";
-  var german_switzerland2 = "de";
-  var gsw2 = "de";
-  var nsw2 = "de";
-  var nswissgerman2 = "de";
-  var schwiizert\u00FC\u00FCtsch2 = "de";
-  var swi2 = "de";
-  var swiss_german2 = "de";
-  var swissgerman2 = "de";
-  var tag_default = {
-    ame: ame2,
-    american: american2,
-    australian: australian2,
-    bri: bri2,
-    british: british2,
-    canadian: canadian2,
-    en: en2,
-    "en-au": en_au2,
-    "en-ca": en_ca2,
-    "en-en": en_en2,
-    "en-gb": en_gb2,
-    "en-nz": en_nz2,
-    "en-us": en_us2,
-    eng: eng2,
-    english: english2,
-    "english-au": english_au2,
-    "english-australia": english_australia2,
-    "english-ca": english_ca2,
-    "english-canada": english_canada2,
-    "english-gb": english_gb2,
-    "english-newzealand": english_newzealand2,
-    "english-nz": english_nz2,
-    "english-unitedkingdom": english_unitedkingdom2,
-    "english-unitedstates": english_unitedstates2,
-    "english-us": english_us2,
-    new: new3,
-    newzealand: newzealand2,
-    ukenglish: ukenglish2,
-    usenglish: usenglish2,
-    ja: ja2,
-    "ja-ja": ja_ja2,
-    jap: jap2,
-    japanese: japanese2,
-    \u65E5\u672C\u8A9E: \u65E5\u672C\u8A9E2,
-    chinese: chinese2,
-    "chinese-hans": chinese_hans2,
-    "chinese-hans-hk": chinese_hans_hk2,
-    "chinese-hans-mo": chinese_hans_mo2,
-    "chinese-hans-sg": chinese_hans_sg2,
-    "chinese-hant": chinese_hant2,
-    "chinese-hant-hk": chinese_hant_hk2,
-    "chinese-hant-mo": chinese_hant_mo2,
-    "chinese-simplified": chinese_simplified2,
-    "chinese-simplified-hongkongsarchina": chinese_simplified_hongkongsarchina2,
-    "chinese-simplified-macausarchina": chinese_simplified_macausarchina2,
-    "chinese-simplified-singapore": chinese_simplified_singapore2,
-    "chinese-traditional": chinese_traditional2,
-    "chinese-traditional-hongkongsarchina": chinese_traditional_hongkongsarchina2,
-    "chinese-traditional-macausarchina": chinese_traditional_macausarchina2,
-    zh: zh2,
-    "zh-hans": zh_hans2,
-    "zh-hans-hk": zh_hans_hk2,
-    "zh-hans-mo": zh_hans_mo2,
-    "zh-hans-sg": zh_hans_sg2,
-    "zh-hant": zh_hant2,
-    "zh-hant-hk": zh_hant_hk2,
-    "zh-hant-mo": zh_hant_mo2,
-    "zh-zh": zh_zh2,
-    \u4E2D\u6587: \u4E2D\u65872,
-    austrian: austrian2,
-    de: de2,
-    "de-1901": de_19012,
-    "de-at": de_at2,
-    "de-at-1901": de_at_19012,
-    "de-ch": de_ch2,
-    "de-ch-1901": de_ch_19012,
-    "de-ch-1996": de_ch_19962,
-    "de-de": de_de2,
-    deutsch: deutsch2,
-    ger: ger2,
-    german: german2,
-    "german-at": german_at2,
-    "german-austria": german_austria2,
-    "german-ch": german_ch2,
-    "german-switzerland": german_switzerland2,
-    gsw: gsw2,
-    nsw: nsw2,
-    nswissgerman: nswissgerman2,
-    schwiizert\u00FC\u00FCtsch: schwiizert\u00FC\u00FCtsch2,
-    swi: swi2,
-    "swiss german": swiss_german2,
-    swissgerman: swissgerman2
-  };
-
   // content/text.ts
   var parse5 = require_parser2();
   var htmlParser = new parse5({ sourceCodeLocationInfo: true });
@@ -73981,9 +73811,174 @@ ${indent}${this.formatError(e.error, "  ")}
     const lc = language2.toLowerCase();
     return langmap_default[lc] || langmap_default[lc.replace(/[^a-z0-9]/, "-")] || langmap_default[lc.replace(notAlphaNum, "")] || !lc.match(notAlphaNum) && langmap_default[LanguagePrefixes.find((prefix) => lc.startsWith(prefix))] || language2;
   }
-  function babelTag(langid) {
-    return tag_default[langid] || "";
-  }
+
+  // gen/babel/tag.json
+  var ame2 = "en";
+  var american2 = "en";
+  var australian2 = "en";
+  var bri2 = "en";
+  var british2 = "en";
+  var canadian2 = "en";
+  var en2 = "en";
+  var en_au2 = "en";
+  var en_ca2 = "en";
+  var en_en2 = "en";
+  var en_gb2 = "en";
+  var en_nz2 = "en";
+  var en_us2 = "en";
+  var eng2 = "en";
+  var english2 = "en";
+  var english_au2 = "en";
+  var english_australia2 = "en";
+  var english_ca2 = "en";
+  var english_canada2 = "en";
+  var english_gb2 = "en";
+  var english_newzealand2 = "en";
+  var english_nz2 = "en";
+  var english_unitedkingdom2 = "en";
+  var english_unitedstates2 = "en";
+  var english_us2 = "en";
+  var new3 = "en";
+  var newzealand2 = "en";
+  var ukenglish2 = "en";
+  var usenglish2 = "en";
+  var ja2 = "ja";
+  var ja_ja2 = "ja";
+  var jap2 = "ja";
+  var japanese2 = "ja";
+  var \u65E5\u672C\u8A9E2 = "ja";
+  var chinese2 = "zh";
+  var chinese_hans2 = "zh";
+  var chinese_hans_hk2 = "zh";
+  var chinese_hans_mo2 = "zh";
+  var chinese_hans_sg2 = "zh";
+  var chinese_hant2 = "zh";
+  var chinese_hant_hk2 = "zh";
+  var chinese_hant_mo2 = "zh";
+  var chinese_simplified2 = "zh";
+  var chinese_simplified_hongkongsarchina2 = "zh";
+  var chinese_simplified_macausarchina2 = "zh";
+  var chinese_simplified_singapore2 = "zh";
+  var chinese_traditional2 = "zh";
+  var chinese_traditional_hongkongsarchina2 = "zh";
+  var chinese_traditional_macausarchina2 = "zh";
+  var zh2 = "zh";
+  var zh_hans2 = "zh";
+  var zh_hans_hk2 = "zh";
+  var zh_hans_mo2 = "zh";
+  var zh_hans_sg2 = "zh";
+  var zh_hant2 = "zh";
+  var zh_hant_hk2 = "zh";
+  var zh_hant_mo2 = "zh";
+  var zh_zh2 = "zh";
+  var \u4E2D\u65872 = "zh";
+  var austrian2 = "de";
+  var de2 = "de";
+  var de_19012 = "de";
+  var de_at2 = "de";
+  var de_at_19012 = "de";
+  var de_ch2 = "de";
+  var de_ch_19012 = "de";
+  var de_ch_19962 = "de";
+  var de_de2 = "de";
+  var deutsch2 = "de";
+  var ger2 = "de";
+  var german2 = "de";
+  var german_at2 = "de";
+  var german_austria2 = "de";
+  var german_ch2 = "de";
+  var german_switzerland2 = "de";
+  var gsw2 = "de";
+  var nsw2 = "de";
+  var nswissgerman2 = "de";
+  var schwiizert\u00FC\u00FCtsch2 = "de";
+  var swi2 = "de";
+  var swiss_german2 = "de";
+  var swissgerman2 = "de";
+  var tag_default = {
+    ame: ame2,
+    american: american2,
+    australian: australian2,
+    bri: bri2,
+    british: british2,
+    canadian: canadian2,
+    en: en2,
+    "en-au": en_au2,
+    "en-ca": en_ca2,
+    "en-en": en_en2,
+    "en-gb": en_gb2,
+    "en-nz": en_nz2,
+    "en-us": en_us2,
+    eng: eng2,
+    english: english2,
+    "english-au": english_au2,
+    "english-australia": english_australia2,
+    "english-ca": english_ca2,
+    "english-canada": english_canada2,
+    "english-gb": english_gb2,
+    "english-newzealand": english_newzealand2,
+    "english-nz": english_nz2,
+    "english-unitedkingdom": english_unitedkingdom2,
+    "english-unitedstates": english_unitedstates2,
+    "english-us": english_us2,
+    new: new3,
+    newzealand: newzealand2,
+    ukenglish: ukenglish2,
+    usenglish: usenglish2,
+    ja: ja2,
+    "ja-ja": ja_ja2,
+    jap: jap2,
+    japanese: japanese2,
+    \u65E5\u672C\u8A9E: \u65E5\u672C\u8A9E2,
+    chinese: chinese2,
+    "chinese-hans": chinese_hans2,
+    "chinese-hans-hk": chinese_hans_hk2,
+    "chinese-hans-mo": chinese_hans_mo2,
+    "chinese-hans-sg": chinese_hans_sg2,
+    "chinese-hant": chinese_hant2,
+    "chinese-hant-hk": chinese_hant_hk2,
+    "chinese-hant-mo": chinese_hant_mo2,
+    "chinese-simplified": chinese_simplified2,
+    "chinese-simplified-hongkongsarchina": chinese_simplified_hongkongsarchina2,
+    "chinese-simplified-macausarchina": chinese_simplified_macausarchina2,
+    "chinese-simplified-singapore": chinese_simplified_singapore2,
+    "chinese-traditional": chinese_traditional2,
+    "chinese-traditional-hongkongsarchina": chinese_traditional_hongkongsarchina2,
+    "chinese-traditional-macausarchina": chinese_traditional_macausarchina2,
+    zh: zh2,
+    "zh-hans": zh_hans2,
+    "zh-hans-hk": zh_hans_hk2,
+    "zh-hans-mo": zh_hans_mo2,
+    "zh-hans-sg": zh_hans_sg2,
+    "zh-hant": zh_hant2,
+    "zh-hant-hk": zh_hant_hk2,
+    "zh-hant-mo": zh_hant_mo2,
+    "zh-zh": zh_zh2,
+    \u4E2D\u6587: \u4E2D\u65872,
+    austrian: austrian2,
+    de: de2,
+    "de-1901": de_19012,
+    "de-at": de_at2,
+    "de-at-1901": de_at_19012,
+    "de-ch": de_ch2,
+    "de-ch-1901": de_ch_19012,
+    "de-ch-1996": de_ch_19962,
+    "de-de": de_de2,
+    deutsch: deutsch2,
+    ger: ger2,
+    german: german2,
+    "german-at": german_at2,
+    "german-austria": german_austria2,
+    "german-ch": german_ch2,
+    "german-switzerland": german_switzerland2,
+    gsw: gsw2,
+    nsw: nsw2,
+    nswissgerman: nswissgerman2,
+    schwiizert\u00FC\u00FCtsch: schwiizert\u00FC\u00FCtsch2,
+    swi: swi2,
+    "swiss german": swiss_german2,
+    swissgerman: swissgerman2
+  };
 
   // content/arXiv.ts
   init_globals();
@@ -74106,7 +74101,7 @@ ${indent}${this.formatError(e.error, "  ")}
         this.english = true;
       } else {
         this.language = babelLanguage(this.item.language);
-        this.english = babelTag(this.language) === "en";
+        this.english = tag_default[this.language] === "en";
       }
       this.item.edition = (this.item.edition || "").replace(/^([0-9]+)(nd|th)$/, "$1");
       this.extraFields = JSON.parse(JSON.stringify(this.item.extraFields));

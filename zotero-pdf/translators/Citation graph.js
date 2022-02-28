@@ -16,9 +16,9 @@
 	},
 	"priority": 100,
 	"configOptions": {
-		"hash": "49016f793255453c9e6650f327ac767eeca523eb3e7396dcd267c05176b9db23"
+		"hash": "7cf7a7607b726e729a02f47a61a1f7a35d2ea3ac6482bb7bff27c1ef3f211988"
 	},
-	"lastUpdated": "2022-02-05"
+	"lastUpdated": "2022-02-23"
 }
 
 ZOTERO_CONFIG = {"GUID":"zotero@chnm.gmu.edu","ID":"zotero","CLIENT_NAME":"Zotero","DOMAIN_NAME":"zotero.org","REPOSITORY_URL":"https://repo.zotero.org/repo/","BASE_URI":"http://zotero.org/","WWW_BASE_URL":"https://www.zotero.org/","PROXY_AUTH_URL":"https://zoteroproxycheck.s3.amazonaws.com/test","API_URL":"https://api.zotero.org/","STREAMING_URL":"wss://stream.zotero.org/","SERVICES_URL":"https://services.zotero.org/","API_VERSION":3,"CONNECTOR_MIN_VERSION":"5.0.39","PREF_BRANCH":"extensions.zotero.","BOOKMARKLET_ORIGIN":"https://www.zotero.org","BOOKMARKLET_URL":"https://www.zotero.org/bookmarklet/","START_URL":"https://www.zotero.org/start","QUICK_START_URL":"https://www.zotero.org/support/quick_start_guide","PDF_TOOLS_URL":"https://www.zotero.org/download/xpdf/","SUPPORT_URL":"https://www.zotero.org/support/","TROUBLESHOOTING_URL":"https://www.zotero.org/support/getting_help","FEEDBACK_URL":"https://forums.zotero.org/","CONNECTORS_URL":"https://www.zotero.org/download/connectors"}
@@ -499,7 +499,6 @@ var Citationgraph__Translator__doExport = (() => {
     "mapMath",
     "mapText",
     "mapUnicode",
-    "newTranslatorsAskRestart",
     "parseParticles",
     "patchDates",
     "platform",
@@ -618,7 +617,6 @@ var Citationgraph__Translator__doExport = (() => {
     mapMath: "",
     mapText: "",
     mapUnicode: "conservative",
-    newTranslatorsAskRestart: true,
     parseParticles: true,
     patchDates: "",
     platform: "",
@@ -778,7 +776,7 @@ var Citationgraph__Translator__doExport = (() => {
         if (!translator && inTranslator)
           translator = ZOTERO_TRANSLATOR_INFO.label;
       }
-      const prefix = ["better-bibtex", translator, error && "error", worker && `(worker ${worker})`].filter((p) => p).join(" ");
+      const prefix = ["better-bibtex", translator, error && ":error:", worker && `(worker ${worker})`].filter((p) => p).join(" ");
       return `{${prefix}} +${diff} ${asciify(msg)}`;
     }
     formatError(e, indent = "") {

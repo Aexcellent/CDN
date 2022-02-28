@@ -13,9 +13,9 @@
 	},
 	"inRepository": false,
 	"configOptions": {
-		"hash": "fcf2ffabf1311128eefa04655f0fc9243e3ee889acff297a53a846597bff6290"
+		"hash": "380c67949a7a7e39292ff234ae950d8806b7dc6720e98ed57db3f3ba40151449"
 	},
-	"lastUpdated": "2022-02-05"
+	"lastUpdated": "2022-02-23"
 }
 
 ZOTERO_CONFIG = {"GUID":"zotero@chnm.gmu.edu","ID":"zotero","CLIENT_NAME":"Zotero","DOMAIN_NAME":"zotero.org","REPOSITORY_URL":"https://repo.zotero.org/repo/","BASE_URI":"http://zotero.org/","WWW_BASE_URL":"https://www.zotero.org/","PROXY_AUTH_URL":"https://zoteroproxycheck.s3.amazonaws.com/test","API_URL":"https://api.zotero.org/","STREAMING_URL":"wss://stream.zotero.org/","SERVICES_URL":"https://services.zotero.org/","API_VERSION":3,"CONNECTOR_MIN_VERSION":"5.0.39","PREF_BRANCH":"extensions.zotero.","BOOKMARKLET_ORIGIN":"https://www.zotero.org","BOOKMARKLET_URL":"https://www.zotero.org/bookmarklet/","START_URL":"https://www.zotero.org/start","QUICK_START_URL":"https://www.zotero.org/support/quick_start_guide","PDF_TOOLS_URL":"https://www.zotero.org/download/xpdf/","SUPPORT_URL":"https://www.zotero.org/support/","TROUBLESHOOTING_URL":"https://www.zotero.org/support/getting_help","FEEDBACK_URL":"https://forums.zotero.org/","CONNECTORS_URL":"https://www.zotero.org/download/connectors"}
@@ -37860,7 +37860,6 @@ ${this.chunk.trim()}`;
     "mapMath",
     "mapText",
     "mapUnicode",
-    "newTranslatorsAskRestart",
     "parseParticles",
     "patchDates",
     "platform",
@@ -37979,7 +37978,6 @@ ${this.chunk.trim()}`;
     mapMath: "",
     mapText: "",
     mapUnicode: "conservative",
-    newTranslatorsAskRestart: true,
     parseParticles: true,
     patchDates: "",
     platform: "",
@@ -38139,7 +38137,7 @@ ${this.chunk.trim()}`;
         if (!translator2 && inTranslator)
           translator2 = ZOTERO_TRANSLATOR_INFO.label;
       }
-      const prefix = ["better-bibtex", translator2, error && "error", worker && `(worker ${worker})`].filter((p) => p).join(" ");
+      const prefix = ["better-bibtex", translator2, error && ":error:", worker && `(worker ${worker})`].filter((p) => p).join(" ");
       return `{${prefix}} +${diff} ${asciify(msg)}`;
     }
     formatError(e, indent = "") {
